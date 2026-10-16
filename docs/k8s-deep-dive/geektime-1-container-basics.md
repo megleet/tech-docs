@@ -5,7 +5,7 @@
 - [Container 只是資源隔離和障眼法，為什麼可以 seamless 部署到遠端？](#container-只是資源隔離和障眼法為什麼可以-seamless-部署到遠端)
 - [A 操作系統的 Image，可以 deploy 到 B 操作系統運行嗎？](#a-操作系統的-image可以-deploy-到-b-操作系統運行嗎)
 
-## Container 只是資源隔離和障眼法，為什麼可以 seamless 部署到遠端？
+## Container如果只做了cgroup資源限制和namespace障眼法是不夠的，還需要什麼才可以 seamless 部署到遠端？
 
 如果 Container 只是 Linux Kernel 上的「資源限制（`cgroups`）」與「障眼法（`Namespace`）」，為什麼我們能把在本地開發好的容器，完全無縫地搬到遠端的 AWS、GCP 或任何一台伺服器上直接執行，且保證「**在我的電腦能跑，在遠端就能跑**」？
 
