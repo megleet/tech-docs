@@ -17,6 +17,9 @@ nav = [
     { "Markdown in 5min" = "tutorials/markdown.md" },
     { "GitHub 相容寫法" = "tutorials/github-compatible.md" },
   ] },
+  { "K8S Deep Dive" = [
+    "k8s-deep-dive/index.md",
+  ] },
 ]
 
 # extra_css = ["stylesheets/extra.css"]
