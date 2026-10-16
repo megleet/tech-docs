@@ -1,9 +1,9 @@
 /* Light scheme */
 [data-md-color-scheme="default"] {
-  --doc-strong-color: #92400e;
+  --doc-strong-color: #74513a;
   --md-typeset-a-color: #1a4fae; /* links in content: dark blue */
   --doc-label-color: #0b7a75;
-  --doc-cell-title-color: #5b21b6;
+  --doc-cell-title-color: #574578;
   --doc-code-color: #c2185b;
   --doc-code-bg: #fbeff4;
   --doc-th-bg: #f2f3f5;
@@ -13,10 +13,10 @@
 
 /* Dark scheme */
 [data-md-color-scheme="slate"] {
-  --doc-strong-color: #f5b04c;
+  --doc-strong-color: #d4b08c;
   --md-typeset-a-color: #8ab4ff; /* links in content: light blue */
   --doc-label-color: #5fd4c4;
-  --doc-cell-title-color: #c4a5ff;
+  --doc-cell-title-color: #b9a8d9;
   --doc-code-color: #ff8fb1;
   --doc-code-bg: rgba(255, 143, 177, 0.12);
   --doc-th-bg: rgba(255, 255, 255, 0.07);
@@ -24,7 +24,7 @@
   --doc-h2-bar: #ffd54f;
 }
 
-/* Bold text stands out in a dark amber brown */
+/* Bold text in a muted gray-brown */
 .md-typeset strong {
   color: var(--doc-strong-color);
   font-weight: 700;
