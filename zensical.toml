@@ -11,14 +11,14 @@ repo_name = "megleet/tech-docs"
 edit_uri = "edit/main/docs/"
 
 nav = [
-  { "首頁" = "index.md" },
+  { "Index" = "index.md" },
   { "Tutorials" = [
     { "Get started" = "tutorials/get-started.md" },
     { "Markdown in 5min" = "tutorials/markdown.md" },
     { "GitHub 相容寫法" = "tutorials/github-compatible.md" },
   ] },
   { "K8S Deep Dive" = [
-    "k8s-deep-dive/index.md",
+    { "Reference" = "k8s-deep-dive/reference.md" },
     { "GeekTime-1-容器基礎" = "k8s-deep-dive/geektime-1-container-basics.md" },
   ] },
 ]

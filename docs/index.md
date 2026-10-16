@@ -2,15 +2,9 @@
 icon: lucide/house
 ---
 
-# 首頁
-
-## Tutorials
-
-- [Get started](tutorials/get-started.md)
-- [Markdown in 5min](tutorials/markdown.md)
-- [GitHub 相容寫法](tutorials/github-compatible.md)
+# Index
 
 ## K8S Deep Dive
 
-- [概覽](k8s-deep-dive/index.md)
+- [Reference](k8s-deep-dive/reference.md)
 - [GeekTime-1-容器基礎](k8s-deep-dive/geektime-1-container-basics.md)
