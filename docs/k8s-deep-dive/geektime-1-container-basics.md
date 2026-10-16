@@ -2,7 +2,7 @@
 
 **目錄**
 
-- [Container 只是資源隔離和障眼法，為什麼可以 seamless 部署到遠端？](#container-只是資源隔離和障眼法為什麼可以-seamless-部署到遠端)
+- [Container如果只做了cgroup資源限制和namespace障眼法是不夠的，還需要什麼才可以 seamless 部署到遠端？](#container如果只做了cgroup資源限制和namespace障眼法是不夠的還需要什麼才可以-seamless-部署到遠端)
 - [A 操作系統的 Image，可以 deploy 到 B 操作系統運行嗎？](#a-操作系統的-image可以-deploy-到-b-操作系統運行嗎)
 
 ## Container如果只做了cgroup資源限制和namespace障眼法是不夠的，還需要什麼才可以 seamless 部署到遠端？
