@@ -1,0 +1,79 @@
+/* Light scheme */
+[data-md-color-scheme="default"] {
+  --doc-strong-color: #92400e;
+  --md-typeset-a-color: #1a4fae; /* links in content: dark blue */
+  --doc-label-color: #0b7a75;
+  --doc-cell-title-color: #5b21b6;
+  --doc-code-color: #c2185b;
+  --doc-code-bg: #fbeff4;
+  --doc-th-bg: #f2f3f5;
+  --doc-h2-bg: #fff8e1;
+  --doc-h2-bar: #f2b600;
+}
+
+/* Dark scheme */
+[data-md-color-scheme="slate"] {
+  --doc-strong-color: #f5b04c;
+  --md-typeset-a-color: #8ab4ff; /* links in content: light blue */
+  --doc-label-color: #5fd4c4;
+  --doc-cell-title-color: #c4a5ff;
+  --doc-code-color: #ff8fb1;
+  --doc-code-bg: rgba(255, 143, 177, 0.12);
+  --doc-th-bg: rgba(255, 255, 255, 0.07);
+  --doc-h2-bg: rgba(255, 213, 79, 0.12);
+  --doc-h2-bar: #ffd54f;
+}
+
+/* Bold text stands out in a dark amber brown */
+.md-typeset strong {
+  color: var(--doc-strong-color);
+  font-weight: 700;
+}
+
+/* Bold labels like "**原因**：" (tagged by extra.js) use a separate color */
+.md-typeset strong.doc-label {
+  color: var(--doc-label-color);
+}
+
+/* Bold text filling a whole table cell (tagged by extra.js) acts as a row title */
+.md-typeset strong.doc-cell-title {
+  color: var(--doc-cell-title-color);
+}
+
+/* Inline code (not code blocks) gets a soft pink pill */
+.md-typeset :not(pre) > code {
+  color: var(--doc-code-color);
+  background-color: var(--doc-code-bg);
+  border-radius: 0.3em;
+  padding: 0.1em 0.4em;
+}
+
+/* Links keep the theme link color, including bold or code inside them */
+.md-typeset a strong,
+.md-typeset a code {
+  color: inherit;
+}
+
+/* Table header row: light gray background */
+.md-typeset table:not([class]) th {
+  background-color: var(--doc-th-bg);
+}
+
+/* Section headings: soft tinted band with an accent bar on the left */
+.md-typeset h2 {
+  margin-top: 2.4em;
+  padding: 0.5em 0.8em;
+  background-color: var(--doc-h2-bg);
+  border-left: 4px solid var(--doc-h2-bar);
+  border-radius: 0 0.4em 0.4em 0;
+}
+
+.md-typeset h3 {
+  margin-top: 1.8em;
+}
+
+/* Comfortable reading line height for CJK text */
+.md-typeset p,
+.md-typeset li {
+  line-height: 1.8;
+}

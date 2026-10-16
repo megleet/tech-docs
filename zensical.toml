@@ -19,11 +19,12 @@ nav = [
   ] },
   { "K8S Deep Dive" = [
     "k8s-deep-dive/index.md",
+    { "GeekTime-1-容器基礎" = "k8s-deep-dive/geektime-1-container-basics.md" },
   ] },
 ]
 
-# extra_css = ["stylesheets/extra.css"]
-# extra_javascript = ["javascripts/extra.js"]
+extra_css = ["stylesheets/extra.css"]
+extra_javascript = ["javascripts/extra.js"]
 
 [project.theme]
 # variant = "classic"
@@ -103,6 +104,8 @@ footnotes = {}
 github-callouts = {}
 md_in_html = {}
 toc.permalink = true
+# Keep CJK characters in heading anchors so links match GitHub's
+toc.slugify = { object = "pymdownx.slugs.slugify", kwds = { case = "lower" } }
 pymdownx.arithmatex.generic = true
 pymdownx.betterem = {}
 pymdownx.caret = {}
