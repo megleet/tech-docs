@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{#-
+  Per-page TOC depth: set `toc_depth: 3` (or 4) in a page's front matter to
+  show deeper headings in the right-side TOC. Default shows h2 only.
+  The hidden marker is read by CSS via body:has([data-toc-depth]).
+-#}
+{#-
+  Page icon: the front matter `icon` (also shown in the nav) is rendered here
+  hidden, and extra.js moves it in front of the page's h1.
+-#}
+{% block content %}
+  {% if page.meta and page.meta.icon %}
+    <span class="doc-page-icon" hidden>{% include ".icons/" ~ page.meta.icon ~ ".svg" %}</span>
+  {% endif %}
+  {#- Zensical leaves page.is_homepage unset; the home page has an empty url -#}
+  {% if not page.url %}
+    <div data-link-icons hidden></div>
+  {% endif %}
+  {% if page.meta and page.meta.toc_depth %}
+    <div data-toc-depth="{{ page.meta.toc_depth }}" hidden></div>
+  {% endif %}
+  {{ super() }}
+{% endblock %}

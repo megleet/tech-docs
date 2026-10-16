@@ -59,6 +59,46 @@
   background-color: var(--doc-th-bg);
 }
 
+/* Page icon in front of the h1 (moved there by extra.js) */
+.md-typeset h1 .doc-page-icon {
+  display: inline-flex;
+  vertical-align: -0.12em;
+  margin-right: 0.35em;
+  color: var(--doc-h2-bar);
+}
+
+/* Icons on links to site pages (home page, added by extra.js) */
+.md-typeset a .doc-link-icon {
+  display: inline-flex;
+  vertical-align: -0.15em;
+  margin-right: 0.35em;
+}
+
+.md-typeset h1 .doc-page-icon svg,
+.md-typeset a .doc-link-icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+/* Lucide icons are stroked (fill="none"); filled icon sets need currentColor */
+.md-typeset h1 .doc-page-icon svg:not([fill="none"]),
+.md-typeset a .doc-link-icon svg:not([fill="none"]) {
+  fill: currentColor;
+}
+
+/* Right-side TOC depth. Default: h2 only. A page can opt into deeper levels
+   with front matter `toc_depth: 3` or `toc_depth: 4` (see overrides/main.html). */
+.md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav,
+.md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item > .md-nav {
+  display: none;
+}
+
+body:has([data-toc-depth="3"]) .md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav,
+body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav,
+body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item > .md-nav {
+  display: block;
+}
+
 /* Section headings: soft tinted band with an accent bar on the left */
 .md-typeset h2 {
   margin-top: 2.4em;
