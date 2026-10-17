@@ -29,6 +29,49 @@ document$.subscribe(() => {
     });
   }
 
+  // Show the code block language (from its "language-xxx" class) as a small label,
+  // unless the block already has a title bar.
+  document.querySelectorAll('.md-typeset div.highlight[class*="language-"]').forEach((block) => {
+    const lang = [...block.classList].find((c) => c.startsWith("language-"));
+    if (lang && lang !== "language-text" && !block.querySelector(".filename")) {
+      block.dataset.lang = lang.slice(9);
+    }
+  });
+
+  // Shell blocks: Pygments leaves commands as plain text, so color them here.
+  // On each line the first word is the command (blue), the rest are arguments
+  // (green), stopping at a comment.
+  const shellLangs = new Set(["bash", "sh", "shell", "zsh", "console"]);
+  document.querySelectorAll(".md-typeset div.highlight[data-lang]").forEach((block) => {
+    if (!shellLangs.has(block.dataset.lang) || block.dataset.shColored) return;
+    block.dataset.shColored = "true";
+    block.querySelectorAll('code > span[id^="__span"]').forEach((line) => {
+      let first = true;
+      for (const node of [...line.childNodes]) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (node.tagName === "A") continue; // line anchor
+          if (/^c/.test(node.className)) break; // comment
+        }
+        const text = node.textContent;
+        if (!text.trim()) continue;
+        const frag = document.createDocumentFragment();
+        for (const part of text.split(/(\s+)/)) {
+          if (!part) continue;
+          if (!part.trim()) {
+            frag.append(part);
+            continue;
+          }
+          const span = document.createElement("span");
+          span.className = first ? "doc-sh-cmd" : "doc-sh-arg";
+          span.textContent = part;
+          frag.append(span);
+          first = false;
+        }
+        node.replaceWith(frag);
+      }
+    });
+  });
+
   const onlyEmojiOrSpace = /^[\s\p{Extended_Pictographic}️]*$/u;
   document.querySelectorAll(".md-typeset strong").forEach((el) => {
     const next = el.nextSibling;
@@ -36,12 +79,5 @@ document$.subscribe(() => {
     let before = "";
     for (let n = el.previousSibling; n; n = n.previousSibling) before = n.textContent + before;
     if (onlyEmojiOrSpace.test(before)) el.classList.add("doc-label");
-  });
-
-  // Bold text that fills an entire table cell, e.g. "| **基底層** |", acts as a row title.
-  document.querySelectorAll(".md-typeset td > strong").forEach((el) => {
-    if (el.parentElement.textContent.trim() === el.textContent.trim()) {
-      el.classList.add("doc-cell-title");
-    }
   });
 });

@@ -9,12 +9,13 @@ icon: lucide/container
 - [Container如果只做了cgroup資源限制和namespace障眼法是不夠的，還需要什麼才可以 seamless 部署到遠端？](#container如果只做了cgroup資源限制和namespace障眼法是不夠的還需要什麼才可以-seamless-部署到遠端)
 - [A 操作系統的 Image，可以 deploy 到 B 操作系統運行嗎？](#a-操作系統的-image可以-deploy-到-b-操作系統運行嗎)
 - [容器靠 namespace 做隔離，為什麼說這種隔離「不徹底」？業界又是怎麼補強的？](#容器靠-namespace-做隔離為什麼說這種隔離不徹底業界又是怎麼補強的)
+- [mount 常用命令總結](#mount-常用命令總結)
 
 ## Container如果只做了cgroup資源限制和namespace障眼法是不夠的，還需要什麼才可以 seamless 部署到遠端？
 
-如果 Container 只是 Linux Kernel 上的「資源限制（`cgroups`）」與「障眼法（`Namespace`）」，為什麼我們能把在本地開發好的容器，完全無縫地搬到遠端的 AWS、GCP 或任何一台伺服器上直接執行，且保證「**在我的電腦能跑，在遠端就能跑**」？
+如果 Container 只是 Linux Kernel 上的「資源限制（`cgroups`）」與「障眼法（`Namespace`）」，為什麼我們能把在本地開發好的容器，完全無縫地搬到遠端的 AWS、GCP 或任何一台伺服器上直接執行，且保證「***在我的電腦能跑，在遠端就能跑***」？
 
-答案在於：Container 的真正威力，是「**隔離機制**」搭配了「**打包標準與聯合檔案系統（RootFS + Image）**」。
+答案在於：Container 的真正威力，是「***隔離機制***」搭配了「***打包標準與聯合檔案系統（RootFS + Image）***」。
 
 ### 1. 關鍵核心：它打包了完整的「根檔案系統（RootFS）」
 
@@ -48,7 +49,7 @@ icon: lucide/container
 
 你可能會問：「容器借用了遠端宿主機的 Kernel，難道不同 Kernel 不會出事嗎？」
 
-這歸功於 Linux Kernel 廣為人知的設計鐵律——**"Never break userspace"**（絕不破壞用戶態介面）。
+這歸功於 Linux Kernel 廣為人知的設計鐵律——***"Never break userspace"***（絕不破壞用戶態介面）。
 
 Linux 的 System Call（如 `open`、`read`、`socket`）介面非常穩定。只要遠端伺服器的 Linux Kernel 版本沒有老舊到不支援容器所需的 syscall（例如核心 **≥ 3.10**），容器內部的用戶態程式碼就能毫無障礙地透過 syscall 與遠端核心對話。
 
@@ -67,7 +68,7 @@ Docker 社群推動了 **OCI 標準**，規範了：
 > - **`Namespace` + `cgroups`**：讓進程在執行時有了孤立的「包廂」。
 > - **OCI Image + `OverlayFS`**：把包廂裡的「家具、裝潢與工具（RootFS）」全部壓縮封箱，做成了標準化貨櫃。
 >
-> 正因為「障眼法環境」和「看到的檔案內容」被一併完整打包搬移了，容器才能做到極致的**無縫跨環境部署**。
+> 正因為「障眼法環境」和「看到的檔案內容」被一併完整打包搬移了，容器才能做到極致的***無縫跨環境部署***。
 
 ## A 操作系統的 Image，可以 deploy 到 B 操作系統運行嗎？
 
@@ -82,7 +83,7 @@ Docker 社群推動了 **OCI 標準**，規範了：
 
 如果你在本地用 Ubuntu 作為 Base Image 打包了一個容器，把它部署到遠端執行 CentOS 或 Debian 的伺服器上，是可以無縫執行的。
 
-- **原因**：容器**不包含** OS Kernel，只包含 User Space 的檔案與函式庫（`libc` 等）。所有的 Linux 發行版**共享相同的 Linux Kernel API / System Calls**。
+- **原因**：容器**不包含** OS Kernel，只包含 User Space 的檔案與函式庫（`libc` 等）。所有的 Linux 發行版***共享相同的 Linux Kernel API / System Calls***。
 - **運作機制**：CentOS 宿主機的 Linux Kernel 會直接接管並執行 Ubuntu Image 裡面的應用程式與系統呼叫。
 
 ### 2. 跨不同作業系統：不能直接運行
@@ -91,7 +92,7 @@ Docker 社群推動了 **OCI 標準**，規範了：
 
 如果你打包了一個 Linux 容器 Image，想直接把它放到 Windows Server 或 macOS 的原生 Kernel 上執行，是無法直接執行的。
 
-- **原因**：不同作業系統的 **Kernel API 和 ABI 完全不同**。Linux 程式編譯出來的 syscall（例如 `epoll`、`clone`）在 Windows Kernel 裡根本不存在，Windows 無法直接解析並執行 Linux 的二進制檔案。
+- **原因**：不同作業系統的 ***Kernel API 和 ABI 完全不同***。Linux 程式編譯出來的 syscall（例如 `epoll`、`clone`）在 Windows Kernel 裡根本不存在，Windows 無法直接解析並執行 Linux 的二進制檔案。
 - **例外（虛擬化層）**：macOS / Windows 上的 Docker Desktop 之所以能跑 Linux 容器，是因為 Docker 在背景悄悄啟動了一台**輕量級 Linux 虛擬機**（macOS 的 HyperKit / VFKit，Windows 的 WSL2 / Hyper-V）。容器實際上是跑在那個 **Linux 虛擬機的 Kernel** 之上，而不是直接跑在 Host OS 上。
 
 ### 3. 跨 CPU 架構：不能直接運行
@@ -118,7 +119,7 @@ Docker 社群推動了 **OCI 標準**，規範了：
 ## 容器靠 namespace 做隔離，為什麼說這種隔離「不徹底」？業界又是怎麼補強的？
 
 > [!NOTE]
-> **簡答**：namespace 只隔離了「**視圖**」，所有容器仍**共用同一個 Linux kernel**，所以 kernel 或運行時的任何一個漏洞，都可能讓攻擊者逃出容器。要接近 VM 等級的隔離，必須在 namespace 之外**疊加其他機制**（gVisor、Kata、Firecracker 等），而不是靠優化 namespace 本身。這個問題在多租戶 K8s、AI agent、GPU 叢集共享等場景下尤其關鍵。
+> **簡答**：namespace 只隔離了「**視圖**」，所有容器仍***共用同一個 Linux kernel***，所以 kernel 或運行時的任何一個漏洞，都可能讓攻擊者逃出容器。要接近 VM 等級的隔離，必須在 namespace 之外**疊加其他機制**（gVisor、Kata、Firecracker 等），而不是靠優化 namespace 本身。這個問題在多租戶 K8s、AI agent、GPU 叢集共享等場景下尤其關鍵。
 
 ### 🔍 1. 根本原因：隔離的是「視圖」，不是 kernel
 
@@ -148,7 +149,7 @@ namespace 的隔離有天生上限，所以做法是**疊加機制，或換架�
 
 使用 Kata 或 Firecracker 時，攻擊者要逃逸必須先攻破 guest kernel，再突破 hypervisor，**兩層**都要打穿。
 
-- **較輕量的前置手段**：在考慮上述方案前，通常先做 `seccomp`、AppArmor / SELinux、移除不必要的 capabilities、user namespace 與 rootless 容器。這些成本低，能縮小攻擊面，但**不改變「共用 kernel」的本質**。
+- **較輕量的前置手段**：在考慮上述方案前，通常先做 `seccomp`、AppArmor / SELinux、移除不必要的 capabilities、user namespace 與 rootless 容器。這些成本低，能縮小攻擊面，但***不改變「共用 kernel」的本質***。
 
 ### 🤖 4. 為什麼對 LLM infra 特別重要
 
@@ -170,4 +171,78 @@ namespace 的隔離有天生上限，所以做法是**疊加機制，或換架�
 > [!TIP]
 > 💡 **一句話總結**
 >
-> namespace 本身的隔離有上限，解法不是「原地優化 namespace」，而是在其上**疊加 gVisor / Kata / Firecracker** 這類獨立技術，並依**威脅模型與成本**取捨。
+> namespace 本身的隔離有上限，解法不是「原地優化 namespace」，而是在其上***疊加 gVisor / Kata / Firecracker*** 這類獨立技術，並依**威脅模型與成本**取捨。
+
+## mount 常用命令總結
+
+### 🔗 1) `--bind`：把目錄再接到另一個位置
+
+```bash
+mount --bind /home/me/data /srv/data      # 同一份內容多一個入口
+mount --rbind /dev /mnt/dev               # 遞迴，連 /dev/pts 等子掛載一起帶過去
+mount -o remount,bind,ro /srv/data        # 把這個入口改成唯讀
+```
+
+- source 是**已存在的目錄**，***不產生新的文件系統***
+- 預設不遞迴，要子掛載用 `--rbind`
+- 重開機後消失
+
+### 🧭 2) `source target`：基本用法
+
+```bash
+mount [-t 類型] [-o 選項] <source> <target>
+```
+
+| 情境 | 指令 |
+| --- | --- |
+| **掛磁碟分割區** | `mount /dev/sdb1 /mnt/usb` |
+| **用 UUID** | `mount UUID=1234-abcd /mnt/usb` |
+| **掛 ISO / 映像檔** | `mount -o loop disk.iso /mnt/iso` |
+| **記憶體文件系統** | `mount -t tmpfs tmpfs /mnt/ram` |
+| **網路（NFS）** | `mount -t nfs server:/export /mnt/nfs` |
+| **唯讀掛載** | `mount -o ro /dev/sdb1 /mnt/usb` |
+
+**相關指令**：
+
+```bash
+umount /mnt/usb          # 卸載（可寫 mount 點或裝置）
+findmnt                  # 樹狀查看所有掛載
+findmnt /dev             # 查單一路徑
+mount -a                 # 掛載 /etc/fstab 裡尚未掛載的項目
+```
+
+**開機自動掛載**要寫進 `/etc/fstab`：
+
+```
+UUID=1234-abcd   /data   ext4   defaults   0   2
+```
+
+### 📁 3) 常用目錄
+
+| 目錄 | 角色 | 屬於 Linux 文件系統嗎？ |
+| --- | --- | --- |
+| `/dev` | devtmpfs，裝置節點（`/dev/sda1`、`/dev/null`），kernel 每次開機重建，常作為 mount 的 **source** | ✅ **是**，是 Linux kernel 的虛擬文件系統（devtmpfs），在記憶體中，不在磁碟上 |
+| `/mnt` | 管理員**手動臨時掛載**的慣例目錄，本身只是普通空目錄，也常當 chroot 的新根 | ❌ **不是**，只是 FHS 的目錄慣例，本身是根文件系統（如 ext4）裡的普通目錄，沒有特殊的文件系統 |
+| `/media` | 桌面環境**自動掛載**的 USB、光碟（部分發行版用 `/run/media`） | ❌ **不是**，同 `/mnt`，只是慣例目錄；掛在它底下的 USB 才有自己的文件系統（如 vfat、exfat、ext4） |
+| `/proc`、`/sys` | 虛擬文件系統，chroot 時通常也要綁進去 | ✅ **是**，分別是 procfs、sysfs，都是 kernel 提供的虛擬文件系統，沒有磁碟後端 |
+| `/etc/fstab` | 開機自動掛載的設定檔 | ❌ **不是**，只是根文件系統上的一個普通文字檔，被 mount 流程讀取 |
+
+> [!NOTE]
+> **判斷方法**：用 `findmnt <路徑>` 看它是不是***自己有一個掛載點***。有獨立掛載、FSTYPE 是 devtmpfs / proc / sysfs 等的，才是「文件系統」；只是出現在 `/` 底下的普通目錄或檔案，屬於根文件系統的內容而已。
+
+### 🛠️ 典型組合：進入 chroot 修復系統
+
+```bash
+sudo mount /dev/sda2 /mnt              # 2) 掛目標系統的根
+sudo mount --rbind /dev  /mnt/dev      # 1) 綁 /dev
+sudo mount --rbind /proc /mnt/proc
+sudo mount --rbind /sys  /mnt/sys
+sudo chroot /mnt                       # 3) 以 /mnt 為新根
+```
+
+> [!TIP]
+> 🧠 **一句話記憶**
+>
+> - **普通 mount**：把「裝置 / 虛擬來源」的文件系統拼進目錄樹
+> - **`--bind`**：把「已在樹上的目錄」再開一個入口（讓命名空間變成圖）
+> - `/dev` 是來源，`/mnt` 是暫放的目標，***`fstab` 讓掛載持久化***

@@ -2,32 +2,47 @@
 [data-md-color-scheme="default"] {
   --doc-strong-color: #74513a;
   --md-typeset-a-color: #1a4fae; /* links in content: dark blue */
-  --doc-label-color: #0b7a75;
-  --doc-cell-title-color: #574578;
+  --doc-label-color: #3d6b66;
   --doc-code-color: #c2185b;
   --doc-code-bg: #fbeff4;
   --doc-th-bg: #f2f3f5;
   --doc-h2-bg: #fff8e1;
   --doc-h2-bar: #f2b600;
+  --doc-sh-cmd: #1a4fae;
+  --doc-sh-arg: #2e7d32;
+  --doc-sh-comment: #8a8f98;
 }
 
 /* Dark scheme */
 [data-md-color-scheme="slate"] {
   --doc-strong-color: #d4b08c;
   --md-typeset-a-color: #8ab4ff; /* links in content: light blue */
-  --doc-label-color: #5fd4c4;
-  --doc-cell-title-color: #b9a8d9;
+  --doc-label-color: #8fbfb8;
   --doc-code-color: #ff8fb1;
   --doc-code-bg: rgba(255, 143, 177, 0.12);
   --doc-th-bg: rgba(255, 255, 255, 0.07);
   --doc-h2-bg: rgba(255, 213, 79, 0.12);
   --doc-h2-bar: #ffd54f;
+  --doc-sh-cmd: #8ab4ff;
+  --doc-sh-arg: #8fd18f;
+  --doc-sh-comment: #9aa0a6;
 }
 
-/* Bold text in a muted gray-brown */
+/* **Bold**: ordinary emphasis stays in the body text color */
 .md-typeset strong {
-  color: var(--doc-strong-color);
+  color: var(--md-default-fg-color);
   font-weight: 700;
+}
+
+/* ***Bold italic***: very important text, muted gray-brown and upright */
+.md-typeset em:has(> strong) {
+  font-style: normal;
+}
+
+.md-typeset em > strong,
+.md-typeset strong > em {
+  color: var(--doc-strong-color);
+  font-style: normal;
 }
 
 /* Bold labels like "**原因**：" (tagged by extra.js) use a separate color */
@@ -35,23 +50,72 @@
   color: var(--doc-label-color);
 }
 
-/* Bold text filling a whole table cell (tagged by extra.js) acts as a row title */
-.md-typeset strong.doc-cell-title {
-  color: var(--doc-cell-title-color);
-}
-
 /* Inline code (not code blocks) gets a soft pink pill */
 .md-typeset :not(pre) > code {
   color: var(--doc-code-color);
   background-color: var(--doc-code-bg);
   border-radius: 0.3em;
-  padding: 0.1em 0.4em;
+  padding: 0.1em 0.3em;
 }
 
 /* Links keep the theme link color, including bold or code inside them */
 .md-typeset a strong,
 .md-typeset a code {
   color: inherit;
+}
+
+/* Code blocks: page-colored background, thin rounded border, gray comments,
+   with a language label (set by extra.js) */
+.md-typeset div.highlight {
+  --md-code-bg-color: var(--md-default-bg-color);
+  --md-code-hl-comment-color: var(--doc-sh-comment);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.5em;
+  overflow: hidden;
+}
+
+/* Inside the bordered block, drop the pre's outer margin; with a language
+   label, start the code right under the label */
+.md-typeset div.highlight > pre {
+  margin: 0;
+}
+
+.md-typeset div.highlight[data-lang] > pre > code {
+  padding-top: 0.35em;
+}
+
+/* Slightly tighter line spacing inside code blocks */
+.md-typeset div.highlight > pre > code {
+  line-height: 1.35;
+}
+
+/* Shell commands blue, arguments green (spans added by extra.js) */
+.md-typeset .doc-sh-cmd {
+  color: var(--doc-sh-cmd);
+}
+
+.md-typeset .doc-sh-arg {
+  color: var(--doc-sh-arg);
+}
+
+.md-typeset div.highlight[data-lang]::before {
+  content: attr(data-lang);
+  display: block;
+  padding: 0.5em 1.2em 0;
+  font-size: 0.7em;
+  color: var(--md-default-fg-color--light);
+  background-color: var(--md-code-bg-color);
+}
+
+/* Keep short code like paths in a table's first column from breaking mid-word */
+.md-typeset table:not([class]) td:first-child code {
+  white-space: nowrap;
+}
+
+/* Compact table cells: less space between content and cell borders */
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  padding: 0.45em 0.8em;
 }
 
 /* Table header row: light gray background */
@@ -112,8 +176,29 @@ body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .m
   margin-top: 1.8em;
 }
 
-/* Comfortable reading line height for CJK text */
+/* Squeeze the built-in blank half of full-width punctuation （，：「」 so CJK text
+   isn't gappy, especially next to inline code */
+.md-typeset {
+  text-spacing-trim: trim-both;
+}
+
+/* Compact, even spacing for CJK text: moderate line height, tight list items */
 .md-typeset p,
 .md-typeset li {
-  line-height: 1.8;
+  line-height: 1.4;
+}
+
+.md-typeset p {
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+.md-typeset ul,
+.md-typeset ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.7em;
+}
+
+.md-typeset li {
+  margin-bottom: 0.2em;
 }

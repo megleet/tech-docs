@@ -16,6 +16,8 @@ nav = [
     { "Get started" = "tutorials/get-started.md" },
     { "Markdown in 5min" = "tutorials/markdown.md" },
     { "GitHub 相容寫法" = "tutorials/github-compatible.md" },
+    { "網站排版風格" = "tutorials/style-guide.md" },
+    { "Claude Code 入口" = "tutorials/claude-code.md" },
   ] },
   { "K8S Deep Dive" = [
     { "Reference" = "k8s-deep-dive/reference.md" },
