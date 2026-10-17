@@ -72,6 +72,112 @@ document$.subscribe(() => {
     });
   });
 
+  // C / C++: Pygments leaves calls, parameters and #define parts uncategorized.
+  // Split "#define NAME value" (directive purple, macro blue, numbers teal),
+  // mark names followed by "(" as calls, and names in a function definition's
+  // parameter list (followed by "," or ")") as parameters.
+  const cLangs = new Set(["c", "cpp", "c++", "h", "hpp"]);
+  const isBlank = (n) => n && n.nodeType === Node.ELEMENT_NODE ? n.classList.contains("w") : n && !n.textContent.trim();
+  const nextToken = (n) => {
+    let s = n.nextSibling;
+    while (s && isBlank(s)) s = s.nextSibling;
+    return s;
+  };
+  document.querySelectorAll(".md-typeset div.highlight[data-lang]").forEach((block) => {
+    if (!cLangs.has(block.dataset.lang) || block.dataset.cColored) return;
+    block.dataset.cColored = "true";
+
+    block.querySelectorAll(".cp").forEach((cp) => {
+      const m = cp.textContent.match(/^(#\s*define)(\s+)(\w+)(.*)$/s);
+      if (!m) return;
+      const [, directive, gap, macro, rest] = m;
+      const macroSpan = document.createElement("span");
+      macroSpan.className = "doc-hl-macro";
+      macroSpan.textContent = macro;
+      const restFrag = document.createDocumentFragment();
+      for (const part of rest.split(/(\b\d+\b)/)) {
+        if (!part) continue;
+        if (/^\d+$/.test(part)) {
+          const num = document.createElement("span");
+          num.className = "mi";
+          num.textContent = part;
+          restFrag.append(num);
+        } else {
+          restFrag.append(part);
+        }
+      }
+      cp.textContent = directive;
+      cp.after(gap, macroSpan, restFrag);
+    });
+
+    block.querySelectorAll(".n").forEach((name) => {
+      const next = nextToken(name);
+      if (next && next.textContent.trimStart().startsWith("(")) name.classList.add("doc-hl-call");
+    });
+
+    block.querySelectorAll(".nf").forEach((fn) => {
+      let tok = nextToken(fn);
+      if (!tok || !tok.textContent.trimStart().startsWith("(")) return;
+      let depth = 0;
+      for (; tok; tok = tok.nextSibling) {
+        for (const ch of tok.textContent) {
+          if (ch === "(") depth++;
+          if (ch === ")") depth--;
+        }
+        if (tok.classList?.contains("n") && depth === 1) {
+          const after = nextToken(tok);
+          if (after && /^[,)]/.test(after.textContent.trimStart())) {
+            tok.classList.remove("doc-hl-call");
+            tok.classList.add("doc-hl-param");
+          }
+        }
+        if (depth <= 0) break;
+      }
+    });
+  });
+
+  // Directory trees (any code block drawn with ├ └ │): gray branches,
+  // blue directories (ending in "/"), gray "<-- ..." and "(...)" notes.
+  document.querySelectorAll(".md-typeset div.highlight").forEach((block) => {
+    if (block.dataset.treeColored || !/[├└│]/.test(block.textContent)) return;
+    block.dataset.treeColored = "true";
+    const span = (cls, text) => {
+      const el = document.createElement("span");
+      el.className = cls;
+      el.textContent = text;
+      return el;
+    };
+    block.querySelectorAll('code > span[id^="__span"]').forEach((line) => {
+      const anchor = line.querySelector(":scope > a");
+      let text = [...line.childNodes].filter((n) => n !== anchor).map((n) => n.textContent).join("");
+      const newline = text.endsWith("\n") ? "\n" : "";
+      text = text.replace(/\n$/, "");
+      const noteAt = text.search(/\s+(<--|[(（])/);
+      const body = noteAt === -1 ? text : text.slice(0, noteAt);
+      const note = noteAt === -1 ? "" : text.slice(noteAt);
+      line.replaceChildren(...(anchor ? [anchor] : []));
+      // Walk the line piece by piece so side-by-side trees color correctly too.
+      // A bare "/" is the root directory only at the start or right after a branch;
+      // elsewhere (e.g. "mnt / pid") it is just a separator.
+      let atNodeStart = true;
+      for (const [piece, branch, word] of body.matchAll(/([│├└─]+)|(\S+)|\s+/g)) {
+        if (branch) {
+          line.append(span("doc-tree-branch", piece));
+          atNodeStart = true;
+        } else if (word) {
+          const isDir = word === "/" ? atNodeStart : word.endsWith("/");
+          line.append(span(isDir ? "doc-tree-dir" : "doc-tree-file", piece));
+          atNodeStart = false;
+        } else {
+          line.append(piece);
+          if (piece.length >= 2) atNodeStart = true; // a wide gap starts a new column
+        }
+      }
+      if (note) line.append(span("doc-tree-note", note));
+      line.append(newline);
+    });
+  });
+
   const onlyEmojiOrSpace = /^[\s\p{Extended_Pictographic}️]*$/u;
   document.querySelectorAll(".md-typeset strong").forEach((el) => {
     const next = el.nextSibling;

@@ -11,6 +11,12 @@
   --doc-sh-cmd: #1a4fae;
   --doc-sh-arg: #2e7d32;
   --doc-sh-comment: #8a8f98;
+  --doc-hl-keyword: #9333b0;
+  --doc-hl-function: #2f5fd0;
+  --doc-hl-string: #2e7d32;
+  --doc-hl-number: #0e7c86;
+  --doc-hl-param: #b85c00;
+  --doc-code-block-bg: #fafafb;
 }
 
 /* Dark scheme */
@@ -26,6 +32,12 @@
   --doc-sh-cmd: #8ab4ff;
   --doc-sh-arg: #8fd18f;
   --doc-sh-comment: #9aa0a6;
+  --doc-hl-keyword: #c792ea;
+  --doc-hl-function: #82aaff;
+  --doc-hl-string: #a5d6a7;
+  --doc-hl-number: #7fdbca;
+  --doc-hl-param: #f2a65a;
+  --doc-code-block-bg: rgba(255, 255, 255, 0.03);
 }
 
 /* **Bold**: ordinary emphasis stays in the body text color */
@@ -67,7 +79,7 @@
 /* Code blocks: page-colored background, thin rounded border, gray comments,
    with a language label (set by extra.js) */
 .md-typeset div.highlight {
-  --md-code-bg-color: var(--md-default-bg-color);
+  --md-code-bg-color: var(--doc-code-block-bg);
   --md-code-hl-comment-color: var(--doc-sh-comment);
   border: 1px solid var(--md-default-fg-color--lightest);
   border-radius: 0.5em;
@@ -87,6 +99,44 @@
 /* Slightly tighter line spacing inside code blocks */
 .md-typeset div.highlight > pre > code {
   line-height: 1.35;
+}
+
+/* Syntax colors for all languages (Pygments token classes), One Light style:
+   keywords/types/preprocessor purple, functions/macros blue, strings green,
+   numbers/constants teal, parameters orange, comments gray (upright) */
+.md-typeset .highlight :is(.k, .kc, .kd, .kn, .kp, .kr, .kt, .cp, .ow) {
+  color: var(--doc-hl-keyword);
+}
+
+.md-typeset .highlight :is(.nf, .fm, .nc, .doc-hl-call, .doc-hl-macro) {
+  color: var(--doc-hl-function);
+}
+
+.md-typeset .highlight :is(.s, .s1, .s2, .sa, .sb, .sc, .sd, .se, .sh, .si, .sx, .cpf) {
+  color: var(--doc-hl-string);
+}
+
+.md-typeset .highlight :is(.m, .mb, .mf, .mh, .mi, .mo, .il, .nb, .bp) {
+  color: var(--doc-hl-number);
+}
+
+.md-typeset .highlight .doc-hl-param {
+  color: var(--doc-hl-param);
+}
+
+.md-typeset .highlight :is(.c, .c1, .ch, .cm, .cs) {
+  color: var(--doc-sh-comment);
+  font-style: normal;
+}
+
+/* Directory trees (spans added by extra.js) */
+.md-typeset .doc-tree-branch,
+.md-typeset .doc-tree-note {
+  color: var(--doc-sh-comment);
+}
+
+.md-typeset .doc-tree-dir {
+  color: var(--doc-sh-cmd);
 }
 
 /* Shell commands blue, arguments green (spans added by extra.js) */

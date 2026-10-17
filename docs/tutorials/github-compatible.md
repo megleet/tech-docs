@@ -2,9 +2,9 @@
 icon: simple/github
 ---
 
-# GitHub 相容寫法
+# GitHub相容寫法
 
-這份文檔的 Markdown 會在兩個地方被閱讀：Zensical 生成的網站，以及 GitHub 上直接打開的 `.md` 檔案。
+這份文檔的Markdown會在兩個地方被閱讀：Zensical生成的網站，以及GitHub上直接打開的`.md`檔案。
 下面這些寫法在兩邊都能正常顯示，優先使用。
 
 ## 提示框
@@ -18,16 +18,16 @@ icon: simple/github
 > [!WARNING]
 > 需要注意的地方。
 
-在網站上會顯示成提示框，在 GitHub 上會顯示成 GitHub 的 alert。
-`!!! note` 寫法只有網站會顯示成提示框，在 GitHub 上只是純文字。
+在網站上會顯示成提示框，在GitHub上會顯示成GitHub的alert。
+`!!! note`寫法只有網站會顯示成提示框，在GitHub上只是純文字。
 
 ## 流程圖
 
 ```mermaid
 graph LR
-  A[寫 Markdown] --> B[push 到 GitHub]
-  B --> C[Actions 自動建置]
-  C --> D[GitHub Pages 網站]
+  A[寫Markdown] --> B[push到GitHub]
+  B --> C[Actions自動建置]
+  C --> D[GitHub Pages網站]
 ```
 
 ## 程式碼、表格、任務清單
@@ -49,5 +49,5 @@ print("兩邊都能高亮")
 ## 只有網站支援的功能
 
 內容分頁（`=== "Tab"`）、程式碼註解（`# (1)!`）、圖示（`:lucide-rocket:`）、
-`==標記==` 等寫法，在 GitHub 上會顯示成原始文字。用的時候要接受這一點，
-或者只在不太需要在 GitHub 上閱讀的頁面使用。
+`==標記==`等寫法，在GitHub上會顯示成原始文字。用的時候要接受這一點，
+或者只在不太需要在GitHub上閱讀的頁面使用。
