@@ -272,15 +272,69 @@ UUID=1234-abcd   /data   ext4   defaults   0   2
 | **slave** | 單向同步：宿主機的變化會傳進來，這邊的變化不會傳出去 |
 | **unbindable** | private，而且不能被`--bind`綁定到別處 |
 
-### 🛠️ 典型組合：進入chroot修復系統
+### 🥞 5) mount疊加：同一個位置掛好幾層
+
+同一個目錄可以**連續mount好幾次**。每一次mount都疊在上一層上面，***看到的永遠是最上面那一層***；下面的內容沒有消失，只是被蓋住了。
+
+**先看懂這行指令**：
 
 ```bash
-sudo mount /dev/sda2 /mnt              # 2) 掛目標系統的根
-sudo mount --rbind /dev  /mnt/dev      # 1) 綁/dev
-sudo mount --rbind /proc /mnt/proc
-sudo mount --rbind /sys  /mnt/sys
-sudo chroot /mnt                       # 3) 以/mnt為新根
+mount -t tmpfs layer1 /mnt/demo
 ```
+
+| 部分 | 意思 |
+| --- | --- |
+| `-t tmpfs` | 檔案系統類型。tmpfs放在記憶體裡，不需要磁碟，卸載後內容就消失 |
+| `layer1` | 來源（source）。tmpfs沒有真正的裝置，這裡填什麼都可以，只是一個名字，會顯示在`findmnt`的`SOURCE`欄，方便分辨是哪一層 |
+| `/mnt/demo` | 掛載點 |
+
+每執行一次，kernel就建立一個**全新的、空的**tmpfs掛上去。所以下面的例子用`layer1`、`layer2`兩個名字掛兩次，才看得出疊加的效果。
+
+```bash
+mkdir -p /mnt/demo && echo "原本的檔案" > /mnt/demo/orig.txt
+
+mount -t tmpfs layer1 /mnt/demo           # 第1層：蓋住orig.txt
+echo "第1層" > /mnt/demo/a.txt
+
+mount -t tmpfs layer2 /mnt/demo           # 第2層：蓋住第1層
+echo "第2層" > /mnt/demo/b.txt
+
+ls /mnt/demo                              # 只看到b.txt
+```
+
+疊起來的樣子：
+
+```
+/mnt/demo
+├── layer2（tmpfs）   <-- 最上層：看得到，只有b.txt
+├── layer1（tmpfs）   <-- 被蓋住：a.txt還在
+└── 原本的目錄         <-- 被蓋住：orig.txt還在
+```
+
+用`findmnt`可以看到同一個位置有兩筆掛載紀錄，後掛的排在下面：
+
+```bash
+findmnt /mnt/demo
+# TARGET     SOURCE  FSTYPE
+# /mnt/demo  layer1  tmpfs
+# /mnt/demo  layer2  tmpfs
+```
+
+`umount`一次只拆**最上面**那一層，像剝洋蔥一樣：
+
+```bash
+umount /mnt/demo && ls /mnt/demo          # 拆掉第2層 → 看到a.txt
+umount /mnt/demo && ls /mnt/demo          # 拆掉第1層 → 看到orig.txt
+```
+
+- **被蓋住的內容還在**：不是刪除，也不是覆寫。卸載後原本的檔案會原封不動地回來。
+- **正在使用的程式不受影響**：疊上新的一層之前就已經開著的檔案，或者`cd`在裡面的shell，仍然指向舊的那一層，可能會看到和`ls`不一樣的內容。
+- **常見的意外**：把USB掛到一個原本就有檔案的目錄上，那些檔案會「看起來消失」；卸載後就會回來，不是被刪掉了。
+
+> [!TIP]
+> 💡 **一句話記憶**
+>
+> 同一個位置可以疊好幾層mount，***看到最上層，拆時也從最上層開始***。`pivot_root(".", ".")`就是讓舊根疊在新根上面，再用`umount2`把上面那層拆掉。
 
 > [!TIP]
 > 🧠 **一句話記憶**
