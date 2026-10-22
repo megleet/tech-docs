@@ -15,13 +15,15 @@ nav = [
   { "Tutorials" = [
     { "Get started" = "tutorials/get-started.md" },
     { "Markdown in 5min" = "tutorials/markdown.md" },
-    { "GitHub 相容寫法" = "tutorials/github-compatible.md" },
+    { "GitHub相容寫法" = "tutorials/github-compatible.md" },
     { "網站排版風格" = "tutorials/style-guide.md" },
-    { "Claude Code 入口" = "tutorials/claude-code.md" },
+    { "Claude Code入口" = "tutorials/claude-code.md" },
   ] },
   { "K8S Deep Dive" = [
     { "Reference" = "k8s-deep-dive/reference.md" },
-    { "GeekTime-1-容器基礎" = "k8s-deep-dive/geektime-1-container-basics.md" },
+    { "Chap-1-container基礎" = "k8s-deep-dive/chap-1-container-basics.md" },
+    { "Chap-2-Kubernetes architecture" = "k8s-deep-dive/chap-2-kubernetes-architecture.md" },
+    { "Chap-3-Kubernetes operations" = "k8s-deep-dive/chap-3-kubernetes-operations.md" },
   ] },
 ]
 

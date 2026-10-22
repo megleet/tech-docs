@@ -2,6 +2,7 @@
 [data-md-color-scheme="default"] {
   --doc-strong-color: #74513a;
   --md-typeset-a-color: #1a4fae; /* links in content: dark blue */
+  --doc-ext-link-color: #0b347a; /* external links: darker blue */
   --doc-label-color: #3d6b66;
   --doc-code-color: #c2185b;
   --doc-code-bg: #fbeff4;
@@ -16,13 +17,16 @@
   --doc-hl-string: #2e7d32;
   --doc-hl-number: #0e7c86;
   --doc-hl-param: #b85c00;
-  --doc-code-block-bg: #fafafb;
+  --doc-code-block-bg: #f6f7f8;
+  --doc-code-block-bg-solid: #f6f7f8;
+  --doc-subtitle-bg: #f3f4f6;
 }
 
 /* Dark scheme */
 [data-md-color-scheme="slate"] {
   --doc-strong-color: #d4b08c;
   --md-typeset-a-color: #8ab4ff; /* links in content: light blue */
+  --doc-ext-link-color: #6c9cf2; /* external links: deeper light blue */
   --doc-label-color: #8fbfb8;
   --doc-code-color: #ff8fb1;
   --doc-code-bg: rgba(255, 143, 177, 0.12);
@@ -38,6 +42,8 @@
   --doc-hl-number: #7fdbca;
   --doc-hl-param: #f2a65a;
   --doc-code-block-bg: rgba(255, 255, 255, 0.03);
+  --doc-code-block-bg-solid: #1e2129;
+  --doc-subtitle-bg: rgba(255, 255, 255, 0.06);
 }
 
 /* **Bold**: ordinary emphasis stays in the body text color */
@@ -200,17 +206,81 @@
   fill: currentColor;
 }
 
-/* Right-side TOC depth. Default: h2 only. A page can opt into deeper levels
-   with front matter `toc_depth: 3` or `toc_depth: 4` (see overrides/main.html). */
-.md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav,
+/* Right-side TOC depth. Default: h2 and h3 (two levels), with the h3 lists
+   collapsible (see extra.js). A page can show h4 too with `toc_depth: 4`. */
 .md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item > .md-nav {
   display: none;
 }
 
-body:has([data-toc-depth="3"]) .md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav,
-body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav,
 body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item > .md-nav {
   display: block;
+}
+
+/* Collapsible TOC: an item marked collapsed hides its sub-list */
+.md-nav--secondary .md-nav__item.doc-toc-collapsed > .md-nav {
+  display: none !important;
+}
+
+.md-nav--secondary .md-nav__item.doc-toc-parent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.md-nav--secondary .md-nav__item.doc-toc-parent > .md-nav__link {
+  margin-left: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.md-nav--secondary .md-nav__item.doc-toc-parent > .md-nav {
+  flex-basis: 100%;
+}
+
+.md-nav--secondary .doc-toc-toggle {
+  flex: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.4em;
+  margin-top: 0.25em;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--md-default-fg-color--light);
+  font-size: 1em;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+/* Items without a toggle get the same left space, so all titles line up */
+.md-nav--secondary [data-md-component="toc"] .md-nav__item:not(.doc-toc-parent) > .md-nav__link {
+  margin-left: 1rem;
+}
+
+.md-nav--secondary .doc-toc-toggle:hover {
+  color: var(--md-accent-fg-color);
+}
+
+.md-nav--secondary .md-nav__item:not(.doc-toc-collapsed) > .doc-toc-toggle {
+  transform: rotate(90deg);
+}
+
+/* Subtitle: a paragraph right after an h2 holding only *italic text*
+   (the full question under a short section title) */
+.md-typeset h2 + p:has(> em:only-child) {
+  margin-top: -0.3em;
+  padding: 0.5em 0.9em;
+  font-size: 1.05em;
+  color: var(--md-default-fg-color);
+  background-color: var(--doc-subtitle-bg);
+  border-radius: 0.4em;
+}
+
+.md-typeset h2 + p > em:only-child {
+  font-style: normal;
+  font-weight: 700;
 }
 
 /* Section headings: soft tinted band with an accent bar on the left */
@@ -252,3 +322,58 @@ body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .m
 .md-typeset li {
   margin-bottom: 0.2em;
 }
+
+/* External links (to other sites): darker blue, dotted underline, small arrow.
+   Links within this site keep the default blue with a solid underline. */
+.md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"]) {
+  color: var(--doc-ext-link-color);
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.2em;
+}
+
+.md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"])::after {
+  content: "↗";
+  display: inline-block;
+  margin-left: 0.1em;
+  font-size: 0.75em;
+  vertical-align: 0.2em;
+}
+
+/* Collapsed long code blocks: clip after the first lines, fade out the bottom */
+.md-typeset div.highlight.doc-code-collapsed {
+  position: relative;
+}
+
+.md-typeset div.highlight.doc-code-collapsed pre {
+  overflow: hidden;
+}
+
+.md-typeset div.highlight.doc-code-collapsed::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3.5em;
+  background: linear-gradient(to bottom, transparent, var(--doc-code-block-bg-solid));
+  border-radius: 0 0 0.4em 0.4em;
+  pointer-events: none;
+}
+
+.md-typeset .doc-code-toggle {
+  display: block;
+  margin: 0.3em 0 1em;
+  padding: 0.3em 0.9em;
+  font-size: 0.75em;
+  color: var(--md-typeset-a-color);
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4em;
+  cursor: pointer;
+}
+
+.md-typeset .doc-code-toggle:hover {
+  background: var(--doc-code-block-bg);
+}
+

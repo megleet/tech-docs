@@ -186,4 +186,53 @@ document$.subscribe(() => {
     for (let n = el.previousSibling; n; n = n.previousSibling) before = n.textContent + before;
     if (onlyEmojiOrSpace.test(before)) el.classList.add("doc-label");
   });
+
+  // Long code blocks (COLLAPSE_MIN lines or more): show only the first
+  // COLLAPSE_SHOW lines, fade out the rest, and add a button to expand / collapse.
+  const COLLAPSE_MIN = 20;
+  const COLLAPSE_SHOW = 12;
+  document.querySelectorAll(".md-typeset div.highlight").forEach((block) => {
+    if (block.dataset.collapseReady) return;
+    block.dataset.collapseReady = "true";
+    const pre = block.querySelector("pre");
+    const lines = block.querySelectorAll('code > span[id^="__span"]');
+    if (!pre || lines.length < COLLAPSE_MIN) return;
+    const cut = lines[COLLAPSE_SHOW];
+    const height = cut.getBoundingClientRect().top - pre.getBoundingClientRect().top;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "doc-code-toggle";
+    const collapse = (on) => {
+      block.classList.toggle("doc-code-collapsed", on);
+      pre.style.maxHeight = on ? height + "px" : "";
+      button.textContent = on ? `展開全部（共${lines.length}行）` : "收起";
+    };
+    button.addEventListener("click", () => {
+      const on = !block.classList.contains("doc-code-collapsed");
+      collapse(on);
+      if (on) block.scrollIntoView({ block: "nearest" });
+    });
+    block.after(button);
+    collapse(true);
+  });
+
+  // Right-side TOC: items with a sub-list get a toggle; all collapsed by default,
+  // so only the first level (h2) shows until the reader expands one.
+  document.querySelectorAll('.md-nav--secondary [data-md-component="toc"] .md-nav__item').forEach((item) => {
+    if (item.dataset.tocReady) return;
+    item.dataset.tocReady = "true";
+    const sub = item.querySelector(":scope > .md-nav");
+    if (!sub || getComputedStyle(sub).display === "none") return;
+    item.classList.add("doc-toc-parent", "doc-toc-collapsed");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "doc-toc-toggle";
+    button.innerHTML = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+    button.setAttribute("aria-label", "展開或收起");
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+      item.classList.toggle("doc-toc-collapsed");
+    });
+    item.prepend(button);
+  });
 });

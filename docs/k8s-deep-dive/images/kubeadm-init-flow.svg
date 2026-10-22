@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1390 700" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker>
+    <marker id="arrK" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2f7fd6"/></marker>
+    <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c0269e"/></marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1390" height="700" fill="#ffffff"/>
+
+  <!-- ===== Connections ===== -->
+  <g fill="none" stroke="#334155" stroke-width="2">
+    <!-- kubeadm.yaml -> kubeadm init -->
+    <path d="M150 290 V 458" marker-end="url(#arr)"/>
+    <!-- kubeadm init -> 4 files (trunk) -->
+    <path d="M240 482 H 310"/>
+    <path d="M310 70 V 482"/>
+    <path d="M310 70 H 356" marker-end="url(#arr)"/>
+    <path d="M310 170 H 356" marker-end="url(#arr)"/>
+    <path d="M310 270 H 356" marker-end="url(#arr)"/>
+    <path d="M310 370 H 356" marker-end="url(#arr)"/>
+    <!-- kubeadm init -> systemd -> kubelet -->
+    <path d="M240 522 H 356" marker-end="url(#arr)"/>
+    <path d="M650 502 H 736" marker-end="url(#arr)"/>
+    <!-- kubelet -> control plane Static Pods (trunk) -->
+    <path d="M920 502 H 1000"/>
+    <path d="M1000 68 V 502"/>
+    <path d="M1000 68 H 1056" marker-end="url(#arr)"/>
+    <path d="M1000 148 H 1056" marker-end="url(#arr)"/>
+    <path d="M1000 228 H 1056" marker-end="url(#arr)"/>
+    <path d="M1000 308 H 1056" marker-end="url(#arr)"/>
+  </g>
+  <!-- Process B (green): through the API Server -->
+  <g fill="none" stroke="#c0269e" stroke-width="2">
+    <!-- kube-apiserver <-> etcd -->
+    <path d="M1284 68 H 1320 V 308 H 1284" marker-start="url(#arrB)" marker-end="url(#arrB)"/>
+    <!-- kubeadm init -> kube-apiserver (create objects) -->
+    <path d="M60 502 H 15 V 22 H 1170 V 36" marker-end="url(#arrB)"/>
+    <!-- etcd -> objects -> kubelet -->
+    <path d="M1170 336 V 586" marker-end="url(#arrB)"/>
+    <path d="M1020 635 H 980 V 520 H 924" marker-end="url(#arrB)"/>
+  </g>
+  <!-- kubelet's own actions (blue): read files, run addon Pods -->
+  <g fill="none" stroke="#2f7fd6" stroke-width="2">
+    <!-- manifests / config.yaml -> kubelet -->
+    <path d="M650 270 H 860 V 466" marker-end="url(#arrK)"/>
+    <path d="M650 370 H 800 V 466" marker-end="url(#arrK)"/>
+    <!-- kubelet -> addon Pods -->
+    <path d="M830 534 V 565 H 715 V 596" marker-end="url(#arrK)"/>
+    <path d="M830 565 H 885 V 596" marker-end="url(#arrK)"/>
+  </g>
+  <circle cx="310" cy="482" r="4" fill="#334155"/>
+  <circle cx="1000" cy="502" r="4" fill="#334155"/>
+  <circle cx="830" cy="565" r="4" fill="#2f7fd6"/>
+
+  <!-- ===== Labels ===== -->
+  <g font-size="15" font-weight="600" fill="#1e293b">
+    <text x="160" y="380">--config</text>
+    <text x="298" y="550" text-anchor="middle">重啟kubelet</text>
+    <text x="693" y="492" text-anchor="middle">啟動</text>
+    <text x="960" y="492" text-anchor="middle">Static Pod</text>
+  </g>
+  <g font-size="15" font-weight="600" fill="#c0269e">
+    <text x="600" y="15" text-anchor="middle">建立kube-proxy、CoreDNS等object（等同kubectl apply）</text>
+    <text x="1326" y="193">存資料</text>
+    <text x="1180" y="470">存進etcd</text>
+    <text x="988" y="582">依這些object執行</text>
+  </g>
+  <g font-size="15" font-weight="600" fill="#2f7fd6">
+    <text x="755" y="261" text-anchor="middle">監看目錄</text>
+    <text x="725" y="361" text-anchor="middle">讀取設定</text>
+    <text x="770" y="557" text-anchor="middle">執行Pod</text>
+  </g>
+
+  <!-- ===== Boxes ===== -->
+  <g filter="url(#sh)">
+    <rect x="30" y="40" width="240" height="250" rx="14" fill="#fde3c8" stroke="#ef8a2c" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <rect x="60" y="462" width="180" height="80" rx="14" fill="#ef8a2c"/>
+    <rect x="360" y="40"  width="290" height="60" rx="14" fill="#8b6fd6"/>
+    <rect x="360" y="140" width="290" height="60" rx="14" fill="#8b6fd6"/>
+    <rect x="360" y="240" width="290" height="60" rx="14" fill="#8b6fd6"/>
+    <rect x="360" y="340" width="290" height="60" rx="14" fill="#8b6fd6"/>
+    <rect x="360" y="470" width="290" height="64" rx="14" fill="#64748b"/>
+    <rect x="740" y="470" width="180" height="64" rx="14" fill="#5aa9f5"/>
+    <rect x="1060" y="40"  width="220" height="56" rx="12" fill="#1a3f78"/>
+    <rect x="1060" y="120" width="220" height="56" rx="12" fill="#24508f"/>
+    <rect x="1060" y="200" width="220" height="56" rx="12" fill="#24508f"/>
+    <rect x="1060" y="280" width="220" height="56" rx="12" fill="#24508f"/>
+    <rect x="1020" y="590" width="340" height="90" rx="14" fill="#4a9ff5"/>
+    <rect x="640" y="600" width="150" height="56" rx="12" fill="#2f9e6e"/>
+    <rect x="810" y="600" width="150" height="56" rx="12" fill="#2f9e6e"/>
+  </g>
+
+  <text x="150" y="76" font-size="22" font-weight="800" fill="#9a4a0b" text-anchor="middle">kubeadm.yaml</text>
+  <g font-size="16" font-weight="600" fill="#7c3a06">
+    <rect x="48" y="96"  width="204" height="34" rx="8" fill="#ffffff" opacity="0.75"/><text x="60" y="118">InitConfiguration</text>
+    <rect x="48" y="138" width="204" height="34" rx="8" fill="#ffffff" opacity="0.75"/><text x="60" y="160">ClusterConfiguration</text>
+    <rect x="48" y="180" width="204" height="34" rx="8" fill="#ffffff" opacity="0.75"/><text x="60" y="202">KubeletConfiguration</text>
+    <rect x="48" y="222" width="204" height="34" rx="8" fill="#ffffff" opacity="0.75"/><text x="60" y="244">KubeProxyConfiguration</text>
+  </g>
+
+  <g fill="#ffffff" text-anchor="middle" font-weight="600">
+    <text x="150" y="511" font-size="24" font-weight="800">kubeadm init</text>
+
+    <text x="505" y="65"  font-size="18">/etc/kubernetes/pki</text>
+    <text x="505" y="89"  font-size="15">證書</text>
+    <text x="505" y="165" font-size="18">/etc/kubernetes/*.conf</text>
+    <text x="505" y="189" font-size="15">各元件連API Server用的kubeconfig</text>
+    <text x="505" y="265" font-size="18">/etc/kubernetes/manifests</text>
+    <text x="505" y="289" font-size="15">control plane的Static Pod YAML</text>
+    <text x="505" y="365" font-size="18">/var/lib/kubelet/config.yaml</text>
+    <text x="505" y="389" font-size="15">kubelet的運行參數</text>
+
+    <text x="505" y="509" font-size="21" font-weight="800">systemd</text>
+    <text x="830" y="510" font-size="23" font-weight="800">kubelet</text>
+
+    <text x="1170" y="74"  font-size="18" font-weight="800">kube-apiserver</text>
+    <text x="1170" y="154" font-size="18">controller-manager</text>
+    <text x="1170" y="234" font-size="18">scheduler</text>
+    <text x="1170" y="314" font-size="18">etcd</text>
+
+    <text x="1190" y="620" font-size="17" font-weight="800">kube-system裡的object</text>
+    <text x="1190" y="644" font-size="14">bootstrap token、ConfigMap</text>
+    <text x="1190" y="664" font-size="14">kube-proxy DaemonSet、CoreDNS Deployment</text>
+
+    <text x="715" y="626" font-size="17" font-weight="800">kube-proxy</text>
+    <text x="715" y="646" font-size="14">Pod</text>
+    <text x="885" y="626" font-size="17" font-weight="800">CoreDNS</text>
+    <text x="885" y="646" font-size="14">Pod</text>
+  </g>
+</svg>

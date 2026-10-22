@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 690" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1300" height="690" fill="#ffffff"/>
+
+  <!-- ===== Connections (orthogonal) ===== -->
+  <g fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr)">
+    <path d="M220 92 H 436"/>
+    <path d="M620 92 H 876"/>
+    <path d="M620 262 H 970 V 128"/>
+    <path d="M220 248 H 436"/>
+    <path d="M220 382 H 400 V 278 H 436"/>
+    <path d="M220 482 H 400 V 382" marker-end="none"/>
+    <path d="M130 614 V 640 H 1270 V 92 H 1064"/>
+    <path d="M530 294 V 482"/>
+    <path d="M530 410 H 730 V 482"/>
+    <path d="M730 410 H 930 V 482"/>
+    <path d="M930 410 H 1130 V 482"/>
+  </g>
+  <circle cx="400" cy="382" r="4" fill="#334155"/>
+  <circle cx="530" cy="410" r="4" fill="#334155"/>
+
+  <!-- ===== Labels ===== -->
+  <g font-size="15" font-weight="600" fill="#1e293b">
+    <text x="328" y="78" text-anchor="middle">I want to expose my Services</text>
+    <text x="748" y="78" text-anchor="middle">I want to proxy my Pod replicas</text>
+    <text x="795" y="250" text-anchor="middle">I have many Pod replicas</text>
+    <text x="328" y="236" text-anchor="middle">I need co-scheduling</text>
+    <text x="310" y="370" text-anchor="middle">I read config file</text>
+    <text x="310" y="470" text-anchor="middle">I need confidential data</text>
+    <text x="700" y="630" text-anchor="middle">I need auto-scaling（調整Deployment的副本數）</text>
+    <text x="540" y="454">I run periodically</text>
+    <text x="740" y="454">I only run once</text>
+    <text x="940" y="454">I am stateful</text>
+    <text x="1140" y="454">I run as daemon</text>
+  </g>
+
+  <!-- ===== Boxes ===== -->
+  <g filter="url(#sh)">
+    <rect x="40"  y="60"  width="180" height="64" rx="14" fill="#14a39a"/>
+    <rect x="440" y="60"  width="180" height="64" rx="14" fill="#14a39a"/>
+    <rect x="880" y="60"  width="180" height="64" rx="14" fill="#4a9ff5"/>
+    <rect x="450" y="486" width="160" height="64" rx="14" fill="#4a9ff5"/>
+    <rect x="650" y="486" width="160" height="64" rx="14" fill="#4a9ff5"/>
+    <rect x="850" y="486" width="160" height="64" rx="14" fill="#4a9ff5"/>
+    <rect x="1050" y="486" width="160" height="64" rx="14" fill="#4a9ff5"/>
+    <rect x="40"  y="230" width="180" height="64" rx="14" fill="#de69a5"/>
+    <rect x="440" y="230" width="180" height="64" rx="14" fill="#d9412b"/>
+    <rect x="40"  y="350" width="180" height="64" rx="14" fill="#8b6fd6"/>
+    <rect x="40"  y="450" width="180" height="64" rx="14" fill="#8b6fd6"/>
+    <rect x="40"  y="550" width="180" height="64" rx="14" fill="#ef8a2c"/>
+  </g>
+  <g font-size="22" font-weight="600" fill="#ffffff" text-anchor="middle">
+    <text x="130" y="100">Ingress</text>
+    <text x="530" y="100">Service</text>
+    <text x="970" y="100">Deployment</text>
+    <text x="530" y="526">CronJob</text>
+    <text x="730" y="526">Job</text>
+    <text x="930" y="526">StatefulSet</text>
+    <text x="1130" y="526">DaemonSet</text>
+    <text x="130" y="270">Container</text>
+    <text x="530" y="270" font-weight="800">Pod</text>
+    <text x="130" y="390">ConfigMap</text>
+    <text x="130" y="490">Secret</text>
+    <text x="130" y="578" font-size="17">Horizontal</text>
+    <text x="130" y="600" font-size="17">PodAutoscaler</text>
+  </g>
+
+  <!-- ===== Legend ===== -->
+  <g font-size="15" fill="#334155">
+    <rect x="40" y="652" width="22" height="22" rx="5" fill="#d9412b"/><text x="70" y="669">最小排程單位</text>
+    <rect x="200" y="652" width="22" height="22" rx="5" fill="#de69a5"/><text x="230" y="669">container</text>
+    <rect x="350" y="652" width="22" height="22" rx="5" fill="#4a9ff5"/><text x="380" y="669">workload：管理Pod怎麼執行</text>
+    <rect x="610" y="652" width="22" height="22" rx="5" fill="#14a39a"/><text x="640" y="669">對外存取</text>
+    <rect x="760" y="652" width="22" height="22" rx="5" fill="#8b6fd6"/><text x="790" y="669">設定與敏感資料</text>
+    <rect x="950" y="652" width="22" height="22" rx="5" fill="#ef8a2c"/><text x="980" y="669">自動擴縮</text>
+  </g>
+</svg>

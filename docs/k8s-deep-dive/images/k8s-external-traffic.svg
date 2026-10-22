@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 660" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b4a6b"/></marker>
+    <marker id="ar-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e8772e"/></marker>
+  </defs>
+  <rect width="900" height="660" fill="#ffffff"/>
+
+  <!-- Cloud Provider Network Edge -->
+  <line x1="690" y1="0" x2="690" y2="660" stroke="#1b4a6b" stroke-width="2" stroke-dasharray="5 6"/>
+  <rect x="625" y="16" width="130" height="70" fill="#42a5e3"/>
+  <text x="690" y="40" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Cloud</text>
+  <text x="690" y="58" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Provider</text>
+  <text x="690" y="76" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Network Edge</text>
+
+  <!-- kubectl -->
+  <rect x="178" y="8" width="76" height="80" rx="8" fill="#ee8b3a"/>
+  <circle cx="216" cy="32" r="9" fill="none" stroke="#fff" stroke-width="2.5"/>
+  <path d="M200 58 a16 13 0 0 1 32 0 z" fill="none" stroke="#fff" stroke-width="2.5"/>
+  <text x="216" y="80" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">kubectl</text>
+
+  <!-- ===== Control Plane ===== -->
+  <rect x="10" y="112" width="290" height="380" fill="#fff" stroke="#7cc3e8" stroke-width="2.5"/>
+  <text x="155" y="146" font-size="19" font-weight="700" fill="#1b3a57" text-anchor="middle">Ctrl Plane - 1,2…n</text>
+  <rect x="24" y="168" width="112" height="46" fill="#42a5e3"/>
+  <text x="80" y="197" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">etcd</text>
+  <rect x="24" y="234" width="112" height="46" fill="#d24a43"/>
+  <text x="80" y="254" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">controller</text>
+  <text x="80" y="271" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">manager</text>
+  <rect x="24" y="300" width="112" height="46" fill="#ee8b3a"/>
+  <text x="80" y="329" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">scheduler</text>
+  <rect x="24" y="366" width="112" height="56" fill="#7c5cbf"/>
+  <text x="80" y="388" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">cloud-controller</text>
+  <text x="80" y="406" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">manager</text>
+  <rect x="166" y="168" width="110" height="254" fill="#1b4a6b"/>
+  <text x="221" y="290" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">kube</text>
+  <text x="221" y="310" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">apiserver</text>
+
+  <!-- ===== Node template ===== -->
+  <g id="node1">
+    <rect x="350" y="26" width="250" height="280" fill="#fff" stroke="#7cc3e8" stroke-width="2.5"/>
+    <text x="475" y="58" font-size="19" font-weight="700" fill="#1b3a57" text-anchor="middle">Node 1</text>
+    <rect x="368" y="72" width="214" height="44" rx="10" fill="#9fd4f2"/>
+    <text x="475" y="100" font-size="16" font-weight="700" fill="#1b3a57" text-anchor="middle">Pods</text>
+    <rect x="364" y="128" width="222" height="166" rx="10" fill="none" stroke="#d24a43" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <rect x="378" y="140" width="96" height="46" fill="#d24a43"/>
+    <text x="426" y="159" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Container</text>
+    <text x="426" y="176" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Runtime</text>
+    <rect x="378" y="200" width="96" height="40" fill="#42a5e3"/>
+    <text x="426" y="225" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">kubelet</text>
+    <rect x="486" y="200" width="88" height="40" fill="#42a5e3"/>
+    <text x="530" y="225" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">kube-proxy</text>
+    <text x="475" y="282" font-size="15" font-weight="700" fill="#1b3a57" text-anchor="middle">System Services</text>
+  </g>
+  <g id="node2">
+    <rect x="350" y="326" width="250" height="280" fill="#fff" stroke="#7cc3e8" stroke-width="2.5"/>
+    <text x="475" y="358" font-size="19" font-weight="700" fill="#1b3a57" text-anchor="middle">Node 2</text>
+    <rect x="368" y="372" width="214" height="44" rx="10" fill="#9fd4f2"/>
+    <text x="475" y="400" font-size="16" font-weight="700" fill="#1b3a57" text-anchor="middle">Pods</text>
+    <rect x="364" y="428" width="222" height="166" rx="10" fill="none" stroke="#d24a43" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <rect x="378" y="440" width="96" height="46" fill="#d24a43"/>
+    <text x="426" y="459" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Container</text>
+    <text x="426" y="476" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Runtime</text>
+    <rect x="378" y="500" width="96" height="40" fill="#42a5e3"/>
+    <text x="426" y="525" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">kubelet</text>
+    <rect x="486" y="500" width="88" height="40" fill="#42a5e3"/>
+    <text x="530" y="525" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">kube-proxy</text>
+    <text x="475" y="582" font-size="15" font-weight="700" fill="#1b3a57" text-anchor="middle">System Services</text>
+  </g>
+
+  <!-- Load Balancer & End Users -->
+  <circle cx="690" cy="330" r="46" fill="#ee8b3a"/>
+  <text x="690" y="326" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Load</text>
+  <text x="690" y="344" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Balancer</text>
+  <rect x="790" y="286" width="96" height="88" rx="6" fill="#ee8b3a"/>
+  <g fill="none" stroke="#fff" stroke-width="2.2">
+    <circle cx="838" cy="304" r="7"/><circle cx="822" cy="312" r="6"/><circle cx="854" cy="312" r="6"/>
+    <path d="M826 336 a12 10 0 0 1 24 0 z"/><path d="M810 340 a12 10 0 0 1 22 0"/><path d="M844 340 a12 10 0 0 1 22 0"/>
+  </g>
+  <text x="838" y="364" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">End Users</text>
+
+  <!-- ===== Connections ===== -->
+  <g fill="none" stroke="#1b4a6b" stroke-width="2">
+    <!-- kubectl -> apiserver -->
+    <path d="M216 88 V 164" marker-end="url(#ar)"/>
+    <!-- ctrl plane components <-> apiserver -->
+    <path d="M140 191 H 162" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <path d="M140 257 H 162" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <path d="M140 323 H 162" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <path d="M140 394 H 162" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <!-- apiserver <-> kubelet / kube-proxy (bus) -->
+    <path d="M280 300 H 320 V 220 H 374" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <path d="M320 266 H 530 V 244" marker-end="url(#ar)"/>
+    <path d="M320 300 V 520 H 374" marker-end="url(#ar)"/>
+    <path d="M320 520 V 566 H 530 V 544" marker-end="url(#ar)"/>
+  </g>
+  <!-- external traffic (orange) -->
+  <g fill="none" stroke="#e8772e" stroke-width="2.5">
+    <path d="M790 330 H 740" marker-end="url(#ar-o)"/>
+    <path d="M645 318 H 625 V 220 H 578" marker-end="url(#ar-o)"/>
+    <path d="M645 342 H 625 V 520 H 578" marker-end="url(#ar-o)"/>
+    <path d="M530 200 V 120" marker-end="url(#ar-o)"/>
+    <path d="M530 500 V 420" marker-end="url(#ar-o)"/>
+    <path d="M80 422 V 630 H 668 V 378" marker-end="url(#ar-o)" stroke-dasharray="6 5"/>
+  </g>
+  <g font-size="12" font-weight="700" fill="#c25e1c">
+    <text x="583" y="212">NodePort</text>
+    <text x="583" y="512">NodePort</text>
+    <text x="537" y="166">轉發</text>
+    <text x="537" y="466">轉發</text>
+    <text x="374" y="622" fill="#7c5cbf">cloud API：建立Load Balancer</text>
+  </g>
+</svg>

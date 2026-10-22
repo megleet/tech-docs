@@ -58,10 +58,11 @@ C="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     - 開頭加只列h2的`**目錄**`；
     - 加到`zensical.toml`的`nav`；
     - 更新「網站排版風格」裡的圖示表。
+- **右側目錄**：全站預設顯示h2和h3，h3一開始收起、點`>`展開或收起（`extra.js`），不會隨捲動自動展開。不用再在front matter加`toc_depth: 3`；要顯示h4才加`toc_depth: 4`。
 - **改了規則或配色**：同步更新「網站排版風格」頁，下一個對話才會照新規則寫。
 - **git**：
-    - commit可以在本地做；**push一定要等使用者說「push」**；
-    - push前先`git fetch`，遠端有新commit時用`git rebase origin/main`合併，**不要強制推送**；
+    - commit可以在local做；**push一定要等使用者說「push」**；
+    - push前先`git fetch`，remote有新commit時用`git rebase origin/main`合併，**不要強制推送**；
     - commit訊息最後加上Claude共同作者那一行。
 - **SSH**：`github.com`用`~/.ssh/id_ed25519_megleet`（GitHub帳號megleet），設定在`~/.ssh/config`，不要改。
 

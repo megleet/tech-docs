@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 530" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="960" height="530" fill="#ffffff"/>
+
+  <!-- ===== Connections ===== -->
+  <g fill="none" stroke="#334155" stroke-width="2">
+    <!-- kubeadm -> kubelet -->
+    <path d="M120 190 V 105 H 306" marker-end="url(#arr)"/>
+    <!-- kubelet -> 4 control plane components -->
+    <path d="M490 105 H 600"/>
+    <path d="M600 40 V 250"/>
+    <path d="M600 40 H 636" marker-end="url(#arr)"/>
+    <path d="M600 110 H 636" marker-end="url(#arr)"/>
+    <path d="M600 180 H 636" marker-end="url(#arr)"/>
+    <path d="M600 250 H 636" marker-end="url(#arr)"/>
+    <!-- kubeadm -> kube-apiserver (create kube-proxy / CoreDNS) -->
+    <path d="M120 270 V 470 H 910 V 40 H 874" marker-end="url(#arr)"/>
+    <!-- kubelet -> kube-proxy / CoreDNS Pods -->
+    <path d="M400 137 V 400"/>
+    <path d="M400 330 H 636" marker-end="url(#arr)"/>
+    <path d="M400 400 H 636" marker-end="url(#arr)"/>
+  </g>
+  <circle cx="600" cy="105" r="4" fill="#334155"/>
+  <circle cx="400" cy="330" r="4" fill="#334155"/>
+
+  <!-- ===== Labels ===== -->
+  <g font-size="16" font-weight="600" fill="#1e293b">
+    <text x="210" y="93" text-anchor="middle">啟動（透過systemd）</text>
+    <text x="545" y="93" text-anchor="middle">Static Pod</text>
+    <text x="515" y="461" text-anchor="middle">建立kube-proxy、CoreDNS（等同kubectl apply）</text>
+    <text x="520" y="320" text-anchor="middle">執行Pod</text>
+  </g>
+
+  <!-- ===== Boxes ===== -->
+  <g filter="url(#sh)">
+    <rect x="30"  y="190" width="180" height="80" rx="14" fill="#ef8a2c"/>
+    <rect x="310" y="73"  width="180" height="64" rx="14" fill="#5aa9f5"/>
+    <rect x="640" y="15"  width="230" height="50" rx="12" fill="#1a3f78"/>
+    <rect x="640" y="85"  width="230" height="50" rx="12" fill="#24508f"/>
+    <rect x="640" y="155" width="230" height="50" rx="12" fill="#24508f"/>
+    <rect x="640" y="225" width="230" height="50" rx="12" fill="#24508f"/>
+    <rect x="640" y="302" width="230" height="56" rx="12" fill="#2f9e6e"/>
+    <rect x="640" y="372" width="230" height="56" rx="12" fill="#2f9e6e"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle" font-weight="700">
+    <text x="120" y="238" font-size="26" font-weight="800">kubeadm</text>
+    <text x="400" y="112" font-size="24" font-weight="800">kubelet</text>
+    <text x="755" y="46"  font-size="18">kube-apiserver</text>
+    <text x="755" y="116" font-size="18">controller-manager</text>
+    <text x="755" y="186" font-size="18">scheduler</text>
+    <text x="755" y="256" font-size="18">etcd</text>
+    <text x="755" y="327" font-size="18">kube-proxy</text>
+    <text x="755" y="347" font-size="14" font-weight="600">Pod</text>
+    <text x="755" y="397" font-size="18">CoreDNS</text>
+    <text x="755" y="417" font-size="14" font-weight="600">Pod</text>
+  </g>
+
+  <!-- ===== Legend ===== -->
+  <g font-size="16" fill="#334155">
+    <rect x="30"  y="496" width="20" height="20" rx="5" fill="#ef8a2c"/><text x="58"  y="512">kubeadm</text>
+    <rect x="160" y="496" width="20" height="20" rx="5" fill="#5aa9f5"/><text x="188" y="512">kubelet（host上的binary）</text>
+    <rect x="400" y="496" width="20" height="20" rx="5" fill="#24508f"/><text x="428" y="512">control plane（Static Pod）</text>
+    <rect x="650" y="496" width="20" height="20" rx="5" fill="#2f9e6e"/><text x="678" y="512">addon</text>
+  </g>
+</svg>
