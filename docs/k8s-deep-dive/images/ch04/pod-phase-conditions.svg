@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 14 934 501" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="700">
+  <rect width="960" height="528" fill="#ffffff"/>
+
+  <!-- ===== Event lines ===== -->
+  <g stroke-width="1.5" stroke-dasharray="5 5">
+    <path d="M340 50 V 352" stroke="#2563eb"/>
+    <path d="M455 50 V 352" stroke="#7c3aed"/>
+    <path d="M570 50 V 352" stroke="#db2777"/>
+    <path d="M680 50 V 352" stroke="#2f9e6e"/>
+    <path d="M810 50 V 352" stroke="#65a30d"/>
+    <path d="M870 50 V 352" stroke="#0891b2"/>
+  </g>
+  <g>
+    <circle cx="340" cy="32" r="15" fill="#2563eb"/>
+    <circle cx="455" cy="32" r="15" fill="#7c3aed"/>
+    <circle cx="570" cy="32" r="15" fill="#db2777"/>
+    <circle cx="680" cy="32" r="15" fill="#2f9e6e"/>
+    <circle cx="810" cy="32" r="15" fill="#65a30d"/>
+    <circle cx="870" cy="32" r="15" fill="#0891b2"/>
+  </g>
+  <g font-size="16" fill="#ffffff" text-anchor="middle">
+    <text x="340" y="38">1</text>
+    <text x="455" y="38">2</text>
+    <text x="570" y="38">3</text>
+    <text x="680" y="38">4</text>
+    <text x="810" y="38">5</text>
+    <text x="870" y="38">6</text>
+  </g>
+
+  <!-- ===== Phase ===== -->
+  <rect x="10" y="62" width="128" height="30" rx="6" fill="#1e293b"/>
+  <text x="74" y="83" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle">phase</text>
+  <text x="148" y="83" font-size="14" fill="#475569">Pod整體的狀態</text>
+  <rect x="255" y="64" width="425" height="40" rx="8" fill="#fff7d6" stroke="#e0a800" stroke-width="2"/>
+  <rect x="680" y="64" width="255" height="40" rx="8" fill="#2f9e6e"/>
+  <text x="467" y="91" font-size="19" fill="#5b4300" text-anchor="middle">Pending</text>
+  <text x="807" y="91" font-size="19" fill="#ffffff" text-anchor="middle">Running</text>
+
+  <!-- ===== Conditions ===== -->
+  <rect x="10" y="110" width="128" height="30" rx="6" fill="#1e293b"/>
+  <text x="74" y="131" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle">conditions</text>
+  <text x="148" y="131" font-size="14" fill="#475569">走到哪一步了</text>
+
+  <g font-size="15" font-family="Menlo, Consolas, monospace">
+    <text x="14" y="175" fill="#2563eb">PodScheduled</text>
+    <text x="14" y="215" fill="#7c3aed">PodReadyToStartContainers</text>
+    <text x="14" y="255" fill="#db2777">Initialized</text>
+    <text x="14" y="295" fill="#65a30d">ContainersReady</text>
+    <text x="14" y="335" fill="#0891b2">Ready</text>
+  </g>
+
+  <!-- False segments -->
+  <g fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5">
+    <rect x="255" y="154" width="85"  height="30" rx="6"/>
+    <rect x="255" y="194" width="200" height="30" rx="6"/>
+    <rect x="255" y="234" width="315" height="30" rx="6"/>
+    <rect x="255" y="274" width="555" height="30" rx="6"/>
+    <rect x="255" y="314" width="615" height="30" rx="6"/>
+  </g>
+  <!-- True segments -->
+  <g stroke-width="1.5">
+    <rect x="340" y="154" width="595" height="30" rx="6" fill="#e8effd" stroke="#2563eb"/>
+    <rect x="455" y="194" width="480" height="30" rx="6" fill="#f1ebfd" stroke="#7c3aed"/>
+    <rect x="570" y="234" width="365" height="30" rx="6" fill="#fce8f1" stroke="#db2777"/>
+    <rect x="810" y="274" width="125" height="30" rx="6" fill="#eef6e3" stroke="#65a30d"/>
+    <rect x="870" y="314" width="65" height="30" rx="6" fill="#e1f4f8" stroke="#0891b2"/>
+  </g>
+  <g font-size="16" fill="#94a3b8" text-anchor="middle">
+    <text x="297" y="175">False</text>
+    <text x="355" y="215">False</text>
+    <text x="412" y="255">False</text>
+    <text x="532" y="295">False</text>
+    <text x="802" y="294" font-size="13" fill="#65a30d" text-anchor="end">readiness probe</text>
+    <text x="532" y="335">False</text>
+    <text x="862" y="334" font-size="13" fill="#0891b2" text-anchor="end">readiness gate</text>
+  </g>
+  <g font-size="16" text-anchor="middle">
+    <text x="637" y="175" fill="#2563eb">True</text>
+    <text x="695" y="215" fill="#7c3aed">True</text>
+    <text x="752" y="255" fill="#db2777">True</text>
+    <text x="872" y="295" fill="#65a30d">True</text>
+    <text x="902" y="335" fill="#0891b2">True</text>
+  </g>
+
+  <!-- Running but not Ready -->
+  <path d="M682 360 V 368 H 868 V 360" fill="none" stroke="#c2410c" stroke-width="2"/>
+  <text x="775" y="388" font-size="15" fill="#c2410c" text-anchor="middle">Running，但還沒Ready</text>
+
+  <!-- 4 → start of "Running but not Ready" -->
+  <defs>
+    <marker id="a-run" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2f9e6e"/></marker>
+  </defs>
+  <path d="M544 414 C 622 420, 668 400, 678 362" fill="none" stroke="#2f9e6e" stroke-width="4.5" marker-end="url(#a-run)"/>
+
+  <!-- ===== Event legend ===== -->
+  <g font-size="16">
+    <circle cx="23" cy="416" r="10" fill="#2563eb"/><text x="23" y="421" font-size="13" fill="#ffffff" text-anchor="middle">1</text><text x="40" y="422" fill="#2563eb">scheduler選好Node</text>
+    <circle cx="23" cy="442" r="10" fill="#7c3aed"/><text x="23" y="447" font-size="13" fill="#ffffff" text-anchor="middle">2</text><text x="40" y="448" fill="#7c3aed">sandbox和網路建好</text>
+    <circle cx="23" cy="468" r="10" fill="#db2777"/><text x="23" y="473" font-size="13" fill="#ffffff" text-anchor="middle">3</text><text x="40" y="474" fill="#db2777">init container全部跑完</text>
+    <circle cx="265" cy="416" r="10" fill="#2f9e6e"/><text x="265" y="421" font-size="13" fill="#ffffff" text-anchor="middle">4</text><text x="282" y="422" fill="#2f9e6e">container啟動 → phase變Running</text>
+    <circle cx="265" cy="442" r="10" fill="#65a30d"/><text x="265" y="447" font-size="13" fill="#ffffff" text-anchor="middle">5</text><text x="282" y="448" fill="#65a30d">readiness probe通過 → ContainersReady</text>
+    <circle cx="265" cy="468" r="10" fill="#0891b2"/><text x="265" y="473" font-size="13" fill="#ffffff" text-anchor="middle">6</text><text x="282" y="474" fill="#0891b2">readiness gate通過 → Ready，開始接流量</text>
+    <text x="14" y="510" fill="#475569" font-size="15">之後：container全部結束 → Succeeded / Failed；Node失聯 → Unknown</text>
+  </g>
+</svg>

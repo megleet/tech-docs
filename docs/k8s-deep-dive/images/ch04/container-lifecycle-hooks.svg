@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 14 934 398" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="700">
+  <rect x="0" y="0" width="960" height="420" fill="#ffffff"/>
+
+  <!-- ===== Event lines ===== -->
+  <g stroke-width="1.5" stroke-dasharray="5 5">
+    <path d="M290 50 V 244" stroke="#2563eb"/>
+    <path d="M430 50 V 244" stroke="#7c3aed"/>
+    <path d="M640 50 V 244" stroke="#db2777"/>
+    <path d="M740 50 V 244" stroke="#c2410c"/>
+    <path d="M860 50 V 244" stroke="#475569"/>
+  </g>
+  <g>
+    <circle cx="290" cy="32" r="15" fill="#2563eb"/>
+    <circle cx="430" cy="32" r="15" fill="#7c3aed"/>
+    <circle cx="640" cy="32" r="15" fill="#db2777"/>
+    <circle cx="740" cy="32" r="15" fill="#c2410c"/>
+    <circle cx="860" cy="32" r="15" fill="#475569"/>
+  </g>
+  <g font-size="16" fill="#ffffff" text-anchor="middle">
+    <text x="290" y="38">1</text>
+    <text x="430" y="38">2</text>
+    <text x="640" y="38">3</text>
+    <text x="740" y="38">4</text>
+    <text x="860" y="38">5</text>
+  </g>
+
+  <!-- ===== Row labels ===== -->
+  <rect x="10" y="64" width="190" height="30" rx="6" fill="#1e293b"/>
+  <text x="105" y="85" font-size="17" font-weight="800" fill="#ffffff" text-anchor="middle">container state</text>
+  <text x="14" y="135" font-size="15" fill="#1e293b">app（ENTRYPOINT）</text>
+  <text x="14" y="175" font-size="15" font-family="Menlo, Consolas, monospace" fill="#7c3aed">postStart</text>
+  <text x="14" y="215" font-size="15" font-family="Menlo, Consolas, monospace" fill="#db2777">preStop</text>
+
+  <!-- ===== State row ===== -->
+  <rect x="255" y="60" width="175" height="40" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+  <rect x="430" y="60" width="430" height="40" rx="8" fill="#2f9e6e"/>
+  <rect x="860" y="60" width="75" height="40" rx="8" fill="#475569"/>
+  <text x="342" y="86" font-size="17" fill="#94a3b8" text-anchor="middle">waiting</text>
+  <text x="645" y="86" font-size="17" fill="#ffffff" text-anchor="middle">running</text>
+  <text x="897" y="85" font-size="12" fill="#ffffff" text-anchor="middle">terminated</text>
+
+  <!-- ===== app row ===== -->
+  <rect x="290" y="114" width="450" height="30" rx="6" fill="#e6f6f0" stroke="#2f9e6e" stroke-width="1.5"/>
+  <rect x="740" y="114" width="120" height="30" rx="6" fill="#fdeee5" stroke="#c2410c" stroke-width="1.5"/>
+  <text x="515" y="135" font-size="15" fill="#1f7a52" text-anchor="middle">app執行中，處理request</text>
+  <text x="800" y="135" font-size="13" fill="#c2410c" text-anchor="middle">graceful shutdown</text>
+
+  <!-- ===== postStart row ===== -->
+  <rect x="290" y="154" width="140" height="30" rx="6" fill="#f1ebfd" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="360" y="175" font-size="14" fill="#7c3aed" text-anchor="middle">和app同時跑</text>
+
+  <!-- ===== preStop row ===== -->
+  <rect x="640" y="194" width="100" height="30" rx="6" fill="#fce8f1" stroke="#db2777" stroke-width="1.5"/>
+  <text x="690" y="215" font-size="14" fill="#db2777" text-anchor="middle">同步執行</text>
+
+  <!-- ===== Grace period ===== -->
+  <path d="M640 252 V 260 H 930 V 252" fill="none" stroke="#b91c1c" stroke-width="2"/>
+  <text x="930" y="280" font-size="14" fill="#b91c1c" text-anchor="end">grace period（預設30秒）：到期還沒結束 → SIGKILL</text>
+
+  <!-- ===== Event legend ===== -->
+  <g font-size="15">
+    <circle cx="23" cy="318" r="10" fill="#2563eb"/><text x="23" y="323" font-size="13" fill="#ffffff" text-anchor="middle">1</text><text x="40" y="324" fill="#2563eb">container啟動：app和postStart同時開始</text>
+    <circle cx="23" cy="344" r="10" fill="#7c3aed"/><text x="23" y="349" font-size="13" fill="#ffffff" text-anchor="middle">2</text><text x="40" y="350" fill="#7c3aed">postStart跑完 → state變running</text>
+    <circle cx="23" cy="370" r="10" fill="#db2777"/><text x="23" y="375" font-size="13" fill="#ffffff" text-anchor="middle">3</text><text x="40" y="376" fill="#db2777">要求停止（刪除Pod、liveness probe失敗）→ 執行preStop</text>
+    <circle cx="525" cy="318" r="10" fill="#c2410c"/><text x="525" y="323" font-size="13" fill="#ffffff" text-anchor="middle">4</text><text x="542" y="324" fill="#c2410c">preStop跑完 → kubelet送SIGTERM給app</text>
+    <circle cx="525" cy="344" r="10" fill="#475569"/><text x="525" y="349" font-size="13" fill="#ffffff" text-anchor="middle">5</text><text x="542" y="350" fill="#475569">app處理完、結束 → state變terminated</text>
+    <text x="14" y="402" fill="#475569" font-size="14">app自己正常結束時，不會經過③④，preStop不會執行</text>
+  </g>
+</svg>

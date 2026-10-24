@@ -125,8 +125,8 @@ icon: lucide/palette
 
 ### 圖片
 
-- **只用一個資料夾**：圖片一律放在文章同層的`images/`，例如`docs/k8s-deep-dive/images/`。不要另外建`image/`。
-- **VS Code貼圖**：`.vscode/settings.json`已經把Office擴充（`vscode-office`）的貼圖位置設成`images/{文章名}-{時間}.{副檔名}`。
+- **依章節分資料夾**：圖片放在文章同層`images/`底下的章節資料夾，例如第1章放`docs/k8s-deep-dive/images/ch01/`、第2章放`images/ch02/`。不要另外建`image/`。
+- **VS Code貼圖**：`.vscode/settings.json`把Office擴充（`vscode-office`）的貼圖位置設成`images/{文章名}-{時間}.{副檔名}`，貼上後要把圖搬進對應的`chNN/`，並改文章裡的路徑。
 - **命名**：貼上後如果檔名是數字，改成看得出內容的名字，例如`container-layers.png`。
 - **沒用到的圖要刪掉**：換圖或刪段落後，檢查`images/`裡有沒有文章不再引用的檔案。
 - **大小**：需要調整時用`<img src="…" alt="…" width="…">`；圖片本身的白邊先裁掉，避免和上下文之間空太多。
@@ -193,6 +193,8 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
 | Chap-1-container基礎 | `lucide/container` |
 | Chap-2-Kubernetes architecture | `simple/kubernetes` |
 | Chap-3-Kubernetes operations | `lucide/wrench` |
+| Chap-4 Container orchestration之Pod篇 | `lucide/ship-wheel` |
+| Chap-5 Volume | `lucide/hard-drive` |
 
 ## 實作位置
 

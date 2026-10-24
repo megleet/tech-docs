@@ -1,7 +1,7 @@
 ---
 icon: lucide/container
 ---
-# Chap-1-container基礎
+# Chap-1 Container Basics
 
 **目錄**
 
@@ -374,7 +374,7 @@ Docker的volume用的掛載技術，就是Linux的**bind mount**：把一個file
 
 以`mount --bind /home /test`為例，前後的指向關係：
 
-![mount --bind /home /test前後的inode指向：執行後/test改指向inode_1，inode_2仍然存在](images/bind-mount-inode.png)
+![mount --bind /home /test前後的inode指向：執行後/test改指向inode_1，inode_2仍然存在](images/ch01/bind-mount-inode.png)
 
 圖上是路徑解析的**結果**：執行後走到`/test`會到達inode_1。實際上`/test`的dentry和inode_2都沒有被改動，只是被上面疊的mount蓋住，。
 
@@ -1159,8 +1159,8 @@ int main(int argc, char **argv)
 
 | 步驟                            | 程式中的對應                                                                              |
 | ------------------------------- | ----------------------------------------------------------------------------------------- |
-| **1. 新namespace**        | <code>clone(... CLONE_NEWNS &#124; CLONE_NEWPID &#124; CLONE_NEWUTS ...)</code>                       |
-| **2. 設為private**        | <code>mount(NULL, "/", NULL, MS_REC &#124; MS_PRIVATE, NULL)</code>                             |
+| **1. 新namespace**        | <code>clone(... CLONE_NEWNS  CLONE_NEWPID  CLONE_NEWUTS ...)</code>                       |
+| **2. 設為private**        | <code>mount(NULL, "/", NULL, MS_REC  MS_PRIVATE, NULL)</code>                             |
 | **3. 準備rootfs**         | 由命令列參數傳入的目錄（不用overlay，保持最小）                                           |
 | **4. 掛proc / sys / dev** | `mount("proc"...)`、`mount("sysfs"...)`、`mount("tmpfs", "dev"...)`，再bind少量裝置 |
 | **5. 換根**               | `bind rootfs`後`pivot_root(".", ".")`                                                 |
@@ -1327,7 +1327,7 @@ docker history {image_name}           # 由上到下列出每一層，以及它�
 
 整個container疊起來的樣子：Dockerfile產生的read-only layers在最下面，往上是Init layer和writable layer，三者合起來是rootfs；最上面是執行中的`python app.py`，外面再套上namespace + cgroups。每一層的細節見下一節[Container rootfs的三個部分](#-3-container-rootfs的三個部分)。
 
-![1792470615920](images/container-layers.png)
+![1792470615920](images/ch01/container-layers.png)
 
 > [!TIP]
 > 💡 **一句話總結**
