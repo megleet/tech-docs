@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="24 28 912 566" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="960" height="600" fill="#ffffff"/>
+
+  <!-- ===== YAML box: top = controller definition, bottom = template ===== -->
+  <g filter="url(#sh)">
+    <rect x="40" y="40" width="520" height="512" rx="14" fill="#ffffff"/>
+  </g>
+  <path d="M40 54 a14 14 0 0 1 14 -14 h492 a14 14 0 0 1 14 14 v229 h-520 z" fill="#eef3fa"/>
+  <path d="M40 283 h520 v255 a14 14 0 0 1 -14 14 h-492 a14 14 0 0 1 -14 -14 z" fill="#eaf6f0"/>
+  <line x1="40" y1="283" x2="560" y2="283" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5"/>
+
+  <!-- selector / labels highlight -->
+  <rect x="116" y="259" width="112" height="23" rx="5" fill="#fff1c2"/>
+  <rect x="137" y="359" width="112" height="23" rx="5" fill="#fff1c2"/>
+
+  <g font-family="Menlo, Consolas, monospace" font-size="17" fill="#1e293b">
+    <text x="60.0" y="76">apiVersion: apps/v1</text>
+    <text x="60.0" y="101">kind: Deployment</text>
+    <text x="60.0" y="126">metadata:</text>
+    <text x="80.5" y="151">name: nginx-deployment</text>
+    <text x="60.0" y="176">spec:</text>
+    <text x="80.5" y="201">replicas: 2</text>
+    <text x="80.5" y="226">selector:</text>
+    <text x="101.0" y="251">matchLabels:</text>
+    <text x="121.6" y="276">app: nginx</text>
+    <text x="80.5" y="301">template:</text>
+    <text x="101.0" y="326">metadata:</text>
+    <text x="121.6" y="351">labels:</text>
+    <text x="142.1" y="376">app: nginx</text>
+    <text x="101.0" y="401">spec:</text>
+    <text x="121.6" y="426">containers:</text>
+    <text x="142.1" y="451">- name: nginx</text>
+    <text x="162.6" y="476">image: nginx:1.27</text>
+    <text x="162.6" y="501">ports:</text>
+    <text x="183.1" y="526">- containerPort: 80</text>
+  </g>
+
+  <!-- ===== Braces ===== -->
+  <g fill="none" stroke="#24508f" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M576 52 h10 v104 l12 8 l-12 8 v104 h-10"/>
+  </g>
+  <g fill="none" stroke="#2f9e6e" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M576 298 h10 v112 l12 8 l-12 8 v112 h-10"/>
+  </g>
+
+  <!-- ===== Labels ===== -->
+  <g filter="url(#sh)">
+    <rect x="620" y="118" width="300" height="92" rx="14" fill="#24508f"/>
+    <rect x="620" y="372" width="300" height="92" rx="14" fill="#2f9e6e"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle">
+    <text x="770" y="155" font-size="22" font-weight="800">控制器定義</text>
+    <text x="770" y="185" font-size="15">期望狀態：replicas、selector</text>
+    <text x="770" y="409" font-size="22" font-weight="800">被控制對象的模板</text>
+    <text x="770" y="439" font-size="15">Pod template：照這個建立Pod</text>
+  </g>
+
+  <!-- ===== Note ===== -->
+  <g font-size="15" fill="#334155">
+    <rect x="40" y="566" width="18" height="18" rx="4" fill="#fff1c2" stroke="#e0a800" stroke-width="1"/>
+    <text x="66" y="581">selector要對得上template的labels，controller才找得到它建立的Pod</text>
+  </g>
+</svg>

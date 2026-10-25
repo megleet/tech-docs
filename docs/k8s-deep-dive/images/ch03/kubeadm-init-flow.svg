@@ -69,7 +69,7 @@
   </g>
   <g font-size="15" font-weight="600" fill="#2f7fd6">
     <text x="755" y="261" text-anchor="middle">監看目錄</text>
-    <text x="725" y="361" text-anchor="middle">讀取設定</text>
+    <text x="725" y="361" text-anchor="middle">讀取config</text>
     <text x="770" y="557" text-anchor="middle">執行Pod</text>
   </g>
 
@@ -104,7 +104,7 @@
     <text x="150" y="511" font-size="24" font-weight="800">kubeadm init</text>
 
     <text x="505" y="65"  font-size="18">/etc/kubernetes/pki</text>
-    <text x="505" y="89"  font-size="15">證書</text>
+    <text x="505" y="89"  font-size="15">certificate</text>
     <text x="505" y="165" font-size="18">/etc/kubernetes/*.conf</text>
     <text x="505" y="189" font-size="15">各元件連API Server用的kubeconfig</text>
     <text x="505" y="265" font-size="18">/etc/kubernetes/manifests</text>

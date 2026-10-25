@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="760" height="420" fill="#ffffff"/>
+
+  <!-- ===== Ownership lines ===== -->
+  <g fill="none" stroke="#334155" stroke-width="2">
+    <path d="M330 88 C 330 122, 200 116, 200 150"/>
+    <path d="M430 88 C 430 122, 560 116, 560 150"/>
+    <path d="M200 226 C 200 256, 140 256, 140 286"/>
+    <path d="M200 226 C 200 256, 260 256, 260 286"/>
+    <path d="M560 226 V 286"/>
+  </g>
+
+  <!-- ===== Boxes ===== -->
+  <g filter="url(#sh)">
+    <rect x="255" y="16" width="250" height="72" rx="14" fill="#04a3ff"/>
+    <rect x="70"  y="150" width="260" height="76" rx="14" fill="#ee5fa6"/>
+    <rect x="430" y="150" width="260" height="76" rx="14" fill="#ee5fa6"/>
+    <circle cx="140" cy="320" r="34" fill="#f6bc00"/>
+    <circle cx="260" cy="320" r="34" fill="#f6bc00"/>
+    <circle cx="560" cy="320" r="34" fill="#5ed83a"/>
+  </g>
+
+  <g fill="#ffffff" text-anchor="middle">
+    <text x="380" y="47" font-size="22" font-weight="800">Deployment</text>
+    <text x="380" y="72" font-size="14">nginx-deployment · replicas: 3</text>
+    <text x="200" y="182" font-size="20" font-weight="700">ReplicaSet v1</text>
+    <text x="200" y="207" font-size="13">image: nginx:1.26 · replicas: 2</text>
+    <text x="560" y="182" font-size="20" font-weight="700">ReplicaSet v2</text>
+    <text x="560" y="207" font-size="13">image: nginx:1.27 · replicas: 1</text>
+    <text x="140" y="326" font-size="17" font-weight="700">Pod</text>
+    <text x="260" y="326" font-size="17" font-weight="700">Pod</text>
+    <text x="560" y="326" font-size="17" font-weight="700">Pod</text>
+  </g>
+
+  <!-- ===== Rolling update captions ===== -->
+  <g font-size="15" font-weight="600" text-anchor="middle">
+    <text x="200" y="384" fill="#a77d00">舊版本：逐步減少到0</text>
+    <text x="560" y="384" fill="#3a9a1f">新版本：逐步增加到3</text>
+  </g>
+  <text x="380" y="410" font-size="13" fill="#64748b" text-anchor="middle">rolling update進行到一半的狀態</text>
+</svg>

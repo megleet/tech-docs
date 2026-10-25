@@ -76,7 +76,7 @@
     <rect x="200" y="652" width="22" height="22" rx="5" fill="#de69a5"/><text x="230" y="669">container</text>
     <rect x="350" y="652" width="22" height="22" rx="5" fill="#4a9ff5"/><text x="380" y="669">workload：管理Pod怎麼執行</text>
     <rect x="610" y="652" width="22" height="22" rx="5" fill="#14a39a"/><text x="640" y="669">對外存取</text>
-    <rect x="760" y="652" width="22" height="22" rx="5" fill="#8b6fd6"/><text x="790" y="669">設定與敏感資料</text>
+    <rect x="760" y="652" width="22" height="22" rx="5" fill="#8b6fd6"/><text x="790" y="669">config與敏感資料</text>
     <rect x="950" y="652" width="22" height="22" rx="5" fill="#ef8a2c"/><text x="980" y="669">自動擴縮</text>
   </g>
 </svg>

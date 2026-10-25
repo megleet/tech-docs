@@ -14,9 +14,9 @@ icon: lucide/ship-wheel
 
 *Kubernetes為什麼不直接排程container，而要多一層Pod？*
 
-這一章從Pod開始。先看Pod在Kubernetes的API object裡的位置：其他object都圍繞著Pod，有的管理Pod怎麼執行，有的替Pod提供設定或對外存取（詳見[第2章的聲明式API](chap-2-kubernetes-architecture.md#聲明式api)）：
+這一章從Pod開始。先看Pod在Kubernetes的API object裡的位置：其他object都圍繞著Pod，有的管理Pod怎麼執行（見[Chap-5的控制器模式](chap-5-container-orchestration-controller.md#控制器模式)），有的替Pod提供config或對外存取（詳見[第2章的聲明式API](chap-2-kubernetes-architecture.md#聲明式api)）：
 
-![常見的Kubernetes API object：Container組成Pod；Deployment、StatefulSet、DaemonSet、Job、CronJob管理Pod怎麼執行；Service和Ingress提供對外存取；ConfigMap、Secret提供設定；HorizontalPodAutoscaler負責自動擴縮](images/ch04/k8s-api-objects.svg)
+![常見的Kubernetes API object：Container組成Pod；Deployment、StatefulSet、DaemonSet、Job、CronJob管理Pod怎麼執行；Service和Ingress提供對外存取；ConfigMap、Secret提供config；HorizontalPodAutoscaler負責自動擴縮](images/ch04/k8s-api-objects.svg)
 
 ### 🖥️ 1. Kubernetes是一個分散式OS
 
@@ -43,7 +43,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 
 括號裡是`(PID,PGID)`：
 
-- **master**（1201）：讀設定、管理worker，worker掛掉時重新`fork()`一個。
+- **master**（1201）：讀config、管理worker，worker掛掉時重新`fork()`一個。
 - **worker**（1202、1203）：master `fork()`出來的child，真正處理request。
 
 它們是***3個不同的process***（PID各不相同），但屬於同一個process group `1201`。master和worker之間用socket、signal和共用mem溝通，所以***一定要跑在同一台機器上***。
@@ -76,7 +76,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 
   ```
   nginx container
-  └── nginx master（PID 1）       ← 讀設定、管理worker：掛掉就重新fork一個
+  └── nginx master（PID 1）       ← 讀config、管理worker：掛掉就重新fork一個
       ├── nginx worker（PID 29）  ← 真正處理request
       ├── nginx worker（PID 30）
       └── nginx worker（PID 31）  ← 數量預設等於CPU核數（worker_processes auto）
@@ -132,7 +132,7 @@ Pod裡共用哪些namespace、哪些各自獨立，完整的對照見[Pod中的c
 因此，實現CNI plugin我們要注意
 
 - **只要設定Pod的network namespace**：不需要管每個container怎麼用網路。這也是[runtime建立sandbox時](chap-3-kubernetes-operations.md#-step-5deploy-cni-plugin)，才呼叫CNI plugin的原因。CNI plugin的設計：***不用管app container有沒有啟動***：只要把pause container的network namespace設定好就夠了。
-- **不能在container裡裝東西**：pause image的rootfs裡幾乎什麼都沒有，CNI plugin不能依賴在container裡安裝pkg或設定檔。
+- **不能在container裡裝東西**：pause image的rootfs裡幾乎什麼都沒有，CNI plugin不能依賴在container裡安裝pkg或config file。
 
 ### 📁 3. 共用volume
 
@@ -164,7 +164,7 @@ volumes:
 | **`hostPath`** | Node上一個指定的路徑，例如`/data`                                                              | 和Node一樣：Pod刪了，資料還在那台Node上                  | 需要讀Node本身的檔案，例如log agent讀`/var/log/pods` |
 | **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-operations.md#-step-6deploy-csi-driverrook-ceph) | ***和Pod無關***，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
 
-另外還有一類volume不存資料，而是把設定、密碼投射進container，見[Chap-5的Projected Volume](chap-5-volume.md#projected-volume)。
+另外還有一類volume不存資料，而是把config、password project進container，見[Chap-6的Projected Volume](chap-6-volume.md#projected-volume)。
 
 #### 例子：WAR包和Tomcat
 
@@ -233,7 +233,7 @@ spec:
 sidecar和主container***在同一個Pod裡一起長期執行***，透過Pod共用的資源和app合作：
 
 - **共用network namespace**：app連`localhost`，就連到sidecar。
-- **共用volume**：app寫的檔案，sidecar讀得到；sidecar下載的設定，app也讀得到。
+- **共用volume**：app寫的檔案，sidecar讀得到；sidecar下載的config，app也讀得到。
 
 例如app要連雲端的DB，認證和加密交給[Cloud SQL Auth Proxy](https://cloud.google.com/sql/docs/mysql/sql-proxy)這個sidecar：
 
@@ -253,7 +253,7 @@ spec:
 ```
 
 - **native sidecar**：寫在`initContainers`裡、加上`restartPolicy: Always`（Kubernetes 1.29起預設開啟，見[官方文件](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/)）。它***比主container先啟動、比主container晚結束***，所以app一啟動就連得到proxy；Job的主container結束時，sidecar也會跟著結束，不會讓Job一直完成不了。
-- 其他常見的sidecar：[`git-sync`](https://github.com/kubernetes/git-sync)（定時從Git拉最新的設定或網頁）、config reload（設定變更時通知app重新載入）、Istio的Envoy（見[為什麼排程單位是Pod](#-4-為什麼排程單位是pod)）。
+- 其他常見的sidecar：[`git-sync`](https://github.com/kubernetes/git-sync)（定時從Git拉最新的config或網頁）、config reload（config變更時通知app重新載入）、Istio的Envoy（見[為什麼排程單位是Pod](#-4-為什麼排程單位是pod)）。
 
 ### 🖥️ 3. Node agent：每個Node一份
 
@@ -293,7 +293,7 @@ service mesh也在往這個方向走：Istio的[ambient mode](https://istio.io/l
 
 - **Operator**：例如[Rook](chap-3-kubernetes-operations.md#-step-6deploy-csi-driverrook-ceph)，看著CRD把Ceph建起來、修好。
 - **Ingress / Gateway**：整個cluster對外的入口。
-- **cert-manager**：替整個cluster申請、更新TLS憑證，見[cert-manager.io](https://cert-manager.io/)。
+- **cert-manager**：替整個cluster申請、更新TLS certificate，見[cert-manager.io](https://cert-manager.io/)。
 
 ### 🧭 5. 怎麼選
 
@@ -315,13 +315,17 @@ service mesh也在往這個方向走：Istio的[ambient mode](https://istio.io/l
 
 ## Pod API object使用方法
 
-*既然container只是Pod裡的一個欄位，哪些設定屬於Pod，哪些屬於container？*
+*既然container只是Pod裡的一個欄位，哪些config屬於Pod，哪些屬於container？*
+
+container image很好用，但只有一個container，對Kubernetes來說資訊還不夠。就像貨櫃本身很好用，但四面光禿禿的，吊車沒地方抓，也不知道要放到哪裡。Pod就是替貨櫃***裝上吊環、貼上標籤***，讓Kubernetes這台吊車能操作它：要排到哪個Node（`nodeSelector`、`affinity`）、壞了怎麼辦（`restartPolicy`）、哪些東西要一起搬（多個`containers`、`volumes`）。這些「吊環」就是[下面表格](#-1-判斷原則)裡Pod層級的欄位。
+
+***Pod不是更強的container，而是把一個或多個container，加上這些給Kubernetes用的欄位，包成一個可以被排程和管理的單位***。
 
 ### 🧭 1. 判斷原則
 
 Pod扮演的是[一台模擬的VM](chap-2-kubernetes-architecture.md#親密關係pod)，container是這台VM裡的app。所以：
 
-- **和「機器」有關的，屬於Pod**：排程到哪個Node、網路、`/etc/hosts`、volume、安全設定。
+- **和「機器」有關的，屬於Pod**：排程到哪個Node、網路、`/etc/hosts`、volume、security config。
 - **和namespace有關的，也屬於Pod**：Pod的設計就是讓container盡量共用namespace，見[Pod中的container共用什麼](chap-1-container-basics.md#-2-pod中的container共用什麼)。
 - **和「app本身」有關的，屬於container**：image、啟動命令、port、資源上限、probe。
 
@@ -486,7 +490,7 @@ Pod直接使用host的namespace，不另外建立。例如[control plane的Stati
 
 ***`Running`不等於`Ready`***：
 
-- **`Running`**：container已經啟動了，但app可能還在載入設定、暖cache。
+- **`Running`**：container已經啟動了，但app可能還在載入config、暖cache。
 - **`Ready`**：[readiness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)通過，***真的可以服務了***，Service才會把流量送過來。
 
 ```bash

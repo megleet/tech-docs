@@ -18,7 +18,7 @@ icon: lucide/palette
 
 ## 專案概覽
 
-- **工具**：[Zensical](https://zensical.org/)（Material for MkDocs團隊的接班專案），設定檔是`zensical.toml`。
+- **工具**：[Zensical](https://zensical.org/)（Material for MkDocs團隊的接班專案），config file是`zensical.toml`。
 - **local路徑**：`~/zensical-docs`，Python虛擬環境在`.venv/`。
 - **GitHub**：`megleet/tech-docs`（公開repo），remote用SSH：`git@github.com:megleet/tech-docs.git`。
 - **網站**：<https://megleet.github.io/tech-docs/>，push到`main`後由GitHub Actions自動發佈。
@@ -55,7 +55,10 @@ icon: lucide/palette
 | 作業系統 | OS |
 | 宿主機 | host |
 | 環境變數 | env var |
-| 配置 | config |
+| 配置、設定（名詞）、設定檔 | config、config file（動詞的「設定網路」「設定propagation」不改） |
+| 密碼、帳號 | password、username |
+| 憑證、證書 | certificate |
+| 投射 | project（例如Projected Volume） |
 | （容器的）運行時 | runtime |
 | 伺服器 | server |
 | 容器 | container |
@@ -70,6 +73,8 @@ icon: lucide/palette
 標題（h1～h4）如果以英文開頭，***第一個字母大寫***，例如`## Container為什麼能seamless deploy`。程式識別字和命令名稱（`pivot_root`、`unshare()`、`mount`、`umount`）維持原樣，***不要大寫***。
 
 ***不要中英文各說一遍***：不寫「中文（English）」或「English（中文）」，只寫英文。例如寫`Copy-on-Write`，不寫`寫時複製（Copy-on-Write）`；寫`mount propagation`，不寫`掛載傳播（propagation）`。括號裡放英文縮寫的全名（例如`OCI（Open Container Initiative）`）、補充說明或舉例，都可以。
+
+例外：第5章的「***控制循環***（control/reconcile loop）」保留中文，因為同一件事有兩個英文名字，用中文當統稱。
 
 ### 標點與粗體的位置
 
@@ -87,13 +92,14 @@ icon: lucide/palette
 ### 程式碼區塊
 
 - 一律標註語言，例如` ```bash `、` ```python `。網站會在左上角顯示語言標籤。
-- 沒有語言的純文字內容（例如設定檔的一行）用` ``` `不標語言，就不會顯示標籤。
+- 沒有語言的純文字內容（例如config file的一行）用` ``` `不標語言，就不會顯示標籤。
 - bash / sh / zsh區塊：每行**第一個字**是藍色（指令），其他是綠色（參數），`#`註解是灰色。
 - 所有語言共用一套One Light風格的語法配色：關鍵字 / 型別 / `#include` `#define`紫色，函式名和巨集名藍色，字串和標頭檔綠色，數字和`NULL`青色，**參數**橙色，註解灰色。C / C++ 的函式呼叫、參數、`#define`拆分由`extra.js`補上（Pygments本身不分類）。
 - 程式碼區塊背景是**非常淡的灰色**（`#f6f7f8`），加細邊框和圓角。
 - 指令前面**不加`$`**提示符號，否則上色時`$`會被當成指令。指令放`bash`區塊；較長的輸出放另一個不標語言的區塊，短的輸出寫成`# → …`註解。
 - 註解太長時拆成多行，和上一行的`#`或`//`對齊，不要寫成一行要左右捲動的長註解。
-- **長程式碼自動折疊**：20行以上的程式碼區塊，網站上只顯示前12行，底部淡出，加一個「展開全部（共N行）」按鈕；複製按鈕仍然複製完整內容。行數設定在`extra.js`的`COLLAPSE_MIN` / `COLLAPSE_SHOW`。GitHub上照常完整顯示。
+- **長程式碼自動折疊**：20行以上的程式碼區塊，網站上只顯示前12行，底部淡出，加一個「展開全部（共N行）」按鈕；複製按鈕仍然複製完整內容。行數config在`extra.js`的`COLLAPSE_MIN` / `COLLAPSE_SHOW`。GitHub上照常完整顯示。
+- **標出重點行**：在語言後面加`hl_lines`，例如` ```yaml hl_lines="2 10 11" `（行號從1算）。這幾行會有淡黃底、左邊黃線，行內的註解變成深黃色，適合標出「兩份YAML的差別」這類重點。樣式在`extra.css`的`.hll`。
 - 同一個例子裡的ID或佔位符要前後一致，例如都寫`{container_id}`，並說明它從哪裡來。
 - 目錄樹：用` ``` `不標語言，畫成`├──` `└──` `│`的樹狀。只要區塊裡有這些符號就會自動上色：線條和`<-- 註解`、`(括號說明)`是灰色，**以`/`結尾的目錄**是藍色，檔案是一般文字顏色。所以目錄名稱後面一定要加`/`。
 
@@ -194,15 +200,16 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
 | Chap-2-Kubernetes architecture | `simple/kubernetes` |
 | Chap-3-Kubernetes operations | `lucide/wrench` |
 | Chap-4 Container orchestration之Pod篇 | `lucide/ship-wheel` |
-| Chap-5 Volume | `lucide/hard-drive` |
+| Chap-5 Container orchestration之Controller篇 | `lucide/refresh-cw` |
+| Chap-6 Volume | `lucide/hard-drive` |
 
 ## 實作位置
 
 | 檔案 | 負責什麼 |
 | --- | --- |
-| `zensical.toml` | 網站設定、`nav`、Markdown擴充、`extra_css` / `extra_javascript`、`custom_dir`、中文錨點（`toc.slugify`）、GitHub alert（`github-callouts`） |
+| `zensical.toml` | 網站config、`nav`、Markdown擴充、`extra_css` / `extra_javascript`、`custom_dir`、中文錨點（`toc.slugify`）、GitHub alert（`github-callouts`） |
 | `docs/stylesheets/extra.css` | 所有顏色和間距。顏色都是檔案開頭的CSS變數，淺色 / 深色模式各一組 |
-| `docs/javascripts/extra.js` | 把頁面圖示移到h1前、首頁連結加圖示、程式碼語言標籤、shell指令上色、C語法補強（函式呼叫 / 參數 / #define）、目錄樹上色、標記青綠色小標題 、長程式碼折疊 、右側目錄折疊 |
+| `docs/javascripts/extra.js` | 把頁面圖示移到h1前、首頁連結加圖示、程式碼語言標籤、shell指令上色、C語法補強（函式呼叫 / 參數 / #define）、目錄樹上色、標記青綠色小標題 、長程式碼折疊 、右側目錄折疊、左側導覽列Tutorials折疊（預設收起，記住展開狀態） |
 | `overrides/main.html` | 覆寫主題樣板：輸出頁面圖示、首頁標記、`toc_depth`標記 |
 | `.github/workflows/docs.yml` | GitHub Actions：安裝`zensical`和`markdown-callouts`，建置並發佈到Pages |
 
@@ -257,3 +264,6 @@ git push                          # 推上去後GitHub Actions自動發佈
 - **巢狀條列要縮排4格**：只縮2格時，Zensical不會把它當成子條列。
 - **標題裡的`-`會保留在錨點裡**：`## mount --bind技術`的錨點是`#mount---bind技術`（空白變`-`，加上原本的`--`），不是`#mount-bind技術`。
 - **`(c)`會變成©**：`smartsymbols`擴充會把`(c)`轉成版權符號（`(r)`、`(tm)`也一樣）。用`(a)`、`(b)`、`(c)`編號時，要寫成`\(c)`。
+- **新文章忘了加到首頁**：`nav`會自動出現在左側導覽列，但首頁`index.md`的清單要手動加，兩邊都要更新。
+- **短頁面的左側導覽列被footer擠掉**：頁面內容很短時（例如首頁），footer緊接在內容下面，左側導覽列的高度被壓縮，後面的項目要在導覽列裡捲動才看得到。`extra.css`用`.md-main__inner { min-height: 100vh; }`讓footer一定在第一個畫面之外。新增文章後，用寬而矮的視窗（例如`--window-size=1400,700`）截首頁確認最後一章看得到。
+- **左側導覽列的section標題點不動**：主題對section標題（例如「Tutorials」）設了`pointer-events: none`，JS加的click事件不會觸發。要讓它可以點，CSS要改回`pointer-events: auto`。無頭Chrome只能截圖、不能點擊，這類互動要在瀏覽器裡實際點一次確認。

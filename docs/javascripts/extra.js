@@ -235,4 +235,30 @@ document$.subscribe(() => {
     });
     item.prepend(button);
   });
+
+  // Left nav: the "Tutorials" section is collapsible (collapsed by default,
+  // open when the current page is inside it). The choice is remembered.
+  // Desktop only: on narrow screens the drawer already drills into sections.
+  if (window.matchMedia("(min-width: 76.25em)").matches) {
+    document.querySelectorAll(".md-nav--primary .md-nav__item--section").forEach((item) => {
+      const label = item.querySelector(":scope > .md-nav__link");
+      if (!label || item.dataset.navReady || label.textContent.trim() !== "Tutorials") return;
+      item.dataset.navReady = "true";
+      const key = "doc-nav-tutorials";
+      let saved = null;
+      try { saved = localStorage.getItem(key); } catch (e) {}
+      const active = item.querySelector(".md-nav__link--active");
+      item.classList.add("doc-nav-collapsible");
+      if (!active && saved !== "open") item.classList.add("doc-nav-collapsed");
+      const arrow = document.createElement("span");
+      arrow.className = "doc-nav-arrow";
+      arrow.innerHTML = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+      label.append(arrow);
+      label.addEventListener("click", (e) => {
+        e.preventDefault();
+        const collapsed = item.classList.toggle("doc-nav-collapsed");
+        try { localStorage.setItem(key, collapsed ? "closed" : "open"); } catch (e) {}
+      });
+    });
+  }
 });

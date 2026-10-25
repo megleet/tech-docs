@@ -56,7 +56,7 @@
   <!-- right boxes content -->
   <g fill="#ffffff" text-anchor="middle" font-weight="600">
     <text x="765" y="55" font-size="18">/etc/kubernetes/pki</text>
-    <text x="765" y="79" font-size="15">證書</text>
+    <text x="765" y="79" font-size="15">certificate</text>
     <text x="765" y="155" font-size="18">/etc/kubernetes/*.conf</text>
     <text x="765" y="179" font-size="15">各元件連API Server用的kubeconfig</text>
     <text x="765" y="255" font-size="18">/etc/kubernetes/manifests</text>
@@ -67,8 +67,8 @@
 
   <!-- ===== Legend ===== -->
   <g font-size="16" fill="#334155">
-    <rect x="30"  y="410" width="20" height="20" rx="5" fill="#fde3c8" stroke="#ef8a2c" stroke-dasharray="4 3"/><text x="58"  y="426">使用者提供的設定檔（選用）</text>
+    <rect x="30"  y="410" width="20" height="20" rx="5" fill="#fde3c8" stroke="#ef8a2c" stroke-dasharray="4 3"/><text x="58"  y="426">使用者提供的config file（選用）</text>
     <rect x="300" y="410" width="20" height="20" rx="5" fill="#ef8a2c"/><text x="328" y="426">kubeadm</text>
-    <rect x="440" y="410" width="20" height="20" rx="5" fill="#8b6fd6"/><text x="468" y="426">kubeadm寫出的設定檔</text>
+    <rect x="440" y="410" width="20" height="20" rx="5" fill="#8b6fd6"/><text x="468" y="426">kubeadm寫出的config file</text>
   </g>
 </svg>

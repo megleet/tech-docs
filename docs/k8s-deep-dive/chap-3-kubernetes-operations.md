@@ -46,7 +46,7 @@ Kubernetes cluster
 **a）建立cluster時**
 
 - **啟動Master元件**：kubeadm把API Server、Scheduler、Controller Manager、etcd寫成[Static Pod](#static-pod)的YAML，由kubelet讀取並啟動。也就是說，***連Control Plane都是kubelet跑起來的***。
-- **把Node加入cluster**：`kubeadm join`時，kubelet用[bootstrap token](#bootstrap-token)向API Server申請證書、註冊這個Node，之後這台機器才會出現在`kubectl get nodes`裡。
+- **把Node加入cluster**：`kubeadm join`時，kubelet用[bootstrap token](#bootstrap-token)向API Server申請certificate、註冊這個Node，之後這台機器才會出現在`kubectl get nodes`裡。
 
 **b）cluster運作時**
 
@@ -81,7 +81,7 @@ apt-get install -y kubelet kubeadm kubectl
 
 這一步***只在Master上做***，因為`kubeadm init`只在第一台Master上執行；Worker用`kubeadm join`加入，不需要這份`kubeadm.yaml`。
 
-kubeadm default參數可以適合大部分情況。但要自訂components(例如：kube-apiserver)的啟動參數，就把設定寫成一個YAML檔，`init`時用`--config`帶進去：
+kubeadm default參數可以適合大部分情況。但要自訂components(例如：kube-apiserver)的啟動參數，就把config寫成一個YAML檔，`init`時用`--config`帶進去：
 
 ```bash
 kubeadm config print init-defaults > kubeadm.yaml    # 先產生一份預設值當範本
@@ -92,7 +92,7 @@ kubeadm init --config kubeadm.yaml
 
 ```yaml
 apiVersion: kubeadm.k8s.io/v1beta4
-kind: InitConfiguration                     # 這台機器自己的設定
+kind: InitConfiguration                     # 這台機器自己的config
 localAPIEndpoint:
   advertiseAddress: 192.168.0.102           # API Server對外的IP
   bindPort: 6443
@@ -101,12 +101,12 @@ nodeRegistration:
   ...
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
-kind: ClusterConfiguration                  # 整個cluster共用的設定，整份存成ConfigMap kubeadm-config
+kind: ClusterConfiguration                  # 整個cluster共用的config，整份存成ConfigMap kubeadm-config
 kubernetesVersion: v1.31.0
 imageRepository: registry.k8s.io
 networking:
   dnsDomain: cluster.local
-  podSubnet: 10.244.0.0/16                  # 要和CNI plugin的設定一致
+  podSubnet: 10.244.0.0/16                  # 要和CNI plugin的config一致
   serviceSubnet: 10.96.0.0/12
 apiServer:                                  # ┐
   extraArgs:                                # │
@@ -122,33 +122,33 @@ etcd:                                       # │
     dataDir: /var/lib/etcd                  # ┘
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
-kind: KubeletConfiguration                  # kubelet的設定，寫成host上的/var/lib/kubelet/config.yaml
+kind: KubeletConfiguration                  # kubelet的config，寫成host上的/var/lib/kubelet/config.yaml
 address: 0.0.0.0
 ...
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
-kind: KubeProxyConfiguration                # kube-proxy的設定，存成ConfigMap kube-proxy
+kind: KubeProxyConfiguration                # kube-proxy的config，存成ConfigMap kube-proxy
 bindAddress: 0.0.0.0
 ...
 ```
 
-這幾段設定用`---`分隔，放在同一個`kubeadm.yaml`裡。它是你交給kubeadm的***輸入檔***：kubeadm讀完之後，把每一段設定***分送***到各元件真正會讀的地方：
+這幾段config用`---`分隔，放在同一個`kubeadm.yaml`裡。它是你交給kubeadm的***輸入檔***：kubeadm讀完之後，把每一段config***分送***到各元件真正會讀的地方：
 
 | `kubeadm.yaml`裡的那一段                                                                 | 內容                                                  | kubeadm把它寫到哪裡                                                                   | 最後誰讀取                                                       |
 | ------------------------------------------------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `InitConfiguration`                                                                      | 這台機器自己的設定，例如IP、container runtime的socket | 只在`init`時使用                                                                    | kubeadm自己                                                      |
-| `ClusterConfiguration`整份                                                               | 整個cluster共用的設定，例如版本、網段                 | `kube-system`裡的ConfigMap `kubeadm-config`                                       | 之後的`kubeadm join`、`kubeadm upgrade`                      |
+| `InitConfiguration`                                                                      | 這台機器自己的config，例如IP、container runtime的socket | 只在`init`時使用                                                                    | kubeadm自己                                                      |
+| `ClusterConfiguration`整份                                                               | 整個cluster共用的config，例如版本、網段                 | `kube-system`裡的ConfigMap `kubeadm-config`                                       | 之後的`kubeadm join`、`kubeadm upgrade`                      |
 | `ClusterConfiguration`的`apiServer` / `controllerManager` / `scheduler` / `etcd` | 各元件的參數，例如`extraArgs`                       | 對應的[Static Pod](#static-pod) YAML，`/etc/kubernetes/manifests/*.yaml`裡的啟動參數 | 那4個Static Pod                                                  |
-| `KubeletConfiguration`                                                                   | kubelet的設定                                         | host上的`/var/lib/kubelet/config.yaml`，另外存一份成ConfigMap `kubelet-config`    | 直接跑在host上的kubelet；之後`join`的Node也從ConfigMap拿同一份 |
-| `KubeProxyConfiguration`                                                                 | kube-proxy的設定                                      | ConfigMap `kube-proxy`                                                              | kube-proxy的**DaemonSet** Pod                              |
+| `KubeletConfiguration`                                                                   | kubelet的config                                         | host上的`/var/lib/kubelet/config.yaml`，另外存一份成ConfigMap `kubelet-config`    | 直接跑在host上的kubelet；之後`join`的Node也從ConfigMap拿同一份 |
+| `KubeProxyConfiguration`                                                                 | kube-proxy的config                                      | ConfigMap `kube-proxy`                                                              | kube-proxy的**DaemonSet** Pod                              |
 
 ***`kubeadm.yaml`只在執行`kubeadm init`的那一刻被讀取***，kubeadm也不是常駐的程式。之後元件讀的，都是kubeadm分送出去的檔案或ConfigMap，不會再回頭讀`kubeadm.yaml`。
 
 #### 🗺️ kubeadm流程講解
 
-kubeadm讀取`kubeadm.yaml`，寫出的4種設定檔：
+kubeadm讀取`kubeadm.yaml`，寫出的4種config file：
 
-![kubeadm init讀取kubeadm.yaml的4段設定，寫出證書、kubeconfig、Static Pod YAML和kubelet的運行參數](images/ch03/kubeadm-init-outputs.svg)
+![kubeadm init讀取kubeadm.yaml的4段config，寫出certificate、kubeconfig、Static Pod YAML和kubelet的運行參數](images/ch03/kubeadm-init-outputs.svg)
 
 kubeadm怎麼把各元件跑起來：透過systemd啟動kubelet，kubelet再依Static Pod YAML啟動control plane的4個元件；kube-proxy、CoreDNS則是kubeadm透過API Server建立object，最後同樣由kubelet執行。
 
@@ -178,17 +178,17 @@ kubeadm怎麼把各元件跑起來：透過systemd啟動kubelet，kubelet再依S
 - 要用的port是否被占用：6443（API Server）、2379-2380（etcd）、10250（kubelet）、10257（controller-manager）、10259（scheduler）；
 - container runtime是否已經安裝，`ip`、`mount`等指令是否存在。
 
-**② 產生證書**：kubeadm先建立這個cluster自己的***根CA***（`ca.crt` / `ca.key`），也就是cluster的「發證機關」，再用它替cluster裡的***每個元件***簽發證書，讓元件之間的連線可以互相驗證身分。證書都放在Master Node的`/etc/kubernetes/pki/`：
+**② 產生certificate**：kubeadm先建立這個cluster自己的***根CA***（`ca.crt` / `ca.key`），也就是cluster的「發證機關」，再用它替cluster裡的***每個元件***簽發certificate，讓元件之間的連線可以互相驗證身分。certificate都放在Master Node的`/etc/kubernetes/pki/`：
 
-| 證書                             | 給誰用                                                                               |
+| certificate                             | 給誰用                                                                               |
 | -------------------------------- | ------------------------------------------------------------------------------------ |
-| `ca.crt` / `ca.key`          | cluster的根CA，簽發下面這些證書                                                      |
-| `apiserver.crt`                | API Server的server證書：kubectl、kubelet連API Server時，用來確認對方真的是API Server |
+| `ca.crt` / `ca.key`          | cluster的根CA，簽發下面這些certificate                                                      |
+| `apiserver.crt`                | API Server的server certificate：kubectl、kubelet連API Server時，用來確認對方真的是API Server |
 | `apiserver-kubelet-client.crt` | API Server當client連kubelet時使用，例如`kubectl logs`、`kubectl exec`            |
 | `apiserver-etcd-client.crt`    | API Server當client連etcd時使用                                                       |
-| `etcd/`底下的證書              | etcd自己的CA、server證書，以及etcd member之間互相連線用的證書                        |
+| `etcd/`底下的certificate              | etcd自己的CA、server certificate，以及etcd member之間互相連線用的certificate                        |
 
-各證書的完整清單見[PKI certificates and requirements](https://kubernetes.io/docs/setup/best-practices/certificates/)。如果你已經有自己的CA，事先把`ca.crt`和`ca.key`放進`/etc/kubernetes/pki/`，kubeadm就會跳過產生CA這一步，直接用你的CA簽發其他證書。
+各certificate的完整清單見[PKI certificates and requirements](https://kubernetes.io/docs/setup/best-practices/certificates/)。如果你已經有自己的CA，事先把`ca.crt`和`ca.key`放進`/etc/kubernetes/pki/`，kubeadm就會跳過產生CA這一步，直接用你的CA簽發其他certificate。
 
 **③ Generate各元件call API Server所需要用的kubeconfig**：
 
@@ -197,7 +197,7 @@ ls /etc/kubernetes/
 # → admin.conf  controller-manager.conf  kubelet.conf  manifests  pki  scheduler.conf  super-admin.conf
 ```
 
-kubeadm替**每個需要連到API Server的元件** ，各產生一個config文件（[kubeconfig](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)），告訴它「API Server在哪裡、怎麼確認對方、怎麼證明自己是誰」。也就是說每個kubeconfig檔裡都有API Server的位址、port、cluster的`ca.crt`，以及這個元件***自己的client證書***。scheduler、kubelet等元件直接載入它，就能和API Server建立安全的連線。
+kubeadm替**每個需要連到API Server的元件** ，各產生一個config文件（[kubeconfig](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)），告訴它「API Server在哪裡、怎麼確認對方、怎麼證明自己是誰」。也就是說每個kubeconfig檔裡都有API Server的位址、port、cluster的`ca.crt`，以及這個元件***自己的client certificate***。scheduler、kubelet等元件直接載入它，就能和API Server建立安全的連線。
 
 **④ Generate Master元件運行需要的Static Pod YAML**：<a id="static-pod"></a>
 
@@ -227,7 +227,7 @@ spec:
     - kube-apiserver
     - --advertise-address=192.168.0.102
     - --authorization-mode=Node,RBAC
-    - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt     # 第②步產生的證書
+    - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt     # 第②步產生的certificate
     - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
     # ...其他參數，Step 2的extraArgs加的也會出現在這裡
     volumeMounts:
@@ -238,14 +238,14 @@ spec:
   priorityClassName: system-cluster-critical
   volumes:
   - name: k8s-certs
-    hostPath:                               # 把host上的證書目錄mount進去
+    hostPath:                               # 把host上的certificate目錄mount進去
       path: /etc/kubernetes/pki
       type: DirectoryOrCreate
 ```
 
 - **Static Pod就是一般的Pod YAML**：`kind: Pod`，沒有任何特殊欄位，差別只在它放在`/etc/kubernetes/manifests/`裡，由kubelet直接讀取。
-- **和前後的步驟接得上**：`--tls-cert-file`用的就是第②步產生的證書；[Step 2](#-為kubeadm-init準備執行參數optional)`extraArgs`加的參數，最後也會出現在`command`裡。
-- **control plane元件的特殊設定**：`hostNetwork: true`直接用host的網路，因為它比CNI更早啟動；`hostPath`把host上的證書目錄mount進去；`priorityClassName: system-cluster-critical`讓它在資源不夠時最後才被驅逐。
+- **和前後的步驟接得上**：`--tls-cert-file`用的就是第②步產生的certificate；[Step 2](#-為kubeadm-init準備執行參數optional)`extraArgs`加的參數，最後也會出現在`command`裡。
+- **control plane元件的特殊config**：`hostNetwork: true`直接用host的網路，因為它比CNI更早啟動；`hostPath`把host上的certificate目錄mount進去；`priorityClassName: system-cluster-critical`讓它在資源不夠時最後才被驅逐。
 
 kubelet一看到這些YAML，就把它們跑起來，見[kubelet：每個Node的「心臟」](#-kubelet每個node的心臟)。
 
@@ -269,7 +269,7 @@ kubectl get secrets -n kube-system | grep bootstrap-token
 # → bootstrap-token-abcdef   bootstrap.kubernetes.io/token   ...
 ```
 
-新Node執行`kubeadm join`時，是拿token去問API Server「這個token有效嗎？」，API Server查這個Secret，確認token存在、還沒過期，才讓它申請證書。這也是⑤要先確認API Server正常，⑥才建立token的原因。
+新Node執行`kubeadm join`時，是拿token去問API Server「這個token有效嗎？」，API Server查這個Secret，確認token存在、還沒過期，才讓它申請certificate。這也是⑤要先確認API Server正常，⑥才建立token的原因。
 
 **⑦ 標記control plane**：<a id="mark-control-plane"></a>等API Server可以用之後，kubeadm替Master的Node object加上label `node-role.kubernetes.io/control-plane`，以及taint `node-role.kubernetes.io/control-plane:NoSchedule`，讓一般的Pod不會被排到Master上。taint是寫在API Server裡的Node object上，所以也要等⑤完成。要調整這個策略，見[用Taint / Toleration調整Master能不能跑Pod](#taint-toleration)。
 
@@ -282,7 +282,7 @@ kubectl get secrets -n kube-system | grep bootstrap-token
 
 #### 🖼️ 在Master上執行kubeadm init的完整流程圖
 
-![kubeadm init的完整流程：kubeadm.yaml、kubeadm寫出的設定檔、systemd與kubelet、control plane的Static Pod、透過API Server建立的object，以及kube-proxy和CoreDNS的Pod](images/ch03/kubeadm-init-flow.svg)
+![kubeadm init的完整流程：kubeadm.yaml、kubeadm寫出的config file、systemd與kubelet、control plane的Static Pod、透過API Server建立的object，以及kube-proxy和CoreDNS的Pod](images/ch03/kubeadm-init-flow.svg)
 
 > [!NOTE]
 > <a id="taint-toleration"></a>**用Taint / Toleration調整Master能不能跑Pod**
@@ -318,7 +318,7 @@ join不需要先裝好CNI plugin：剛join的Node會和Master一樣是`NotReady`
 #### 為什麼join需要token
 
 - **新Node一定要向API Server註冊**：任何機器要成為cluster的Node，都必須在kube-apiserver上註冊。
-- **和API Server溝通需要證書**：要連API Server，這台機器得先有cluster的CA（`ca.crt`），才能確認對方真的是API Server。
+- **和API Server溝通需要certificate**：要連API Server，這台機器得先有cluster的CA（`ca.crt`），才能確認對方真的是API Server。
 - **不能要使用者手動複製**：為了一鍵安裝，不能讓使用者自己到Master上把這些檔案複製過來。
 
 所以kubeadm至少要用「***不安全模式***」連一次API Server，拿到[第⑧步](#cluster-info)存在`kube-public`裡的`cluster-info` ConfigMap，裡面有API Server的位址、port和`ca.crt`。***bootstrap token在這個過程中負責安全驗證***。
@@ -330,13 +330,13 @@ kubeadm join（新Node）
    │ 不安全模式：讀kube-public的cluster-info，用token驗證
    ▼
 取得API Server的位址、port、ca.crt
-   │ 安全模式：用token向API Server申請kubelet自己的證書
+   │ 安全模式：用token向API Server申請kubelet自己的certificate
    ▼
-kubelet用自己的證書連API Server，Node註冊完成
+kubelet用自己的certificate連API Server，Node註冊完成
 ```
 
 > [!NOTE]
-> 「不安全模式」不代表完全不驗證：`cluster-info`裡附有用bootstrap token簽的簽章，kubeadm用token確認內容沒被竄改；`--discovery-token-ca-cert-hash`再確認拿到的`ca.crt`是對的CA。接著kubelet用token向API Server申請自己的client證書（TLS bootstrap），之後就改用這張證書連線。
+> 「不安全模式」不代表完全不驗證：`cluster-info`裡附有用bootstrap token簽的簽章，kubeadm用token確認內容沒被竄改；`--discovery-token-ca-cert-hash`再確認拿到的`ca.crt`是對的CA。接著kubelet用token向API Server申請自己的client certificate（TLS bootstrap），之後就改用這張certificate連線。
 
 ***Worker和Master幾乎一樣***：兩者執行的都是kubelet。唯一的差別是在master上`kubeadm init`時，kubelet啟動後，Master上還會以[Static Pod](#static-pod)執行control plane元件：kube-apiserver、kube-scheduler、kube-controller-manager，以及etcd（kubeadm預設把etcd也放在Master上）。
 
@@ -390,7 +390,7 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 ```
 
 - **只要執行一次**：它建立的是DaemonSet，已經join的Node和之後才join的Node，都會自動有一個Flannel Pod。
-- **網段要一致**：Flannel預設的Pod網段是`10.244.0.0/16`，和[Step 2](#-為kubeadm-init準備執行參數optional)`kubeadm.yaml`裡的`podSubnet`一樣。換別的CNI plugin時，要確認兩邊設定相同。
+- **網段要一致**：Flannel預設的Pod網段是`10.244.0.0/16`，和[Step 2](#-為kubeadm-init準備執行參數optional)`kubeadm.yaml`裡的`podSubnet`一樣。換別的CNI plugin時，要確認兩邊config相同。
 
 裝好之後，再跑一次`kubectl get nodes`和`kubectl get pods -n kube-system`，確認所有Node都變成`Ready`、CoreDNS變成`Running`。
 

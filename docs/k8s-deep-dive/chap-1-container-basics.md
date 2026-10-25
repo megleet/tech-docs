@@ -226,7 +226,7 @@ UUID=1234-abcd   /data   ext4   defaults   0   2
 | `/mnt`            | 管理員**手動temporary mount**的慣例目錄，本身只是普通空目錄，也常當chroot的新根                 |
 | `/media`          | 桌面環境**自動mount**的USB、光碟（部分distro用`/run/media`）                                  |
 | `/proc`、`/sys` | 虛擬filesystem，chroot時通常也要綁進去                                                                |
-| `/etc/fstab`      | 開機自動mount的設定檔                                                                                 |
+| `/etc/fstab`      | 開機自動mount的config file                                                                                 |
 
 > [!NOTE]
 > **判斷方法**：用`findmnt <路徑>`看它是不是***自己有一個mount point***。有獨立掛載、FSTYPE是devtmpfs / proc / sysfs等的，才是「filesystem」；只是出現在`/`底下的普通目錄或檔案，屬於根filesystem的內容而已。
@@ -857,7 +857,7 @@ docker run / kubelet
          ├─ ③ 把rootfs bind到自己身上，讓它變成mount point
          ├─ ④ 在rootfs裡掛好/proc /dev /sys和volumes
          ├─ ⑤ pivot_root：把/換成rootfs，再拆掉host的根
-         ├─ ⑥ 安全設定：read-only路徑、遮蔽路徑、capabilities、seccomp
+         ├─ ⑥ security config：read-only路徑、遮蔽路徑、capabilities、seccomp
          └─ ⑦ execve container的entrypoint
 ```
 
@@ -904,7 +904,7 @@ mount("", "/", NULL, MS_SLAVE | MS_REC, NULL);   // 不做mount，僅僅修改�
                                                  // propagation改為slave（recursive，runc預設rslave）
 ```
 
-- **為什麼是slave**：host之後掛上的東西還能傳進來，container裡的動作不會傳出去。OCI設定裡的`rootfsPropagation`可以改成`private` / `shared`。各種類型的差別見[mount propagation](#-3-mount-propagation)。
+- **為什麼是slave**：host之後掛上的東西還能傳進來，container裡的動作不會傳出去。OCI config裡的`rootfsPropagation`可以改成`private` / `shared`。各種類型的差別見[mount propagation](#-3-mount-propagation)。
 - **上一層也要private**：runc還會確保rootfs的上一層mount point是private，這也是`pivot_root`的要求。
 
 ### 🔗 ③ 讓rootfs從普通目錄變成為mount point
@@ -927,9 +927,9 @@ mount(rootfs, rootfs, "bind", MS_BIND | MS_REC, NULL);
 | `rootfs/dev/shm`、`mqueue`                      | `tmpfs`、`mqueue`         | 共享mem、訊息佇列                                          |
 | `rootfs/sys`                                      | `sysfs`（read-only）        | 系統資訊                                                   |
 | `rootfs/data` …                                  | bind mount                    | 使用者指定的volume（`-v /host:/data`）                   |
-| `rootfs/etc/hosts`、`resolv.conf`、`hostname` | bind mount                    | 由runtime產生的網路設定檔                                  |
+| `rootfs/etc/hosts`、`resolv.conf`、`hostname` | bind mount                    | 由runtime產生的網路config file                                  |
 
-***container需要的host資源（volume、設定檔等），都必須在這一步、`pivot_root`之前掛載進來***。一旦切換完成，host的路徑就再也看不到了。
+***container需要的host資源（volume、config file等），都必須在這一步、`pivot_root`之前掛載進來***。一旦切換完成，host的路徑就再也看不到了。
 
 ### 🔄 ⑤ pivot_root：runc的特殊寫法
 
@@ -1310,7 +1310,7 @@ CMD ["python", "app.py"]
 | `RUN pip install …`                    | 有內容：安裝好的Python pkg                                    |
 | `WORKDIR`、`EXPOSE`、`ENV`、`CMD` | 只改image的metadata，在`docker history`裡顯示為`0B`的空層 |
 
-- **只有`RUN`、`ADD`、`COPY`會產生有內容的layer**：其他指令只記錄設定，不改filesystem。
+- **只有`RUN`、`ADD`、`COPY`會產生有內容的layer**：其他指令只記錄config，不改filesystem。
 - **`FROM`省掉了什麼**：不用`FROM python:2.7-slim`的話，就要從`ubuntu`開始自己裝Python：
 
   ```dockerfile
@@ -1418,7 +1418,7 @@ Docker靠這套機制得到三個好處：
 
 這是一個以`-init`結尾的layer，夾在read-only layers和writable layer之間。它是Docker單獨產生的內部layer，專門存放`/etc/hosts`、`/etc/resolv.conf`、`/etc/hostname`這類和container本身有關的file的mount point。
 
-- **為什麼需要這一層**：這些file本來屬於read-only的image，但Docker啟動container時需要寫入指定的值，例如hostname、DNS設定。這些修改只對當前的container有效，不希望執行`docker commit`時，把它們連同writable layer一起提交。
+- **為什麼需要這一層**：這些file本來屬於read-only的image，但Docker啟動container時需要寫入指定的值，例如hostname、DNS config。這些修改只對當前的container有效，不希望執行`docker commit`時，把它們連同writable layer一起提交。
 - **Docker的做法**：把它們放在獨立的init layer。`docker commit`只會提交writable layer，所以不包含init layer的內容。
 
 最終，這些layer都被union mount到`merged`目錄，表現為一個完整的Ubuntu供container使用。
@@ -1426,7 +1426,7 @@ Docker靠這套機制得到三個好處：
 > [!TIP]
 > 💡 **重點**
 >
-> Init layer的存在，是為了讓***只屬於這個container的設定，不會被`docker commit`帶進image***。
+> Init layer的存在，是為了讓***只屬於這個container的config，不會被`docker commit`帶進image***。
 
 ### 🧱 4. 實例：Docker如何使用OverlayFS
 
@@ -1772,7 +1772,7 @@ ns以外，Pod裡也共用這些：
 | **Pod層級的cgroup** | 每個container有自己的cgroup，但都在同一個Pod cgroup底下，Pod的資源上限會限制全部container |
 | **生命週期與排程**  | 一起被排程到同一個node，一起建立、一起刪除                                                |
 
-***Pod裡的container共用network、IPC、UTS***，就像在同一台機器上；***各自有自己的mount和cgroup***，也就是各自有自己的filesystem和資源計量；PID和user看設定。
+***Pod裡的container共用network、IPC、UTS***，就像在同一台機器上；***各自有自己的mount和cgroup***，也就是各自有自己的filesystem和資源計量；PID和user看config。
 
 > [!TIP]
 > 💡 **一句話總結**

@@ -377,3 +377,43 @@ body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .m
   background: var(--doc-code-block-bg);
 }
 
+
+/* Short pages (e.g. the home page): keep the footer below the first screen,
+   so the left sidebar is not squeezed and every nav item stays visible. */
+.md-main__inner {
+  min-height: 100vh;
+}
+
+/* Left nav: collapsible "Tutorials" section (see extra.js) */
+/* The theme sets section titles to pointer-events: none; turn clicks back on */
+.md-nav--primary .md-nav__item--section.doc-nav-collapsible > .md-nav__link {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.md-nav--primary .doc-nav-collapsible.doc-nav-collapsed > .md-nav {
+  display: none;
+}
+
+.md-nav--primary .doc-nav-arrow {
+  display: inline-flex;
+  margin-left: 0.3em;
+  color: var(--md-default-fg-color--light);
+  transition: transform 0.15s;
+}
+
+.md-nav--primary .doc-nav-collapsible:not(.doc-nav-collapsed) .doc-nav-arrow {
+  transform: rotate(90deg);
+}
+
+/* Highlighted code lines (```yaml hl_lines="2 10"): light yellow background,
+   a yellow bar on the left, and darker comments so the notes stand out */
+.md-typeset .highlight .hll {
+  background-color: rgba(242, 182, 0, 0.16);
+  box-shadow: inset 3px 0 0 #f2b600;
+}
+
+.md-typeset .highlight .hll :is(.c, .c1, .ch, .cm, .cs) {
+  color: #8a6400;
+  font-style: normal;
+}

@@ -21,8 +21,8 @@ kubelet是Node上最核心的組件。它本身不直接操作container：Node�
 | **CRI**<br />Container Runtime Interface | 和container runtime互動：啟動、停止container，以及啟動container需要的所有參數                                       | *✅ gRPC，透過unix socket*，例如`/run/containerd/containerd.sock`<br />**kubelet → container runtime**                         | containerd、CRI-O       |
 | **CSI**<br />Container Storage Interface | 呼叫儲存plugin，替container設定持久化儲存                                                                           | *✅ gRPC，透過unix socket*<br />**kubelet → CSI node plugin**                                                                    | AWS EBS、Ceph           |
 | **Device Plugin**                        | 管理GPU等host上的實體設備                                                                                           | *✅ gRPC，透過unix socket*：plugin先向kubelet註冊，kubelet再呼叫它<br />**kubelet ↔ device plugin**                              | NVIDIA Device Plugin    |
-| **CNI**<br />Container Network Interface | 呼叫網路plugin，替container設定網路                                                                                 | *🔶 執行plugin binary*，設定以JSON從stdin傳入，結果以JSON從stdout傳回<br />**container runtime → CNI plugin**                    | Calico、Flannel、Cilium |
-| **OCI**<br />Open Container Initiative   | container runtime依OCI規格呼叫runc，由runc和Linux互動：把CRI請求翻譯成對Linux的操作，例如建立namespace、設定cgroups | *🔶 執行`runc` binary*，container的設定（process、ns、mounts、cgroups等）寫在`config.json`<br />**container runtime → runc** | runc                    |
+| **CNI**<br />Container Network Interface | 呼叫網路plugin，替container設定網路                                                                                 | *🔶 執行plugin binary*，config以JSON從stdin傳入，結果以JSON從stdout傳回<br />**container runtime → CNI plugin**                    | Calico、Flannel、Cilium |
+| **OCI**<br />Open Container Initiative   | container runtime依OCI規格呼叫runc，由runc和Linux互動：把CRI請求翻譯成對Linux的操作，例如建立namespace、設定cgroups | *🔶 執行`runc` binary*，container的config（process、ns、mounts、cgroups等）寫在`config.json`<br />**container runtime → runc** | runc                    |
 
 ***Device Plugin特別重要***：它是Kubernetes管理GPU的主要方式，做機器學習訓練、高效能運算時一定要關注。
 
@@ -167,11 +167,11 @@ containerd
 | 類型                           | 例子                                       | 負責什麼                                                                |
 | ------------------------------ | ------------------------------------------ | ----------------------------------------------------------------------- |
 | **orchestration object** | Pod、Job、CronJob                          | 描述要管理的app：跑哪些container、跑幾次、什麼時候跑                    |
-| **service object**       | Service、Secret、Horizontal Pod Autoscaler | Platform功能：讓別人找得到它、提供密碼等敏感資料、依負載自動增減Pod數量 |
+| **service object**       | Service、Secret、Horizontal Pod Autoscaler | Platform功能：讓別人找得到它、提供password等敏感資料、依負載自動增減Pod數量 |
 
 常見的API object，以及它們和Pod之間的關係：
 
-![常見的Kubernetes API object：Container組成Pod；Deployment、StatefulSet、DaemonSet、Job、CronJob管理Pod怎麼執行；Service和Ingress提供對外存取；ConfigMap、Secret提供設定；HorizontalPodAutoscaler負責自動擴縮](images/ch02/k8s-api-objects.svg)
+![常見的Kubernetes API object：Container組成Pod；Deployment、StatefulSet、DaemonSet、Job、CronJob管理Pod怎麼執行；Service和Ingress提供對外存取；ConfigMap、Secret提供config；HorizontalPodAutoscaler負責自動擴縮](images/ch02/k8s-api-objects.svg)
 
 這種用法就是所謂的**聲明式API**：你只描述「***想要的狀態***」，例如「這個app要有3個Pod，並且可以透過這個Service存取」，Kubernetes會自己想辦法讓實際狀態符合它。orchestration object和service object都是Kubernetes裡的**API object**。
 
