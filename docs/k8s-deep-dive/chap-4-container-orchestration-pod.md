@@ -170,7 +170,7 @@ volumes:
 
 一個Java web app的WAR包，要放進Tomcat的`webapps`目錄才能執行。有了Pod，就可以把**WAR包**和**Tomcat*****各做成一個image***，再用一個**共用的volume**組合起來：
 
-```yaml
+```{.yaml hl_lines="6 13" data-hl2="10 11 16 17 21 22"}
 apiVersion: v1
 kind: Pod
 metadata:

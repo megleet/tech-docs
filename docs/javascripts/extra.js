@@ -261,4 +261,16 @@ document$.subscribe(() => {
       });
     });
   }
+
+  // Code blocks with data-hl2="10 11" (```{.yaml data-hl2="10 11"}): mark those
+  // lines with a second highlight color (teal), next to hl_lines (yellow .hll).
+  document.querySelectorAll(".highlight[data-hl2]").forEach((block) => {
+    if (block.dataset.hl2Ready) return;
+    block.dataset.hl2Ready = "true";
+    const lines = new Set(block.dataset.hl2.split(/\s+/).map(Number));
+    block.querySelectorAll('code > span[id^="__span-"]').forEach((span) => {
+      const n = Number(span.id.split("-").pop());
+      if (lines.has(n)) span.classList.add("doc-hl-2");
+    });
+  });
 });

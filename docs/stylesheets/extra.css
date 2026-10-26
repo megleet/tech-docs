@@ -417,3 +417,21 @@ body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .m
   color: #8a6400;
   font-style: normal;
 }
+
+/* Second highlight color (teal): lines listed in data-hl2="..." (see extra.js) */
+.md-typeset .highlight .doc-hl-2 {
+  display: block;
+  padding: 0 1.1764705882em;
+  margin: 0 -1.1764705882em;
+  background-color: rgba(14, 154, 167, 0.12);
+  box-shadow: inset 3px 0 0 #0e9aa7;
+}
+
+.md-typeset .highlight code[data-md-copying] .doc-hl-2 {
+  display: contents;
+}
+
+.md-typeset .highlight .doc-hl-2 :is(.c, .c1, .ch, .cm, .cs) {
+  color: #0b5f66;
+  font-style: normal;
+}
