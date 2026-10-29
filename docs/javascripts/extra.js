@@ -262,15 +262,26 @@ document$.subscribe(() => {
     });
   }
 
-  // Code blocks with data-hl2="10 11" (```{.yaml data-hl2="10 11"}): mark those
-  // lines with a second highlight color (teal), next to hl_lines (yellow .hll).
-  document.querySelectorAll(".highlight[data-hl2]").forEach((block) => {
-    if (block.dataset.hl2Ready) return;
-    block.dataset.hl2Ready = "true";
-    const lines = new Set(block.dataset.hl2.split(/\s+/).map(Number));
+  // Highlight lines from an HTML comment right before the code block:
+  //   <!-- hl: 2 10 11 | hl2: 14 15 -->
+  // hl = yellow (.hll), hl2 = teal (.doc-hl-2). A comment is used instead of
+  // ```{.yaml hl_lines="..."} because the editor strips text after the fence language.
+  document.querySelectorAll(".md-typeset .highlight").forEach((block) => {
+    if (block.dataset.hlReady) return;
+    block.dataset.hlReady = "true";
+    let node = block.previousSibling;
+    while (node && node.nodeType === Node.TEXT_NODE && !node.textContent.trim()) node = node.previousSibling;
+    if (!node || node.nodeType !== Node.COMMENT_NODE) return;
+    const lines = (key) => {
+      const m = node.textContent.match(new RegExp("(?:^|\\|)\\s*" + key + ":\\s*([\\d\\s]+)"));
+      return new Set(m ? m[1].trim().split(/\s+/).map(Number) : []);
+    };
+    const hl = lines("hl"), hl2 = lines("hl2");
+    if (!hl.size && !hl2.size) return;
     block.querySelectorAll('code > span[id^="__span-"]').forEach((span) => {
       const n = Number(span.id.split("-").pop());
-      if (lines.has(n)) span.classList.add("doc-hl-2");
+      if (hl.has(n)) span.classList.add("hll");
+      if (hl2.has(n)) span.classList.add("doc-hl-2");
     });
   });
 });

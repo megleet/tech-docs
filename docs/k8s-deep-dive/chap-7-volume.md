@@ -1,7 +1,7 @@
 ---
 icon: lucide/hard-drive
 ---
-# Chap-6 Volume
+# Chap-7 Volume
 
 **目錄**
 
@@ -20,7 +20,7 @@ icon: lucide/hard-drive
 | **Secret** | password、token、certificate這類敏感資料 |
 | **ConfigMap** | 一般的config |
 | **Downward API** | Pod自己的資訊：名稱、namespace、label、資源上限 |
-| **ServiceAccountToken** | 存取API Server用的token |
+| **ServiceAccountToken** | 存取API Server用的token，見[ServiceAccountToken](#-6-serviceaccounttokenpod怎麼存取api-server) |
 
 這幾種都可以單獨當volume用（`secret`、`configMap`、`downwardAPI`），也可以用[`projected`](https://kubernetes.io/docs/concepts/storage/projected-volumes/)把好幾個來源***合併到同一個目錄***。
 
@@ -66,7 +66,7 @@ kubectl exec -it test-projected-volume -- ls /projected-volume/
 
 - **Secret的每個key，變成目錄裡的一個檔案**：key是檔名，value是檔案內容。
 - **app只要讀檔案**：不用在程式裡寫死password，也不用呼叫Kubernetes API。
-- **Secret更新後，檔案會自動更新**：kubelet定期同步，會有一點延遲。改用env var注入的話，要重建Pod才會更新，見[env var還是volume](#-5-env-var還是volume)。
+- **Secret更新後，檔案會自動更新**：kubelet定期同步，會有一點延遲。改用env var inject的話，要重建Pod才會更新，見[env var還是volume](#-5-env-var還是volume)。
 
 > [!WARNING]
 > [Secret](https://kubernetes.io/docs/concepts/configuration/secret/)預設***只做base64編碼，沒有加密***，etcd裡存的內容可以直接還原。要真的加密，要另外設定[encryption at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)，或改用Vault這類外部的secret管理系統。
@@ -206,7 +206,7 @@ kubectl exec web-7d4f9 -- cat /etc/podinfo/mem_limit
 - **常見用途**：
     - log和metrics裡帶上Pod名稱和Node名稱，方便追查；
     - app依資源上限調整自己，例如JVM依`limits.memory`決定heap大小。
-- **限制：只拿得到container啟動前就確定的資訊**：Downward API拿得到的，都是Pod object上***container啟動前就確定***的欄位，例如名稱、IP、label、資源上限。container執行後才出現的資訊，例如container裡process的PID，Downward API拿不到，要在Pod裡另外放一個sidecar來取得；sidecar要看得到app的process，Pod要設定`shareProcessNamespace: true`。另外，它也只拿得到***這個Pod自己***的資訊；其他Pod或Service的資訊，還是要呼叫API Server。
+- **限制：只拿得到container啟動前就確定的資訊**：Downward API拿得到的，都是Pod object上***container啟動前就確定***的欄位，例如名稱、IP、label、資源上限。container執行後才出現的資訊，例如container裡process的PID，Downward API拿不到，要在Pod裡另外放一個sidecar來取得；sidecar要看得到app的process，Pod要設定`shareProcessNamespace: true`。另外，它也只拿得到***這個Pod自己***的資訊；其他Pod或Service的資訊，還是要呼叫API Server，見[ServiceAccountToken](#-6-serviceaccounttokenpod怎麼存取api-server)。
 
 ### 🔄 5. env var還是volume
 
@@ -223,3 +223,155 @@ Secret、ConfigMap和Downward API的資訊，大多也可以用env var給contain
 
 > [!NOTE]
 > 用`subPath`把volume裡的單一檔案mount到某個路徑時，這個檔案***不會***自動更新，和env var一樣要重建Pod。
+
+### 🎫 6. ServiceAccountToken：Pod怎麼存取API Server
+
+有些Pod裡的程式要***操作Kubernetes API***，例如[controller](chap-5-container-orchestration-controller.md#控制器模式)、CI的agent、[Headlamp](chap-3-kubernetes-operations.md#-step-7deploy-dashboardheadlamp)這類web UI。API Server收到request時，要先回答兩個問題：
+
+| 問題 | 誰負責 |
+| --- | --- |
+| **你是誰**（authentication） | ***ServiceAccount***：Pod的身分，用token證明 |
+| **你能做什麼**（authorization） | ***RBAC***：Role / ClusterRole定義權限，RoleBinding / ClusterRoleBinding把權限綁到ServiceAccount |
+
+***ServiceAccount本身只是身分，不帶任何權限***。權限要另外用RBAC綁上去。
+
+**① Pod怎麼自動拿到token**
+
+每個namespace都有一個叫`default`的ServiceAccount。Pod沒有指定`serviceAccountName`時就用它，而且Kubernetes會自動替Pod加上一個projected volume，mount到每個container的`/var/run/secrets/kubernetes.io/serviceaccount/`：
+
+```bash
+kubectl describe pod web-7d4f9
+```
+
+```
+Containers:
+  app:
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7xk2q (ro)
+Volumes:
+  kube-api-access-7xk2q:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+```
+
+`kube-api-access-7xk2q`就是用[`projected`](#-1-什麼是projected-volume)把三個來源合併到同一個目錄，等於自動加了這段YAML：
+
+<!-- hl: 4 5 6 -->
+```yaml
+volumes:
+  - name: kube-api-access-7xk2q
+    projected:
+      sources:
+        - serviceAccountToken:          # 來源一：token
+            expirationSeconds: 3607
+            path: token
+        - configMap:                    # 來源二：ConfigMap
+            name: kube-root-ca.crt
+            items:
+              - key: ca.crt
+                path: ca.crt
+        - downwardAPI:                  # 來源三：Downward API
+            items:
+              - path: namespace
+                fieldRef:
+                  fieldPath: metadata.namespace
+```
+
+| 檔案 | 來源 | 用途 |
+| --- | --- | --- |
+| **`token`** | `serviceAccountToken` | 證明身分，放在HTTP header：`Authorization: Bearer <token>` |
+| **`ca.crt`** | ConfigMap `kube-root-ca.crt`（每個namespace都自動有一份） | 驗證API Server的certificate |
+| **`namespace`** | [`downwardAPI`](#-4-downward-api讓container知道自己是誰) | 這個Pod所在的namespace |
+
+**② token的特性**
+
+- **不存在Secret裡**：kubelet透過API Server的***TokenRequest API***替這個Pod申請token，直接寫進volume。[Headlamp登入用的`kubectl create token`](chap-3-kubernetes-operations.md#-step-7deploy-dashboardheadlamp)，走的也是同一個API。
+- **有期限**：大約1小時。kubelet會在到期前申請新的token、更新檔案（volume會自動更新，見[env var還是volume](#-5-env-var還是volume)），所以app要定期重新讀檔，不能啟動時讀一次就一直用。官方的client lib（例如Go的client-go）已經處理好了。
+- **綁定這個Pod**：Pod刪掉，token馬上失效，就算外洩也用不了多久。
+
+**③ 在Pod裡存取API Server**
+
+client-go的`rest.InClusterConfig()`做的事情，就是讀上面三個檔案，再用env var `KUBERNETES_SERVICE_HOST`、`KUBERNETES_SERVICE_PORT`找到API Server。用`curl`手動做一次（container裡要有`curl`）：
+
+```bash
+SA=/var/run/secrets/kubernetes.io/serviceaccount
+curl --cacert $SA/ca.crt \
+  -H "Authorization: Bearer $(cat $SA/token)" \
+  https://kubernetes.default.svc/api/v1/namespaces/$(cat $SA/namespace)/pods
+# → "message": "pods is forbidden: User \"system:serviceaccount:default:default\"
+#   cannot list resource \"pods\" in API group \"\" in the namespace \"default\""
+```
+
+- **`kubernetes.default.svc`**：`default` namespace裡叫`kubernetes`的Service，就是API Server的固定入口，見[Service的DNS](chap-5-container-orchestration-controller.md#-2-怎麼存取servicevip和dns)。
+- **403 Forbidden**：API Server認出了身分`system:serviceaccount:default:default`（namespace `default`裡的`default` ServiceAccount），但***它沒有權限list Pod***。`default` ServiceAccount幾乎沒有權限。
+
+**④ 用RBAC給權限**
+
+建一個只能讀Pod的ServiceAccount：
+
+<!-- hl: 13 -->
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-reader
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+rules:
+  - apiGroups: [""]                   # ""：core API group，Pod在這裡
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]   # 只能讀，不能改或刪
+```
+
+<!-- hl: 5 6 7 8 -->
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader
+subjects:                             # 綁給誰：ServiceAccount pod-reader
+  - kind: ServiceAccount
+    name: pod-reader
+    namespace: default
+roleRef:                              # 給什麼權限：Role pod-reader
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+```
+
+Pod用`serviceAccountName`指定它：
+
+<!-- hl: 2 -->
+```yaml
+spec:
+  serviceAccountName: pod-reader
+  containers:
+    - name: app
+      image: example/my-app:1.0
+```
+
+再跑一次上面的`curl`，就會回傳這個namespace裡的Pod清單；要刪Pod的話，一樣回403。
+
+- **Role / RoleBinding**：只在***一個namespace***裡有效。
+- **ClusterRole / ClusterRoleBinding**：整個cluster有效。例如[Headlamp](chap-3-kubernetes-operations.md#-step-7deploy-dashboardheadlamp)用ClusterRoleBinding把內建的ClusterRole `cluster-admin`（所有權限）綁給`headlamp-admin`。
+- **權限給最小就好**：只給程式真正需要的resource和verb。
+
+**⑤ 不需要就不要mount**
+
+大部分app根本不會呼叫API Server，但token還是會被mount進去；container被入侵時，token就可能被拿去用。不需要的話，在Pod或ServiceAccount上關掉：
+
+```yaml
+spec:
+  automountServiceAccountToken: false
+```
+
+> [!TIP]
+> 💡 **一句話總結**
+>
+> ***ServiceAccount是Pod的身分，RBAC決定它能做什麼***。Kubernetes自動把token、`ca.crt`、`namespace`用projected volume mount進`/var/run/secrets/kubernetes.io/serviceaccount/`；token有期限、綁定Pod，由kubelet自動更新。

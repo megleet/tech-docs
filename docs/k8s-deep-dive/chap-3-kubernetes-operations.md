@@ -102,7 +102,7 @@ nodeRegistration:
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration                  # 整個cluster共用的config，整份存成ConfigMap kubeadm-config
-kubernetesVersion: v1.31.0
+kubernetesVersion: v1.36.0
 imageRepository: registry.k8s.io
 networking:
   dnsDomain: cluster.local
@@ -222,7 +222,7 @@ metadata:
 spec:
   containers:
   - name: kube-apiserver
-    image: registry.k8s.io/kube-apiserver:v1.31.0
+    image: registry.k8s.io/kube-apiserver:v1.36.0
     command:
     - kube-apiserver
     - --advertise-address=192.168.0.102
@@ -303,6 +303,8 @@ kubectl get secrets -n kube-system | grep bootstrap-token
 > | ---------------------- | --------- | ----------------------------------------- |
 > | **拿掉taint**    | Node      | ***所有***Pod都可以排到Master上   |
 > | **加toleration** | Pod的YAML | ***只有這個Pod***可以排到Master上 |
+>
+> taint、effect和toleration更完整的說明，見[第5章的Taint和Toleration](chap-5-container-orchestration-controller.md#taint和toleration)。
 
 ### 🤝 Step 4：kubeadm join
 
@@ -349,9 +351,9 @@ Step 3和Step 4做完之後，所有Node都還是`NotReady`：
 ```bash
 kubectl get nodes
 # → NAME      STATUS     ROLES           AGE   VERSION
-#   master    NotReady   control-plane   10m   v1.31.0
-#   worker1   NotReady   <none>          2m    v1.31.0
-#   worker2   NotReady   <none>          2m    v1.31.0
+#   master    NotReady   control-plane   10m   v1.36.0
+#   worker1   NotReady   <none>          2m    v1.36.0
+#   worker2   NotReady   <none>          2m    v1.36.0
 
 kubectl describe node master
 # → Conditions:
@@ -400,7 +402,7 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 
 #### 為什麼需要持久化storage
 
-我們常把host上的目錄或檔案mount進container的mount namespace（原理見[mount --bind技術](chap-1-container-basics.md#mount---bind%E6%8A%80%E8%A1%93)），讓container和host共享這些目錄或檔案，container裡的app也能在其中新建、寫入檔案。但這種做法把storage***綁定在單一host上*** ：Pod一旦被重新排程到別的Node，原本寫的資料就找不到了。這正是container**無狀態**的典型表現
+我們常把host上的目錄或檔案mount進container的mount namespace（原理見[mount --bind技術](chap-1-container-basics.md#mount---bind%E6%8A%80%E8%A1%93)），讓container和host共享這些目錄或檔案，container裡的app也能在其中新建、write檔案。但這種做法把storage***綁定在單一host上*** ：Pod一旦被重新排程到別的Node，原本寫的資料就找不到了。這正是container**無狀態**的典型表現
 
 要讓container**有狀態** ，就需要**持久化storage**：storage plugin會在container裡mount一份remote的儲存空間（透過網路等方式），檔案實際存放在remote storage server上，或分散在多個Node上， ***和目前這台host沒有綁定關係*** 。因此不管新的container在哪台host啟動，都能mount同一份儲存，讀到原來的資料，這就是「持久化」。在K8s中，這通常透過PV/PVC和CSI plugin來實現。
 
@@ -575,7 +577,7 @@ spec:
 
 接著分3步驗證：
 
-1. **在worker1建Pod**：Pod啟動時寫入`hello.txt`。
+1. **在worker1建Pod**：Pod啟動時write `hello.txt`。
 2. **刪掉Pod**：Pod刪掉了，PVC和裡面的資料還在。RBD volume同時只能掛在一個Node上，所以要等舊的Pod完全刪除，worker2才掛得上去。
 3. **把`nodeName`改成worker2，再建一次**：新的Pod跑在另一個Node上，讀讀看`hello.txt`還在不在。
 
@@ -608,7 +610,7 @@ container裡看到/data
 
 #### ⚖️ 業界常見的做法：Ceph不是所有stateful app的最佳選擇
 
-Ceph每次寫入都要經過網路、等其他OSD確認，latency比local disk高1～2個數量級。app自己就會複製資料時，跑在Ceph上等於***同一筆資料被複製兩次***，例如CockroachDB（CRDB）存3份、每份在Ceph裡再存3份，空間和latency都疊加。所以要依app選storage：
+Ceph每次write都要經過網路、等其他OSD確認，latency比local disk高1～2個數量級。app自己就會複製資料時，跑在Ceph上等於***同一筆資料被複製兩次***，例如CockroachDB（CRDB）存3份、每份在Ceph裡再存3份，空間和latency都疊加。所以要依app選storage：
 
 | app類型                                                            | 建議的storage                                                                            | 原因                                                     |
 | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -628,8 +630,7 @@ Ceph每次寫入都要經過網路、等其他OSD確認，latency比local disk�
 
 *kubeadm不會安裝web UI。想用瀏覽器看cluster的狀態，要自己deploy一個。*
 
-> [!NOTE]
-> 過去最常用的是官方的Kubernetes Dashboard，但它已經archived、不再維護，[官方文件](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/)建議新安裝改用[Headlamp](https://headlamp.dev/)。
+這裡用[Headlamp](https://headlamp.dev/)：Kubernetes官方文件目前推薦的web UI。
 
 Headlamp和CNI、CSI一樣，也是用Kubernetes object deploy的。這次用Helm安裝，先在Master上[安裝Helm](https://helm.sh/docs/intro/install/)：
 
@@ -645,7 +646,7 @@ kubectl get pods -n kube-system | grep headlamp
 
 #### 怎麼存取
 
-***web UI預設不對外開放***。很多人曾經在公有雲上不小心把Dashboard的port暴露出去，任何人都能看到、甚至修改cluster。所以Service預設是`ClusterIP`，只能在cluster裡面連。
+***web UI預設不對外開放***：web UI要是暴露到公開網路，任何人都能看到、甚至修改cluster。所以Service預設是`ClusterIP`，只能在cluster裡面連。
 
 Master通常是沒有瀏覽器的VM，用SSH port forwarding從自己的電腦連進去：
 
@@ -666,6 +667,6 @@ kubectl create clusterrolebinding headlamp-admin \
 kubectl create token headlamp-admin -n kube-system --duration=24h
 ```
 
-- **token會過期**：預設1小時，`--duration`可以調長。
+- **token會過期**：預設1小時，`--duration`可以調長。ServiceAccount、RBAC和token的原理，見[Chap-7的ServiceAccountToken](chap-7-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 - **權限**：`cluster-admin`權限最大，只適合練習環境。另外，Helm chart預設也替Headlamp自己的ServiceAccount綁了`cluster-admin`，正式環境可以在安裝時加`--set clusterRoleBinding.create=false`關掉。
 - **從cluster外存取**：不要直接把Service改成`NodePort`或`LoadBalancer`，要透過Ingress，並加上TLS和認證。

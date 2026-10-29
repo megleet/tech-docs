@@ -90,7 +90,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 
 - **檔案**：直接交換檔案。
 - **溝通**：① 用`localhost`或socket檔案在本機溝通；② 非常頻繁地互相呼叫。
-- **共用namespace**：例如Istio的Envoy sidecar，和app container共用同一個network namespace，再用iptables把app進出的流量全部導到Envoy。app不用改任何程式，流量就自動經過Envoy做加密、重試和監控。
+- **共用namespace**：例如Istio的Envoy sidecar，和app container共用同一個network namespace，再用iptables把app進出的流量全部導到Envoy。app不用改任何程式，流量就自動經過Envoy做加密、重試和監控，見[Chap-6的Istio](chap-6-declarative-api-operator.md#用istio理解聲明式api)。
 
 ## Pod的實現：pause container
 
@@ -101,7 +101,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 ![Pod裡的pause container：container runtime建立sandbox時先啟動pause container，由它建立並持有net、ipc、uts namespace；container A和B透過setns()加入，3個container的/proc/{pid}/ns/net都指向同一個net:[4026532483]。runtime再呼叫CNI plugin，在這個network namespace裡建立eth0（10.244.1.5），用veth pair接到host上的bridge cni0](images/ch04/pod-pause-container.svg)
 
 - **pause container永遠第一個建立**：其他使用者定義的container，再透過[setns()](chap-1-container-basics.md#setns加入另一個process的namespace)加入pause container的network namespace。
-- **用的是極小的image**：`registry.k8s.io/pause`（舊位址是`k8s.gcr.io/pause`）。它是用C寫的一個小程式，靜態編譯後只有幾百KB，啟動後就一直呼叫`pause()`休眠，幾乎不佔資源。
+- **用的是極小的image**：`registry.k8s.io/pause`。它是用C寫的一個小程式，靜態編譯後只有幾百KB，啟動後就一直呼叫`pause()`休眠，幾乎不佔資源。
 
 圖裡的Pod框，在[CRI](chap-2-kubernetes-architecture.md#-1-kubelet與各個interface)裡叫***sandbox***。Pod和sandbox不是同一個東西：
 
@@ -164,13 +164,14 @@ volumes:
 | **`hostPath`** | Node上一個指定的路徑，例如`/data`                                                              | 和Node一樣：Pod刪了，資料還在那台Node上                  | 需要讀Node本身的檔案，例如log agent讀`/var/log/pods` |
 | **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-operations.md#-step-6deploy-csi-driverrook-ceph) | ***和Pod無關***，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
 
-另外還有一類volume不存資料，而是把config、password project進container，見[Chap-6的Projected Volume](chap-6-volume.md#projected-volume)。
+另外還有一類volume不存資料，而是把config、password project進container，見[Chap-7的Projected Volume](chap-7-volume.md#projected-volume)。
 
 #### 例子：WAR包和Tomcat
 
 一個Java web app的WAR包，要放進Tomcat的`webapps`目錄才能執行。有了Pod，就可以把**WAR包**和**Tomcat*****各做成一個image***，再用一個**共用的volume**組合起來：
 
-```{.yaml hl_lines="6 13" data-hl2="10 11 16 17 21 22"}
+<!-- hl: 6 13 | hl2: 10 11 16 17 21 22 -->
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -543,7 +544,7 @@ spec:
 - **`postStart`**：container啟動後立刻執行。
   - ***和`ENTRYPOINT`同時跑，不保證先後順序***：`postStart`執行時，app可能還沒準備好。
   - `postStart`還沒跑完之前，container不會被標成`running`；它失敗的話，container會被kill，再依`restartPolicy`處理。
-- **`preStop`**：container***被要求停止時***，在送出`SIGTERM`之前執行，例如刪除Pod、liveness probe失敗。
+- **`preStop`**：container***被要求停止時***，在send `SIGTERM`之前執行，例如刪除Pod、liveness probe失敗。
   - ***同步執行***：`preStop`跑完，kubelet才送`SIGTERM`給container。
   - 時間算在`terminationGracePeriodSeconds`（預設30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
   - container自己正常結束時***不會***觸發。

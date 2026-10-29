@@ -1370,7 +1370,7 @@ ls /var/lib/docker/overlay2/{layer_b}/diff      # → run
 
 #### 📌 第二部分：Writable layer
 
-這是rootfs最上面的一層，也就是`upperdir`，mount方式為`rw`。還沒寫入file之前，這個directory是空的；一旦在container裡寫入，修改的內容就會以incremental的方式出現在這一層。
+這是rootfs最上面的一層，也就是`upperdir`，mount方式為`rw`。還沒write file之前，這個directory是空的；一旦在container裡write，修改的內容就會以incremental的方式出現在這一層。
 
 container在merged裡做的每個檔案操作，OverlayFS都照下面的規則處理，這就是Copy-on-Write：
 
@@ -1412,13 +1412,13 @@ Docker靠這套機制得到三個好處：
 - **省空間**：同一個image跑100個container，lower只存一份，每個container只多出自己改過的部分。
 - **image不會被改壞**：所有修改都留在upper，刪掉container就整層丟掉。
 
-代價是第一次寫入時要複製整個檔案，大量寫入的資料應該放volume，見[常見誤解](#-5-常見誤解)。
+代價是第一次write時要複製整個檔案，大量write的資料應該放volume，見[常見誤解](#-5-常見誤解)。
 
 #### 📌 第三部分：Init layer
 
 這是一個以`-init`結尾的layer，夾在read-only layers和writable layer之間。它是Docker單獨產生的內部layer，專門存放`/etc/hosts`、`/etc/resolv.conf`、`/etc/hostname`這類和container本身有關的file的mount point。
 
-- **為什麼需要這一層**：這些file本來屬於read-only的image，但Docker啟動container時需要寫入指定的值，例如hostname、DNS config。這些修改只對當前的container有效，不希望執行`docker commit`時，把它們連同writable layer一起提交。
+- **為什麼需要這一層**：這些file本來屬於read-only的image，但Docker啟動container時需要write指定的值，例如hostname、DNS config。這些修改只對當前的container有效，不希望執行`docker commit`時，把它們連同writable layer一起提交。
 - **Docker的做法**：把它們放在獨立的init layer。`docker commit`只會提交writable layer，所以不包含init layer的內容。
 
 最終，這些layer都被union mount到`merged`目錄，表現為一個完整的Ubuntu供container使用。
@@ -1493,7 +1493,7 @@ docker inspect demo --format '{{json .GraphDriver.Data}}' | python3 -m json.tool
 ```bash
 sudo ls /var/lib/docker/overlay2/a1b2c3d4e5.../diff     # image layer：完整的Ubuntu
 # → bin  boot  dev  etc  home  lib  ...  usr  var
-sudo ls /var/lib/docker/overlay2/6e3be5d2ec.../diff     # writable layer：還沒寫入，是空的
+sudo ls /var/lib/docker/overlay2/6e3be5d2ec.../diff     # writable layer：還沒write，是空的
 sudo ls /var/lib/docker/overlay2/6e3be5d2ec.../merged   # rootfs：上面幾層合起來的結果
 # → bin  boot  dev  etc  home  lib  ...  usr  var
 ```
@@ -1556,7 +1556,7 @@ overlay /var/lib/docker/overlay2/6e3be5d2ec.../merged overlay rw,relatime,
 
 - **修改merged會改到image**：不會，修改只發生在`upperdir`，lower不變。
 - **刪除file會讓image變小**：不會，whiteout只是遮蔽，lower的file仍然佔空間。
-- **copy-up沒有成本**：修改一個1GB file的1 byte，也會先把整個file複製到upper，所以***大量寫入的資料要放volume***。
+- **copy-up沒有成本**：修改一個1GB file的1 byte，也會先把整個file複製到upper，所以***大量write的資料要放volume***。
 
 ### ✅ 6. 驗證指令
 

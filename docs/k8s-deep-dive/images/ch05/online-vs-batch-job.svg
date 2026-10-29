@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 420" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="820" height="420" fill="#ffffff"/>
+
+  <!-- ===== Titles ===== -->
+  <g font-size="17" font-weight="800" fill="#1e293b" text-anchor="middle">
+    <text x="260" y="28">Online job：一直執行的服務</text>
+    <text x="680" y="28">Offline / batch job：跑完就結束</text>
+  </g>
+  <line x1="540" y1="12" x2="540" y2="370" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+
+  <!-- ===== Arrows: Pod -> owner (ownerReferences) ===== -->
+  <g fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ar)">
+    <path d="M100 232 V 196"/>
+    <path d="M100 144 V 114"/>
+    <path d="M260 232 V 114"/>
+    <path d="M420 232 V 114"/>
+    <path d="M680 232 V 196"/>
+    <path d="M680 144 V 114"/>
+  </g>
+
+  <!-- ===== Boxes ===== -->
+  <g filter="url(#sh)">
+    <rect x="30" y="60" width="140" height="54" rx="12" fill="#04a3ff"/>
+    <rect x="30" y="144" width="140" height="52" rx="12" fill="#ee5fa6"/>
+    <rect x="190" y="60" width="140" height="54" rx="12" fill="#04a3ff"/>
+    <rect x="350" y="60" width="140" height="54" rx="12" fill="#04a3ff"/>
+    <rect x="610" y="60" width="140" height="54" rx="12" fill="#2f9e6e"/>
+    <rect x="610" y="144" width="140" height="52" rx="12" fill="#57c08f"/>
+    <circle cx="100" cy="262" r="30" fill="#f6bc00"/>
+    <circle cx="260" cy="262" r="30" fill="#f6bc00"/>
+    <circle cx="420" cy="262" r="30" fill="#f6bc00"/>
+    <circle cx="680" cy="262" r="30" fill="#f6bc00"/>
+  </g>
+
+  <g fill="#ffffff" text-anchor="middle" font-weight="800">
+    <text x="100" y="84" font-size="18">Deployment</text>
+    <text x="100" y="166" font-size="17">ReplicaSet</text>
+    <text x="260" y="84" font-size="18">StatefulSet</text>
+    <text x="420" y="84" font-size="18">DaemonSet</text>
+    <text x="680" y="84" font-size="18">CronJob</text>
+    <text x="680" y="166" font-size="17">Job</text>
+    <g font-size="12" font-weight="600">
+      <text x="100" y="103">版本更新、rollback</text>
+      <text x="100" y="185">維持Pod的數量</text>
+      <text x="260" y="103">固定名稱和PVC</text>
+      <text x="420" y="103">每個Node一個</text>
+      <text x="680" y="103">定時建立Job</text>
+      <text x="680" y="185">執行到成功完成</text>
+    </g>
+    <g font-size="15" font-weight="700">
+      <text x="100" y="267">Pod</text>
+      <text x="260" y="267">Pod</text>
+      <text x="420" y="267">Pod</text>
+      <text x="680" y="267">Pod</text>
+    </g>
+  </g>
+
+  <!-- Pod status -->
+  <g font-size="13" font-family="Menlo, Consolas, monospace" text-anchor="middle">
+    <text x="100" y="312" fill="#2f9e6e">Running</text>
+    <text x="260" y="312" fill="#2f9e6e">Running</text>
+    <text x="420" y="312" fill="#2f9e6e">Running</text>
+    <text x="680" y="312" fill="#64748b">Completed</text>
+  </g>
+
+  <!-- ===== Captions ===== -->
+  <g font-size="15" font-weight="600" text-anchor="middle">
+    <text x="260" y="356" fill="#0369a1">Pod停了就再建立，一直維持期望的數量</text>
+    <text x="680" y="356" fill="#1f7a52">Pod成功完成就結束，不再重新啟動</text>
+  </g>
+  <text x="410" y="396" font-size="13" fill="#475569" text-anchor="middle">箭頭：Pod的ownerReferences指向它的owner</text>
+</svg>

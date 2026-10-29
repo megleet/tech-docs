@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="#ffffff"/>
+
+  <!-- ===== Replication arrows ===== -->
+  <g fill="none" stroke="#334155" stroke-width="2">
+    <path d="M290 130 C 230 160, 170 190, 160 240" marker-end="url(#arr)"/>
+    <path d="M410 130 C 470 160, 530 190, 540 240" marker-end="url(#arr)"/>
+  </g>
+  <g font-size="14" font-weight="600" fill="#64748b">
+    <text x="208" y="196">replication</text>
+    <text x="492" y="196" text-anchor="end">replication</text>
+  </g>
+
+  <!-- ===== Boxes ===== -->
+  <g filter="url(#sh)">
+    <rect x="250" y="50" width="200" height="80" rx="14" fill="#04a3ff"/>
+    <rect x="60" y="244" width="200" height="80" rx="14" fill="#ee5fa6"/>
+    <rect x="440" y="244" width="200" height="80" rx="14" fill="#ee5fa6"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle">
+    <text x="350" y="86" font-size="22" font-weight="800">mysql-0</text>
+    <text x="350" y="112" font-size="14">primary · index 0</text>
+    <text x="160" y="280" font-size="22" font-weight="800">mysql-1</text>
+    <text x="160" y="306" font-size="14">replica · index 1</text>
+    <text x="540" y="280" font-size="22" font-weight="800">mysql-2</text>
+    <text x="540" y="306" font-size="14">replica · index 2</text>
+  </g>
+
+  <!-- ===== Read / Write ===== -->
+  <g font-size="17" font-weight="800" fill="#1e293b" text-anchor="middle">
+    <text x="350" y="34">Write ＋ Read</text>
+    <text x="160" y="356">Read</text>
+    <text x="540" y="356">Read</text>
+  </g>
+</svg>

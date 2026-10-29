@@ -116,7 +116,7 @@
     <rect x="481" y="731" width="58" height="28" rx="14" fill="#fff" stroke="#e0a800" stroke-width="1.5"/><text x="510" y="751" fill="#a77d00">CNI</text>
     <rect x="571" y="771" width="58" height="28" rx="14" fill="#fff" stroke="#e0a800" stroke-width="1.5"/><text x="600" y="791" fill="#a77d00">OCI</text>
     <rect x="780" y="364" width="160" height="28" rx="14" fill="#fff" stroke="#d1495b" stroke-width="1.5"/><text x="860" y="384" fill="#d1495b">REST（protobuf）</text>
-    <rect x="470" y="491" width="140" height="28" rx="14" fill="#fff" stroke="#64748b" stroke-width="1.5"/><text x="540" y="511" fill="#475569">iptables / IPVS</text>
+    <rect x="460" y="491" width="160" height="28" rx="14" fill="#fff" stroke="#64748b" stroke-width="1.5"/><text x="540" y="511" fill="#475569">iptables / nftables</text>
   </g>
 
   <!-- ===== Legend ===== -->
@@ -130,6 +130,6 @@
     <rect x="720" y="1034" width="24" height="24" rx="6" fill="#f5c542"/>
     <text x="754" y="1052">由Container Runtime呼叫</text>
     <line x1="60" y1="1080" x2="110" y2="1080" stroke="#64748b" stroke-width="3.5" stroke-dasharray="4 6" stroke-linecap="round"/>
-    <text x="120" y="1086">設定kernel網路規則（kube-proxy：iptables / IPVS）</text>
+    <text x="120" y="1086">設定kernel網路規則（kube-proxy：iptables / nftables）</text>
   </g>
 </svg>

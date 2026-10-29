@@ -48,7 +48,7 @@ Linux（namespace、cgroups）
 | **位置**       | 每個Node各一個。通常以DaemonSet的形式執行，所以每台機器都會有一個kube-proxy Pod                                 |
 | **和誰溝通**   | ***直接和API Server溝通***，用REST watch監看Service和EndpointSlice的變化。它***不經過kubelet*** |
 | **做什麼**     | 把「Service的虛擬IP（ClusterIP）→ 後端Pod IP」的轉發規則，寫進Node的Linux kernel                               |
-| **怎麼寫規則** | 預設用iptables，也可以用IPVS或nftables，都是設定kernel的netfilter                                               |
+| **怎麼寫規則** | 預設用iptables，也可以用nftables，都是設定kernel的netfilter                                               |
 
 所以比喻裡的「Service = 部門總機」，負責替總機設定轉接規則的，就是每台Node上的kube-proxy；真正轉接電話（轉發封包）的，是kernel的netfilter。
 
@@ -57,7 +57,7 @@ API Server
    │ REST（watch Service / EndpointSlice）
    ▼
 kube-proxy
-   │ iptables / IPVS規則
+   │ iptables / nftables規則
    ▼
 Linux kernel（netfilter）
 ```

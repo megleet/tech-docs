@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 450" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="860" height="450" fill="#ffffff"/>
+
+  <!-- ===== Titles ===== -->
+  <g font-size="17" font-weight="800" fill="#1e293b" text-anchor="middle">
+    <text x="220" y="26">Deployment：中間隔一層ReplicaSet</text>
+    <text x="640" y="26">StatefulSet：直接管理Pod</text>
+  </g>
+  <line x1="430" y1="10" x2="430" y2="440" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+
+  <!-- ===== Lines ===== -->
+  <g fill="none" stroke="#334155" stroke-width="2">
+    <!-- left -->
+    <path d="M220 104 V 150"/>
+    <path d="M220 202 C 220 228, 140 226, 140 250"/>
+    <path d="M220 202 V 250"/>
+    <path d="M220 202 C 220 228, 300 226, 300 250"/>
+    <!-- right: StatefulSet -> Pods directly -->
+    <path d="M590 104 V 250"/>
+    <path d="M690 104 V 250"/>
+    <!-- Pod -> PVC -->
+    <path d="M590 310 V 336"/>
+    <path d="M690 310 V 336"/>
+  </g>
+
+  <!-- ===== Boxes ===== -->
+  <g filter="url(#sh)">
+    <rect x="120" y="50" width="200" height="54" rx="12" fill="#04a3ff"/>
+    <rect x="95" y="150" width="250" height="52" rx="12" fill="#ee5fa6"/>
+    <rect x="540" y="50" width="200" height="54" rx="12" fill="#04a3ff"/>
+    <circle cx="140" cy="280" r="30" fill="#f6bc00"/>
+    <circle cx="220" cy="280" r="30" fill="#f6bc00"/>
+    <circle cx="300" cy="280" r="30" fill="#f6bc00"/>
+    <circle cx="590" cy="280" r="30" fill="#f6bc00"/>
+    <circle cx="690" cy="280" r="30" fill="#f6bc00"/>
+  </g>
+  <!-- missing ReplicaSet placeholder -->
+  <rect x="600" y="148" width="80" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="640" y="172" font-size="13" fill="#94a3b8" text-anchor="middle">沒有</text>
+  <text x="640" y="190" font-size="13" fill="#94a3b8" text-anchor="middle">ReplicaSet</text>
+
+  <!-- PVC cylinders -->
+  <g filter="url(#sh)">
+    <path d="M556 344 v32 a34 8 0 0 0 68 0 v-32" fill="#7c5cbf"/>
+    <ellipse cx="590" cy="344" rx="34" ry="8" fill="#a28ae0"/>
+    <path d="M656 344 v32 a34 8 0 0 0 68 0 v-32" fill="#7c5cbf"/>
+    <ellipse cx="690" cy="344" rx="34" ry="8" fill="#a28ae0"/>
+  </g>
+
+  <g fill="#ffffff" text-anchor="middle">
+    <text x="220" y="76" font-size="19" font-weight="800">Deployment</text>
+    <text x="220" y="95" font-size="12">nginx-deployment</text>
+    <text x="220" y="174" font-size="18" font-weight="700">ReplicaSet</text>
+    <text x="220" y="192" font-size="11">nginx-deployment-7c5ddbdf54</text>
+    <text x="640" y="76" font-size="19" font-weight="800">StatefulSet</text>
+    <text x="640" y="95" font-size="12">web</text>
+    <g font-size="15" font-weight="700">
+      <text x="140" y="285">Pod</text>
+      <text x="220" y="285">Pod</text>
+      <text x="300" y="285">Pod</text>
+      <text x="590" y="285">web-0</text>
+      <text x="690" y="285">web-1</text>
+    </g>
+    <g font-size="11" font-weight="600">
+      <text x="590" y="370">www-web-0</text>
+      <text x="690" y="370">www-web-1</text>
+    </g>
+  </g>
+
+  <!-- random Pod names -->
+  <g font-size="12" fill="#475569" text-anchor="middle" font-family="Menlo, Consolas, monospace">
+    <text x="140" y="330">…-x2kqp</text>
+    <text x="220" y="330">…-9pq7r</text>
+    <text x="300" y="330">…-m4tz8</text>
+  </g>
+
+  <!-- ===== Captions ===== -->
+  <g font-size="15" font-weight="600" text-anchor="middle">
+    <text x="220" y="420" fill="#a77d00">Pod名稱亂數，可以互相替換</text>
+    <text x="640" y="420" fill="#5b3fa0">Pod名稱固定編號，各自綁一個PVC</text>
+  </g>
+</svg>

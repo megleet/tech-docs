@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#334155"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0284c7"/>
+    </marker>
+    <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2f9e6e"/>
+    </marker>
+    <marker id="arp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7c5cbf"/>
+    </marker>
+  </defs>
+  <rect width="860" height="560" fill="#ffffff"/>
+
+  <!-- ===== Plane bands ===== -->
+  <rect x="10" y="14" width="840" height="150" rx="14" fill="#f1f8fe"/>
+  <rect x="10" y="236" width="840" height="270" rx="14" fill="#f8fafc"/>
+  <g font-size="14" font-weight="800" fill="#475569">
+    <text x="26" y="40">Control plane</text>
+    <text x="26" y="258">Data plane（ambient mode）</text>
+  </g>
+
+  <!-- ===== Control plane ===== -->
+  <g filter="url(#sh)">
+    <rect x="70" y="58" width="270" height="86" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect x="500" y="66" width="230" height="70" rx="12" fill="#04a3ff"/>
+  </g>
+  <text x="205" y="88" font-size="17" font-weight="800" fill="#1e293b" text-anchor="middle">Kubernetes API Server</text>
+  <g font-size="12" fill="#475569" text-anchor="middle">
+    <text x="205" y="112">Service、Pod</text>
+    <text x="205" y="130">VirtualService、DestinationRule</text>
+  </g>
+  <text x="615" y="98" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">istiod</text>
+  <text x="615" y="120" font-size="12" font-weight="600" fill="#ffffff" text-anchor="middle">轉成config、發certificate</text>
+
+  <path d="M496 101 H 344" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="420" y="92" font-size="14" font-weight="700" fill="#334155" text-anchor="middle">watch</text>
+
+  <!-- ===== Nodes ===== -->
+  <g filter="url(#sh)">
+    <rect x="30" y="268" width="300" height="222" rx="14" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="530" y="268" width="300" height="222" rx="14" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  </g>
+  <g font-size="13" font-weight="700" fill="#64748b">
+    <text x="44" y="288">Node 1</text>
+    <text x="544" y="288">Node 2</text>
+  </g>
+
+  <!-- ===== xDS ===== -->
+  <g fill="none" stroke="#0284c7" stroke-width="2" stroke-dasharray="6 5">
+    <path d="M555 136 L 186 290" marker-end="url(#arb)"/>
+    <path d="M615 136 L 432 396" marker-end="url(#arb)"/>
+    <path d="M680 136 V 290" marker-end="url(#arb)"/>
+  </g>
+  <rect x="200" y="176" width="210" height="28" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="305" y="195" font-size="13" font-weight="700" fill="#0284c7" text-anchor="middle">xDS：config + certificate</text>
+
+  <!-- ztunnel -->
+  <g filter="url(#sh)">
+    <rect x="90" y="294" width="180" height="48" rx="10" fill="#0e9aa7"/>
+    <rect x="590" y="294" width="180" height="48" rx="10" fill="#0e9aa7"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle">
+    <text x="180" y="316" font-size="16" font-weight="800">ztunnel</text>
+    <text x="180" y="333" font-size="11" font-weight="600">DaemonSet，每個Node一個</text>
+    <text x="680" y="316" font-size="16" font-weight="800">ztunnel</text>
+    <text x="680" y="333" font-size="11" font-weight="600">DaemonSet，每個Node一個</text>
+  </g>
+
+  <!-- Pods (app only) -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.5">
+    <rect x="50" y="384" width="120" height="90" rx="10"/>
+    <rect x="190" y="384" width="120" height="90" rx="10"/>
+    <rect x="550" y="384" width="120" height="90" rx="10"/>
+    <rect x="690" y="384" width="120" height="90" rx="10"/>
+  </g>
+  <g font-size="11" font-weight="700" fill="#64748b">
+    <text x="110" y="467" text-anchor="middle">Pod（1/1）</text>
+    <text x="250" y="467" text-anchor="middle">Pod（1/1）</text>
+    <text x="610" y="467" text-anchor="middle">Pod（1/1）</text>
+    <text x="750" y="467" text-anchor="middle">Pod（1/1）</text>
+  </g>
+  <g filter="url(#sh)" fill="#f6bc00">
+    <circle cx="110" cy="424" r="22"/>
+    <circle cx="250" cy="424" r="22"/>
+    <circle cx="610" cy="424" r="22"/>
+    <circle cx="750" cy="424" r="22"/>
+  </g>
+  <g fill="#ffffff" font-size="14" font-weight="800" text-anchor="middle">
+    <text x="110" y="429">app</text>
+    <text x="250" y="429">app</text>
+    <text x="610" y="429">app</text>
+    <text x="750" y="429">app</text>
+  </g>
+
+  <!-- app <-> ztunnel -->
+  <g fill="none" stroke="#334155" stroke-width="2">
+    <path d="M110 400 V 346" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <path d="M250 400 V 346" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <path d="M610 400 V 346" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <path d="M750 400 V 346" marker-start="url(#ar)" marker-end="url(#ar)"/>
+  </g>
+
+  <!-- mTLS between ztunnels -->
+  <path d="M276 318 H 584" fill="none" stroke="#2f9e6e" stroke-width="3" marker-start="url(#arg)" marker-end="url(#arg)"/>
+  <rect x="380" y="294" width="100" height="20" rx="10" fill="#f8fafc"/>
+  <text x="430" y="309" font-size="13" font-weight="800" fill="#2f9e6e" text-anchor="middle">mTLS（L4）</text>
+
+  <!-- waypoint -->
+  <g filter="url(#sh)">
+    <rect x="360" y="400" width="140" height="50" rx="10" fill="#7c5cbf"/>
+  </g>
+  <text x="430" y="422" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">waypoint</text>
+  <text x="430" y="439" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle">Envoy，需要L7時才經過</text>
+  <g fill="none" stroke="#7c5cbf" stroke-width="2" stroke-dasharray="5 4">
+    <path d="M250 344 C 280 400, 320 425, 356 425" marker-start="url(#arp)" marker-end="url(#arp)"/>
+    <path d="M504 425 C 540 425, 580 400, 610 344" marker-start="url(#arp)" marker-end="url(#arp)"/>
+  </g>
+
+  <!-- ===== Caption ===== -->
+  <text x="430" y="534" font-size="14" fill="#475569" text-anchor="middle">app的Pod裡沒有sidecar；L4（mTLS）由每個Node的ztunnel處理，需要分流、retry這類L7功能時才經過waypoint</text>
+</svg>

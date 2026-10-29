@@ -62,6 +62,10 @@ icon: lucide/palette
 | （容器的）運行時 | runtime |
 | 伺服器 | server |
 | 容器 | container |
+| 控制面、資料面、控制平面、數據平面 | control plane、data plane（圖裡也一樣） |
+| 注入 | inject（例如sidecar injection） |
+| 送出（request、signal）、送出去的流量、進來的流量 | send、outbound流量、inbound流量 |
+| 寫入、讀取、寫入者 | write、read、writer |
 | 本地 | local |
 | 遠端 | remote |
 | 編排對象 / 編排object、服務對象 / 服務object | orchestration object、service object |
@@ -69,6 +73,8 @@ icon: lucide/palette
 | 系統呼叫、system call、syscall | sys call（程式碼裡的`syscall()`等識別字不改） |
 
 其他技術名詞比照辦理：有通用英文說法的，就用英文。
+
+***只寫現在的做法***：不寫「舊的教材」「早期的寫法」「以前叫做」「舊位址是」這類歷史說明，也不用NOTE比較新舊版本；參考資料過時時，直接改寫成現在的版本。
 
 標題（h1～h4）如果以英文開頭，***第一個字母大寫***，例如`## Container為什麼能seamless deploy`。程式識別字和命令名稱（`pivot_root`、`unshare()`、`mount`、`umount`）維持原樣，***不要大寫***。
 
@@ -99,7 +105,7 @@ icon: lucide/palette
 - 指令前面**不加`$`**提示符號，否則上色時`$`會被當成指令。指令放`bash`區塊；較長的輸出放另一個不標語言的區塊，短的輸出寫成`# → …`註解。
 - 註解太長時拆成多行，和上一行的`#`或`//`對齊，不要寫成一行要左右捲動的長註解。
 - **長程式碼自動折疊**：20行以上的程式碼區塊，網站上只顯示前12行，底部淡出，加一個「展開全部（共N行）」按鈕；複製按鈕仍然複製完整內容。行數config在`extra.js`的`COLLAPSE_MIN` / `COLLAPSE_SHOW`。GitHub上照常完整顯示。
-- **標出重點行**（***預設不使用***，使用者要求才加；可以先提出建議）：寫成` ```{.yaml hl_lines="2 10 11"} `（行號從1算）。***一定要用大括號的寫法***：` ```yaml hl_lines="…" `會被VS Code的Markdown擴充在存檔時刪掉。這幾行會有淡黃底、左邊黃線，行內的註解變成深黃色，適合標出「兩份YAML的差別」這類重點。樣式在`extra.css`的`.hll`。要第二種顏色（青綠色），用` ```{.yaml hl_lines="6 13" data-hl2="10 11"} `：`data-hl2`列的行由`extra.js`加上`.doc-hl-2`，適合同一段程式碼裡兩組不同的重點，例如黃色標init container和container、青綠色標共用的volume。
+- **標出重點行**（***覺得需要時就加***，只標正文有解釋的關鍵行，不要每個區塊都加）：在程式碼區塊的上一行加HTML註解，例如`<!-- hl: 2 10 11 -->`（黃色）或`<!-- hl: 6 13 | hl2: 10 11 -->`（再加青綠色），行號從1算。`extra.js`讀這個註解，替那幾行加上`.hll`（黃）或`.doc-hl-2`（青綠）。***不要把設定寫在fence那一行***（` ```yaml hl_lines="…" `或` ```{.yaml …} `）：VS Code的Markdown擴充存檔時會把空格後面的字全部刪掉。
 - 同一個例子裡的ID或佔位符要前後一致，例如都寫`{container_id}`，並說明它從哪裡來。
 - 目錄樹：用` ``` `不標語言，畫成`├──` `└──` `│`的樹狀。只要區塊裡有這些符號就會自動上色：線條和`<-- 註解`、`(括號說明)`是灰色，**以`/`結尾的目錄**是藍色，檔案是一般文字顏色。所以目錄名稱後面一定要加`/`。
 
@@ -201,7 +207,8 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
 | Chap-3-Kubernetes operations | `lucide/wrench` |
 | Chap-4 Container orchestration之Pod篇 | `lucide/ship-wheel` |
 | Chap-5 Container orchestration之Controller篇 | `lucide/refresh-cw` |
-| Chap-6 Volume | `lucide/hard-drive` |
+| Chap-6 Declarative API & Operator | `lucide/file-code` |
+| Chap-7 Volume | `lucide/hard-drive` |
 
 ## 實作位置
 

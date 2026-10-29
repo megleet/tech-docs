@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 14 934 510" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="700">
+  <rect width="960" height="540" fill="#ffffff"/>
+
+  <!-- ===== Event lines ===== -->
+  <g stroke-width="1.5" stroke-dasharray="5 5">
+    <path d="M300 50 V 370" stroke="#2563eb"/>
+    <path d="M470 50 V 370" stroke="#2f9e6e"/>
+    <path d="M680 50 V 370" stroke="#ea580c"/>
+    <path d="M860 50 V 370" stroke="#dc2626"/>
+  </g>
+  <g>
+    <circle cx="300" cy="32" r="15" fill="#2563eb"/>
+    <circle cx="470" cy="32" r="15" fill="#2f9e6e"/>
+    <circle cx="680" cy="32" r="15" fill="#ea580c"/>
+    <circle cx="860" cy="32" r="15" fill="#dc2626"/>
+  </g>
+  <g font-size="16" fill="#ffffff" text-anchor="middle">
+    <text x="300" y="38">1</text>
+    <text x="470" y="38">2</text>
+    <text x="680" y="38">3</text>
+    <text x="860" y="38">4</text>
+  </g>
+
+  <!-- ===== STATUS ===== -->
+  <rect x="10" y="62" width="128" height="30" rx="6" fill="#1e293b"/>
+  <text x="74" y="83" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle">STATUS</text>
+  <text x="148" y="83" font-size="14" fill="#475569">kubectl get nodes</text>
+  <rect x="300" y="64" width="170" height="40" rx="8" fill="#fff7d6" stroke="#e0a800" stroke-width="2"/>
+  <rect x="470" y="64" width="210" height="40" rx="8" fill="#2f9e6e"/>
+  <rect x="680" y="64" width="255" height="40" rx="8" fill="#fff7d6" stroke="#e0a800" stroke-width="2"/>
+  <text x="385" y="91" font-size="19" fill="#5b4300" text-anchor="middle">NotReady</text>
+  <text x="575" y="91" font-size="19" fill="#ffffff" text-anchor="middle">Ready</text>
+  <text x="807" y="91" font-size="19" fill="#5b4300" text-anchor="middle">NotReady</text>
+
+  <!-- ===== Conditions ===== -->
+  <rect x="10" y="114" width="128" height="30" rx="6" fill="#1e293b"/>
+  <text x="74" y="135" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle">conditions</text>
+  <text x="148" y="135" font-size="14" fill="#475569">kubelet回報</text>
+
+  <g font-size="15" font-family="Menlo, Consolas, monospace">
+    <text x="14" y="179" fill="#0891b2">Ready</text>
+    <text x="14" y="219" fill="#64748b">Memory/Disk/PIDPressure</text>
+  </g>
+  <!-- Ready -->
+  <rect x="300" y="158" width="170" height="30" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+  <rect x="470" y="158" width="210" height="30" rx="6" fill="#e1f4f8" stroke="#0891b2" stroke-width="1.5"/>
+  <rect x="680" y="158" width="255" height="30" rx="6" fill="#ffedd5" stroke="#ea580c" stroke-width="1.5"/>
+  <!-- Pressure -->
+  <rect x="300" y="198" width="380" height="30" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+  <rect x="680" y="198" width="255" height="30" rx="6" fill="#ffedd5" stroke="#ea580c" stroke-width="1.5"/>
+  <g font-size="16" text-anchor="middle">
+    <text x="385" y="179" fill="#94a3b8">False</text>
+    <text x="575" y="179" fill="#0891b2">True</text>
+    <text x="807" y="179" fill="#ea580c">Unknown</text>
+    <text x="490" y="219" fill="#94a3b8">False（沒有壓力，正常）</text>
+    <text x="807" y="219" fill="#ea580c">Unknown</text>
+  </g>
+
+  <!-- ===== Taints ===== -->
+  <rect x="10" y="244" width="128" height="30" rx="6" fill="#1e293b"/>
+  <text x="74" y="265" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle">taints</text>
+  <text x="148" y="265" font-size="14" fill="#475569">依conditions自動加</text>
+  <g font-size="15" font-family="Menlo, Consolas, monospace" fill="#b91c1c">
+    <text x="14" y="309">NoSchedule</text>
+    <text x="14" y="349">NoExecute</text>
+  </g>
+  <g font-size="13" fill="#64748b">
+    <text x="120" y="309">擋住新的Pod</text>
+    <text x="120" y="349">趕走已經在上面的Pod</text>
+  </g>
+  <g fill="#fde8e8" stroke="#dc2626" stroke-width="1.5">
+    <rect x="300" y="288" width="170" height="30" rx="6"/>
+    <rect x="680" y="288" width="255" height="30" rx="6"/>
+    <rect x="300" y="328" width="170" height="30" rx="6"/>
+    <rect x="680" y="328" width="255" height="30" rx="6"/>
+  </g>
+  <g font-size="14" font-family="Menlo, Consolas, monospace" text-anchor="middle" fill="#b91c1c">
+    <text x="385" y="308">not-ready</text>
+    <text x="770" y="308">unreachable</text>
+    <text x="385" y="348">not-ready</text>
+    <text x="770" y="348">unreachable</text>
+  </g>
+  <g font-size="14" fill="#94a3b8" text-anchor="middle">
+    <text x="575" y="308">（沒有）</text>
+    <text x="575" y="348">（沒有）</text>
+  </g>
+
+  <!-- ④ eviction note -->
+  <path d="M860 370 V 390 H 740" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="732" y="395" font-size="14" fill="#b91c1c" text-anchor="end">NoExecute生效：Pod被趕到別的Node</text>
+
+  <!-- ===== Legend ===== -->
+  <g font-size="15">
+    <circle cx="20" cy="430" r="9" fill="#2563eb"/><text x="20" y="435" font-size="12" fill="#ffffff" text-anchor="middle">1</text>
+    <text x="36" y="435" fill="#2563eb">kubeadm join：kubelet註冊Node，還沒有CNI</text>
+    <circle cx="20" cy="460" r="9" fill="#2f9e6e"/><text x="20" y="465" font-size="12" fill="#ffffff" text-anchor="middle">2</text>
+    <text x="36" y="465" fill="#2f9e6e">CNI plugin裝好 → Ready</text>
+    <circle cx="470" cy="430" r="9" fill="#ea580c"/><text x="470" y="435" font-size="12" fill="#ffffff" text-anchor="middle">3</text>
+    <text x="486" y="435" fill="#ea580c">kubelet停止回報（例如Node當機）→ Unknown</text>
+    <circle cx="470" cy="460" r="9" fill="#dc2626"/><text x="470" y="465" font-size="12" fill="#ffffff" text-anchor="middle">4</text>
+    <text x="486" y="465" fill="#dc2626">約5分鐘後，Pod被移到別的Node</text>
+  </g>
+  <text x="14" y="505" font-size="14" fill="#475569">kubectl get nodes的STATUS，由Ready這個condition決定：True顯示Ready；False或Unknown都顯示NotReady</text>
+</svg>
