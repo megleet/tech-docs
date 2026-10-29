@@ -305,8 +305,8 @@ Service有兩種被存取的方式，其中DNS又分成兩種：
 
 - **① VIP**：Virtual IP，不屬於任何一台機器的虛擬IP。連到它的request，由每個Node上的kube-proxy轉到Service背後的某一個Pod。
 - **② DNS**：連Service的DNS名稱，例如`my-svc.my-namespace.svc.cluster.local`，由CoreDNS解析。依Service有沒有VIP，又分成兩種：
-  - **ⓐ Normal Service**：有VIP，DNS名稱只是VIP的別名。
-  - **ⓑ Headless Service**：***不分配VIP***，DNS名稱直接解析成Pod的IP。DNS會回傳所有ready Pod的IP，由client自己選一個連。
+    - **ⓐ Normal Service**：有VIP，DNS名稱只是VIP的別名。
+    - **ⓑ Headless Service**：***不分配VIP***，DNS名稱直接解析成Pod的IP。DNS會return所有ready Pod的IP，由client自己選一個連。
 
 Headless Service的寫法，只差在`clusterIP: None`：
 
@@ -537,8 +537,8 @@ spec:
 - **開發者只要會用interface**：也就是PVC，說明要什麼。
 - **管理cluster的人負責implementation**：也就是PV，說明怎麼做到，再交給Kubernetes綁定。
 - **好處**：
-  - 不必把storage系統的細節暴露給開發者；
-  - 職責分開，出事時比較容易定位問題、釐清是誰的責任。
+    - 不必把storage系統的細節暴露給開發者；
+    - 職責分開，出事時比較容易定位問題、釐清是誰的責任。
 
 > [!NOTE]
 > 手動建立的PV要和PVC配對成功，兩邊的`storageClassName`要一樣。cluster有default StorageClass時，沒寫`storageClassName`的PVC會被自動補上default，改走dynamic provisioning，就不會綁到這個手動建的PV。所以手動配對時，兩邊都寫同一個`storageClassName`（例如`manual`），或都寫`""`。

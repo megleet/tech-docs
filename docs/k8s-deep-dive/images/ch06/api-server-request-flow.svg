@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 680" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#334155"/>
+    </marker>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7c5cbf"/>
+    </marker>
+    <marker id="art" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0e9aa7"/>
+    </marker>
+    <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2f9e6e"/>
+    </marker>
+  </defs>
+  <rect width="860" height="680" fill="#ffffff"/>
+
+  <!-- ===== Client ===== -->
+  <g filter="url(#sh)">
+    <rect x="300" y="10" width="260" height="44" rx="10" fill="#1e293b"/>
+  </g>
+  <text x="430" y="38" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">kubectl / controller / kubelet</text>
+
+  <!-- ===== API Server box ===== -->
+  <rect x="220" y="80" width="420" height="440" rx="16" fill="#f1f8fe" stroke="#04a3ff" stroke-width="2"/>
+  <text x="236" y="104" font-size="15" font-weight="800" fill="#0369a1">API Server</text>
+
+  <!-- request arrow -->
+  <path d="M430 56 V 116" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="442" y="74" font-size="13" font-weight="700" fill="#334155">write request</text>
+
+  <!-- ===== Stages ===== -->
+  <g filter="url(#sh)">
+    <rect x="260" y="120" width="340" height="54" rx="10" fill="#475569"/>
+    <rect x="260" y="198" width="340" height="54" rx="10" fill="#475569"/>
+    <rect x="260" y="276" width="340" height="54" rx="10" fill="#7c5cbf"/>
+    <rect x="260" y="354" width="340" height="54" rx="10" fill="#64748b"/>
+    <rect x="260" y="432" width="340" height="54" rx="10" fill="#0e9aa7"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle">
+    <g font-size="16" font-weight="800">
+      <text x="430" y="143">① Authentication</text>
+      <text x="430" y="221">② Authorization</text>
+      <text x="430" y="299">③ Mutating admission</text>
+      <text x="430" y="377">④ Schema validation</text>
+      <text x="430" y="455">⑤ Validating admission</text>
+    </g>
+    <g font-size="12" font-weight="600">
+      <text x="430" y="163">你是誰？例如certificate、ServiceAccount token</text>
+      <text x="430" y="241">你能做這件事嗎？例如RBAC</text>
+      <text x="430" y="319">修改object｜內建：ServiceAccount、LimitRanger</text>
+      <text x="430" y="397">欄位格式對不對？</text>
+      <text x="430" y="475">只檢查｜內建：PodSecurity、ResourceQuota</text>
+    </g>
+  </g>
+
+  <!-- arrows between stages -->
+  <g fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ar)">
+    <path d="M430 176 V 194"/>
+    <path d="M430 254 V 272"/>
+    <path d="M430 332 V 350"/>
+    <path d="M430 410 V 428"/>
+  </g>
+
+  <!-- ===== Failures (left) ===== -->
+  <g fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)">
+    <path d="M258 147 H 188"/>
+    <path d="M258 225 H 188"/>
+    <path d="M258 381 H 188"/>
+    <path d="M258 459 H 188"/>
+  </g>
+  <g font-size="13" font-weight="700" fill="#b91c1c" text-anchor="end">
+    <text x="180" y="152">401 Unauthorized</text>
+    <text x="180" y="230">403 Forbidden</text>
+    <text x="180" y="386">422 Invalid</text>
+    <text x="180" y="464">拒絕（通常是403）</text>
+  </g>
+  <text x="20" y="300" font-size="12" fill="#64748b">③可以修改object，</text>
+  <text x="20" y="316" font-size="12" fill="#64748b">也可以拒絕</text>
+
+  <!-- ===== Dynamic Admission Control (right) ===== -->
+  <g filter="url(#sh)">
+    <rect x="672" y="268" width="176" height="70" rx="10" fill="#ffffff" stroke="#7c5cbf" stroke-width="2"/>
+    <rect x="672" y="424" width="176" height="70" rx="10" fill="#ffffff" stroke="#0e9aa7" stroke-width="2"/>
+  </g>
+  <g text-anchor="middle">
+    <text x="760" y="290" font-size="13" font-weight="800" fill="#5b3fa0">Mutating webhook</text>
+    <text x="760" y="308" font-size="12" fill="#475569">或MutatingAdmissionPolicy</text>
+    <text x="760" y="326" font-size="12" fill="#475569">例如istiod inject Envoy</text>
+    <text x="760" y="446" font-size="13" font-weight="800" fill="#0b6e78">Validating webhook</text>
+    <text x="760" y="464" font-size="12" fill="#475569">或ValidatingAdmissionPolicy</text>
+    <text x="760" y="482" font-size="12" fill="#475569">例如Kyverno、CEL規則</text>
+  </g>
+  <g fill="none" stroke-width="2" stroke-dasharray="5 4">
+    <path d="M604 303 H 668" stroke="#7c5cbf" marker-start="url(#arp)" marker-end="url(#arp)"/>
+    <path d="M604 459 H 668" stroke="#0e9aa7" marker-start="url(#art)" marker-end="url(#art)"/>
+  </g>
+  <text x="760" y="252" font-size="12" font-weight="700" fill="#64748b" text-anchor="middle">Dynamic Admission Control</text>
+  <text x="760" y="530" font-size="12" fill="#64748b" text-anchor="middle">用API object註冊，不用重啟</text>
+  <text x="760" y="546" font-size="12" fill="#64748b" text-anchor="middle">API Server</text>
+
+  <!-- ===== Write to etcd ===== -->
+  <path d="M430 488 V 566" fill="none" stroke="#2f9e6e" stroke-width="3" marker-end="url(#arg)"/>
+  <text x="442" y="548" font-size="14" font-weight="800" fill="#2f9e6e">⑥ write</text>
+  <g filter="url(#sh)">
+    <path d="M380 578 v44 a50 11 0 0 0 100 0 v-44" fill="#2f9e6e"/>
+    <ellipse cx="430" cy="578" rx="50" ry="11" fill="#57c08f"/>
+  </g>
+  <text x="430" y="610" font-size="16" font-weight="800" fill="#ffffff" text-anchor="middle">etcd</text>
+
+  <!-- watch -->
+  <path d="M600 522 C 610 550, 680 550, 691 580" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+  <text x="636" y="566" font-size="12" font-weight="700" fill="#334155" text-anchor="end">watch</text>
+  <g filter="url(#sh)">
+    <rect x="596" y="584" width="190" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  </g>
+  <text x="691" y="611" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">controller、kubelet收到變化</text>
+
+  <text x="430" y="662" font-size="13" fill="#64748b" text-anchor="middle">讀取的request（get、list、watch）只經過①②，不經過admission</text>
+</svg>

@@ -464,13 +464,13 @@ Ceph本身是分散式storage，主要有3種daemon（mon / mgr / OSD）。最�
 
 - **每個Worker要有一顆空白disk**：不能有partition，也不能有filesystem。用`lsblk -f`檢查，`FSTYPE`是空的才能用：
 
-  ```bash
-  lsblk -f
-  # → NAME    FSTYPE   MOUNTPOINTS
-  #   vda
-  #   └─vda1  ext4     /
-  #   vdb                           ← FSTYPE是空的，Rook可以用
-  ```
+    ```bash
+    lsblk -f
+    # → NAME    FSTYPE   MOUNTPOINTS
+    #   vda
+    #   └─vda1  ext4     /
+    #   vdb                           ← FSTYPE是空的，Rook可以用
+    ```
 - **至少3個Worker**：`cluster.yaml`會把3個mon放在不同Node，資料也存3份。只有1～2個Worker時，改用`cluster-test.yaml`（1個mon、資料只存1份，只適合測試）。
 - **kernel要有`rbd` module --> RBD driver**。Node要靠它，才能把Ceph裡的RBD image變成一顆本機的disk（`/dev/rbd0`）。
 - **Ceph的Pod只會跑在Worker上**：Master有`NoSchedule`的taint，見[用Taint / Toleration調整Master能不能跑Pod](#taint-toleration)。

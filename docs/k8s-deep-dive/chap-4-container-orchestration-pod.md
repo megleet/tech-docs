@@ -65,22 +65,22 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 
 - **單process的app**：例如Go、Java、Node.js，用thread或event loop處理並行，container裡只有一個process。例如Go寫的API server（`{}`表示thread，見[怎麼看懂`pstree`](#pstree-thread)）：
 
-  ```
-  Go app container
-  └── my-api（PID 1）           ← 只有這一個process
-      ├── {my-api}（thread）    ← Go runtime的OS thread，數量大約是GOMAXPROCS（預設等於CPU核數）
-      ├── {my-api}（thread）
-      └── …                     ← 上萬個goroutine輪流排在這幾個thread上跑
-  ```
+    ```
+    Go app container
+    └── my-api（PID 1）           ← 只有這一個process
+        ├── {my-api}（thread）    ← Go runtime的OS thread，數量大約是GOMAXPROCS（預設等於CPU核數）
+        ├── {my-api}（thread）
+        └── …                     ← 上萬個goroutine輪流排在這幾個thread上跑
+    ```
 - **多process的app**：例如nginx、PostgreSQL、gunicorn，由PID 1的master管理自己fork出來的worker：回收、重啟，並轉發signal。例如nginx：
 
-  ```
-  nginx container
-  └── nginx master（PID 1）       ← 讀config、管理worker：掛掉就重新fork一個
-      ├── nginx worker（PID 29）  ← 真正處理request
-      ├── nginx worker（PID 30）
-      └── nginx worker（PID 31）  ← 數量預設等於CPU核數（worker_processes auto）
-  ```
+    ```
+    nginx container
+    └── nginx master（PID 1）       ← 讀config、管理worker：掛掉就重新fork一個
+        ├── nginx worker（PID 29）  ← 真正處理request
+        ├── nginx worker（PID 30）
+        └── nginx worker（PID 31）  ← 數量預設等於CPU核數（worker_processes auto）
+    ```
 
 兩種都符合one app per container，重點是***一個app***，不是一個process。需要一起工作的不同app，各放一個container，再用Pod組在一起。
 
@@ -349,8 +349,8 @@ spec:
 
 - **`nodeSelector`**：把Pod和Node綁在一起，只會排到label符合的Node上。更彈性的條件用`affinity`，見[官方文件](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)。
 - **`nodeName`**：
-  - **Default是空的**，不需要使用者寫，由scheduler挑好Node後填進去；每個Node上的kubelet，只執行`nodeName`是自己的Pod。使用者自己填，就是***跳過scheduler***，
-  - **yaml定義中不空，比如“node1”**：Pod直接在指定的Node上執行, 會也跳過了scheduler的檢查（資源夠不夠、taint），所以一般只在測試、debug時用，例如[第3章測試PVC時](chap-3-kubernetes-operations.md#建立storageclass再測一次pvc)用它指定Node。
+    - **Default是空的**，不需要使用者寫，由scheduler挑好Node後填進去；每個Node上的kubelet，只執行`nodeName`是自己的Pod。使用者自己填，就是***跳過scheduler***，
+    - **yaml定義中不空，比如“node1”**：Pod直接在指定的Node上執行, 會也跳過了scheduler的檢查（資源夠不夠、taint），所以一般只在測試、debug時用，例如[第3章測試PVC時](chap-3-kubernetes-operations.md#建立storageclass再測一次pvc)用它指定Node。
 
 ### 📝 3. hostAliases：Pod的/etc/hosts（Pod level）
 
@@ -542,12 +542,12 @@ spec:
 <img src="images/ch04/container-lifecycle-hooks.svg" alt="container的lifecycle hooks：①container啟動，app和postStart同時開始；②postStart跑完，state從waiting變running；③要求停止（刪除Pod、liveness probe失敗），執行preStop；④preStop跑完，kubelet送SIGTERM，app開始graceful shutdown；⑤app結束，state變terminated。從③開始算grace period（預設30秒），到期還沒結束就SIGKILL" width="85%">
 
 - **`postStart`**：container啟動後立刻執行。
-  - ***和`ENTRYPOINT`同時跑，不保證先後順序***：`postStart`執行時，app可能還沒準備好。
-  - `postStart`還沒跑完之前，container不會被標成`running`；它失敗的話，container會被kill，再依`restartPolicy`處理。
+    - ***和`ENTRYPOINT`同時跑，不保證先後順序***：`postStart`執行時，app可能還沒準備好。
+    - `postStart`還沒跑完之前，container不會被標成`running`；它失敗的話，container會被kill，再依`restartPolicy`處理。
 - **`preStop`**：container***被要求停止時***，在send `SIGTERM`之前執行，例如刪除Pod、liveness probe失敗。
-  - ***同步執行***：`preStop`跑完，kubelet才送`SIGTERM`給container。
-  - 時間算在`terminationGracePeriodSeconds`（預設30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
-  - container自己正常結束時***不會***觸發。
+    - ***同步執行***：`preStop`跑完，kubelet才送`SIGTERM`給container。
+    - 時間算在`terminationGracePeriodSeconds`（預設30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
+    - container自己正常結束時***不會***觸發。
 
 `preStop`最常見的用途是***graceful shutdown***：讓app先停止接新的request、處理完手上未完成的工作，再結束。例子裡的`nginx -s quit`就是這個作用。
 

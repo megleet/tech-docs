@@ -66,6 +66,8 @@ icon: lucide/palette
 | 注入 | inject（例如sidecar injection） |
 | 送出（request、signal）、送出去的流量、進來的流量 | send、outbound流量、inbound流量 |
 | 寫入、讀取、寫入者 | write、read、writer |
+| 回傳、回傳值 | return、return value |
+| 推、推送（config、certificate） | push（例如istiod用xDS push config給Envoy） |
 | 本地 | local |
 | 遠端 | remote |
 | 編排對象 / 編排object、服務對象 / 服務object | orchestration object、service object |

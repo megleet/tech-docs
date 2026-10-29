@@ -1313,12 +1313,12 @@ CMD ["python", "app.py"]
 - **只有`RUN`、`ADD`、`COPY`會產生有內容的layer**：其他指令只記錄config，不改filesystem。
 - **`FROM`省掉了什麼**：不用`FROM python:2.7-slim`的話，就要從`ubuntu`開始自己裝Python：
 
-  ```dockerfile
-  FROM ubuntu:latest
-  RUN apt-get update -y
-  RUN apt-get install -y python-pip python-dev build-essential
-  ...
-  ```
+    ```dockerfile
+    FROM ubuntu:latest
+    RUN apt-get update -y
+    RUN apt-get install -y python-pip python-dev build-essential
+    ...
+    ```
 - **layer可以共用**：很多image都基於同一個`python:2.7-slim`，host上只存一份，pull時也只下載一次。
 
 ```bash
@@ -1522,13 +1522,13 @@ symlink見[symlink、hard link與bind mount的差別](#-補充symlinkhard-link�
 
 - **`lower`**：也是一個普通文字檔。它的內容是***這一層下面所有層的暱稱，用`:`串成一行，由上到下排列***。以`demo`的例子來看：
 
-  ```bash
-  cat /var/lib/docker/overlay2/6e3be5d2ec...-init/lower
-  # → l/DEF                    (下面只有ubuntu那1層)
+    ```bash
+    cat /var/lib/docker/overlay2/6e3be5d2ec...-init/lower
+    # → l/DEF                    (下面只有ubuntu那1層)
 
-  cat /var/lib/docker/overlay2/6e3be5d2ec.../lower
-  # → l/GHI:l/DEF              (下面先是init layer，再來是ubuntu那層)
-  ```
+    cat /var/lib/docker/overlay2/6e3be5d2ec.../lower
+    # → l/GHI:l/DEF              (下面先是init layer，再來是ubuntu那層)
+    ```
 
   最底層的`a1b2c3d4e5.../`下面沒有任何層，所以沒有`lower`檔案。Docker mount container時，直接讀`lower`的內容當作`lowerdir=`的值。
 
@@ -1599,7 +1599,7 @@ int setns(int fd, int nstype);
 | `CLONE_NEWUSER`   | user      | `/proc/{pid}/ns/user`   |
 | `CLONE_NEWCGROUP` | cgroup    | `/proc/{pid}/ns/cgroup` |
 
-- **回傳值**：成功回傳`0`；失敗回傳`-1`，並設定`errno`。例如`EINVAL`表示`fd`的類型和`nstype`不符，`EPERM`表示權限不足。
+- **Return value**：成功return `0`；失敗return `-1`，並設定`errno`。例如`EINVAL`表示`fd`的類型和`nstype`不符，`EPERM`表示權限不足。
 - **權限**：需要`CAP_SYS_ADMIN`，所以一般要用`sudo`執行。
 - **一次只加入一種namespace**：`/proc/{pid}/ns/`底下每個file代表一種。要完整「進入」一個container，就要對每種namespace各呼叫一次`setns()`，`docker exec`就是這樣加入container的mnt、pid、net、uts、ipc等namespace。
 - **PID namespace比較特別**：`setns()`之後，***目前的process本身不會換PID namespace***，之後`fork()`出來的子process才會在新的PID namespace裡。

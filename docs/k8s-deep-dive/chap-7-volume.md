@@ -356,7 +356,7 @@ spec:
       image: example/my-app:1.0
 ```
 
-再跑一次上面的`curl`，就會回傳這個namespace裡的Pod清單；要刪Pod的話，一樣回403。
+再跑一次上面的`curl`，就會return這個namespace裡的Pod清單；要刪Pod的話，一樣回403。
 
 - **Role / RoleBinding**：只在***一個namespace***裡有效。
 - **ClusterRole / ClusterRoleBinding**：整個cluster有效。例如[Headlamp](chap-3-kubernetes-operations.md#-step-7deploy-dashboardheadlamp)用ClusterRoleBinding把內建的ClusterRole `cluster-admin`（所有權限）綁給`headlamp-admin`。
