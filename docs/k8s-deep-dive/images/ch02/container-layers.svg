@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 6 820 410" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><filter id="cl-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.12"/></filter></defs>
+<rect y="0" width="820" height="420" fill="#ffffff"/>
+
+<!-- namespace + cgroups around the running process -->
+<rect x="160" y="12" width="420" height="124" rx="14" fill="none" stroke="#2f6bb5" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="590" y="30" font-size="15" font-weight="800" fill="#2f6bb5">namespace + cgroups</text>
+<rect x="176" y="26" width="388" height="98" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<g font-size="12" font-weight="600" fill="#64748b" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">
+<text x="370" y="46">/bin /dev /etc /home /lib /lib64 /media /mnt</text>
+<text x="370" y="63">/opt /proc /root /run /sbin /sys /tmp /usr /var</text>
+</g>
+<rect x="290" y="76" width="160" height="36" rx="8" fill="#1e293b"/>
+<text x="370" y="99" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">python app.py</text>
+
+<!-- layers -->
+<g filter="url(#cl-sh)">
+<rect x="170" y="146" width="400" height="48" rx="8" fill="#7c5cbf"/>
+<rect x="170" y="200" width="400" height="48" rx="8" fill="#e08a00"/>
+<rect x="170" y="254" width="400" height="48" rx="8" fill="#2f6bb5"/>
+<rect x="170" y="308" width="400" height="48" rx="8" fill="#3b7bc4"/>
+<rect x="170" y="362" width="400" height="48" rx="8" fill="#4a8bd2"/>
+</g>
+<g font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">
+<text x="370" y="176">Copy-on-Write ＆ <tspan fill="#ffe08a" font-family="SFMono-Regular, Menlo, monospace">/test</tspan></text>
+<text x="370" y="229" font-size="13" font-family="SFMono-Regular, Menlo, monospace">/etc/hosts /etc/hostname /etc/resolv.conf</text>
+<text x="370" y="283" font-family="SFMono-Regular, Menlo, monospace">CMD ["python", "app.py"]</text>
+<text x="370" y="337">…</text>
+<text x="370" y="391" font-family="SFMono-Regular, Menlo, monospace">FROM python:3.13-slim</text>
+</g>
+
+<!-- left labels -->
+<g font-size="15" font-weight="800" text-anchor="end">
+<text x="150" y="176" fill="#5b3fa0">writable layer</text>
+<text x="150" y="229" fill="#b45309">Init layer</text>
+<text x="132" y="337" fill="#1a3f78">read-only</text>
+<text x="132" y="356" fill="#1a3f78">layers</text>
+</g>
+<path d="M156 256 H 146 V 408 H 156" fill="none" stroke="#2f6bb5" stroke-width="2"/>
+<path d="M146 332 H 138" fill="none" stroke="#2f6bb5" stroke-width="2"/>
+
+<!-- right: rootfs -->
+<path d="M584 148 H 596 V 408 H 584" fill="none" stroke="#64748b" stroke-width="2"/>
+<path d="M596 278 H 608" fill="none" stroke="#64748b" stroke-width="2"/>
+<text x="616" y="284" font-size="17" font-weight="800" fill="#334155">rootfs</text>
+</svg>

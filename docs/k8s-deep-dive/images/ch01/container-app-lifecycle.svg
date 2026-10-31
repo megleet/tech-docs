@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 900 330" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="lc-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<filter id="lc-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+</defs>
+<rect y="0" width="900" height="340" fill="#ffffff"/>
+
+<!-- titles -->
+<text x="220" y="34" font-size="17" font-weight="800" fill="#b45309" text-anchor="middle">方案1：一個container裡跑多個app</text>
+<text x="670" y="34" font-size="17" font-weight="800" fill="#2e7d32" text-anchor="middle">方案2：拆成多個container（Pod）</text>
+
+<!-- ===== plan 1 ===== -->
+<g filter="url(#lc-sh)">
+<rect x="20" y="52" width="400" height="200" rx="14" fill="#f5f9ff" stroke="#2f6bb5" stroke-width="2.5"/>
+</g>
+<text x="36" y="76" font-size="14" font-weight="800" fill="#1a3f78">container</text>
+<rect x="290" y="62" width="118" height="26" rx="13" fill="#2e7d32"/>
+<text x="349" y="80" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">Running</text>
+
+<rect x="120" y="98" width="200" height="44" rx="10" fill="#ffffff" stroke="#2f6bb5" stroke-width="2"/>
+<text x="220" y="118" font-size="14" font-weight="800" fill="#1a3f78" text-anchor="middle">PID 1：tini / supervisord</text>
+<text x="220" y="134" font-size="11.5" font-weight="600" fill="#64748b" text-anchor="middle">runtime只看它</text>
+<path d="M190 142 V 170" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#lc-a)"/>
+<path d="M250 142 V 170" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#lc-a)"/>
+<rect x="60" y="174" width="150" height="44" rx="10" fill="#e3f4e8" stroke="#2e7d5b" stroke-width="2"/>
+<text x="135" y="201" font-size="14" font-weight="800" fill="#1d5c43" text-anchor="middle">app A</text>
+<rect x="230" y="174" width="150" height="44" rx="10" fill="#fdecea" stroke="#d1495b" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="305" y="201" font-size="14" font-weight="800" fill="#b3261e" text-anchor="middle">app B 已掛掉</text>
+<g stroke="#d1495b" stroke-width="3" stroke-linecap="round"><line x1="364" y1="180" x2="376" y2="192"/><line x1="376" y1="180" x2="364" y2="192"/></g>
+<text x="220" y="240" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">app B掛了，container卻還是Running：沒人發現，也不會重啟</text>
+
+<rect x="20" y="266" width="400" height="58" rx="10" fill="#fff4e0" stroke="#e08a00" stroke-width="1.5"/>
+<text x="220" y="290" font-size="13.5" font-weight="800" fill="#8a4b00" text-anchor="middle">「container正常運行、裡面的app早已掛掉」</text>
+<text x="220" y="310" font-size="13" font-weight="700" fill="#8a4b00" text-anchor="middle">orchestration很難判斷與處理</text>
+
+<!-- ===== plan 2 ===== -->
+<g filter="url(#lc-sh)">
+<rect x="460" y="52" width="420" height="200" rx="14" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+</g>
+<text x="476" y="76" font-size="14" font-weight="800" fill="#334155">Pod</text>
+<!-- app container -->
+<rect x="480" y="92" width="185" height="128" rx="12" fill="#f5f9ff" stroke="#2f6bb5" stroke-width="2"/>
+<text x="572" y="116" font-size="13.5" font-weight="800" fill="#1a3f78" text-anchor="middle">app container</text>
+<rect x="498" y="128" width="149" height="40" rx="9" fill="#e3f4e8" stroke="#2e7d5b" stroke-width="2"/>
+<text x="572" y="153" font-size="13.5" font-weight="800" fill="#1d5c43" text-anchor="middle">PID 1 = app</text>
+<text x="572" y="190" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">app掛掉 → container結束</text>
+<text x="572" y="207" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">→ Kubernetes重啟它</text>
+<!-- sidecar container -->
+<rect x="677" y="92" width="185" height="128" rx="12" fill="#f5f9ff" stroke="#2f6bb5" stroke-width="2"/>
+<text x="769" y="116" font-size="13.5" font-weight="800" fill="#1a3f78" text-anchor="middle">sidecar container</text>
+<rect x="695" y="128" width="149" height="40" rx="9" fill="#e3f6f4" stroke="#0e9aa7" stroke-width="2"/>
+<text x="769" y="153" font-size="13.5" font-weight="800" fill="#0b6e78" text-anchor="middle">PID 1 = log agent</text>
+<text x="769" y="190" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">各自和自己的app</text>
+<text x="769" y="207" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">同生命週期</text>
+<text x="670" y="240" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">每個container的狀態，就是它裡面app的狀態</text>
+
+<rect x="460" y="266" width="420" height="58" rx="10" fill="#e3f4e8" stroke="#2e7d32" stroke-width="1.5"/>
+<text x="670" y="290" font-size="13.5" font-weight="800" fill="#1d5c43" text-anchor="middle">Kubernetes原生sidecar：</text>
+<text x="670" y="310" font-size="13" font-weight="700" fill="#1d5c43" text-anchor="middle">initContainers裡設restartPolicy: Always</text>
+</svg>

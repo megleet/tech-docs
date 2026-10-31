@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 900 242" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="bm-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker>
+<marker id="bm-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2e7d32"/></marker>
+<filter id="bm-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+</defs>
+<rect y="0" width="900" height="260" fill="#ffffff"/>
+
+<text x="160" y="32" font-size="16" font-weight="800" fill="#64748b" text-anchor="middle">執行前</text>
+<text x="740" y="32" font-size="16" font-weight="800" fill="#64748b" text-anchor="middle">執行後</text>
+
+<!-- ===== before ===== -->
+<g filter="url(#bm-sh)">
+<rect x="20" y="46" width="120" height="48" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="2"/>
+<rect x="180" y="46" width="120" height="48" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="2"/>
+<rect x="20" y="166" width="120" height="48" rx="10" fill="#2f6bb5"/>
+<rect x="180" y="166" width="120" height="48" rx="10" fill="#2f6bb5"/>
+</g>
+<g font-size="17" font-weight="800" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">
+<text x="80" y="76" fill="#1a3f78">/home</text>
+<text x="240" y="76" fill="#1a3f78">/test</text>
+<text x="80" y="196" fill="#ffffff">inode_1</text>
+<text x="240" y="196" fill="#ffffff">inode_2</text>
+</g>
+<path d="M80 94 V 160" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#bm-a)"/>
+<path d="M240 94 V 160" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#bm-a)"/>
+
+<!-- ===== command ===== -->
+<path d="M346 120 H 520 V 102 L 556 130 L 520 158 V 140 H 346 Z" fill="#e2e8f0"/>
+<rect x="336" y="76" width="232" height="28" rx="6" fill="#f6f7f8" stroke="#cbd5e1"/>
+<text x="452" y="96" font-size="14" font-weight="700" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace"><tspan fill="#1a4fae">mount</tspan><tspan fill="#2e7d32"> --bind /home /test</tspan></text>
+
+<!-- ===== after ===== -->
+<g filter="url(#bm-sh)">
+<rect x="600" y="46" width="120" height="48" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="2"/>
+<rect x="760" y="46" width="120" height="48" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="2"/>
+<rect x="600" y="166" width="120" height="48" rx="10" fill="#2f6bb5"/>
+</g>
+<rect x="760" y="166" width="120" height="48" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>
+<g font-size="17" font-weight="800" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">
+<text x="660" y="76" fill="#1a3f78">/home</text>
+<text x="820" y="76" fill="#1a3f78">/test</text>
+<text x="660" y="196" fill="#ffffff">inode_1</text>
+<text x="820" y="196" fill="#94a3b8">inode_2</text>
+</g>
+<text x="820" y="234" font-size="12.5" font-weight="700" fill="#64748b" text-anchor="middle">還在，只是被蓋住</text>
+<path d="M660 94 V 160" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#bm-a)"/>
+<path d="M800 94 C 790 140, 760 172, 726 180" fill="none" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#bm-g)"/>
+</svg>

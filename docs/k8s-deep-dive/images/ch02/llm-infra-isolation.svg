@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 910 192" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="li-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<filter id="li-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+</defs>
+<rect y="0" width="910" height="210" fill="#ffffff"/>
+
+<!-- cards -->
+<g filter="url(#li-sh)" stroke-width="2">
+<rect x="14" y="14" width="286" height="180" rx="14" fill="#f5f9ff" stroke="#2f6bb5"/>
+<rect x="312" y="14" width="286" height="180" rx="14" fill="#fdf2f4" stroke="#d1495b"/>
+<rect x="610" y="14" width="286" height="180" rx="14" fill="#fffaf0" stroke="#e08a00"/>
+</g>
+<g font-size="16" font-weight="800" text-anchor="middle">
+<text x="157" y="44" fill="#1a3f78">🖥️ 多租戶GPU叢集</text>
+<text x="455" y="44" fill="#b3261e">🧪 AI agent執行不可信程式碼</text>
+<text x="753" y="44" fill="#8a4b00">⚖️ 實務限制</text>
+</g>
+
+<!-- ===== card 1: shared kernel on a GPU node ===== -->
+<rect x="40" y="62" width="234" height="122" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="54" y="80" font-size="11.5" font-weight="700" fill="#64748b">GPU node</text>
+<g font-size="13" font-weight="800" text-anchor="middle">
+<rect x="56" y="88" width="94" height="40" rx="8" fill="#e3f4e8" stroke="#2e7d5b" stroke-width="1.5"/><text x="103" y="113" fill="#1d5c43">團隊A</text>
+<rect x="164" y="88" width="94" height="40" rx="8" fill="#fde7f1" stroke="#de69a5" stroke-width="1.5"/><text x="211" y="113" fill="#9d2463">客戶B</text>
+<rect x="56" y="138" width="202" height="34" rx="8" fill="#334155"/><text x="157" y="160" fill="#ffffff"><tspan fill="#f5c542">⚠</tspan> 共享同一個kernel</text>
+</g>
+
+<!-- ===== card 2: untrusted code in a sandbox ===== -->
+<g font-size="13" font-weight="800" text-anchor="middle">
+<rect x="330" y="96" width="76" height="44" rx="8" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="1.5"/><text x="368" y="116" fill="#1a3f78">LLM</text><text x="368" y="132" fill="#1a3f78">agent</text>
+</g>
+<path d="M408 118 H 428" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#li-a)"/>
+<rect x="432" y="66" width="150" height="114" rx="12" fill="#e3f4e8" stroke="#2e7d32" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="507" y="84" font-size="11.5" font-weight="800" fill="#1d5c43" text-anchor="middle">gVisor / Kata sandbox</text>
+<rect x="448" y="94" width="118" height="48" rx="8" fill="#fdecea" stroke="#d1495b" stroke-width="1.5"/>
+<text x="507" y="114" font-size="12.5" font-weight="800" fill="#b3261e" text-anchor="middle">使用者提供的</text>
+<text x="507" y="132" font-size="12.5" font-weight="800" fill="#b3261e" text-anchor="middle">程式碼</text>
+<text x="507" y="166" font-size="11.5" font-weight="700" fill="#1d5c43" text-anchor="middle">不可信workload</text>
+
+<!-- ===== card 3: practical limits ===== -->
+<g font-size="13" font-weight="800" text-anchor="middle">
+<rect x="640" y="70" width="90" height="40" rx="8" fill="#334155"/><text x="685" y="95" fill="#ffffff">GPU</text>
+<text x="753" y="95" font-size="18" fill="#64748b">+</text>
+<rect x="776" y="70" width="100" height="40" rx="8" fill="#e3f4e8" stroke="#2e7d32" stroke-width="1.5"/><text x="826" y="95" fill="#1d5c43">gVisor / Kata</text>
+</g>
+<g font-size="12" font-weight="800" fill="#b3261e" text-anchor="middle">
+<rect x="628" y="128" width="86" height="30" rx="15" fill="#fdecea"/><text x="671" y="148">passthrough</text>
+<rect x="719" y="128" width="70" height="30" rx="15" fill="#fdecea"/><text x="754" y="148">driver</text>
+<rect x="794" y="128" width="84" height="30" rx="15" fill="#fdecea"/><text x="836" y="148">overhead</text>
+</g>
+<text x="753" y="176" font-size="11.5" font-weight="700" fill="#8a4b00" text-anchor="middle">和隔離強度一起比較</text>
+
+</svg>

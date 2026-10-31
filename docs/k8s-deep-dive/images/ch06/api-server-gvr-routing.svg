@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 1100 817" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#334155"/>
+    </marker>
+    <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2f9e6e"/>
+    </marker>
+  </defs>
+  <rect width="1100" height="860" fill="#ffffff"/>
+  <g filter="url(#sh)"><rect x="310.0" y="12" width="380" height="64" rx="10" fill="#1e293b"/></g>
+  <text x="500.0" y="38" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">kubectl apply -f cronjob.yaml</text>
+  <text x="500.0" y="60" font-size="12" font-weight="600" fill="#cbd5e1" text-anchor="middle">YAML轉成JSON；用discovery把Kind換成Resource</text>
+  <path d="M500.0 78 V 128" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="514.0" y="90" width="372" height="26" rx="6" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="526.0" y="108" font-size="13" font-weight="700" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">POST /apis/batch/v1/namespaces/default/cronjobs</text>
+  <rect x="20" y="132" width="1060" height="590" rx="16" fill="#f1f8fe" stroke="#04a3ff" stroke-width="2"/>
+  <text x="36" y="156" font-size="15" font-weight="800" fill="#0369a1">API Server</text>
+
+<g filter="url(#sh)">
+<rect x="320" y="170" width="360" height="74" rx="10" fill="#475569"/>
+<rect x="320" y="270" width="360" height="110" rx="10" fill="#0e9aa7"/>
+<rect x="320" y="406" width="360" height="200" rx="10" fill="#7c5cbf"/>
+<rect x="320" y="632" width="360" height="74" rx="10" fill="#2f9e6e"/>
+</g><g fill="#ffffff" text-anchor="middle">
+<text x="500.0" y="204.0" font-size="16" font-weight="800">A. Filters</text>
+<text x="500.0" y="230.0" font-size="12" font-weight="600">限流（APF）、authentication、audit、authorization</text>
+<text x="500.0" y="298" font-size="16" font-weight="800">B. 依URL找handler</text>
+<text x="500.0" y="473.0" font-size="16" font-weight="800">C. Handler</text>
+<text x="500.0" y="499.0" font-size="12" font-weight="600">Decode：JSON → v1 → internal version</text>
+<text x="500.0" y="519.0" font-size="12" font-weight="600">mutating admission</text>
+<text x="500.0" y="539.0" font-size="12" font-weight="600">→ schema validation</text>
+<text x="500.0" y="559.0" font-size="12" font-weight="600">→ validating admission</text>
+<text x="500.0" y="666.0" font-size="16" font-weight="800">D. Encode，write到etcd</text>
+<text x="500.0" y="692.0" font-size="12" font-weight="600">internal version → storage version（v1）</text>
+</g>
+<g font-size="13" font-weight="800" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">
+<rect x="336" y="318" width="70" height="26" rx="6" fill="#ffffff"/><text x="371.0" y="336" fill="#0b6e78">/apis</text>
+<rect x="422" y="318" width="70" height="26" rx="6" fill="#ffffff"/><text x="457.0" y="336" fill="#0b6e78">batch</text>
+<rect x="508" y="318" width="50" height="26" rx="6" fill="#ffffff"/><text x="533.0" y="336" fill="#0b6e78">v1</text>
+<rect x="574" y="318" width="92" height="26" rx="6" fill="#ffffff"/><text x="620.0" y="336" fill="#0b6e78">cronjobs</text>
+</g><g fill="none" stroke="#ffffff" stroke-width="1.6" marker-end="url(#ar)">
+<path d="M407 331 H 419"/>
+<path d="M493 331 H 505"/>
+<path d="M559 331 H 571"/>
+</g><g font-size="11" font-weight="700" fill="#e0f7f8" text-anchor="middle">
+<text x="457.0" y="366">Group</text>
+<text x="533.0" y="366">Version</text>
+<text x="620.0" y="366">Resource</text>
+</g><g fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ar)">
+    <path d="M500.0 246 V 266"/><path d="M500.0 382 V 402"/><path d="M500.0 608 V 628"/></g>
+<text x="161.0" y="392" font-size="13" font-weight="800" fill="#475569" text-anchor="middle">同一個object的三種version</text>
+<g filter="url(#sh)">
+<path d="M36 404 H 270 L 286 420 V 490 H 36 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" stroke-linejoin="round"/><path d="M270 404 V 420 H 286" fill="none" stroke="#0284c7" stroke-width="2" stroke-linejoin="round"/>
+<path d="M36 512 H 270 L 286 528 V 598 H 36 Z" fill="#ffedd5" stroke="#ea580c" stroke-width="2" stroke-linejoin="round"/><path d="M270 512 V 528 H 286" fill="none" stroke="#ea580c" stroke-width="2" stroke-linejoin="round"/>
+<path d="M36 624 H 270 L 286 640 V 710 H 36 Z" fill="#fce7f3" stroke="#db2777" stroke-width="2" stroke-linejoin="round"/><path d="M270 624 V 640 H 286" fill="none" stroke="#db2777" stroke-width="2" stroke-linejoin="round"/>
+</g><g text-anchor="middle">
+<text x="161.0" y="428" font-size="15" font-weight="800" fill="#075985">request的version</text>
+<text x="161.0" y="448" font-size="12" font-weight="700" fill="#075985" font-family="SFMono-Regular, Menlo, monospace">JSON（HTTP body）</text>
+<text x="161.0" y="470" font-size="12" fill="#475569">client送來的，例如batch/v1</text>
+<text x="161.0" y="536" font-size="15" font-weight="800" fill="#9a3412">internal version</text>
+<text x="161.0" y="556" font-size="12" font-weight="700" fill="#9a3412" font-family="SFMono-Regular, Menlo, monospace">Go struct（mem裡）</text>
+<text x="161.0" y="578" font-size="12" fill="#475569">admission和validation都對它做</text>
+<text x="161.0" y="648" font-size="15" font-weight="800" fill="#9d174d">storage version</text>
+<text x="161.0" y="668" font-size="12" font-weight="700" fill="#9d174d" font-family="SFMono-Regular, Menlo, monospace">protobuf（CRD用JSON）</text>
+<text x="161.0" y="690" font-size="12" fill="#475569">實際存進etcd的version，只有一個</text>
+</g>
+<g fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ar)">
+  <path d="M161.0 492 V 508"/><path d="M161.0 600 V 620"/></g>
+<g font-size="12" font-weight="700" fill="#334155"><text x="171.0" y="505.0">Decode時轉換</text><text x="171.0" y="615.0">Encode時轉換</text></g>
+<g fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4">
+  <path d="M288 447 H 318"/><path d="M288 555 H 318"/><path d="M288 667 H 318"/></g>
+<text x="910.0" y="158" font-size="13" font-weight="800" fill="#475569" text-anchor="middle">object的變化</text>
+<text x="910.0" y="176" font-size="11" fill="#64748b" text-anchor="middle">①～⑥：「處理request」流程圖的哪一關</text>
+<path d="M910.0 418 V 570" stroke="#334155" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+<path d="M910.0 650 V 688" stroke="#334155" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+<g filter="url(#sh)">
+<rect x="760" y="193" width="300" height="28" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="760" y="311" width="300" height="28" rx="7" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M760 404 H 1050 L 1060 414 V 432 H 760 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" stroke-linejoin="round"/><path d="M1050 404 V 414 H 1060" fill="none" stroke="#0284c7" stroke-width="2" stroke-linejoin="round"/>
+<path d="M760 442 H 1050 L 1060 452 V 470 H 760 Z" fill="#ffedd5" stroke="#ea580c" stroke-width="2" stroke-linejoin="round"/><path d="M1050 442 V 452 H 1060" fill="none" stroke="#ea580c" stroke-width="2" stroke-linejoin="round"/>
+<rect x="760" y="480" width="300" height="28" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="760" y="518" width="300" height="28" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="760" y="556" width="300" height="28" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<path d="M760 636 H 1050 L 1060 646 V 664 H 760 Z" fill="#fce7f3" stroke="#db2777" stroke-width="2" stroke-linejoin="round"/><path d="M1050 636 V 646 H 1060" fill="none" stroke="#db2777" stroke-width="2" stroke-linejoin="round"/>
+<rect x="760" y="674" width="300" height="28" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+</g><g font-size="12.5" font-weight="700" text-anchor="middle">
+<text x="910.0" y="211.5" fill="#1e293b">①② Authentication、Authorization</text>
+<text x="910.0" y="329.5" fill="#64748b">依URL找到CronJob的handler</text>
+<text x="910.0" y="422.5" fill="#075985">batch/v1：request的version</text>
+<text x="910.0" y="460.5" fill="#9a3412">internal version</text>
+<text x="910.0" y="498.5" fill="#1e293b">③ Mutating admission</text>
+<text x="910.0" y="536.5" fill="#1e293b">④ Schema validation</text>
+<text x="910.0" y="574.5" fill="#1e293b">⑤ Validating admission</text>
+<text x="910.0" y="654.5" fill="#9d174d">storage version（v1）</text>
+<text x="910.0" y="692.5" fill="#1e293b">⑥ write進etcd</text>
+</g><g fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4">
+<path d="M682 207 H 756"/>
+<path d="M682 325 H 756"/>
+<path d="M750 404 H 742 V 584 H 750"/><path d="M682 506.0 H 742"/>
+<path d="M750 636 H 742 V 702 H 750"/><path d="M682 669.0 H 742"/>
+</g>
+<path d="M500.0 708 V 754" fill="none" stroke="#2f9e6e" stroke-width="3" marker-end="url(#arg)"/>
+  <g filter="url(#sh)"><path d="M450.0 766 v44 a50 11 0 0 0 100 0 v-44" fill="#2f9e6e"/><ellipse cx="500.0" cy="766" rx="50" ry="11" fill="#57c08f"/></g>
+  <text x="500.0" y="798" font-size="16" font-weight="800" fill="#ffffff" text-anchor="middle">etcd</text>
+  <text x="570.0" y="794" font-size="13" font-weight="700" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">key：/registry/cronjobs/default/my-cron</text>
+  <text x="570.0" y="814" font-size="12" fill="#64748b">key裡沒有group和version</text>
+</svg>

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 16 900 298" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><filter id="ce-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs>
+<rect y="0" width="900" height="330" fill="#ffffff"/>
+<!-- connectors -->
+<g stroke="#94a3b8" stroke-width="2" fill="none">
+<path d="M450,90 V110 M290,110 H730 M290,110 V130 M730,110 V130"/>
+</g>
+<g filter="url(#ce-sh)">
+<rect x="330" y="20" width="240" height="70" rx="14" fill="#fff4e0" stroke="#e08a00" stroke-width="3"/>
+<rect x="20" y="130" width="540" height="180" rx="16" fill="#f1ecfa" stroke="#7c5cbf" stroke-width="2"/>
+<rect x="580" y="130" width="300" height="180" rx="16" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+</g>
+<g text-anchor="middle">
+<text x="450" y="52" font-size="22" font-weight="800" fill="#8a4b00">Kubernetes</text>
+<text x="450" y="76" font-size="13" font-weight="600" fill="#64748b">CNCF第一個專案</text>
+<text x="290" y="160" font-size="18" font-weight="800" fill="#5b3fa0">Observability</text>
+<text x="290" y="181" font-size="13" font-weight="600" fill="#64748b">看見cluster裡發生什麼</text>
+<text x="730" y="160" font-size="18" font-weight="800" fill="#0b4f56">Kubernetes的標準介面</text>
+<text x="730" y="181" font-size="13" font-weight="600" fill="#64748b">接到Node上執行Pod</text>
+</g>
+<!-- cards -->
+<g fill="#ffffff" stroke-width="2">
+<rect x="35" y="198" width="160" height="96" rx="12" stroke="#7c5cbf"/>
+<rect x="210" y="198" width="160" height="96" rx="12" stroke="#7c5cbf"/>
+<rect x="385" y="198" width="160" height="96" rx="12" stroke="#7c5cbf"/>
+<rect x="595" y="198" width="130" height="96" rx="12" stroke="#0e9aa7"/>
+<rect x="735" y="198" width="130" height="96" rx="12" stroke="#0e9aa7"/>
+</g>
+<g text-anchor="middle" font-size="16" font-weight="800" fill="#5b3fa0">
+<text x="115" y="222">Prometheus</text>
+<text x="290" y="230">OpenTelemetry</text>
+<text x="465" y="224">Fluentd</text>
+<text x="465" y="244">Fluent Bit</text>
+</g>
+<g text-anchor="middle" font-size="16" font-weight="800" fill="#0b4f56">
+<text x="660" y="230">CNI</text>
+<text x="800" y="224">containerd</text>
+<text x="800" y="244">CRI-O</text>
+</g>
+<g text-anchor="middle" font-size="13" font-weight="600" fill="#64748b">
+<text x="115" y="245">container監控的</text>
+<text x="115" y="263">事實標準</text>
+<text x="115" y="283" font-size="12" fill="#5b3fa0">CNCF第二個專案</text>
+<text x="290" y="257">tracing、metrics、</text>
+<text x="290" y="276">log的標準</text>
+<text x="465" y="272">收集log</text>
+<text x="660" y="257">Pod網路的</text>
+<text x="660" y="276">標準介面</text>
+<text x="800" y="272">container runtime</text>
+</g>
+</svg>

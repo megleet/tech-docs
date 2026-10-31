@@ -1,7 +1,7 @@
 ---
 icon: lucide/refresh-cw
 ---
-# Chap-5 Container orchestration之Controller篇
+# Chap-5 Container Orchestration之Controller篇
 
 **目錄**
 
@@ -37,7 +37,7 @@ Kubernetes用一種叫***控制器模式***（controller pattern）的設計，*
 
 ### 🏭 1. 誰在執行：kube-controller-manager
 
-[架構圖](chap-2-kubernetes-architecture.md#kubernetes的架構)裡的kube-controller-manager，其實就是***一組controller的集合***。看Kubernetes原始碼的`pkg/controller`目錄：
+[架構圖](chap-3-kubernetes-architecture-operations.md#kubernetes的架構)裡的kube-controller-manager，其實就是***一組controller的集合***。看Kubernetes原始碼的`pkg/controller`目錄：
 
 ```bash
 cd kubernetes/pkg/controller/
@@ -49,7 +49,7 @@ ls -d */
 
 - **每個目錄是一個controller**：各自負責一種編排功能，Deployment只是其中之一。
 - **放在一起，是因為它們遵循同一個模式**：***控制循環***。
-- **跑在同一個process裡**：kube-controller-manager把它們編進同一個binary，以[Static Pod](chap-3-kubernetes-operations.md#static-pod)執行。
+- **跑在同一個process裡**：kube-controller-manager把它們編進同一個binary，以[Static Pod](chap-3-kubernetes-architecture-operations.md#static-pod)執行。
 
 ### 🔁 2. 控制循環
 
@@ -76,7 +76,7 @@ for {
 
 主要的編排邏輯都在第3步。這個比較、調整的動作叫***reconcile***，整個循環也叫reconcile loop或sync loop。文件裡看到這幾個詞，指的都是同一件事：***控制循環***。
 
-reconcile的結果，通常是對被控制object的write：建立Pod、刪除Pod，或更新Pod的某個欄位。***使用者只寫期望狀態，「怎麼做到」交給controller***，這就是[聲明式API](chap-2-kubernetes-architecture.md#聲明式api)能運作的原因。
+reconcile的結果，通常是對被控制object的write：建立Pod、刪除Pod，或更新Pod的某個欄位。***使用者只寫期望狀態，「怎麼做到」交給controller***，這就是[聲明式API](chap-3-kubernetes-architecture-operations.md#聲明式api)能運作的原因。
 
 ### 🧩 3. 控制器的兩半：定義和模板
 
@@ -265,7 +265,7 @@ kubectl rollout undo deployment/nginx-deployment --to-revision=2
 
 *Pod的IP會變，client要怎麼穩定地找到它們？*
 
-Service是Kubernetes用來***把一組Pod暴露給外界存取***的機制。例如一個Deployment有3個Pod，就可以定義一個Service；client只要連到這個Service，就會連到其中一個Pod。為什麼需要它，見[第2章的存取關係：Service](chap-2-kubernetes-architecture.md#存取關係service)。
+Service是Kubernetes用來***把一組Pod暴露給外界存取***的機制。例如一個Deployment有3個Pod，就可以定義一個Service；client只要連到這個Service，就會連到其中一個Pod。為什麼需要它，見[第3章的存取關係：Service](chap-3-kubernetes-architecture-operations.md#存取關係service)。
 
 ### 🚪 1. 什麼是Service：一組Pod的固定入口
 
@@ -287,7 +287,7 @@ spec:
 - **用`selector`找Pod**：和[controller的`selector`](#-3-控制器的兩半定義和模板)一樣，帶`app: nginx` label的Pod，就是這個Service背後的Pod。
 - **Pod換了也不用改**：Pod重建、IP改了，Kubernetes會自動更新Service背後的Pod清單（EndpointSlice），client完全不用知道。
 - **固定的DNS名稱**：CoreDNS替Service建立`nginx.default.svc.cluster.local`這樣的名稱，同一個namespace裡直接用`nginx`就連得到。
-- **流量怎麼轉到Pod**：每個Node上的kube-proxy把轉發規則寫進kernel，見[kube-proxy在哪裡、做什麼](chap-2-kubernetes-architecture.md#kube-proxy在哪裡做什麼)。
+- **流量怎麼轉到Pod**：每個Node上的kube-proxy把轉發規則寫進kernel，見[kube-proxy在哪裡、做什麼](chap-3-kubernetes-architecture-operations.md#kube-proxy在哪裡做什麼)。
 
 ### 🔀 2. 怎麼存取Service：VIP和DNS
 
@@ -305,8 +305,8 @@ Service有兩種被存取的方式，其中DNS又分成兩種：
 
 - **① VIP**：Virtual IP，不屬於任何一台機器的虛擬IP。連到它的request，由每個Node上的kube-proxy轉到Service背後的某一個Pod。
 - **② DNS**：連Service的DNS名稱，例如`my-svc.my-namespace.svc.cluster.local`，由CoreDNS解析。依Service有沒有VIP，又分成兩種：
-    - **ⓐ Normal Service**：有VIP，DNS名稱只是VIP的別名。
-    - **ⓑ Headless Service**：***不分配VIP***，DNS名稱直接解析成Pod的IP。DNS會return所有ready Pod的IP，由client自己選一個連。
+  - **ⓐ Normal Service**：有VIP，DNS名稱只是VIP的別名。
+  - **ⓑ Headless Service**：***不分配VIP***，DNS名稱直接解析成Pod的IP。DNS會return所有ready Pod的IP，由client自己選一個連。
 
 Headless Service的寫法，只差在`clusterIP: None`：
 
@@ -346,7 +346,7 @@ Deployment對app做了一個簡化的假設：***一個app的所有Pod都一模�
 | **例子**         | web server、API server       | MySQL主從、etcd、Kafka、CockroachDB          |
 | **用什麼管理**   | [Deployment](#deployment)     | StatefulSet                                  |
 
-stateful app放在哪一種storage上比較好，見[第3章「Ceph不是所有stateful app的最佳選擇」](chap-3-kubernetes-operations.md#-業界常見的做法ceph不是所有stateful-app的最佳選擇)。
+stateful app放在哪一種storage上比較好，見[第3章「Ceph不是所有stateful app的最佳選擇」](chap-3-kubernetes-architecture-operations.md#-業界常見的做法ceph不是所有stateful-app的最佳選擇)。
 
 ### 🧩 2. StatefulSet的兩種狀態
 
@@ -528,17 +528,17 @@ spec:
       namespace: rook-ceph
 ```
 
-- **storage的細節只出現在PV裡**：用哪個CSI driver、哪個pool、認證放在哪個Secret，開發者寫的PVC完全不用知道。這個driver就是[第3章Rook-Ceph](chap-3-kubernetes-operations.md#-step-6deploy-csi-driverrook-ceph)裝好的那一個。
+- **storage的細節只出現在PV裡**：用哪個CSI driver、哪個pool、認證放在哪個Secret，開發者寫的PVC完全不用知道。這個driver就是[第3章Rook-Ceph](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph)裝好的那一個。
 - **Kubernetes負責配對**：PV有10Gi、`accessModes`也對得上，滿足[PVC](#pvc開發者只要兩步)要的1Gi，Kubernetes就把這個PV綁到PVC上，兩者的狀態都變成`Bound`。
-- **也可以不用手動建PV**：設定StorageClass，Kubernetes依PVC自動建立PV（dynamic provisioning），見[第3章用StorageClass測試PVC](chap-3-kubernetes-operations.md#建立storageclass再測一次pvc)。實務上大多用這種方式。
+- **也可以不用手動建PV**：設定StorageClass，Kubernetes依PVC自動建立PV（dynamic provisioning），見[第3章用StorageClass測試PVC](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)。實務上大多用這種方式。
 
 ***PVC和PV的設計，就是interface和implementation的思想***：
 
 - **開發者只要會用interface**：也就是PVC，說明要什麼。
 - **管理cluster的人負責implementation**：也就是PV，說明怎麼做到，再交給Kubernetes綁定。
 - **好處**：
-    - 不必把storage系統的細節暴露給開發者；
-    - 職責分開，出事時比較容易定位問題、釐清是誰的責任。
+  - 不必把storage系統的細節暴露給開發者；
+  - 職責分開，出事時比較容易定位問題、釐清是誰的責任。
 
 > [!NOTE]
 > 手動建立的PV要和PVC配對成功，兩邊的`storageClassName`要一樣。cluster有default StorageClass時，沒寫`storageClassName`的PVC會被自動補上default，改走dynamic provisioning，就不會綁到這個手動建的PV。所以手動配對時，兩邊都寫同一個`storageClassName`（例如`manual`），或都寫`""`。
@@ -982,7 +982,7 @@ kubectl describe node worker1
 
 <img src="images/ch05/node-status-conditions.svg" alt="Node的STATUS、conditions和taint隨時間的變化：①kubeadm join，kubelet註冊Node，還沒有CNI，Ready是False，STATUS是NotReady，自動加上not-ready的NoSchedule和NoExecute兩個taint；②CNI plugin裝好，Ready變成True，STATUS是Ready，taint移除；③kubelet停止回報，conditions全部變成Unknown，STATUS是NotReady，自動加上unreachable的NoSchedule和NoExecute兩個taint；④約5分鐘後，NoExecute把Pod趕到別的Node" width="85%">
 
-- **①→②**：剛join的Node還沒有network plugin，`Ready`是`False`，自動帶著`not-ready`的兩個taint：`NoSchedule`擋住新的Pod，`NoExecute`會趕走已經在上面的Pod；network plugin裝好後變成`Ready`，taint也跟著拿掉。這就是[第3章Step 5](chap-3-kubernetes-operations.md#-step-5deploy-cni-plugin)看到的過程。
+- **①→②**：剛join的Node還沒有network plugin，`Ready`是`False`，自動帶著`not-ready`的兩個taint：`NoSchedule`擋住新的Pod，`NoExecute`會趕走已經在上面的Pod；network plugin裝好後變成`Ready`，taint也跟著拿掉。這就是[第3章Step 5](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)看到的過程。
 - **③**：kubelet停止回報，control plane不知道Node的實際狀況，所以***所有conditions都變成`Unknown`***，改加上`unreachable`的兩個taint（`NoSchedule`和`NoExecute`）。
 - **④**：一般的Pod對`unreachable:NoExecute`只容忍300秒，所以約5分鐘後被移到別的Node，見[Toleration](#-4-tolerationpod怎麼容忍taint)。
 
@@ -998,7 +998,7 @@ kubectl describe node worker1
 | `NetworkUnavailable`是`True`                                | `network-unavailable`                        | `NoSchedule`          |
 | 被`kubectl cordon`或`drain`                                 | `unschedulable`                              | `NoSchedule`          |
 
-**② kubeadm替control plane加**：`kubeadm init`時，替Master加上`node-role.kubernetes.io/control-plane:NoSchedule`，見[第3章的Taint / Toleration](chap-3-kubernetes-operations.md#taint-toleration)。
+**② kubeadm替control plane加**：`kubeadm init`時，替Master加上`node-role.kubernetes.io/control-plane:NoSchedule`，見[第3章的Taint / Toleration](chap-3-kubernetes-architecture-operations.md#taint-toleration)。
 
 **③ 管理cluster的人自己加**：
 
@@ -1049,9 +1049,9 @@ spec:
 
 機制聽起來很簡單，但Daemon Pod非常重要。這些功能都***必須在每一個Node上執行***，前幾章已經見過好幾個：
 
-- **network plugin的agent**：處理這個Node上container的網路，例如[第3章的Flannel](chap-3-kubernetes-operations.md#-step-5deploy-cni-plugin)。
+- **network plugin的agent**：處理這個Node上container的網路，例如[第3章的Flannel](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)。
 - **kube-proxy**：把Service的轉發規則，寫進這個Node的kernel。
-- **storage plugin的agent**：在這個Node上mount remote storage的目錄，處理container的volume目錄，例如[第3章Rook-Ceph的CSI nodeplugin](chap-3-kubernetes-operations.md#-step-6deploy-csi-driverrook-ceph)。
+- **storage plugin的agent**：在這個Node上mount remote storage的目錄，處理container的volume目錄，例如[第3章Rook-Ceph的CSI nodeplugin](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph)。
 - **監控和log的agent**：收集這個Node上的監控資料和log，見[第4章的Node agent](chap-4-container-orchestration-pod.md#-3-node-agent每個node一份)。
 
 ### 📄 1. YAML例子：每個Node一個log agent
@@ -1090,7 +1090,7 @@ spec:
 ```
 
 - **沒有`replicas`**：Pod的數量由Node的數量決定，一個Node一個。
-- **`tolerations`**：control plane的Node預設有`NoSchedule`的taint，一般的Pod排不上去。加上這個toleration，control plane的Node也會跑一個，見[第3章的Taint / Toleration](chap-3-kubernetes-operations.md#taint-toleration)。
+- **`tolerations`**：control plane的Node預設有`NoSchedule`的taint，一般的Pod排不上去。加上這個toleration，control plane的Node也會跑一個，見[第3章的Taint / Toleration](chap-3-kubernetes-architecture-operations.md#taint-toleration)。
 - **`hostPath`**：把Node上的`/var/log`mount進來，agent才讀得到這個Node上所有container的log。
 
 ```bash
@@ -1126,7 +1126,7 @@ for _, node := range 所有Node {
 
 ### 🛡️ 3. Tolerations：連不健康的Node也要排得上去
 
-DaemonSet常遇到一個「雞生蛋」的問題，比如：Node剛加入、還沒有network plugin時，Node是`NotReady`，帶著`node.kubernetes.io/not-ready`這類taint，一般的Pod排不上去（見[第3章Step 5](chap-3-kubernetes-operations.md#-step-5deploy-cni-plugin)）。***但network plugin本身，就是要來修好網路的那個Pod***；它要是也排不上去，這個Node永遠不會有網路。
+DaemonSet常遇到一個「雞生蛋」的問題，比如：Node剛加入、還沒有network plugin時，Node是`NotReady`，帶著`node.kubernetes.io/not-ready`這類taint，一般的Pod排不上去（見[第3章Step 5](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)）。***但network plugin本身，就是要來修好網路的那個Pod***；它要是也排不上去，這個Node永遠不會有網路。
 
 taint、effect和toleration的意思，見[Taint和Toleration](#taint和toleration)。
 

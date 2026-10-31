@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 16 900 621" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs>
+<rect width="900" height="640" fill="#ffffff"/>
+<text x="320.0" y="34" font-size="15" font-weight="800" fill="#0b6e78" text-anchor="middle">Group</text>
+<text x="545.0" y="34" font-size="15" font-weight="800" fill="#5b3fa0" text-anchor="middle">Version</text>
+<text x="775.0" y="34" font-size="15" font-weight="800" fill="#b45309" text-anchor="middle">Resource</text>
+<path d="M70 330 C 85.0 330, 85.0 60, 100 60" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<path d="M70 330 C 85.0 330, 85.0 100, 100 100" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<path d="M70 330 C 85.0 330, 85.0 140, 100 140" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<path d="M70 330 C 85.0 330, 85.0 230, 100 230" fill="none" stroke="#e08a00" stroke-width="2"/>
+<path d="M70 330 C 85.0 330, 85.0 430, 100 430" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M190 230 C 320.0 230, 320.0 230, 450 230" fill="none" stroke="#e08a00" stroke-width="2"/>
+<path d="M640 230 C 660.0 230, 660.0 190, 680 190" fill="none" stroke="#e08a00" stroke-width="2"/>
+<path d="M640 230 C 660.0 230, 660.0 230, 680 230" fill="none" stroke="#e08a00" stroke-width="2"/>
+<path d="M640 230 C 660.0 230, 660.0 270, 680 270" fill="none" stroke="#e08a00" stroke-width="2"/>
+<path d="M190 430 C 210.0 430, 210.0 330, 230 330" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M190 430 C 210.0 430, 210.0 430, 230 430" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M190 430 C 210.0 430, 210.0 530, 230 530" fill="none" stroke="#7c5cbf" stroke-width="2" stroke-dasharray="5 4"/>
+<path d="M410 330 C 430.0 330, 430.0 330, 450 330" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M640 330 C 660.0 330, 660.0 310, 680 310" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M640 330 C 660.0 330, 660.0 350, 680 350" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M410 430 C 430.0 430, 430.0 430, 450 430" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M640 430 C 660.0 430, 660.0 410, 680 410" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M640 430 C 660.0 430, 660.0 450, 680 450" fill="none" stroke="#0e9aa7" stroke-width="2"/>
+<path d="M410 530 C 430.0 530, 430.0 530, 450 530" fill="none" stroke="#7c5cbf" stroke-width="2" stroke-dasharray="5 4"/>
+<path d="M640 530 C 660.0 530, 660.0 530, 680 530" fill="none" stroke="#7c5cbf" stroke-width="2" stroke-dasharray="5 4"/>
+<g filter="url(#sh)">
+<rect x="20" y="315" width="50" height="30" rx="7" fill="#1e293b" stroke="#1e293b" stroke-width="1.5"/>
+<rect x="100" y="45" width="90" height="30" rx="7" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="100" y="85" width="90" height="30" rx="7" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="100" y="125" width="90" height="30" rx="7" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="100" y="215" width="90" height="30" rx="7" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<rect x="450" y="215" width="190" height="30" rx="7" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<rect x="680" y="175" width="190" height="30" rx="7" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<rect x="680" y="215" width="190" height="30" rx="7" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<rect x="680" y="255" width="190" height="30" rx="7" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<rect x="100" y="415" width="90" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="230" y="315" width="180" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="450" y="315" width="190" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="680" y="295" width="190" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="680" y="335" width="190" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="230" y="415" width="180" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="450" y="415" width="190" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="680" y="395" width="190" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="680" y="435" width="190" height="30" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="230" y="515" width="180" height="30" rx="7" fill="#f1ecfa" stroke="#7c5cbf" stroke-width="2" stroke-dasharray="5 4"/>
+<rect x="450" y="515" width="190" height="30" rx="7" fill="#f1ecfa" stroke="#7c5cbf" stroke-width="2" stroke-dasharray="5 4"/>
+<rect x="680" y="515" width="190" height="30" rx="7" fill="#f1ecfa" stroke="#7c5cbf" stroke-width="2" stroke-dasharray="5 4"/>
+</g><g font-size="13" font-weight="700" font-family="SFMono-Regular, Menlo, monospace">
+<text x="45.0" y="335" fill="#ffffff" text-anchor="middle">/</text>
+<text x="112" y="65" fill="#64748b">/livez</text>
+<text x="112" y="105" fill="#64748b">/readyz</text>
+<text x="112" y="145" fill="#64748b">/metrics</text>
+<text x="112" y="235" fill="#8a4b00" font-weight="800">/api</text>
+<text x="462" y="235" fill="#8a4b00" font-weight="800">/api/v1</text>
+<text x="692" y="195" fill="#8a4b00" font-weight="800">pods</text>
+<text x="692" y="235" fill="#8a4b00" font-weight="800">services</text>
+<text x="692" y="275" fill="#8a4b00" font-weight="800">nodes</text>
+<text x="112" y="435" fill="#0b4f56" font-weight="800">/apis</text>
+<text x="242" y="335" fill="#0b4f56" font-weight="800">/apis/apps</text>
+<text x="462" y="335" fill="#0b4f56" font-weight="800">/apis/apps/v1</text>
+<text x="692" y="315" fill="#0b4f56" font-weight="800">deployments</text>
+<text x="692" y="355" fill="#0b4f56" font-weight="800">statefulsets</text>
+<text x="242" y="435" fill="#0b4f56" font-weight="800">/apis/batch</text>
+<text x="462" y="435" fill="#0b4f56" font-weight="800">/apis/batch/v1</text>
+<text x="692" y="415" fill="#0b4f56" font-weight="800">jobs</text>
+<text x="692" y="455" fill="#0b4f56" font-weight="800">cronjobs</text>
+<text x="242" y="535" fill="#5b3fa0" font-weight="800">/apis/example.com</text>
+<text x="462" y="535" fill="#5b3fa0" font-weight="800">/apis/example.com/v1</text>
+<text x="692" y="535" fill="#5b3fa0" font-weight="800">networks</text>
+</g>
+<g font-size="12" fill="#64748b">
+<text x="250" y="220">core group：沒有group名稱</text>
+<text x="680" y="572">CRD：自己定義的object，見後面</text>
+<text x="100" y="180">健康檢查、metrics</text>
+</g>
+<g font-size="15" font-weight="800" font-family="SFMono-Regular, Menlo, monospace"><text x="450.0" y="608" text-anchor="middle"><tspan fill="#334155">/apis/</tspan><tspan fill="#0b6e78">batch</tspan><tspan fill="#334155">/</tspan><tspan fill="#5b3fa0">v1</tspan><tspan fill="#334155">/</tspan><tspan fill="#b45309">cronjobs</tspan></text></g>
+<text x="450.0" y="630" font-size="12" fill="#64748b" text-anchor="middle">Group / Version / Resource</text>
+<g>
+<rect x="452" y="249" width="118" height="20" rx="10" fill="#e11d48"/><text x="460" y="263" font-size="12" font-weight="700" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">apiVersion: v1</text>
+<rect x="452" y="349" width="155" height="20" rx="10" fill="#e11d48"/><text x="460" y="363" font-size="12" font-weight="700" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">apiVersion: apps/v1</text>
+<rect x="452" y="449" width="162" height="20" rx="10" fill="#e11d48"/><text x="460" y="463" font-size="12" font-weight="700" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">apiVersion: batch/v1</text>
+<rect x="452" y="549" width="206" height="20" rx="10" fill="#e11d48"/><text x="460" y="563" font-size="12" font-weight="700" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">apiVersion: example.com/v1</text>
+</g>
+</svg>

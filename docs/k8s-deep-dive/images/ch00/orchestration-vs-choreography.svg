@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 16 900 254" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<filter id="oc-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+<marker id="oc-ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c5cbf"/></marker>
+<marker id="oc-at" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0e9aa7"/></marker>
+</defs>
+<rect y="0" width="900" height="290" fill="#ffffff"/>
+<g filter="url(#oc-sh)">
+<rect x="20" y="20" width="420" height="246" rx="16" fill="#f1ecfa" stroke="#7c5cbf" stroke-width="2"/>
+<rect x="460" y="20" width="420" height="246" rx="16" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+</g>
+<g text-anchor="middle">
+<text x="230" y="56" font-size="22" font-weight="800" fill="#5b3fa0">Orchestration</text>
+<text x="230" y="80" font-size="14" font-weight="700" fill="#64748b">centralized</text>
+<text x="670" y="56" font-size="22" font-weight="800" fill="#0b4f56">Choreography</text>
+<text x="670" y="80" font-size="14" font-weight="700" fill="#64748b">decentralized</text>
+</g>
+<!-- Orchestration -->
+<rect x="50" y="125" width="170" height="80" rx="12" fill="#ffffff" stroke="#7c5cbf" stroke-width="2.5"/>
+<g text-anchor="middle">
+<text x="135" y="160" font-size="17" font-weight="800" fill="#5b3fa0">Orchestrator</text>
+<text x="135" y="183" font-size="13" font-weight="600" fill="#64748b">central coordinator</text>
+</g>
+<g stroke="#7c5cbf" stroke-width="2" fill="none" marker-end="url(#oc-ap)">
+<line x1="222" y1="165" x2="336" y2="118"/>
+<line x1="222" y1="165" x2="336" y2="165"/>
+<line x1="222" y1="165" x2="336" y2="212"/>
+</g>
+<g fill="#ffffff" stroke="#7c5cbf" stroke-width="2">
+<rect x="340" y="100" width="60" height="36" rx="10"/>
+<rect x="340" y="147" width="60" height="36" rx="10"/>
+<rect x="340" y="194" width="60" height="36" rx="10"/>
+</g>
+<g text-anchor="middle" font-size="17" font-weight="800" fill="#5b3fa0">
+<text x="370" y="124">A</text>
+<text x="370" y="171">B</text>
+<text x="370" y="218">C</text>
+</g>
+<text x="230" y="254" text-anchor="middle" font-size="13" font-weight="600" fill="#64748b">告訴每個component做什麼</text>
+<!-- Choreography -->
+<g fill="#ffffff" stroke="#0e9aa7" stroke-width="2">
+<rect x="495" y="147" width="60" height="36" rx="10"/>
+<rect x="640" y="147" width="60" height="36" rx="10"/>
+<rect x="785" y="147" width="60" height="36" rx="10"/>
+</g>
+<g text-anchor="middle" font-size="17" font-weight="800" fill="#0b4f56">
+<text x="525" y="171">A</text>
+<text x="670" y="171">B</text>
+<text x="815" y="171">C</text>
+</g>
+<g stroke="#0e9aa7" stroke-width="2" fill="none" marker-end="url(#oc-at)">
+<line x1="557" y1="165" x2="636" y2="165"/>
+<line x1="702" y1="165" x2="781" y2="165"/>
+</g>
+<g text-anchor="middle" font-size="13" font-weight="700" fill="#0b4f56">
+<text x="597" y="155">event</text>
+<text x="742" y="155">event</text>
+</g>
+<g text-anchor="middle" font-size="13" font-weight="600" fill="#64748b">
+<text x="670" y="232">每個component看到event後，自己決定下一步</text>
+<text x="670" y="254">沒有central coordinator</text>
+</g>
+</svg>

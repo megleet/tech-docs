@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 14 900 124" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><filter id="oe-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs>
+<rect y="0" width="900" height="150" fill="#ffffff"/>
+<g filter="url(#oe-sh)">
+<rect x="20" y="20" width="240" height="110" rx="16" fill="#f1ecfa" stroke="#7c5cbf" stroke-width="2"/>
+<rect x="320" y="20" width="240" height="110" rx="16" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<rect x="620" y="20" width="260" height="110" rx="16" fill="#fff4e0" stroke="#e08a00" stroke-width="3"/>
+</g>
+<g font-size="40" font-weight="800" fill="#64748b" text-anchor="middle">
+<text x="290" y="89">+</text>
+<text x="590" y="89">=</text>
+</g>
+<g text-anchor="middle">
+<text x="140" y="62" font-size="26" font-weight="800" fill="#5b3fa0">CRD</text>
+<text x="140" y="88" font-size="14" font-weight="700" fill="#5b3fa0">自訂API object</text>
+<text x="140" y="110" font-size="13" font-weight="600" fill="#64748b">描述「要什麼」</text>
+<text x="440" y="62" font-size="26" font-weight="800" fill="#0b4f56">Controller</text>
+<text x="440" y="88" font-size="14" font-weight="700" fill="#0b4f56">watch + reconcile</text>
+<text x="440" y="110" font-size="13" font-weight="600" fill="#64748b">負責「怎麼做到」</text>
+<text x="750" y="62" font-size="26" font-weight="800" fill="#8a4b00">Operator</text>
+<text x="750" y="88" font-size="14" font-weight="700" fill="#8a4b00">把維運知識寫進controller</text>
+<text x="750" y="110" font-size="13" font-weight="600" fill="#64748b">例如資料庫的備份、failover</text>
+</g>
+</svg>

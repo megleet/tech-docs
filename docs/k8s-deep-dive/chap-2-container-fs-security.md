@@ -1,7 +1,7 @@
 ---
-icon: lucide/container
+icon: lucide/layers
 ---
-# Chap-1 Container Basics
+# Chap-2 Container基礎：FS / Security
 
 **目錄**
 
@@ -15,13 +15,12 @@ icon: lucide/container
 - [pivot_root在container中如何工作](#pivot_root在container中如何工作)
 - [最小container實作：mini_container.c](#最小container實作mini_containerc)
 - [UnionFS與Docker的Layered rootfs](#unionfs與docker的layered-rootfs)
-- [setns：加入另一個process的namespace](#setns加入另一個process的namespace)
-- [延伸：Pod、container與process](#延伸podcontainer與process)
-- [簡寫對照](#簡寫對照)
 
 ## Container為什麼能seamless deploy
 
 *Container如果只做了cgroup資源限制和namespace障眼法是不夠的，還需要什麼才可以seamless deploy到remote？*
+
+接續[Chap-1的3大pillar](chap-1-container-namespace-cgroups.md#3大pillar--security)：這一章講static view的rootfs（mount、`pivot_root`、UnionFS），以及墊在pillar底下的Security。
 
 如果Container只是Linux Kernel上的「**資源限制（`cgroups`）**」與「**障眼法（`Namespace`）**」，為什麼我們能把在local開發好的container，完全seamless地搬到remote的AWS、GCP或任何一台server上直接執行，且保證「***在我的電腦能跑，在remote就能跑***」？
 
@@ -33,8 +32,7 @@ icon: lucide/container
 
 但Container Image不僅僅是打包你的程式碼，它是直接把OS的**User Space所有檔案**完整抓了下來：
 
-- ✅ **包含了**：所有的dep pkg、env var、config、系統C lib（如`glibc`）、甚至是`/bin/bash`。
-- ❌ **不包含**：Linux Kernel。
+<img src="images/ch02/image-rootfs-deploy.svg" alt="左邊local打包Container Image：包含OS的User Space所有檔案，也就是你的程式碼、dep pkg、env var、config、glibc、/bin/bash，這一整套就是RootFS；不包含Linux Kernel。送到remote後，右邊remote host上container內的process，根目錄/就是Image裡的RootFS，和local開發時一模一樣的檔案結構，靠mount namespace + pivot_root把根目錄換掉；底下用的是remote host自己的Linux kernel" width="85%">
 
 當你把這個Image送到remote時，remote host透過**mount namespace**和[`pivot_root`](#pivot_root在container中如何工作)，把container的根目錄`/`替換成Image裡載入的RootFS。對container內的process來說，它看到的完全是local開發時那一套**一模一樣的檔案結構**，根本感受不到底層硬體或host OS變了。
 
@@ -55,11 +53,7 @@ icon: lucide/container
 
 container利用了**Union Filesystem**（如Linux中的`overlay2`），把RootFS切分成***多個******Read-Only Layers***：
 
-| 層               | 內容                                 |
-| ---------------- | ------------------------------------ |
-| **Base層** | Ubuntu / Alpine OS基本環境           |
-| **Dep層**  | 安裝Node.js / Python / Java等Runtime |
-| App層            | 你的App程式碼與Config                |
+<img src="images/ch02/image-layers.svg" alt="image的三層Read-Only Layers，由下往上：Base層是Ubuntu / Alpine OS基本環境；Dep層安裝Node.js / Python / Java等Runtime；App層是你的App程式碼與Config" width="75%">
 
 seamless運送的關鍵在於：
 
@@ -100,7 +94,10 @@ Docker社群推動了**OCI標準**，規範了：
 
 - **原因**：container**不包含**OS Kernel，只包含**User Space的檔案與lib**（`libc`等）。所有的Linux distro***共享相同的Linux Kernel API / sys calls***。
 - **運作機制**：CentOS host的Linux Kernel會直接接管並執行Ubuntu Image裡面的應用程式與sys call。
-- **比喻**：kernel像引擎，container像車身。CentOS和Ubuntu的kernel版本、調校可以不同，就像引擎不一樣，但***引擎接口（sys call ABI）相同***，所以Ubuntu的車身裝到CentOS的引擎上照樣能跑。原因見[ABI的穩定性](#2-abi的穩定性)。
+
+<img src="images/ch02/ubuntu-image-on-centos.svg" alt="比喻：Ubuntu image是車身，裡面只有app和lib（libc等）這些User Space的檔案，不包含kernel；deploy到CentOS host或Debian host上，兩邊的Linux kernel是引擎，版本、調校可以不同，但中間的引擎接口sys call ABI在所有Linux distro都相同，所以Ubuntu的車身裝到CentOS的引擎上照樣能跑" width="75%">
+
+kernel像引擎，container像車身：引擎可以不一樣，但***引擎接口（sys call ABI）相同***，所以Ubuntu的車身裝到CentOS的引擎上照樣能跑。原因見[ABI的穩定性](#2-abi的穩定性)。
 
 ### 2. 跨不同OS：不能直接運行
 
@@ -109,7 +106,9 @@ Docker社群推動了**OCI標準**，規範了：
 如果你打包了一個Linux container Image，想直接把它放到Windows Server或macOS的原生Kernel上執行，是無法直接執行的。
 
 - **原因**：不同OS的***Kernel API和ABI完全不同***。Linux程式編譯出來的sys call（例如`epoll`、`clone`）在Windows Kernel裡根本不存在，Windows無法直接解析並執行Linux的binary檔案。
-- **例外（virtualization層）**：macOS / Windows上的Docker Desktop之所以能跑Linux container，是因為Docker在背景悄悄啟動了一台**輕量級Linux VM**（macOS的HyperKit / VFKit，Windows的WSL2 / Hyper-V）。container實際上是跑在那個**Linux VM的Kernel**之上，而不是直接跑在Host OS上。
+- **例外（virtualization層）**：macOS / Windows上的Docker Desktop之所以能跑Linux container，是因為Docker在背景悄悄啟動了一台**輕量級Linux VM**（macOS用Apple Virtualization framework，Windows用WSL2）。container實際上是跑在那個**Linux VM的Kernel**之上，而不是直接跑在Host OS上。
+
+<img src="images/ch02/cross-os.svg" alt="跨不同OS。左邊：Linux container image的binary呼叫Linux的sys call（epoll、clone），直接放到Windows / macOS的原生kernel上會失敗，因為Kernel API和ABI完全不同，這些sys call根本不存在。右邊：Docker Desktop的做法，由下到上是Windows / macOS host、WSL2 / Apple Virtualization framework、Linux kernel（輕量級Linux VM）、Linux container，container的sys call交給Linux kernel處理，實際跑在Linux VM的kernel上" width="80%">
 
 ### 3. 跨CPU架構：不能直接運行
 
@@ -118,6 +117,8 @@ Docker社群推動了**OCI標準**，規範了：
 除了OS Kernel外，**ISA**（Instruction Set Architecture）也是硬性限制。
 
 如果你在Intel / AMD（`x86_64`）的電腦上Build出Image，直接拿到Apple Silicon（M1 / M2 / M3）或AWS Graviton（`arm64`）server上，Kernel會因為無法解析CPU instruction set而報錯：`exec format error`。
+
+<img src="images/ch02/cross-cpu-arch.svg" alt="跨CPU架構：在Intel / AMD上build的x86_64 image，裡面是x86的CPU instruction；拿到Apple Silicon、AWS Graviton這類arm64 CPU上，ISA不同，看不懂instruction，報錯exec format error。除了OS kernel，ISA（Instruction Set Architecture）也是硬性限制" width="40%">
 
 ### 總結對照表
 
@@ -166,20 +167,16 @@ namespace的隔離有天生上限，所以做法是**疊加機制，或換架構
 
 ### 🤖 4. 為什麼對LLM infra特別重要
 
+<img src="images/ch02/llm-infra-isolation.svg" alt="三張卡片：多租戶GPU叢集，團隊A和客戶B跑在同一個GPU node上，共享同一個kernel；AI agent執行不可信程式碼，LLM agent把使用者提供的程式碼放進gVisor / Kata sandbox執行；實務限制，GPU加上gVisor / Kata要考慮GPU passthrough、driver支援、performance overhead，和隔離強度一起比較" width="90%">
+
 - 🖥️ **多租戶GPU叢集**：讓不同團隊或客戶共用同一批GPU節點跑推理或訓練時，「共享kernel」是必須面對的設計決策。
 - 🧪 **AI agent執行不可信程式碼**：讓LLM agent執行使用者提供的程式碼，本質上就是執行**不可信workload**，標準container的隔離強度不夠，這是gVisor、Kata目前很熱門的應用場景。
-- ⚖️ **實務限制**：GPU搭配gVisor或Kata時，會遇到GPU直通、驅動支援與效能損耗等問題，選型時需要一併評估。
+- ⚖️ **實務限制**：GPU workload要改用gVisor或Kata時，還有三個代價：
+  - **GPU passthrough**：Kata的Pod跑在microVM裡，GPU要透過PCIe passthrough（VFIO）整張交給這台VM，一張GPU通常只能給一個Pod。
+  - **driver支援**：GPU driver透過`ioctl`這類sys call和kernel溝通。gVisor要自己攔截並轉送這些呼叫（nvproxy），只支援部分driver版本；Kata的guest kernel裡也要另外裝一份driver。
+  - **performance overhead**：多了一層攔截（gVisor）或virtualization（Kata），sys call和啟動都會變慢。
 
-### 🎤 5. 面試應答思路
-
-被問到「怎麼做多租戶隔離」時，可以分層回答：
-
-1. **基礎層**：namespace + cgroup，提供資源與視圖隔離。
-2. **加固層**：`seccomp`、AppArmor / SELinux、capabilities限制、rootless。
-3. **強隔離層**：面對adversarial multi-tenancy，考慮gVisor或Kata。
-4. **取捨**：說明相容性、效能、成本與GPU支援的代價。
-
-這樣能展現對問題層次的理解，而不只是回答K8s RBAC這類表層做法。
+  所以在runc、gVisor、Kata之間選擇時，要把這些代價和隔離強度放在一起比較。
 
 > [!TIP]
 > 💡 **一句話總結**
@@ -233,14 +230,9 @@ UUID=1234-abcd   /data   ext4   defaults   0   2
 
 ### 🔁 3) mount propagation
 
-建立new mount namespace時（例如用`unshare -m`，或啟動container），新namespace會**複製**一份host的mount tree（只複製mount tree，不複製dir tree）。複製出來之後，兩邊的mount point之間可能還保持著「同步關係」，關係是哪一種，就由propagation類型決定：
+建立new mount namespace時（例如用`unshare -m`，或啟動container），新namespace會**複製**一份host的mount tree（只複製mount tree，不複製dir tree）。複製出來之後，兩邊的mount point之間可能還保持著「同步關係」，關係是哪一種，就由propagation類型決定，如圖所示有4種：`shared`、`private`、`slave`、`unbindable`。
 
-| 類型                 | 意思                                               |
-| -------------------- | -------------------------------------------------- |
-| **shared**     | 雙向同步：任何一邊新掛載或卸載，另一邊也會跟著變化 |
-| **private**    | 完全不同步：各自掛載、各自卸載，互不影響           |
-| **slave**      | 單向同步：host的變化會傳進來，這邊的變化不會傳出去 |
-| **unbindable** | private，而且不能被`--bind`綁定到別處            |
+<img src="images/ch02/mount-propagation-types.svg" alt="mount propagation的四種類型，每格左邊是host、右邊是這邊。shared：雙向同步，任何一邊新掛載或卸載，另一邊也會跟著變化。private：完全不同步，各自掛載、各自卸載，互不影響。slave：單向同步，host的變化會傳進來，這邊的變化不會傳出去。unbindable：private，而且不能被--bind綁定到別處" width="90%">
 
 ### 🥞 4) mount stacking：同一個位置掛好幾層
 
@@ -252,11 +244,7 @@ UUID=1234-abcd   /data   ext4   defaults   0   2
 mount -t tmpfs layer1 /mnt/demo
 ```
 
-| 部分          | 意思                                                                                                             |
-| ------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `-t tmpfs`  | filesystem類型。tmpfs放在mem裡，不需要磁碟，卸載後內容就消失                                                     |
-| `layer1`    | source。tmpfs沒有真正的裝置，這裡填什麼都可以，只是一個名字，會顯示在`findmnt`的`SOURCE`欄，方便分辨是哪一層 |
-| `/mnt/demo` | mount point                                                                                                      |
+<img src="images/ch02/mount-tmpfs-command.svg" alt="mount -t tmpfs layer1 /mnt/demo拆成三部分：① -t tmpfs是filesystem類型，tmpfs放在mem裡，不需要磁碟，卸載後內容就消失；② layer1是source，tmpfs沒有真正的裝置，這裡填什麼都可以，只是一個名字，會顯示在findmnt的SOURCE欄，方便分辨是哪一層；③ /mnt/demo是mount point" width="85%">
 
 每執行一次，kernel就建立一個**全新的、空的**tmpfs掛上去。所以下面的例子用`layer1`、`layer2`兩個名字掛兩次，才看得出疊加的效果。
 
@@ -374,9 +362,9 @@ Docker的volume用的掛載技術，就是Linux的**bind mount**：把一個file
 
 以`mount --bind /home /test`為例，前後的指向關係：
 
-![mount --bind /home /test前後的inode指向：執行後/test改指向inode_1，inode_2仍然存在](images/ch01/bind-mount-inode.png)
+<img src="images/ch02/bind-mount-inode.svg" alt="mount --bind /home /test前後的inode指向。執行前：/home指向inode_1，/test指向inode_2。執行後：/home還是指向inode_1，/test改指向inode_1；inode_2還在，只是被蓋住" width="80%">
 
-圖上是路徑解析的**結果**：執行後走到`/test`會到達inode_1。實際上`/test`的dentry和inode_2都沒有被改動，只是被上面疊的mount蓋住，。
+圖上是路徑解析的**結果**：執行後走到`/test`會到達inode_1。實際上`/test`的dentry和inode_2都沒有被改動，只是被上面疊的mount蓋住。
 
 > [!TIP]
 > 💡 **重點**
@@ -875,27 +863,7 @@ merged/  = 疊起來的結果  <-- 這個目錄就是new_root
 
 ### 🧬 ① 建立namespace
 
-runc用`clone()`產生container的第一個process（`runc init`），同時帶上`CLONE_NEWNS`等flag。
-
-***`clone`之後，舊的mount tree（host的整棵mount tree）會被複製到新的mount namespace裡***。從這一刻起，這個process有了一份**複製出來的**mount tree：這時它看到的`/`還是host的根，只是一份copy。之後在新namespace裡的掛載和卸載，只改這份copy；但copy和原本的mount point之間可能還保持著同步關係，所以下一步要設定propagation。
-
-```
-host的mount namespace           新的mount namespace（container）
-/                                 /                    <-- 複製出來的copy
-├── proc/                         ├── proc/
-├── sys/                          ├── sys/
-├── dev/                          ├── dev/
-└── var/lib/.../merged/           └── var/lib/.../merged/   <-- 之後的new_root
-```
-
-### 🆚 unshare()和clone()的差別
-
-兩者都能建立新的namespace（用同一組`CLONE_NEW*` flag），差別只在於**哪個process**會進入新的namespace：
-
-| 比較項目               | `unshare()`                                                           | `clone()`                                                                    |
-| ---------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| **作用對象**     | 針對「**現有的**」current process                                 | 針對「**新建立的**」child process                                        |
-| **對自身的影響** | 會讓**當前process**直接脫離原本的Namespace，進入全新的Namespace。 | parent process保持不變，只有**新生成的子process**會進入全新的Namespace。 |
+runc用`clone()`產生container的第一個process（`runc init`），同時帶上`CLONE_NEWNS`等flag。新的mount namespace裡有一份***複製出來的host mount tree***，之後的掛載和卸載只改這份copy，見[Chap-1的建立namespace](chap-1-container-namespace-cgroups.md#-1-建立namespace)。
 
 ### 🔁 ② 設定propagation
 
@@ -974,7 +942,13 @@ chdir("/");
 ## 最小container實作：mini_container.c
 
 > [!NOTE]
-> **簡介**：`mini_container.c`用約130行C程式實作一個最小container：建立新namespace、關閉掛載傳播、掛`/proc`、`/sys`、`/dev`，再用`pivot_root`換根並卸載舊根。***前面講的每一步，這裡都有對應的程式碼。***
+> **簡介**：`mini_container.c`用約130行C程式實作一個最小container：建立新namespace、關閉mount propagation、掛`/proc`、`/sys`、`/dev`，再用`pivot_root`換根並卸載舊根。***前面講的每一步，這裡都有對應的程式碼。***
+
+一個完整的container runtime建立container，大致分成6步：
+
+<img src="images/ch02/minimal-container-6-steps.svg" alt="Minimal container的6個步驟，右邊標出對應的部分。1. clone(CLONE_NEWUSER|NEWPID|NEWNS|NEWNET|NEWIPC|NEWUTS|NEWCGROUP)，parent寫uid_map / gid_map，child sethostname：Namespace。2. 建cgroup：/sys/fs/cgroup/<container>/memory.max、cpu.max，parent把child的PID寫進cgroup.procs：cgroups。3. parent建veth pair，一端移進child的netns，另一端接bridge，設IP / route：network。4. mount private → bind rootfs → 掛/proc、/sys、/dev → pivot_root → umount2舊根：rootfs。5. drop capabilities、set AppArmor / SELinux label、載入seccomp：Security。6. execve(entrypoint)：container開始執行" width="100%">
+
+`mini_container.c`只做了第1、4、6步，其他的見[刻意省略的功能](#-刻意省略的功能)。
 
 ### 🛠️ 編譯與執行
 
@@ -1005,10 +979,10 @@ gcc -o mini_container mini_container.c
 sudo ./mini_container ~/rootfs
 ```
 
-symlink見[symlink、hard link與bind mount的差別](#-補充symlinkhard-link與bind-mount的差別)。
+symlink見[symlink、hard link與bind mount的差別](chap-1-container-namespace-cgroups.md#-補充symlinkhard-link與bind-mount的差別)。
 
 > [!WARNING]
-> 不要用`./busybox --install -s .`建立指令：它建立的[symlink](#-補充symlinkhard-link與bind-mount的差別)通常指向busybox在host上的**絕對路徑**（例如`/home/ubuntu/rootfs/bin/busybox`）。`pivot_root`之後container裡沒有這個路徑，`sh`、`ls`等指令全部會失效。上面的迴圈用`ln -s busybox`建立***相對路徑的[symlink](#-補充symlinkhard-link與bind-mount的差別)***，換根之後仍然有效。
+> 不要用`./busybox --install -s .`建立指令：它建立的[symlink](chap-1-container-namespace-cgroups.md#-補充symlinkhard-link與bind-mount的差別)通常指向busybox在host上的**絕對路徑**（例如`/home/ubuntu/rootfs/bin/busybox`）。`pivot_root`之後container裡沒有這個路徑，`sh`、`ls`等指令全部會失效。上面的迴圈用`ln -s busybox`建立***相對路徑的[symlink](chap-1-container-namespace-cgroups.md#-補充symlinkhard-link與bind-mount的差別)***，換根之後仍然有效。
 
 ### 📄 原始碼
 
@@ -1195,7 +1169,7 @@ findmnt | grep rootfs     # host的mount樹裡，沒有container內那些proc / 
 ls /                      # → bin  dev  proc  sys
 ```
 
-- **`bin/`**：準備rootfs時放進去的busybox和那些[symlink](#-補充symlinkhard-link與bind-mount的差別)。
+- **`bin/`**：準備rootfs時放進去的busybox和那些[symlink](chap-1-container-namespace-cgroups.md#-補充symlinkhard-link與bind-mount的差別)。
 - **`dev/`、`proc/`、`sys/`**：`mini_container.c`在換根之前用`mkdir`建立、再掛上`tmpfs`、`proc`、`sysfs`的目錄。
 - **沒有其他東西**：host的`/home`、`/etc`、`/var`一個都沒有，***`pivot_root`加上卸載舊根真的生效了***。
 
@@ -1280,7 +1254,7 @@ image的read-only layers來自build image用的Dockerfile。以一個Python app�
 
 ```dockerfile
 # 使用官方提供的Python開發image作為base image
-FROM python:2.7-slim
+FROM python:3.13-slim
 
 # 將工作目錄切換為/app
 WORKDIR /app
@@ -1305,21 +1279,21 @@ CMD ["python", "app.py"]
 
 | 指令                                      | 產生的layer                                                   |
 | ----------------------------------------- | ------------------------------------------------------------- |
-| `FROM python:2.7-slim`                  | base image自己的那幾層，放在最下面                            |
+| `FROM python:3.13-slim`                  | base image自己的那幾層，放在最下面                            |
 | `ADD . /app`                            | 有內容：app的程式碼                                           |
 | `RUN pip install …`                    | 有內容：安裝好的Python pkg                                    |
 | `WORKDIR`、`EXPOSE`、`ENV`、`CMD` | 只改image的metadata，在`docker history`裡顯示為`0B`的空層 |
 
 - **只有`RUN`、`ADD`、`COPY`會產生有內容的layer**：其他指令只記錄config，不改filesystem。
-- **`FROM`省掉了什麼**：不用`FROM python:2.7-slim`的話，就要從`ubuntu`開始自己裝Python：
+- **`FROM`省掉了什麼**：不用`FROM python:3.13-slim`的話，就要從`ubuntu`開始自己裝Python：
 
     ```dockerfile
     FROM ubuntu:latest
     RUN apt-get update -y
-    RUN apt-get install -y python-pip python-dev build-essential
+    RUN apt-get install -y python3-pip python3-dev build-essential
     ...
     ```
-- **layer可以共用**：很多image都基於同一個`python:2.7-slim`，host上只存一份，pull時也只下載一次。
+- **layer可以共用**：很多image都基於同一個`python:3.13-slim`，host上只存一份，pull時也只下載一次。
 
 ```bash
 docker history {image_name}           # 由上到下列出每一層，以及它是哪條指令產生的、有多大
@@ -1327,7 +1301,7 @@ docker history {image_name}           # 由上到下列出每一層，以及它�
 
 整個container疊起來的樣子：Dockerfile產生的read-only layers在最下面，往上是Init layer和writable layer，三者合起來是rootfs；最上面是執行中的`python app.py`，外面再套上namespace + cgroups。每一層的細節見下一節[Container rootfs的三個部分](#-3-container-rootfs的三個部分)。
 
-![1792470615920](images/ch01/container-layers.png)
+<img src="images/ch02/container-layers.svg" alt="container的layer由下往上：read-only layers（FROM python:3.13-slim、…、CMD ['python', 'app.py']），Init layer（/etc/hosts /etc/hostname /etc/resolv.conf），writable layer（Copy-on-Write和/test），三者合起來是rootfs；最上面是執行中的python app.py，看到/bin /dev /etc等目錄，外面再套上namespace + cgroups" width="80%">
 
 > [!TIP]
 > 💡 **一句話總結**
@@ -1518,7 +1492,7 @@ sudo ls /var/lib/docker/overlay2/6e3be5d2ec.../merged   # rootfs：上面幾層�
     └── JKL  ->  ../6e3be5d2ec.../diff          (demo的writable layer)
 ```
 
-symlink見[symlink、hard link與bind mount的差別](#-補充symlinkhard-link與bind-mount的差別)。
+symlink見[symlink、hard link與bind mount的差別](chap-1-container-namespace-cgroups.md#-補充symlinkhard-link與bind-mount的差別)。
 
 - **`lower`**：也是一個普通文字檔。它的內容是***這一層下面所有層的暱稱，用`:`串成一行，由上到下排列***。以`demo`的例子來看：
 
@@ -1566,227 +1540,3 @@ docker inspect {container_id} --format '{{json .GraphDriver.Data}}'
 mount -t overlay | grep {layer_id}
 sudo ls -l /var/lib/docker/overlay2/{layer_id}/diff
 ```
-
-## setns：加入另一個process的namespace
-
-> [!NOTE]
-> **簡答**：一個process可以用`setns()`這個sys call，***加入另一個process已經存在的namespace***，從而「進入」那個process所在的container。這正是`docker exec`的實作原理。[最小container實作](#最小container實作mini_containerc)用`clone()`***建立***新的namespace；`setns()`則是***加入***已經存在的namespace。
-
-### 📜 1. setns()函式說明
-
-```c
-#define _GNU_SOURCE
-#include <sched.h>
-
-int setns(int fd, int nstype);
-```
-
-| 參數       | 意思                                                                                                                       |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `fd`     | 指向某個namespace的fd。最常見的來源是`open("/proc/{pid}/ns/{type}", O_RDONLY)`，也就是「某個process目前所在的namespace」 |
-| `nstype` | 要加入的namespace類型，用來檢查`fd`是不是預期的類型。`0`表示不檢查，任何類型都接受                                     |
-
-`nstype`可以填的值：
-
-| 值                  | namespace | 對應的file                |
-| ------------------- | --------- | ------------------------- |
-| `0`               | 不檢查    | 任何一個                  |
-| `CLONE_NEWNET`    | network   | `/proc/{pid}/ns/net`    |
-| `CLONE_NEWNS`     | mount     | `/proc/{pid}/ns/mnt`    |
-| `CLONE_NEWPID`    | PID       | `/proc/{pid}/ns/pid`    |
-| `CLONE_NEWUTS`    | hostname  | `/proc/{pid}/ns/uts`    |
-| `CLONE_NEWIPC`    | IPC       | `/proc/{pid}/ns/ipc`    |
-| `CLONE_NEWUSER`   | user      | `/proc/{pid}/ns/user`   |
-| `CLONE_NEWCGROUP` | cgroup    | `/proc/{pid}/ns/cgroup` |
-
-- **Return value**：成功return `0`；失敗return `-1`，並設定`errno`。例如`EINVAL`表示`fd`的類型和`nstype`不符，`EPERM`表示權限不足。
-- **權限**：需要`CAP_SYS_ADMIN`，所以一般要用`sudo`執行。
-- **一次只加入一種namespace**：`/proc/{pid}/ns/`底下每個file代表一種。要完整「進入」一個container，就要對每種namespace各呼叫一次`setns()`，`docker exec`就是這樣加入container的mnt、pid、net、uts、ipc等namespace。
-- **PID namespace比較特別**：`setns()`之後，***目前的process本身不會換PID namespace***，之後`fork()`出來的子process才會在新的PID namespace裡。
-- **呼叫完通常接`exec`**：`setns()`只改變目前這個process所在的namespace，接著`execvp()`一個shell或指令，它才會在新的namespace裡執行。
-
-`/proc/{pid}/ns/`底下的file長這樣：
-
-```bash
-ls -l /proc/25686/ns/
-# → net -> net:[4026532281]
-#   mnt -> mnt:[4026532279]
-#   pid -> pid:[4026532282]
-#   uts -> uts:[4026532280]
-#   ...
-```
-
-每個file是一個[symlink](#-補充symlinkhard-link與bind-mount的差別)，`[]`裡的數字是namespace的ID。***兩個process的ID相同，就代表它們在同一個namespace裡***。
-
-#### 🔗 補充：symlink、hard link與bind mount的差別
-
-三者都能讓「同一份內容從另一個路徑看得到」，但實作的層級完全不同：
-
-|                            | symlink                      | hard link                                       | bind mount                                         |
-| -------------------------- | ---------------------------- | ----------------------------------------------- | -------------------------------------------------- |
-| **本質**             | 一個存著「目標路徑」的小檔案 | 目錄裡多一個名字，指向***同一個inode*** | mount tree裡多一個節點，把一個dentry接到另一個位置 |
-| **存在哪裡**         | 磁碟上（是一個檔案）         | 磁碟上（目錄項目）                              | ***只在mem***（kernel的mount table）       |
-| **重開機後**         | 還在                         | 還在                                            | 消失，除非寫進`/etc/fstab`                       |
-| **能指向目錄嗎**     | ✅                           | ❌                                              | ✅                                                 |
-| **能跨filesystem嗎** | ✅                           | ❌                                              | ✅                                                 |
-| **原檔刪掉後**       | 變成斷掉的捷徑               | 內容還在（inode的link count還沒歸零）           | 仍然指向原本的dentry                               |
-
-- **symlink**：「去那個路徑找」，***每次打開時才照著路徑去找***。
-- **hard link**：「同一個檔案的另一個名字」，兩個名字地位完全相同。
-- **bind mount**：「路徑走到這裡時，改接到那邊」，***mount時就決定好接到哪個dentry***。
-
-**為什麼container的volume用bind mount，不用symlink**：symlink是在container的view裡解析路徑，`pivot_root`之後，container裡的`/data`已經不是host的`/data`，所以會找不到或找錯；hard link不能用於目錄，也不能跨filesystem。bind mount則是在`pivot_root`之前，從host的view把dentry接進rootfs，換根之後仍然有效，見[④ 在新根裡掛好要用的filesystem](#-④-在新根裡掛好要用的filesystem)。
-
-### 🔑 2. 範例程式：set_ns.c
-
-下面這段小程式把`open()`和`setns()`串起來：
-
-```c
-// set_ns.c
-#define _GNU_SOURCE
-#include <fcntl.h>
-#include <sched.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#define errExit(msg) do { perror(msg); exit(EXIT_FAILURE); } while (0)
-
-int main(int argc, char *argv[])
-{
-    int fd = open(argv[1], O_RDONLY);    // 打開要加入的namespace file
-    if (setns(fd, 0) == -1)              // 把目前的process加入這個namespace
-        errExit("setns");
-    execvp(argv[2], &argv[2]);           // 在這個namespace裡執行指定的程式
-    errExit("execvp");
-}
-```
-
-它接收兩個參數：
-
-| 參數        | 意思                          | 例子                   |
-| ----------- | ----------------------------- | ---------------------- |
-| `argv[1]` | 要加入的namespace file的路徑  | `/proc/25686/ns/net` |
-| `argv[2]` | 要在這個namespace裡執行的程式 | `/bin/bash`          |
-
-程式裡`setns(fd, 0)`的`nstype`填`0`，所以`argv[1]`傳哪一種namespace file都可以。
-
-### 🌐 3. 加入container的network namespace
-
-假設有一個container，它的process在host上的PID是`25686`。編譯並執行這個程式，加入它的network namespace，並啟動一個新的`bash`：
-
-```bash
-gcc -o set_ns set_ns.c
-sudo ./set_ns /proc/25686/ns/net /bin/bash
-ifconfig                    # 在新的bash裡執行
-```
-
-```
-eth0      Link encap:Ethernet  HWaddr 02:42:ac:11:00:02
-          inet addr:172.17.0.2  Bcast:0.0.0.0  Mask:255.255.0.0
-          ...
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          ...
-```
-
-看得到的網卡「變少」了，只剩兩個；host上至少有四個。***這兩個網卡正是那個Docker container裡的網卡***：新的`bash`加入了container process（PID 25686）的network namespace，所以它看到的網路設備和container裡一樣。
-
-### 🔍 4. 從host確認兩個process共用同一個namespace
-
-process加入另一個namespace之後，在host的namespace file上也看得到。先在host上找出`set_ns`啟動的那個`bash`的PID：
-
-```bash
-ps aux | grep /bin/bash     # 在host上執行
-# → root  28499  0.0  0.0  19944  3612 pts/0  S  14:15  0:00 /bin/bash
-```
-
-再比較兩個process的`ns/net`：
-
-```bash
-ls -l /proc/28499/ns/net
-# → /proc/28499/ns/net -> net:[4026532281]
-ls -l /proc/25686/ns/net
-# → /proc/25686/ns/net -> net:[4026532281]
-```
-
-兩者指向***同一個***`net:[4026532281]`，說明這兩個process共用同一個network namespace。
-
-### 🐳 5. Docker的--net參數
-
-Docker也提供了參數，讓新的container直接加入另一個container的network namespace：
-
-```bash
-docker run -it --net container:{container_id} busybox ifconfig
-```
-
-- **`--net container:{container_id}`**：新container不建立自己的network namespace，而是加入`{container_id}`那個container的。`{container_id}`可以用`docker ps`查到。
-- **`--net host`**：直接使用host的network namespace，不做網路隔離。
-
-> [!TIP]
-> 💡 **一句話總結**
->
-> `/proc/{pid}/ns/`底下的每個file代表一個namespace；***用`setns()`加入它，就等於「進入」那個container***，`docker exec`和`--net container:`都是這個原理。
-
-## 延伸：Pod、container與process
-
-### 🌳 1. Pod、container與process的關係
-
-```
-Pod                                ← 一組container
-├── pause container                ← 建立並持有Pod共用的net / ipc / uts ns
-├── container A                    ← 例如nginx
-│   └── process（PID 1）              ← nginx master
-│       └── process（fork出來的）      ← nginx worker
-├── container B                    ← sidecar，例如envoy，加入pause的ns
-│   └── process（PID 1）              ← envoy
-└── container C                    ← kubectl debug建立的ephemeral container
-    └── process（PID 1）              ← 例如busybox的sh，用自己image的rootfs，加入A的pid ns
-
-kubectl exec啟動的bash              ← 不屬於任何process tree，從Pod外面新開，
-                                       透過setns()加入container A的全部ns
-```
-
-- **fork出來的process**：由主process自己建立，屬於container A的process tree，例如nginx worker。
-- **`kubectl exec`**：***新開一個process，不是新container***。它和container A的process tree沒有fork關係，透過`setns()`加入A的ns，也被放進A的cgroup；它用的是A的rootfs，不會出現在Pod物件的定義裡。
-- **ephemeral container**（`kubectl debug`）：***在既有Pod裡新增一個container***，寫進Pod的`spec.ephemeralContainers`。它有自己image的rootfs，所以可以帶除錯工具；結束後不會重啟，Pod重建後就消失。
-- **sidecar**：Pod建立時就一起建立的container，加入pause持有的ns，和app container共用網路。
-
-### 🤝 2. Pod中的container共用什麼
-
-| Namespace                  | Pod裡的container | 說明                                                                                                                    |
-| -------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **Network（net）**   | ✅ 共用          | 同一個IP、同一組port，彼此用`localhost`連線；兩個container不能同時listen同一個port                                    |
-| **IPC（ipc）**       | ✅ 共用          | 可以用System V IPC、POSIX message queue、`/dev/shm`互相溝通                                                           |
-| **UTS（uts）**       | ✅ 共用          | 同一個hostname，也就是Pod名稱                                                                                           |
-| **Mount（mnt）**     | ❌ 獨立          | 每個container有自己image的rootfs；要共用檔案，就要mount同一個volume                                                     |
-| **PID（pid）**       | ⚙️ 預設獨立    | 設定`shareProcessNamespace: true`後共用：看得到彼此的process，PID 1變成pause                                          |
-| **Cgroup（cgroup）** | ❌ 獨立          | 每個container看到的cgroup根，是自己的那一層                                                                             |
-| **User（user）**     | ⚠️ 預設不使用  | 預設不建立user ns，所有container都用host的user ns。設定`hostUsers: false`後，整個Pod一個user ns，Pod裡的container共用 |
-
-ns以外，Pod裡也共用這些：
-
-| 共用的                    | 說明                                                                                      |
-| ------------------------- | ----------------------------------------------------------------------------------------- |
-| **volume**          | 在Pod層級定義，各container分別bind mount到自己的rootfs裡，所以看得到同一批檔案            |
-| **Pod層級的cgroup** | 每個container有自己的cgroup，但都在同一個Pod cgroup底下，Pod的資源上限會限制全部container |
-| **生命週期與排程**  | 一起被排程到同一個node，一起建立、一起刪除                                                |
-
-***Pod裡的container共用network、IPC、UTS***，就像在同一台機器上；***各自有自己的mount和cgroup***，也就是各自有自己的filesystem和資源計量；PID和user看config。
-
-> [!TIP]
-> 💡 **一句話總結**
->
-> Pod是一組container，container是一組共用ns和cgroup的process；***`kubectl exec`新開一個process加入既有的ns，`kubectl debug`則新增一個container***。檔案要從另一個路徑看得到時，container用的是bind mount，不是symlink，見[symlink、hard link與bind mount的差別](#-補充symlinkhard-link與bind-mount的差別)。
-
-## 簡寫對照
-
-全文的技術名詞統一用簡寫：
-
-| 全寫        | 簡寫     |
-| ----------- | -------- |
-| system call | sys call |
-| memory      | mem      |
-| library     | lib      |
-| dependency  | dep      |
-| package     | pkg      |

@@ -1,7 +1,7 @@
 ---
 icon: lucide/ship-wheel
 ---
-# Chap-4 Container orchestration之Pod篇
+# Chap-4 Container Orchestration之Pod篇
 
 **目錄**
 
@@ -14,9 +14,9 @@ icon: lucide/ship-wheel
 
 *Kubernetes為什麼不直接排程container，而要多一層Pod？*
 
-這一章從Pod開始。先看Pod在Kubernetes的API object裡的位置：其他object都圍繞著Pod，有的管理Pod怎麼執行（見[Chap-5的控制器模式](chap-5-container-orchestration-controller.md#控制器模式)），有的替Pod提供config或對外存取（詳見[第2章的聲明式API](chap-2-kubernetes-architecture.md#聲明式api)）：
+這一章從Pod開始。先看Pod在Kubernetes的API object裡的位置：其他object都圍繞著Pod，有的管理Pod怎麼執行（見[Chap-5的控制器模式](chap-5-container-orchestration-controller.md#控制器模式)），有的替Pod提供config或對外存取（詳見[第3章的聲明式API](chap-3-kubernetes-architecture-operations.md#聲明式api)）：
 
-![常見的Kubernetes API object：Container組成Pod；Deployment、StatefulSet、DaemonSet、Job、CronJob管理Pod怎麼執行；Service和Ingress提供對外存取；ConfigMap、Secret提供config；HorizontalPodAutoscaler負責自動擴縮](images/ch04/k8s-api-objects.svg)
+![常見的Kubernetes API object：Container組成Pod；online job由ReplicaSet（再由Deployment管理版本更新）、StatefulSet、DaemonSet管理，batch job由Job（再由CronJob定時建立）管理；Service選取Pod；Service和Ingress提供對外存取；ConfigMap、Secret提供config；HorizontalPodAutoscaler負責自動擴縮](images/ch04/k8s-api-objects.svg)
 
 ### 🖥️ 1. Kubernetes是一個分散式OS
 
@@ -29,7 +29,7 @@ icon: lucide/ship-wheel
 | process group  | **Pod**                      |
 | OS             | ***Kubernetes：分散式OS*** |
 
-Kubernetes做的事，就是把OS裡「***process group***」的概念搬到container上，讓它成為這個分散式OS裡的基本單位。從另一個角度看，Pod也可以想成[一台模擬的VM](chap-2-kubernetes-architecture.md#親密關係pod)。
+Kubernetes做的事，就是把OS裡「***process group***」的概念搬到container上，讓它成為這個分散式OS裡的基本單位。從另一個角度看，Pod也可以想成[一台模擬的VM](chap-3-kubernetes-architecture-operations.md#親密關係pod)。
 
 ### 🌲 2. 真實OS裡的process group
 
@@ -90,20 +90,20 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 
 - **檔案**：直接交換檔案。
 - **溝通**：① 用`localhost`或socket檔案在本機溝通；② 非常頻繁地互相呼叫。
-- **共用namespace**：例如Istio的Envoy sidecar，和app container共用同一個network namespace，再用iptables把app進出的流量全部導到Envoy。app不用改任何程式，流量就自動經過Envoy做加密、重試和監控，見[Chap-6的Istio](chap-6-declarative-api-operator.md#用istio理解聲明式api)。
+- **共用namespace**：例如Istio的Envoy sidecar，和app container共用同一個network namespace，再用iptables把app進出的流量全部導到Envoy。app不用改任何程式，流量就自動經過Envoy做加密、重試和監控，見[Chap-6的Istio](chap-6-declarative-api.md#用istio理解聲明式api)。
 
 ## Pod的實現：pause container
 
-**Pod只是一個*邏輯概念***。Kubernetes真正處理的，還是host上Linux container的[namespace](chap-1-container-basics.md#-①-建立namespace)和cgroups。**Pod本質是一組*共用了某些資源的container***：***Pod裡的所有container共用同一個network namespace，並且可以宣告共用同一個volume***。
+**Pod只是一個*邏輯概念***。Kubernetes真正處理的，還是host上Linux container的[namespace](chap-1-container-namespace-cgroups.md#-1-建立namespace)和cgroups。**Pod本質是一組*共用了某些資源的container***：***Pod裡的所有container共用同一個network namespace，並且可以宣告共用同一個volume***。
 
 要讓Pod中的所有containers共用network namespace，Kubernetes用了一個中間的container：**pause container**（a.k.a: Infra container）：
 
 ![Pod裡的pause container：container runtime建立sandbox時先啟動pause container，由它建立並持有net、ipc、uts namespace；container A和B透過setns()加入，3個container的/proc/{pid}/ns/net都指向同一個net:[4026532483]。runtime再呼叫CNI plugin，在這個network namespace裡建立eth0（10.244.1.5），用veth pair接到host上的bridge cni0](images/ch04/pod-pause-container.svg)
 
-- **pause container永遠第一個建立**：其他使用者定義的container，再透過[setns()](chap-1-container-basics.md#setns加入另一個process的namespace)加入pause container的network namespace。
+- **pause container永遠第一個建立**：其他使用者定義的container，再透過[setns()](chap-1-container-namespace-cgroups.md#setns加入另一個process的namespace)加入pause container的network namespace。
 - **用的是極小的image**：`registry.k8s.io/pause`。它是用C寫的一個小程式，靜態編譯後只有幾百KB，啟動後就一直呼叫`pause()`休眠，幾乎不佔資源。
 
-圖裡的Pod框，在[CRI](chap-2-kubernetes-architecture.md#-1-kubelet與各個interface)裡叫***sandbox***。Pod和sandbox不是同一個東西：
+圖裡的Pod框，在[CRI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)裡叫***sandbox***。Pod和sandbox不是同一個東西：
 
 |                      | Pod                                                                                            | sandbox                                                                                  |
 | -------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -125,13 +125,13 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 - **同一個Pod中多個containers可以直接用`localhost`溝通**。
 - **同一個Pod中多個containers看到的網路設備和pause container完全一樣**。
 
-Pod裡共用哪些namespace、哪些各自獨立，完整的對照見[Pod中的container共用什麼](chap-1-container-basics.md#-2-pod中的container共用什麼)。
+Pod裡共用哪些namespace、哪些各自獨立，完整的對照見[Pod中的container共用什麼](chap-1-container-namespace-cgroups.md#-2-pod中的container共用什麼)。
 
 ### 🕸️ 2. CNI plugin設計實現注意事項
 
 因此，實現CNI plugin我們要注意
 
-- **只要設定Pod的network namespace**：不需要管每個container怎麼用網路。這也是[runtime建立sandbox時](chap-3-kubernetes-operations.md#-step-5deploy-cni-plugin)，才呼叫CNI plugin的原因。CNI plugin的設計：***不用管app container有沒有啟動***：只要把pause container的network namespace設定好就夠了。
+- **只要設定Pod的network namespace**：不需要管每個container怎麼用網路。這也是[runtime建立sandbox時](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)，才呼叫CNI plugin的原因。CNI plugin的設計：***不用管app container有沒有啟動***：只要把pause container的network namespace設定好就夠了。
 - **不能在container裡裝東西**：pause image的rootfs裡幾乎什麼都沒有，CNI plugin不能依賴在container裡安裝pkg或config file。
 
 ### 📁 3. 共用volume
@@ -139,7 +139,7 @@ Pod裡共用哪些namespace、哪些各自獨立，完整的對照見[Pod中的c
 pause container解決了network namespace的共用。與此類似，***volume定義也在Pod層級***。
 
 - **一個volume，在host上只對應一個目錄**：kubelet替Pod準備好這個目錄，例如`emptyDir`在`/var/lib/kubelet/pods/{pod-uid}/volumes/kubernetes.io~empty-dir/{volume名稱}/`。
-- **container只要宣告mount它**：kubelet就把同一個host目錄，分別[bind mount](chap-1-container-basics.md#mount---bind技術)到每個container自己的rootfs裡。所以不同container看到的，是同一批檔案。
+- **container只要宣告mount它**：kubelet就把同一個host目錄，分別[bind mount](chap-2-container-fs-security.md#mount---bind技術)到每個container自己的rootfs裡。所以不同container看到的，是同一批檔案。
 
 #### emptyDir：跟著Pod生、跟著Pod死
 
@@ -162,9 +162,9 @@ volumes:
 | ---------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------ |
 | **`emptyDir`** | 這個Node上，kubelet管理的目錄                                                                    | ***和Pod一樣***                                  | Pod裡的container共用暫存資料                           |
 | **`hostPath`** | Node上一個指定的路徑，例如`/data`                                                              | 和Node一樣：Pod刪了，資料還在那台Node上                  | 需要讀Node本身的檔案，例如log agent讀`/var/log/pods` |
-| **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-operations.md#-step-6deploy-csi-driverrook-ceph) | ***和Pod無關***，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
+| **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph) | ***和Pod無關***，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
 
-另外還有一類volume不存資料，而是把config、password project進container，見[Chap-7的Projected Volume](chap-7-volume.md#projected-volume)。
+另外還有一類volume不存資料，而是把config、password project進container，見[Chap-8的Projected Volume](chap-8-volume.md#projected-volume)。
 
 #### 例子：WAR包和Tomcat
 
@@ -260,8 +260,8 @@ spec:
 
 用**DaemonSet**部署，每個Node一個Pod，***服務這個Node上所有的Pod***。前幾章已經看過好幾個：
 
-- **CNI plugin**：例如[Flannel](chap-3-kubernetes-operations.md#-step-5deploy-cni-plugin)。
-- **CSI nodeplugin**：例如[Rook-Ceph的nodeplugin](chap-3-kubernetes-operations.md#-step-6deploy-csi-driverrook-ceph)。
+- **CNI plugin**：例如[Flannel](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)。
+- **CSI nodeplugin**：例如[Rook-Ceph的nodeplugin](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph)。
 - **kube-proxy**。
 
 收集log是最典型的例子，例如[Fluent Bit](https://fluentbit.io/)：
@@ -292,7 +292,7 @@ service mesh也在往這個方向走：Istio的[ambient mode](https://istio.io/l
 
 ***整個cluster共用一份***的功能，用Deployment或Operator部署：
 
-- **Operator**：例如[Rook](chap-3-kubernetes-operations.md#-step-6deploy-csi-driverrook-ceph)，看著CRD把Ceph建起來、修好。
+- **Operator**：例如[Rook](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph)，看著CRD把Ceph建起來、修好。
 - **Ingress / Gateway**：整個cluster對外的入口。
 - **cert-manager**：替整個cluster申請、更新TLS certificate，見[cert-manager.io](https://cert-manager.io/)。
 
@@ -324,10 +324,10 @@ container image很好用，但只有一個container，對Kubernetes來說資訊�
 
 ### 🧭 1. 判斷原則
 
-Pod扮演的是[一台模擬的VM](chap-2-kubernetes-architecture.md#親密關係pod)，container是這台VM裡的app。所以：
+Pod扮演的是[一台模擬的VM](chap-3-kubernetes-architecture-operations.md#親密關係pod)，container是這台VM裡的app。所以：
 
 - **和「機器」有關的，屬於Pod**：排程到哪個Node、網路、`/etc/hosts`、volume、security config。
-- **和namespace有關的，也屬於Pod**：Pod的設計就是讓container盡量共用namespace，見[Pod中的container共用什麼](chap-1-container-basics.md#-2-pod中的container共用什麼)。
+- **和namespace有關的，也屬於Pod**：Pod的設計就是讓container盡量共用namespace，見[Pod中的container共用什麼](chap-1-container-namespace-cgroups.md#-2-pod中的container共用什麼)。
 - **和「app本身」有關的，屬於container**：image、啟動命令、port、資源上限、probe。
 
 |                     | Pod層級（`spec`）                                           | container層級（`spec.containers[]`）                   |
@@ -349,8 +349,8 @@ spec:
 
 - **`nodeSelector`**：把Pod和Node綁在一起，只會排到label符合的Node上。更彈性的條件用`affinity`，見[官方文件](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)。
 - **`nodeName`**：
-    - **Default是空的**，不需要使用者寫，由scheduler挑好Node後填進去；每個Node上的kubelet，只執行`nodeName`是自己的Pod。使用者自己填，就是***跳過scheduler***，
-    - **yaml定義中不空，比如“node1”**：Pod直接在指定的Node上執行, 會也跳過了scheduler的檢查（資源夠不夠、taint），所以一般只在測試、debug時用，例如[第3章測試PVC時](chap-3-kubernetes-operations.md#建立storageclass再測一次pvc)用它指定Node。
+  - **Default是空的**，不需要使用者寫，由scheduler挑好Node後填進去；每個Node上的kubelet，只執行`nodeName`是自己的Pod。使用者自己填，就是***跳過scheduler***，
+  - **yaml定義中不空，比如“node1”**：Pod直接在指定的Node上執行, 會也跳過了scheduler的檢查（資源夠不夠、taint），所以一般只在測試、debug時用，例如[第3章測試PVC時](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)用它指定Node。
 
 ### 📝 3. hostAliases：Pod的/etc/hosts（Pod level）
 
@@ -423,7 +423,7 @@ PID   USER     TIME  COMMAND
 
 ***在`shell` container裡，看得到`nginx` container的process***，而且PID 1是[pause container](#pod的實現pause-container)。這個做法常用來debug：用一個有工具的container，去看另一個沒有`ps`、`sh`的精簡image。
 
-對照不共用的時候：***每個container的第一個process，在自己的PID namespace裡都是PID 1***。這只是各自namespace裡的編號（[第1章的實驗](chap-1-container-basics.md#-在container裡實際看到的)也看得到），從host上看，它們有各自不同的真實PID：
+對照不共用的時候：***每個container的第一個process，在自己的PID namespace裡都是PID 1***。這只是各自namespace裡的編號（[第2章的實驗](chap-2-container-fs-security.md#-在container裡實際看到的)也看得到），從host上看，它們有各自不同的真實PID：
 
 ```
                     在自己的PID namespace裡    在host上
@@ -445,7 +445,7 @@ spec:
   hostIPC: true                 # 用host的IPC namespace
 ```
 
-Pod直接使用host的namespace，不另外建立。例如[control plane的Static Pod](chap-3-kubernetes-operations.md#static-pod)用`hostNetwork: true`，因為它們比CNI plugin更早啟動。
+Pod直接使用host的namespace，不另外建立。例如[control plane的Static Pod](chap-3-kubernetes-architecture-operations.md#static-pod)用`hostNetwork: true`，因為它們比CNI plugin更早啟動。
 
 > [!NOTE]
 > **IPC（Inter-Process Communication）namespace**：process之間「借用kernel傳資料」的3種方法：
@@ -481,7 +481,7 @@ Pod直接使用host的namespace，不另外建立。例如[control plane的Stati
 | **`PodReadyToStartContainers`** | sandbox和網路已經建好                                                                          |
 | **`Initialized`**               | init container全部跑完                                                                         |
 | **`ContainersReady`**           | 所有container都ready                                                                           |
-| **`Ready`**                     | Pod可以接收流量，會被加進[Service](chap-2-kubernetes-architecture.md#存取關係service)的endpoint |
+| **`Ready`**                     | Pod可以接收流量，會被加進[Service](chap-3-kubernetes-architecture-operations.md#存取關係service)的endpoint |
 
 <img src="images/ch04/pod-phase-conditions.svg" alt="Pod的phase和conditions隨時間的變化：①scheduler選好Node，PodScheduled變True；②sandbox和網路建好，PodReadyToStartContainers變True；③init container跑完，Initialized變True；④container啟動，phase從Pending變Running；⑤readiness probe通過，ContainersReady變True；⑥readiness gate也通過，Ready變True，開始接流量。④到⑥之間是Running但還沒Ready" width="85%" style="margin-top:-14px">
 
@@ -542,12 +542,12 @@ spec:
 <img src="images/ch04/container-lifecycle-hooks.svg" alt="container的lifecycle hooks：①container啟動，app和postStart同時開始；②postStart跑完，state從waiting變running；③要求停止（刪除Pod、liveness probe失敗），執行preStop；④preStop跑完，kubelet送SIGTERM，app開始graceful shutdown；⑤app結束，state變terminated。從③開始算grace period（預設30秒），到期還沒結束就SIGKILL" width="85%">
 
 - **`postStart`**：container啟動後立刻執行。
-    - ***和`ENTRYPOINT`同時跑，不保證先後順序***：`postStart`執行時，app可能還沒準備好。
-    - `postStart`還沒跑完之前，container不會被標成`running`；它失敗的話，container會被kill，再依`restartPolicy`處理。
+  - ***和`ENTRYPOINT`同時跑，不保證先後順序***：`postStart`執行時，app可能還沒準備好。
+  - `postStart`還沒跑完之前，container不會被標成`running`；它失敗的話，container會被kill，再依`restartPolicy`處理。
 - **`preStop`**：container***被要求停止時***，在send `SIGTERM`之前執行，例如刪除Pod、liveness probe失敗。
-    - ***同步執行***：`preStop`跑完，kubelet才送`SIGTERM`給container。
-    - 時間算在`terminationGracePeriodSeconds`（預設30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
-    - container自己正常結束時***不會***觸發。
+  - ***同步執行***：`preStop`跑完，kubelet才送`SIGTERM`給container。
+  - 時間算在`terminationGracePeriodSeconds`（預設30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
+  - container自己正常結束時***不會***觸發。
 
 `preStop`最常見的用途是***graceful shutdown***：讓app先停止接新的request、處理完手上未完成的工作，再結束。例子裡的`nginx -s quit`就是這個作用。
 

@@ -1,7 +1,7 @@
 ---
 icon: lucide/hard-drive
 ---
-# Chap-7 Volume
+# Chap-8 Volume
 
 **目錄**
 
@@ -201,11 +201,11 @@ kubectl exec web-7d4f9 -- cat /etc/podinfo/mem_limit
 ```
 
 - **兩種給法**：
-    - env var（`fieldRef`）：適合名稱、IP、Node名稱這類固定的值；
-    - volume（`downwardAPI`）：每個欄位變成一個檔案，適合label、annotation，***它們改了，檔案會跟著更新***。
+  - env var（`fieldRef`）：適合名稱、IP、Node名稱這類固定的值；
+  - volume（`downwardAPI`）：每個欄位變成一個檔案，適合label、annotation，***它們改了，檔案會跟著更新***。
 - **常見用途**：
-    - log和metrics裡帶上Pod名稱和Node名稱，方便追查；
-    - app依資源上限調整自己，例如JVM依`limits.memory`決定heap大小。
+  - log和metrics裡帶上Pod名稱和Node名稱，方便追查；
+  - app依資源上限調整自己，例如JVM依`limits.memory`決定heap大小。
 - **限制：只拿得到container啟動前就確定的資訊**：Downward API拿得到的，都是Pod object上***container啟動前就確定***的欄位，例如名稱、IP、label、資源上限。container執行後才出現的資訊，例如container裡process的PID，Downward API拿不到，要在Pod裡另外放一個sidecar來取得；sidecar要看得到app的process，Pod要設定`shareProcessNamespace: true`。另外，它也只拿得到***這個Pod自己***的資訊；其他Pod或Service的資訊，還是要呼叫API Server，見[ServiceAccountToken](#-6-serviceaccounttokenpod怎麼存取api-server)。
 
 ### 🔄 5. env var還是volume
@@ -226,7 +226,7 @@ Secret、ConfigMap和Downward API的資訊，大多也可以用env var給contain
 
 ### 🎫 6. ServiceAccountToken：Pod怎麼存取API Server
 
-有些Pod裡的程式要***操作Kubernetes API***，例如[controller](chap-5-container-orchestration-controller.md#控制器模式)、CI的agent、[Headlamp](chap-3-kubernetes-operations.md#-step-7deploy-dashboardheadlamp)這類web UI。API Server收到request時，要先回答兩個問題：
+有些Pod裡的程式要***操作Kubernetes API***，例如[controller](chap-5-container-orchestration-controller.md#控制器模式)、CI的agent、[Headlamp](chap-3-kubernetes-architecture-operations.md#-step-7deploy-dashboardheadlamp)這類web UI。API Server收到request時，要先回答兩個問題：
 
 | 問題 | 誰負責 |
 | --- | --- |
@@ -288,7 +288,7 @@ volumes:
 
 **② token的特性**
 
-- **不存在Secret裡**：kubelet透過API Server的***TokenRequest API***替這個Pod申請token，直接寫進volume。[Headlamp登入用的`kubectl create token`](chap-3-kubernetes-operations.md#-step-7deploy-dashboardheadlamp)，走的也是同一個API。
+- **不存在Secret裡**：kubelet透過API Server的***TokenRequest API***替這個Pod申請token，直接寫進volume。[Headlamp登入用的`kubectl create token`](chap-3-kubernetes-architecture-operations.md#-step-7deploy-dashboardheadlamp)，走的也是同一個API。
 - **有期限**：大約1小時。kubelet會在到期前申請新的token、更新檔案（volume會自動更新，見[env var還是volume](#-5-env-var還是volume)），所以app要定期重新讀檔，不能啟動時讀一次就一直用。官方的client lib（例如Go的client-go）已經處理好了。
 - **綁定這個Pod**：Pod刪掉，token馬上失效，就算外洩也用不了多久。
 
@@ -359,7 +359,7 @@ spec:
 再跑一次上面的`curl`，就會return這個namespace裡的Pod清單；要刪Pod的話，一樣回403。
 
 - **Role / RoleBinding**：只在***一個namespace***裡有效。
-- **ClusterRole / ClusterRoleBinding**：整個cluster有效。例如[Headlamp](chap-3-kubernetes-operations.md#-step-7deploy-dashboardheadlamp)用ClusterRoleBinding把內建的ClusterRole `cluster-admin`（所有權限）綁給`headlamp-admin`。
+- **ClusterRole / ClusterRoleBinding**：整個cluster有效。例如[Headlamp](chap-3-kubernetes-architecture-operations.md#-step-7deploy-dashboardheadlamp)用ClusterRoleBinding把內建的ClusterRole `cluster-admin`（所有權限）綁給`headlamp-admin`。
 - **權限給最小就好**：只給程式真正需要的resource和verb。
 
 **⑤ 不需要就不要mount**

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 900 262" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="pp-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<filter id="pp-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+</defs>
+<rect y="0" width="900" height="280" fill="#ffffff"/>
+
+<!-- program (static) -->
+<g filter="url(#pp-sh)">
+<rect x="20" y="14" width="300" height="250" rx="16" fill="#f1ecfa" stroke="#7c5cbf" stroke-width="2.5"/>
+</g>
+<text x="170" y="50" font-size="24" font-weight="800" fill="#5b3fa0" text-anchor="middle">program</text>
+<text x="170" y="76" font-size="15" font-weight="800" fill="#7c5cbf" text-anchor="middle">靜態表現</text>
+<text x="170" y="104" font-size="13.5" font-weight="600" fill="#475569" text-anchor="middle">平常都安安靜靜地待在disk上</text>
+<!-- disk -->
+<path d="M90 140 V 214 A 80 14 0 0 0 250 214 V 140" fill="#ffffff" stroke="#7c5cbf" stroke-width="2"/>
+<ellipse cx="170" cy="140" rx="80" ry="14" fill="#e4dbf6" stroke="#7c5cbf" stroke-width="2"/>
+<text x="170" y="184" font-size="14" font-weight="800" fill="#334155" text-anchor="middle">Data + Code的二進位檔</text>
+<text x="170" y="206" font-size="13" font-weight="700" fill="#5b3fa0" text-anchor="middle">executable image</text>
+
+<!-- arrow -->
+<path d="M330 139 H 410" fill="none" stroke="#475569" stroke-width="2.5" marker-end="url(#pp-a)"/>
+<text x="370" y="127" font-size="14" font-weight="800" fill="#475569" text-anchor="middle">運行起來</text>
+
+<!-- process (dynamic) -->
+<g filter="url(#pp-sh)">
+<rect x="420" y="14" width="460" height="250" rx="16" fill="#fde7f1" stroke="#d81b60" stroke-width="2.5"/>
+</g>
+<text x="650" y="50" font-size="24" font-weight="800" fill="#ad1457" text-anchor="middle">process</text>
+<text x="650" y="76" font-size="15" font-weight="800" fill="#d81b60" text-anchor="middle">動態表現</text>
+<text x="650" y="104" font-size="13.5" font-weight="700" fill="#0e7c66" text-anchor="middle">資料和狀態以及執行環境的總和</text>
+<g font-size="13.5" font-weight="700" fill="#334155" text-anchor="middle">
+<rect x="440" y="122" width="420" height="34" rx="8" fill="#ffffff" stroke="#f0a1c0" stroke-width="1.5"/>
+<text x="650" y="144">Data + code in mem / cache / register</text>
+<rect x="440" y="164" width="205" height="34" rx="8" fill="#ffffff" stroke="#f0a1c0" stroke-width="1.5"/>
+<text x="542" y="186">stack / instruction</text>
+<rect x="655" y="164" width="205" height="34" rx="8" fill="#ffffff" stroke="#f0a1c0" stroke-width="1.5"/>
+<text x="757" y="186">opened files / socket</text>
+<rect x="440" y="206" width="420" height="34" rx="8" fill="#ffffff" stroke="#f0a1c0" stroke-width="1.5"/>
+<text x="650" y="228">以及各種設備的狀態資訊的一個集合</text>
+</g>
+</svg>

@@ -33,7 +33,7 @@ icon: lucide/palette
 | --- | --- | --- |
 | `**一般強調**` | 一般的強調、名詞 | 黑色粗體 |
 | `***非常重要***` | 核心結論、關鍵句，一節最多兩三處 | 灰褐色粗體，直體（不是斜體） |
-| `**小標題**：` | 條列或段落開頭的小標題，後面緊接全形冒號 | 青綠色粗體 |
+| `**小標題**：` | 條列或段落開頭的小標題，後面緊接全形冒號 | 青綠色粗體；第二層以下的條列是灰紫紅色粗體 |
 
 - 小標題前面可以有emoji，例如`✅ **包含了**：`，仍然算小標題。
 - 句子中間碰巧接冒號的粗體**不算**小標題，維持黑色。
@@ -68,6 +68,7 @@ icon: lucide/palette
 | 寫入、讀取、寫入者 | write、read、writer |
 | 回傳、回傳值 | return、return value |
 | 推、推送（config、certificate） | push（例如istiod用xDS push config給Envoy） |
+| 流量規則 | traffic rule（例如VirtualService、DestinationRule） |
 | 本地 | local |
 | 遠端 | remote |
 | 編排對象 / 編排object、服務對象 / 服務object | orchestration object、service object |
@@ -78,7 +79,9 @@ icon: lucide/palette
 
 ***只寫現在的做法***：不寫「舊的教材」「早期的寫法」「以前叫做」「舊位址是」這類歷史說明，也不用NOTE比較新舊版本；參考資料過時時，直接改寫成現在的版本。
 
-標題（h1～h4）如果以英文開頭，***第一個字母大寫***，例如`## Container為什麼能seamless deploy`。程式識別字和命令名稱（`pivot_root`、`unshare()`、`mount`、`umount`）維持原樣，***不要大寫***。
+標題（h1～h4）如果以英文開頭，***第一個字母大寫***，例如`## Container為什麼能seamless deploy`。
+
+**頁面標題**（h1，也就是nav和首頁顯示的名稱）裡的英文單字，***每個字的第一個字母都大寫***，例如`# Chap-1 Container基礎：Namespace / Cgroups`；介系詞（in、of等）維持小寫。對應的檔名用***英文小寫***，單字之間用`-`連接，例如`chap-1-container-namespace-cgroups.md`。程式識別字和命令名稱（`pivot_root`、`unshare()`、`mount`、`umount`）維持原樣，***不要大寫***。
 
 ***不要中英文各說一遍***：不寫「中文（English）」或「English（中文）」，只寫英文。例如寫`Copy-on-Write`，不寫`寫時複製（Copy-on-Write）`；寫`mount propagation`，不寫`掛載傳播（propagation）`。括號裡放英文縮寫的全名（例如`OCI（Open Container Initiative）`）、補充說明或舉例，都可以。
 
@@ -134,7 +137,9 @@ icon: lucide/palette
 
 - 分隔線寫成`| --- | --- |`（兩邊有空格），避免編輯器的Markdown警告。
 - 第一欄常作為「列標題」，可以整格加粗。
+- ***表格不要包`<div>`***：`extra.css`有`.row-header-table`樣式（第一欄用表頭底色），但要把表格包在`<div class="row-header-table" markdown>`裡。Office Viewer存檔時會把div裡的表格和`</div>`一起刪掉，只剩開頭那行div，後面的內容也可能被截掉。所以不要用。
 - 可以用 ✅ / ❌ 表示可以 / 不行。
+- **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和雲端一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Chap-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
 - 表格裡的程式碼如果含有`|`，不能寫`\|`（反斜線會原樣顯示），要改寫成HTML：`<code>MS_REC &#124; MS_PRIVATE</code>`。
 
 ### 圖片
@@ -198,19 +203,21 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
 | 頁面 | 圖示 |
 | --- | --- |
 | Index | `lucide/house` |
-| Get started | `lucide/rocket` |
+| Get Started | `lucide/rocket` |
 | Markdown in 5min | `simple/markdown` |
 | GitHub相容寫法 | `simple/github` |
 | 網站排版風格 | `lucide/palette` |
 | Claude Code入口 | `simple/claude` |
 | Reference | `lucide/book-open` |
-| Chap-1-container基礎 | `lucide/container` |
-| Chap-2-Kubernetes architecture | `simple/kubernetes` |
-| Chap-3-Kubernetes operations | `lucide/wrench` |
-| Chap-4 Container orchestration之Pod篇 | `lucide/ship-wheel` |
-| Chap-5 Container orchestration之Controller篇 | `lucide/refresh-cw` |
-| Chap-6 Declarative API & Operator | `lucide/file-code` |
-| Chap-7 Volume | `lucide/hard-drive` |
+| Chap-0 History | `lucide/history` |
+| Chap-1 Container基礎：Namespace / Cgroups | `lucide/container` |
+| Chap-2 Container基礎：FS / Security | `lucide/layers` |
+| Chap-3 Kubernetes Architecture & Operations | `simple/kubernetes` |
+| Chap-4 Container Orchestration之Pod篇 | `lucide/ship-wheel` |
+| Chap-5 Container Orchestration之Controller篇 | `lucide/refresh-cw` |
+| Chap-6 Declarative API | `lucide/file-code` |
+| Chap-7 CRD & Operator | `lucide/puzzle` |
+| Chap-8 Volume | `lucide/hard-drive` |
 
 ## 實作位置
 
@@ -228,6 +235,7 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
 | --- | --- | --- |
 | `--doc-strong-color` | `***非常重要***` | `#74513a`灰褐 |
 | `--doc-label-color` | `**小標題**：` | `#3d6b66`灰青綠 |
+| `--doc-label2-color` | 第二層以下條列的`**小標題**：` | `#8a4f7d`灰紫紅 |
 | `--md-typeset-a-color` | 內文連結 | `#1a4fae`暗藍 |
 | `--doc-ext-link-color` | 外部連結（連到其他網站）：再深一點的藍、點狀底線、後面自動加小↗；站內連結維持原樣 | `#0b347a`深藍 |
 | `--doc-code-color` / `--doc-code-bg` | 行內`code` | `#c2185b` / `#fbeff4` |
@@ -270,7 +278,7 @@ git push                          # 推上去後GitHub Actions自動發佈
 - **SSH金鑰**：`~/.ssh/config`裡`github.com`用`~/.ssh/id_ed25519_megleet`，對應GitHub帳號megleet。
 - **GitHub網頁上的修改**：push被拒絕時，先`git fetch`看remote改了什麼，再`git rebase origin/main`，**不要強制推送**。
 - **`zensical build`偶爾出現`cache directory could not be removed`**：預覽伺服器開著時同時建置可能會撞到，等一下重跑一次就好。
-- **巢狀條列要縮排4格**：只縮2格時，Zensical不會把它當成子條列。
+- **巢狀條列縮排2格**：配合VS Code的Office Viewer（它存檔時一律縮2格），`zensical.toml`加了`mdx_truly_sane_lists`（`nested_indent = 2`）。子條列縮2格；縮4格反而會被攤平成同一層。條列下面的code block縮2、3格都可以。
 - **標題裡的`-`會保留在錨點裡**：`## mount --bind技術`的錨點是`#mount---bind技術`（空白變`-`，加上原本的`--`），不是`#mount-bind技術`。
 - **`(c)`會變成©**：`smartsymbols`擴充會把`(c)`轉成版權符號（`(r)`、`(tm)`也一樣）。用`(a)`、`(b)`、`(c)`編號時，要寫成`\(c)`。
 - **新文章忘了加到首頁**：`nav`會自動出現在左側導覽列，但首頁`index.md`的清單要手動加，兩邊都要更新。

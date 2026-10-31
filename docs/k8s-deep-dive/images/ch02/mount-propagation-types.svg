@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 920 244" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="mp-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2e7d32"/></marker>
+<marker id="mp-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#d1495b"/></marker>
+<filter id="mp-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+</defs>
+<rect y="0" width="920" height="260" fill="#ffffff"/>
+
+<!-- panels -->
+<g filter="url(#mp-sh)" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5">
+<rect x="14" y="14" width="214" height="232" rx="14"/>
+<rect x="240" y="14" width="214" height="232" rx="14"/>
+<rect x="466" y="14" width="214" height="232" rx="14"/>
+<rect x="692" y="14" width="214" height="232" rx="14"/>
+</g>
+<g font-size="18" font-weight="800" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">
+<text x="121" y="46" fill="#2e7d32">shared</text>
+<text x="347" y="46" fill="#334155">private</text>
+<text x="573" y="46" fill="#2f6bb5">slave</text>
+<text x="799" y="46" fill="#7c5cbf">unbindable</text>
+</g>
+
+<!-- host / container boxes per panel -->
+<g font-size="13" font-weight="800" text-anchor="middle">
+<rect x="28" y="70" width="70" height="56" rx="10" fill="#334155"/><text x="63" y="103" fill="#ffffff">host</text>
+<rect x="144" y="70" width="70" height="56" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="1.8"/><text x="179" y="103" fill="#1a3f78">這邊</text>
+<rect x="254" y="70" width="70" height="56" rx="10" fill="#334155"/><text x="289" y="103" fill="#ffffff">host</text>
+<rect x="370" y="70" width="70" height="56" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="1.8"/><text x="405" y="103" fill="#1a3f78">這邊</text>
+<rect x="480" y="70" width="70" height="56" rx="10" fill="#334155"/><text x="515" y="103" fill="#ffffff">host</text>
+<rect x="596" y="70" width="70" height="56" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="1.8"/><text x="631" y="103" fill="#1a3f78">這邊</text>
+<rect x="706" y="70" width="70" height="56" rx="10" fill="#334155"/><text x="741" y="103" fill="#ffffff">host</text>
+<rect x="822" y="70" width="70" height="56" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="1.8"/><text x="857" y="103" fill="#1a3f78">這邊</text>
+</g>
+
+<!-- shared: both ways -->
+<path d="M100 88 H 140" fill="none" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#mp-g)"/>
+<path d="M142 108 H 102" fill="none" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#mp-g)"/>
+
+<!-- private: none -->
+<g stroke="#d1495b" stroke-width="3.5" stroke-linecap="round"><line x1="337" y1="88" x2="357" y2="108"/><line x1="357" y1="88" x2="337" y2="108"/></g>
+
+<!-- slave: one way in -->
+<path d="M552 88 H 592" fill="none" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#mp-g)"/>
+<path d="M594 108 H 554" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#mp-r)"/>
+<g stroke="#d1495b" stroke-width="2.5" stroke-linecap="round"><line x1="577" y1="101" x2="589" y2="115"/><line x1="589" y1="101" x2="577" y2="115"/></g>
+
+<!-- unbindable: private, and cannot be bind-mounted -->
+<g stroke="#d1495b" stroke-width="3.5" stroke-linecap="round"><line x1="789" y1="88" x2="809" y2="108"/><line x1="809" y1="88" x2="789" y2="108"/></g>
+<rect x="744" y="136" width="110" height="24" rx="12" fill="#fdecea"/>
+<text x="799" y="153" font-size="12.5" font-weight="800" fill="#b3261e" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">✗ --bind</text>
+
+<!-- captions -->
+<g font-size="13" font-weight="800" text-anchor="middle">
+<text x="121" y="186" fill="#2e7d32">雙向同步</text>
+<text x="347" y="186" fill="#334155">完全不同步</text>
+<text x="573" y="186" fill="#2f6bb5">單向同步</text>
+<text x="799" y="186" fill="#7c5cbf">private + 不能bind</text>
+</g>
+<g font-size="11.5" font-weight="600" fill="#475569" text-anchor="middle">
+<text x="121" y="208">任何一邊新掛載或卸載，</text><text x="121" y="225">另一邊也會跟著變化</text>
+<text x="347" y="208">各自掛載、各自卸載，</text><text x="347" y="225">互不影響</text>
+<text x="573" y="208">host的變化會傳進來，</text><text x="573" y="225">這邊的變化不會傳出去</text>
+<text x="799" y="208">private，而且不能被</text><text x="799" y="225">--bind綁定到別處</text>
+</g>
+</svg>

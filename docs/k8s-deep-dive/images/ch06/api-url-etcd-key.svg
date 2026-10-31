@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 3 731 336" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="ah-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#64748b"/></marker>
+<marker id="ah-ns" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<marker id="ah-res" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#b45309"/></marker>
+<marker id="ah-name" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#be185d"/></marker>
+</defs>
+<rect width="731" height="340" fill="#ffffff"/>
+
+<!-- API URL -->
+<text x="12" y="22" font-size="15" font-weight="800" fill="#334155">API URL</text>
+<rect x="10" y="32" width="711" height="62" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+<g font-size="26" font-weight="700" font-family="SFMono-Regular, Menlo, monospace">
+<text x="40.0" y="74" fill="#64748b" textLength="78.3" lengthAdjust="spacingAndGlyphs">/apis</text>
+<text x="118.3" y="74" fill="#94a3b8" textLength="15.7" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="133.9" y="74" fill="#0b6e78" textLength="78.3" lengthAdjust="spacingAndGlyphs">batch</text>
+<text x="212.2" y="74" fill="#94a3b8" textLength="15.7" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="227.8" y="74" fill="#5b3fa0" textLength="31.3" lengthAdjust="spacingAndGlyphs">v1</text>
+<text x="259.1" y="74" fill="#94a3b8" textLength="15.7" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="274.8" y="74" fill="#94a3b8" textLength="172.3" lengthAdjust="spacingAndGlyphs">namespaces/</text>
+<text x="447.1" y="74" fill="#475569" textLength="109.6" lengthAdjust="spacingAndGlyphs">default</text>
+<text x="556.7" y="74" fill="#94a3b8" textLength="15.7" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="572.4" y="74" fill="#b45309" textLength="62.6" lengthAdjust="spacingAndGlyphs">jobs</text>
+<text x="635.0" y="74" fill="#94a3b8" textLength="15.7" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="650.7" y="74" fill="#be185d" textLength="31.3" lengthAdjust="spacingAndGlyphs">pi</text>
+</g>
+
+<!-- group / version: not in the key -->
+<g stroke="#94a3b8" stroke-width="2">
+<line x1="137.9" y1="64" x2="208.2" y2="64"/>
+<line x1="229.8" y1="64" x2="257.1" y2="64"/>
+</g>
+<text x="173.0" y="120" font-size="14" font-weight="800" fill="#0b6e78" text-anchor="middle">Group</text>
+<text x="243.5" y="120" font-size="14" font-weight="800" fill="#5b3fa0" text-anchor="middle">Version</text>
+<text x="208.2" y="142" font-size="14" font-weight="700" fill="#94a3b8" text-anchor="middle">✕ key裡不存</text>
+
+<!-- connectors -->
+<g fill="none" stroke-width="2.2">
+<path d="M79.1 98 C 79.1 160, 110.5 170, 110.5 224" stroke="#64748b" stroke-dasharray="6 4" marker-end="url(#ah-gray)"/>
+<path d="M603.7 98 C 603.7 170, 227.9 160, 227.9 224" stroke="#b45309" marker-end="url(#ah-res)"/>
+<path d="M501.9 98 C 501.9 170, 329.6 160, 329.6 224" stroke="#475569" marker-end="url(#ah-ns)"/>
+<path d="M666.3 98 C 666.3 170, 415.8 160, 415.8 224" stroke="#be185d" marker-end="url(#ah-name)"/>
+</g>
+<text x="60" y="176" font-size="13" font-weight="700" fill="#64748b">前綴換掉</text>
+
+<!-- etcd key -->
+<text x="12" y="221" font-size="15" font-weight="800" fill="#334155">etcd key</text>
+<rect x="10" y="230" width="711" height="62" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+<g font-size="26" font-weight="700" font-family="SFMono-Regular, Menlo, monospace">
+<text x="40.0" y="272" fill="#64748b" textLength="140.9" lengthAdjust="spacingAndGlyphs">/registry</text>
+<text x="180.9" y="272" fill="#94a3b8" textLength="15.7" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="196.6" y="272" fill="#b45309" textLength="62.6" lengthAdjust="spacingAndGlyphs">jobs</text>
+<text x="259.2" y="272" fill="#94a3b8" textLength="15.7" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="274.9" y="272" fill="#475569" textLength="109.6" lengthAdjust="spacingAndGlyphs">default</text>
+<text x="384.5" y="272" fill="#94a3b8" textLength="15.7" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="400.2" y="272" fill="#be185d" textLength="31.3" lengthAdjust="spacingAndGlyphs">pi</text>
+</g>
+
+<!-- labels under the key -->
+<path d="M42.0 300 V 306 H 178.9 V 300 M110.5 306 V 314" fill="none" stroke="#64748b" stroke-width="2"/>
+<text x="110.5" y="332" font-size="15" font-weight="800" fill="#64748b" text-anchor="middle">前綴</text>
+<path d="M198.6 300 V 306 H 257.2 V 300 M227.9 306 V 314" fill="none" stroke="#b45309" stroke-width="2"/>
+<text x="227.9" y="332" font-size="15" font-weight="800" fill="#b45309" text-anchor="middle">Resource</text>
+<path d="M276.9 300 V 306 H 382.5 V 300 M329.7 306 V 314" fill="none" stroke="#475569" stroke-width="2"/>
+<text x="329.7" y="332" font-size="15" font-weight="800" fill="#475569" text-anchor="middle">namespace</text>
+<path d="M402.2 300 V 306 H 429.5 V 300 M415.8 306 V 314" fill="none" stroke="#be185d" stroke-width="2"/>
+<text x="415.8" y="332" font-size="15" font-weight="800" fill="#be185d" text-anchor="middle">名稱</text>
+</svg>

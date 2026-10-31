@@ -13,7 +13,7 @@ edit_uri = "edit/main/docs/"
 nav = [
   { "Index" = "index.md" },
   { "Tutorials" = [
-    { "Get started" = "tutorials/get-started.md" },
+    { "Get Started" = "tutorials/get-started.md" },
     { "Markdown in 5min" = "tutorials/markdown.md" },
     { "GitHub相容寫法" = "tutorials/github-compatible.md" },
     { "網站排版風格" = "tutorials/style-guide.md" },
@@ -21,13 +21,15 @@ nav = [
   ] },
   { "K8S Deep Dive" = [
     { "Reference" = "k8s-deep-dive/reference.md" },
-    { "Chap-1-container基礎" = "k8s-deep-dive/chap-1-container-basics.md" },
-    { "Chap-2-Kubernetes architecture" = "k8s-deep-dive/chap-2-kubernetes-architecture.md" },
-    { "Chap-3-Kubernetes operations" = "k8s-deep-dive/chap-3-kubernetes-operations.md" },
-    { "Chap-4 Container orchestration之Pod篇" = "k8s-deep-dive/chap-4-container-orchestration-pod.md" },
-    { "Chap-5 Container orchestration之Controller篇" = "k8s-deep-dive/chap-5-container-orchestration-controller.md" },
-    { "Chap-6 Declarative API & Operator" = "k8s-deep-dive/chap-6-declarative-api-operator.md" },
-    { "Chap-7 Volume" = "k8s-deep-dive/chap-7-volume.md" },
+    { "Chap-0 History" = "k8s-deep-dive/chap-0-history.md" },
+    { "Chap-1 Container基礎：Namespace / Cgroups" = "k8s-deep-dive/chap-1-container-namespace-cgroups.md" },
+    { "Chap-2 Container基礎：FS / Security" = "k8s-deep-dive/chap-2-container-fs-security.md" },
+    { "Chap-3 Kubernetes Architecture & Operations" = "k8s-deep-dive/chap-3-kubernetes-architecture-operations.md" },
+    { "Chap-4 Container Orchestration之Pod篇" = "k8s-deep-dive/chap-4-container-orchestration-pod.md" },
+    { "Chap-5 Container Orchestration之Controller篇" = "k8s-deep-dive/chap-5-container-orchestration-controller.md" },
+    { "Chap-6 Declarative API" = "k8s-deep-dive/chap-6-declarative-api.md" },
+    { "Chap-7 CRD & Operator" = "k8s-deep-dive/chap-7-crd-operator.md" },
+    { "Chap-8 Volume" = "k8s-deep-dive/chap-8-volume.md" },
   ] },
 ]
 
@@ -136,3 +138,5 @@ pymdownx.tabbed.alternate_style = true
 pymdownx.tabbed.combine_header_slug = true
 pymdownx.tasklist.custom_checkbox = true
 pymdownx.tilde = {}
+# Accept 2-space nested lists (the Office Viewer editor saves lists with 2 spaces)
+mdx_truly_sane_lists = { nested_indent = 2, truly_sane = false }

@@ -4,9 +4,11 @@
   --md-typeset-a-color: #1a4fae; /* links in content: dark blue */
   --doc-ext-link-color: #0b347a; /* external links: darker blue */
   --doc-label-color: #3d6b66;
+  --doc-label2-color: #8a4f7d; /* labels in nested lists: muted plum */
   --doc-code-color: #c2185b;
   --doc-code-bg: #fbeff4;
   --doc-th-bg: #f2f3f5;
+  --doc-row-hl-bg: #fbeee8;
   --doc-h2-bg: #fff8e1;
   --doc-h2-bar: #f2b600;
   --doc-sh-cmd: #1a4fae;
@@ -28,9 +30,11 @@
   --md-typeset-a-color: #8ab4ff; /* links in content: light blue */
   --doc-ext-link-color: #6c9cf2; /* external links: deeper light blue */
   --doc-label-color: #8fbfb8;
+  --doc-label2-color: #d9a6cc;
   --doc-code-color: #ff8fb1;
   --doc-code-bg: rgba(255, 143, 177, 0.12);
   --doc-th-bg: rgba(255, 255, 255, 0.07);
+  --doc-row-hl-bg: rgba(255, 170, 120, 0.10);
   --doc-h2-bg: rgba(255, 213, 79, 0.12);
   --doc-h2-bar: #ffd54f;
   --doc-sh-cmd: #8ab4ff;
@@ -66,6 +70,11 @@
 /* Bold labels like "**原因**：" (tagged by extra.js) use a separate color */
 .md-typeset strong.doc-label {
   color: var(--doc-label-color);
+}
+
+/* Labels in nested lists (2nd level and deeper) get a second color */
+.md-typeset li li strong.doc-label {
+  color: var(--doc-label2-color);
 }
 
 /* Inline code (not code blocks) gets a soft pink pill */
@@ -165,6 +174,16 @@
 
 /* Keep short code like paths in a table's first column from breaking mid-word */
 .md-typeset table:not([class]) td:first-child code {
+  white-space: nowrap;
+}
+
+/* Tables wrapped in <div class="row-header-table" markdown>: the first column
+   is a row header (same background as th), and code never breaks mid-word */
+.md-typeset .row-header-table table:not([class]) td:first-child {
+  background-color: var(--doc-th-bg);
+}
+
+.md-typeset .row-header-table table:not([class]) td code {
   white-space: nowrap;
 }
 
@@ -434,4 +453,25 @@ body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .m
 .md-typeset .highlight .doc-hl-2 :is(.c, .c1, .ch, .cm, .cs) {
   color: #0b5f66;
   font-style: normal;
+}
+
+/* Highlight a whole table row: put <span class="row-hl"></span> in any cell of that row */
+.md-typeset table:not([class]) tr:has(.row-hl) > td {
+  background-color: var(--doc-row-hl-bg);
+}
+
+/* Thumbnails in reference tables: ![](...){ .ref-thumb } wrapped in a link */
+.md-typeset img.ref-thumb {
+  display: block;
+  width: 160px;
+  max-width: none;
+  border-radius: 6px;
+}
+
+.md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"]):has(> img.ref-thumb) {
+  text-decoration: none;
+}
+
+.md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"]):has(> img.ref-thumb)::after {
+  content: none;
 }

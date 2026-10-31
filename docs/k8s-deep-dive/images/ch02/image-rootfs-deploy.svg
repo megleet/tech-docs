@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 900 290" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="rf-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2e7d32"/></marker>
+<marker id="rf-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e08a00"/></marker>
+<filter id="rf-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+</defs>
+<rect y="0" width="900" height="300" fill="#ffffff"/>
+
+<text x="210" y="32" font-size="17" font-weight="800" fill="#334155" text-anchor="middle">local：打包Container Image</text>
+<text x="690" y="32" font-size="17" font-weight="800" fill="#334155" text-anchor="middle">remote host</text>
+
+<!-- ===== local image ===== -->
+<g filter="url(#rf-sh)">
+<rect x="20" y="48" width="380" height="164" rx="14" fill="#fff4e0" stroke="#e08a00" stroke-width="2.5"/>
+</g>
+<text x="36" y="74" font-size="14.5" font-weight="800" fill="#2e7d32">✅ 包含：OS的User Space所有檔案</text>
+<g font-size="13" font-weight="700" text-anchor="middle" fill="#8a4b00">
+<rect x="36" y="88" width="110" height="32" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/><text x="91" y="109">你的程式碼</text>
+<rect x="155" y="88" width="110" height="32" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/><text x="210" y="109">dep pkg</text>
+<rect x="274" y="88" width="110" height="32" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/><text x="329" y="109">env var</text>
+<rect x="36" y="128" width="110" height="32" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/><text x="91" y="149">config</text>
+<rect x="155" y="128" width="110" height="32" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/><text x="210" y="149" font-family="SFMono-Regular, Menlo, monospace">glibc</text>
+<rect x="274" y="128" width="110" height="32" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/><text x="329" y="149" font-family="SFMono-Regular, Menlo, monospace">/bin/bash</text>
+</g>
+<text x="210" y="194" font-size="12.5" font-weight="700" fill="#64748b" text-anchor="middle">這一整套就是RootFS</text>
+
+<rect x="20" y="224" width="380" height="44" rx="10" fill="#fdecea" stroke="#d1495b" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="210" y="252" font-size="14.5" font-weight="800" fill="#b3261e" text-anchor="middle">❌ 不包含：Linux Kernel</text>
+
+
+<!-- ===== remote host ===== -->
+<g filter="url(#rf-sh)">
+<rect x="480" y="48" width="400" height="164" rx="14" fill="#f5f9ff" stroke="#2f6bb5" stroke-width="2.5"/>
+</g>
+<text x="496" y="74" font-size="14" font-weight="800" fill="#1a3f78">container內的process</text>
+<rect x="500" y="88" width="360" height="72" rx="10" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<text x="680" y="116" font-size="15" font-weight="800" fill="#8a4b00" text-anchor="middle">根目錄<tspan font-family="SFMono-Regular, Menlo, monospace"> / == </tspan>Image裡的RootFS</text>
+<text x="680" y="140" font-size="12.5" font-weight="700" fill="#8a4b00" text-anchor="middle">和local開發時一模一樣的檔案結構</text>
+<!-- ship: the image's RootFS lands in the container's root -->
+<path d="M402 124 H 496" fill="none" stroke="#e08a00" stroke-width="4" marker-end="url(#rf-o)"/>
+<text x="438" y="112" font-size="12" font-weight="800" fill="#b45309" text-anchor="middle">送到remote</text>
+<text x="680" y="190" font-size="12.5" font-weight="700" fill="#2e7d32" text-anchor="middle">mount namespace + pivot_root：把根目錄換掉</text>
+
+<g filter="url(#rf-sh)">
+<rect x="480" y="224" width="400" height="44" rx="10" fill="#334155"/>
+</g>
+<text x="680" y="252" font-size="14.5" font-weight="800" fill="#ffffff" text-anchor="middle">remote host自己的Linux kernel</text>
+</svg>

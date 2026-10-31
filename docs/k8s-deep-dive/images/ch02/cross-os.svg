@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 880 302" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="xo-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#d1495b"/></marker>
+<filter id="xo-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+</defs>
+<rect y="0" width="880" height="320" fill="#ffffff"/>
+
+<text x="220" y="32" font-size="17" font-weight="800" fill="#c62828" text-anchor="middle">✗ 直接放到原生kernel上</text>
+<text x="660" y="32" font-size="17" font-weight="800" fill="#2e7d32" text-anchor="middle">✓ Docker Desktop的做法</text>
+
+<!-- ===== left: fails ===== -->
+<g filter="url(#xo-sh)">
+<rect x="40" y="50" width="360" height="64" rx="12" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+</g>
+<text x="220" y="76" font-size="15" font-weight="800" fill="#8a4b00" text-anchor="middle"><tspan fill="#7c3aed" font-weight="800">Linux</tspan> container image</text>
+<text x="220" y="99" font-size="12.5" font-weight="700" fill="#8a4b00" text-anchor="middle">binary呼叫Linux的sys call（epoll、clone）</text>
+<path d="M220 118 V 196" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#xo-r)"/>
+<g stroke="#d1495b" stroke-width="4" stroke-linecap="round"><line x1="206" y1="144" x2="234" y2="172"/><line x1="234" y1="144" x2="206" y2="172"/></g>
+<text x="246" y="152" font-size="12.5" font-weight="700" fill="#b3261e">Kernel API和ABI完全不同</text>
+<text x="246" y="170" font-size="12.5" font-weight="700" fill="#b3261e">這些sys call根本不存在</text>
+<g filter="url(#xo-sh)">
+<rect x="40" y="202" width="360" height="56" rx="12" fill="#334155"/>
+</g>
+<text x="220" y="236" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle"><tspan fill="#7dd3fc" font-weight="800">Windows</tspan> / macOS的原生kernel</text>
+
+<!-- ===== right: Docker Desktop ===== -->
+<g filter="url(#xo-sh)">
+<rect x="480" y="50" width="360" height="64" rx="12" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<rect x="480" y="122" width="360" height="40" rx="10" fill="#2f6bb5"/>
+<rect x="480" y="170" width="360" height="40" rx="10" fill="#9aa5b1"/>
+<rect x="480" y="218" width="360" height="40" rx="10" fill="#334155"/>
+</g>
+<text x="660" y="76" font-size="15" font-weight="800" fill="#8a4b00" text-anchor="middle"><tspan fill="#7c3aed" font-weight="800">Linux</tspan> container</text>
+<text x="660" y="99" font-size="12.5" font-weight="700" fill="#8a4b00" text-anchor="middle">sys call交給Linux kernel處理</text>
+<g text-anchor="middle" font-weight="800" fill="#ffffff">
+<text x="660" y="147" font-size="14.5"><tspan fill="#ddd6fe" font-weight="800">Linux</tspan> kernel（輕量級Linux VM）</text>
+<text x="660" y="195" font-size="14">WSL2 / Apple Virtualization framework</text>
+<text x="660" y="243" font-size="15"><tspan fill="#7dd3fc" font-weight="800">Windows</tspan> / macOS host</text>
+</g>
+<rect x="472" y="44" width="376" height="124" rx="16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="660" y="288" font-size="13" font-weight="700" fill="#2e7d32" text-anchor="middle">綠色虛線框：container實際跑在Linux VM的kernel上</text>
+</svg>

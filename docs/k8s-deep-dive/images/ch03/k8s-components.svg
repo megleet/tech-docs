@@ -23,11 +23,12 @@
 
   <!-- Master frame -->
   <rect x="14" y="200" width="1092" height="172" rx="16" fill="#f5f8fc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
-  <text x="38" y="240" font-size="24" font-weight="800" fill="#1e293b">Master</text>
+  <text x="38" y="240" font-size="24" font-weight="800" fill="#1e293b">Control</text>
+  <text x="38" y="270" font-size="24" font-weight="800" fill="#1e293b">Plane</text>
   <g filter="url(#sh)">
-    <rect x="180" y="236" width="210" height="92" rx="14" fill="#24508f"/>
+    <rect x="180" y="236" width="210" height="92" rx="14" fill="#2e7d5b"/>
     <rect x="485" y="236" width="210" height="92" rx="14" fill="#1a3f78"/>
-    <rect x="790" y="236" width="210" height="92" rx="14" fill="#24508f"/>
+    <rect x="790" y="236" width="210" height="92" rx="14" fill="#2e7d5b"/>
   </g>
   <text x="285" y="276" font-size="25" font-weight="600" fill="#fff" text-anchor="middle">Controller</text>
   <text x="285" y="308" font-size="25" font-weight="600" fill="#fff" text-anchor="middle">Manager</text>
@@ -65,13 +66,15 @@
     <rect x="872" y="690" width="132" height="240" rx="14" fill="url(#node-bg)"/>
   </g>
   <g>
-    <rect x="694" y="708" width="96" height="24" rx="6" fill="#5aa9f5"/>
+    <rect x="694" y="708" width="45" height="24" rx="6" fill="#5aa9f5"/>
+    <rect x="743" y="708" width="47" height="24" rx="6" fill="#5aa9f5"/>
     <rect x="694" y="742" width="96" height="40" rx="6" fill="#fff"/>
     <rect x="694" y="792" width="96" height="22" rx="6" fill="#fff"/>
     <rect x="694" y="824" width="96" height="26" rx="6" fill="#fff"/>
     <rect x="694" y="860" width="96" height="22" rx="6" fill="#f5c542"/>
     <rect x="694" y="892" width="96" height="22" rx="6" fill="#f5c542"/>
-    <rect x="890" y="708" width="96" height="24" rx="6" fill="#5aa9f5"/>
+    <rect x="890" y="708" width="45" height="24" rx="6" fill="#5aa9f5"/>
+    <rect x="939" y="708" width="47" height="24" rx="6" fill="#5aa9f5"/>
     <rect x="890" y="742" width="96" height="40" rx="6" fill="#fff"/>
     <rect x="890" y="792" width="96" height="22" rx="6" fill="#fff"/>
     <rect x="890" y="824" width="96" height="26" rx="6" fill="#fff"/>
@@ -84,10 +87,14 @@
   <g fill="none" stroke="#d1495b" stroke-width="3.5" stroke-dasharray="4 6" stroke-linecap="round">
     <path d="M390 282 H 479" marker-end="url(#a-rest)"/>
     <path d="M790 282 H 701" marker-end="url(#a-rest)"/>
-    <path d="M560 328 V 388 H 261 V 472" marker-end="url(#a-rest)"/>
-    <path d="M575 328 V 400 H 370 V 472" marker-end="url(#a-rest)"/>
-    <path d="M610 328 V 388 H 742 V 684" marker-end="url(#a-rest)"/>
-    <path d="M640 328 V 378 H 938 V 684" marker-end="url(#a-rest)"/>
+    <path d="M567 328 V 414 H 261 V 472" marker-end="url(#a-rest)"/>
+    <path d="M370 414 V 472" marker-end="url(#a-rest)"/>
+    <path d="M610 328 V 388 H 741 V 668 M741 668 H 716 V 702 M741 668 H 766 V 702"/>
+    <path d="M716 690 V 702" marker-end="url(#a-rest)"/>
+    <path d="M766 690 V 702" marker-end="url(#a-rest)"/>
+    <path d="M640 328 V 378 H 937 V 668 M937 668 H 912 V 702 M937 668 H 962 V 702"/>
+    <path d="M912 690 V 702" marker-end="url(#a-rest)"/>
+    <path d="M962 690 V 702" marker-end="url(#a-rest)"/>
   </g>
   <!-- gRPC: kubelet -> left, nested CRI / CSI / Device Plugin -->
   <g fill="none" stroke="#0e9aa7" stroke-width="3.5" stroke-dasharray="4 6" stroke-linecap="round">

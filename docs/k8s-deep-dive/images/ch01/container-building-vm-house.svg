@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 6 900 428" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="bh-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#64748b"/></marker>
+<filter id="bh-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+</defs>
+<rect y="0" width="900" height="440" fill="#ffffff"/>
+
+<!-- titles -->
+<text x="185" y="34" font-size="22" font-weight="800" fill="#1a3f78" text-anchor="middle">Container<tspan font-size="16" font-weight="700" fill="#64748b">（一棟大樓裡的一戶）</tspan></text>
+<text x="740" y="34" font-size="22" font-weight="800" fill="#8a4b00" text-anchor="middle">VM<tspan font-size="16" font-weight="700" fill="#64748b">（一棟獨立的房子）</tspan></text>
+
+<!-- ===== building ===== -->
+<g filter="url(#bh-sh)">
+<rect x="40" y="56" width="290" height="300" rx="16" fill="#f5f9ff" stroke="#2f6bb5" stroke-width="2.5"/>
+</g>
+<g fill="#e8f0fb" stroke="#2f6bb5" stroke-width="1.8">
+<rect x="70" y="82" width="62" height="50" rx="8"/><rect x="154" y="82" width="62" height="50" rx="8"/><rect x="238" y="82" width="62" height="50" rx="8"/>
+<rect x="70" y="152" width="62" height="50" rx="8"/><rect x="154" y="152" width="62" height="50" rx="8"/><rect x="238" y="152" width="62" height="50" rx="8"/>
+<rect x="70" y="222" width="62" height="50" rx="8"/><rect x="154" y="222" width="62" height="50" rx="8"/><rect x="238" y="222" width="62" height="50" rx="8"/>
+</g>
+<g font-size="12" font-weight="700" fill="#1a3f78" text-anchor="middle">
+<text x="101" y="111">app</text><text x="185" y="111">app</text><text x="269" y="111">app</text>
+<text x="101" y="181">app</text><text x="185" y="181">app</text><text x="269" y="181">app</text>
+<text x="101" y="251">app</text><text x="185" y="251">app</text><text x="269" y="251">app</text>
+</g>
+<rect x="160" y="300" width="50" height="56" rx="4" fill="#ffffff" stroke="#2f6bb5" stroke-width="1.8"/>
+<!-- shared foundation -->
+<rect x="30" y="360" width="310" height="34" rx="8" fill="#2f6bb5"/>
+<text x="185" y="382" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">共用同一個host kernel</text>
+<text x="185" y="420" font-size="14" font-weight="700" fill="#475569" text-anchor="middle">共用infra，但彼此隔離</text>
+
+<!-- callout: what one container packs -->
+<g filter="url(#bh-sh)">
+<rect x="372" y="96" width="210" height="112" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+</g>
+<g font-size="14" font-weight="700" fill="#334155">
+<text x="388" y="122">每一戶自己帶：</text>
+<text x="388" y="146" font-weight="600">• app</text>
+<text x="388" y="168" font-weight="600">• bins / libs / deps</text>
+<text x="388" y="190" font-weight="600">• OS rootfs（不含kernel）</text>
+</g>
+<path d="M372 152 H 352 V 177 H 304" fill="none" stroke="#64748b" stroke-width="1.8" marker-end="url(#bh-a)"/>
+
+<!-- ===== house ===== -->
+<g filter="url(#bh-sh)">
+<path d="M610 168 L 740 62 L 870 168 Z" fill="#fff4e0" stroke="#e08a00" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="626" y="166" width="228" height="190" fill="#fff4e0" stroke="#e08a00" stroke-width="2.5"/>
+</g>
+<g font-size="14" font-weight="700" text-anchor="middle">
+<rect x="680" y="104" width="120" height="34" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/>
+<text x="740" y="126" fill="#8a4b00">app</text>
+<rect x="650" y="184" width="180" height="34" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/>
+<text x="740" y="206" fill="#8a4b00">bins / libs / deps</text>
+<rect x="650" y="230" width="180" height="58" rx="8" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/>
+<text x="740" y="254" fill="#8a4b00">Guest OS</text>
+<text x="740" y="274" fill="#8a4b00">（自己的kernel）</text>
+</g>
+<rect x="716" y="300" width="48" height="56" rx="4" fill="#ffffff" stroke="#e08a00" stroke-width="1.8"/>
+<!-- own foundation -->
+<rect x="616" y="360" width="248" height="34" rx="8" fill="#e08a00"/>
+<text x="740" y="382" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">hypervisor模擬的硬體</text>
+<text x="740" y="420" font-size="14" font-weight="700" fill="#475569" text-anchor="middle">infra完全獨立</text>
+</svg>
