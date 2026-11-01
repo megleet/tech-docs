@@ -12,7 +12,7 @@
 </g>
 <g text-anchor="middle">
 <text x="450" y="52" font-size="22" font-weight="800" fill="#8a4b00">Kubernetes</text>
-<text x="450" y="76" font-size="13" font-weight="600" fill="#64748b">CNCF第一個專案</text>
+<text x="450" y="76" font-size="13" font-weight="600" fill="#64748b">CNCF第一個project</text>
 <text x="290" y="160" font-size="18" font-weight="800" fill="#5b3fa0">Observability</text>
 <text x="290" y="181" font-size="13" font-weight="600" fill="#64748b">看見cluster裡發生什麼</text>
 <text x="730" y="160" font-size="18" font-weight="800" fill="#0b4f56">Kubernetes的標準介面</text>
@@ -40,7 +40,7 @@
 <g text-anchor="middle" font-size="13" font-weight="600" fill="#64748b">
 <text x="115" y="245">container監控的</text>
 <text x="115" y="263">事實標準</text>
-<text x="115" y="283" font-size="12" fill="#5b3fa0">CNCF第二個專案</text>
+<text x="115" y="283" font-size="12" fill="#5b3fa0">CNCF第二個project</text>
 <text x="290" y="257">tracing、metrics、</text>
 <text x="290" y="276">log的標準</text>
 <text x="465" y="272">收集log</text>

@@ -6,19 +6,19 @@ icon: lucide/palette
 
 **目錄**
 
-- [專案概覽](#專案概覽)
+- [Project概覽](#project概覽)
 - [寫作規則](#寫作規則)
 - [每篇文章的固定結構](#每篇文章的固定結構)
-- [實作位置](#實作位置)
+- [Implementation位置](#implementation位置)
 - [工作流程](#工作流程)
 - [踩過的坑](#踩過的坑)
 
 > [!NOTE]
-> 這一頁是給**新對話**快速了解這個網站的脈絡用的。新增或修改文章前，先讀完這一頁，並照這裡的規則寫。專案入口和工作規則見[Claude Code入口](claude-code.md)。
+> 這一頁是給**新對話**快速了解這個網站的脈絡用的。新增或修改文章前，先讀完這一頁，並照這裡的規則寫。project入口和工作規則見[Claude Code入口](claude-code.md)。
 
-## 專案概覽
+## Project概覽
 
-- **工具**：[Zensical](https://zensical.org/)（Material for MkDocs團隊的接班專案），config file是`zensical.toml`。
+- **工具**：[Zensical](https://zensical.org/)（Material for MkDocs團隊的接班project），config file是`zensical.toml`。
 - **local路徑**：`~/zensical-docs`，Python虛擬環境在`.venv/`。
 - **GitHub**：`megleet/tech-docs`（公開repo），remote用SSH：`git@github.com:megleet/tech-docs.git`。
 - **網站**：<https://megleet.github.io/tech-docs/>，push到`main`後由GitHub Actions自動發佈。
@@ -55,7 +55,15 @@ icon: lucide/palette
 | 部署 | deploy |
 | 作業系統 | OS |
 | 宿主機 | host |
+| 實體機器、物理機、實體server | physical machine、physical server |
+| 雲端、雲端運算、雲端廠商 | cloud、cloud computing、cloud provider（例如cloud VM、cloud API） |
+| 叢集、集群 | cluster（「節點」可以保留） |
+| 專案 | project |
+| 實作、實現 | implement（動詞）、implementation（名詞） |
+| 開關、功能開關 | flag、feature flag |
+| 資料庫、數據庫 | DB |
 | 環境變數 | env var |
+| 變數 | var（簡寫見[簡寫對照](../k8s-deep-dive/reference.md#簡寫對照)） |
 | 配置、設定（名詞）、設定檔 | config、config file（動詞的「設定網路」「設定propagation」不改） |
 | 密碼、帳號 | password、username |
 | 憑證、證書 | certificate |
@@ -99,7 +107,7 @@ icon: lucide/palette
 ### 行內程式碼
 
 - 指令、檔案路徑、工具名、sys call、錯誤訊息用`` `code` ``，例如`runc`、`/etc/fstab`、`exec format error`。
-- 網站上會顯示成玫紅字、淡粉底的小標籤。
+- 網站上會顯示成玫紅字、淺灰底的小標籤。
 
 ### 程式碼區塊
 
@@ -140,7 +148,7 @@ icon: lucide/palette
 - 第一欄常作為「列標題」，可以整格加粗。
 - ***表格不要包`<div>`***：`extra.css`有`.row-header-table`樣式（第一欄用表頭底色），但要把表格包在`<div class="row-header-table" markdown>`裡。Office Viewer存檔時會把div裡的表格和`</div>`一起刪掉，只剩開頭那行div，後面的內容也可能被截掉。所以不要用。
 - 可以用 ✅ / ❌ 表示可以 / 不行。
-- **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和雲端一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Chap-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
+- **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和cloud一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Chap-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
 - 表格裡的程式碼如果含有`|`，不能寫`\|`（反斜線會原樣顯示），要改寫成HTML：`<code>MS_REC &#124; MS_PRIVATE</code>`。
 
 ### 圖片
@@ -155,7 +163,7 @@ icon: lucide/palette
 ### 交叉連結
 
 - 提到文章裡其他地方的內容時，***一律用錨點連結***，不要寫「前面說的」「剛才提到」這種沒有指向的說法；被引用的段落刪掉後，這種句子就會變成空引用。
-- 文章裡有完整的實作（例如`mini_container.c`）時，其他講到同一步驟的地方都要連過去，例如寫成`對應[實作](#錨點)的步驟5a`。
+- 文章裡有完整的implementation（例如`mini_container.c`）時，其他講到同一步驟的地方都要連過去，例如寫成`對應[implementation](#錨點)的步驟5a`。
 - 刪掉或改名標題後，建置並檢查所有錨點連結都還有效。
 - **概念先出現、解釋在後面時，連到解釋的位置**：例如前面提到Static Pod，就連到後文解釋Static Pod的地方，讓讀者看不懂時可以直接跳過去。網站裡已經有解釋的概念，一律用這種***自我連結***，不要連到外部文件；只有網站裡沒有解釋的，才連到官方文件。
 - **外部連結會自動標示**：`extra.css`會把連到其他網站的連結顯示成深藍色、點狀底線，後面加一個小↗；站內連結（網址含`/tech-docs/`或`#錨點`）維持原本的樣式。寫文章時不需要手動加↗。
@@ -196,7 +204,7 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
     *容器靠namespace做隔離，為什麼說這種隔離「不徹底」？業界又是怎麼補強的？*
     ```
 - **錨點**：保留中文。規則是轉小寫、去掉標點、空白換成`-`，例如`## mount常用命令總結` → `#mount常用命令總結`。不確定時建置後到HTML裡查`<h2 id="…">`。
-- **右側目錄**：全站預設顯示兩層（h2和h3），h3可以折疊：一開始全部收起，只看到h2，點`>`展開、再點收起（不會隨捲動自動展開）。要顯示到h4，在front matter加`toc_depth: 4`。實作在`extra.js`和`extra.css`。
+- **右側目錄**：全站預設顯示兩層（h2和h3），h3可以折疊：一開始全部收起，只看到h2，點`>`展開、再點收起（不會隨捲動自動展開）。要顯示到h4，在front matter加`toc_depth: 4`。implementation在`extra.js`和`extra.css`。
 - **導覽列**：新文章要加到`zensical.toml`的`nav`裡對應的分類。
 - **h2改名時**：記得同步更新開頭目錄的文字和錨點。
 
@@ -221,26 +229,26 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
 | Chap-7 CRD & Operator | `lucide/puzzle` |
 | Chap-8 Storage & Volume | `lucide/hard-drive` |
 
-## 實作位置
+## Implementation位置
 
 | 檔案 | 負責什麼 |
 | --- | --- |
 | `zensical.toml` | 網站config、`nav`、Markdown擴充、`extra_css` / `extra_javascript`、`custom_dir`、中文錨點（`toc.slugify`）、GitHub alert（`github-callouts`） |
-| `docs/stylesheets/extra.css` | 所有顏色和間距。顏色都是檔案開頭的CSS變數，淺色 / 深色模式各一組 |
+| `docs/stylesheets/extra.css` | 所有顏色和間距。顏色都是檔案開頭的CSS var，淺色 / 深色模式各一組 |
 | `docs/javascripts/extra.js` | 把頁面圖示移到h1前、首頁連結加圖示、程式碼語言標籤、shell指令上色、C語法補強（函式呼叫 / 參數 / #define）、目錄樹上色、標記青綠色小標題 、長程式碼折疊 、右側目錄折疊、左側導覽列Tutorials折疊（預設收起，記住展開狀態） |
 | `overrides/main.html` | 覆寫主題樣板：輸出頁面圖示、首頁標記、`toc_depth`標記 |
 | `.github/workflows/docs.yml` | GitHub Actions：安裝`zensical`和`markdown-callouts`，建置並發佈到Pages |
 
 ### 目前的顏色（淺色模式）
 
-| 變數 | 用途 | 色碼 |
+| var | 用途 | 色碼 |
 | --- | --- | --- |
 | `--doc-strong-color` | `***非常重要***` | `#74513a`灰褐 |
 | `--doc-label-color` | `**小標題**：` | `#3d6b66`灰青綠 |
 | `--doc-label2-color` | 第二層以下條列的`**小標題**：` | `#8a4f7d`灰紫紅 |
 | `--md-typeset-a-color` | 內文連結 | `#1a4fae`暗藍 |
 | `--doc-ext-link-color` | 外部連結（連到其他網站）：再深一點的藍、點狀底線、後面自動加小↗；站內連結維持原樣 | `#0b347a`深藍 |
-| `--doc-code-color` / `--doc-code-bg` | 行內`code` | `#c2185b` / `#fbeff4` |
+| `--doc-code-color` / `--doc-code-bg` | 行內`code`：玫紅字、淺灰底 | `#c2185b` / `#eef0f2` |
 | `--doc-h2-bg` / `--doc-h2-bar` | h2大標題背景 / 左邊細邊 | `#fff8e1` / `#f2b600` |
 | `--doc-th-bg` | 表格標題列 | `#f2f3f5` |
 | `--doc-sh-cmd` / `--doc-sh-arg` / `--doc-sh-comment` | shell指令 / 參數 / 註解（所有語言的註解） | `#1a4fae` / `#2e7d32` / `#8a8f98` |
@@ -275,7 +283,7 @@ git push                          # 推上去後GitHub Actions自動發佈
 
 - **`page.is_homepage`在Zensical裡沒有值**：判斷首頁要用`not page.url`。
 - **Lucide圖示是線條圖示**（`fill="none"`）：CSS不能對它加`fill`，否則會變成實心色塊。
-- **zsh的變數修飾符**：在shell裡寫`$v:a`會被當成路徑修飾符，要寫成`${v}:a`。
+- **zsh的var modifier**：在shell裡寫`$v:a`會被當成路徑修飾符，要寫成`${v}:a`。
 - **perl處理中文**：要加`-Mutf8 -CSD`，否則中文比對不到。
 - **SSH金鑰**：`~/.ssh/config`裡`github.com`用`~/.ssh/id_ed25519_megleet`，對應GitHub帳號megleet。
 - **GitHub網頁上的修改**：push被拒絕時，先`git fetch`看remote改了什麼，再`git rebase origin/main`，**不要強制推送**。

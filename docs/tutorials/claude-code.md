@@ -6,16 +6,16 @@ icon: simple/claude
 
 **目錄**
 
-- [這個專案是什麼](#這個專案是什麼)
+- [這個project是什麼](#這個project是什麼)
 - [開始工作前](#開始工作前)
 - [常用指令](#常用指令)
 - [工作規則](#工作規則)
 - [和使用者溝通](#和使用者溝通)
 
 > [!NOTE]
-> 這一頁是Claude Code的專案入口。專案根目錄的`CLAUDE.md`用`@docs/tutorials/claude-code.md`匯入這一頁，所以每次開新對話都會自動讀到。要改入口內容，改這一頁就好。
+> 這一頁是Claude Code的project入口。project根目錄的`CLAUDE.md`用`@docs/tutorials/claude-code.md`匯入這一頁，所以每次開新對話都會自動讀到。要改入口內容，改這一頁就好。
 
-## 這個專案是什麼
+## 這個project是什麼
 
 - **內容**：個人技術文檔網站，目前有Tutorials（網站本身的教學）和K8S Deep Dive（Kubernetes / 容器學習筆記）兩個分類。
 - **工具**：[Zensical](https://zensical.org/)，config file是`zensical.toml`，文章在`docs/`。

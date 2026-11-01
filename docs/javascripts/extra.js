@@ -190,6 +190,13 @@ document$.subscribe(() => {
     if (onlyEmojiOrSpace.test(before)) el.classList.add("doc-label");
   });
 
+  // Step names: bold at the start of a paragraph that begins with a circled number, like "**① Preflight Checks**"
+  document.querySelectorAll(".md-typeset p > strong:first-child").forEach((el) => {
+    const prev = el.previousSibling;
+    if (prev && prev.textContent.trim()) return;
+    if (/^[①-⑳]/.test(el.textContent.trim())) el.classList.add("doc-label");
+  });
+
   // Long code blocks (COLLAPSE_MIN lines or more): show only the first
   // COLLAPSE_SHOW lines, fade out the rest, and add a button to expand / collapse.
   const COLLAPSE_MIN = 20;

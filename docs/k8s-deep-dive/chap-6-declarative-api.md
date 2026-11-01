@@ -84,7 +84,7 @@ kubectl apply -f nginx.yaml
 
 | 做法             | 指令                                                                                                      | 你告訴Kubernetes的是                            |
 | ---------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| **命令式** | `kubectl create deployment`、`kubectl set image`、<br />`kubectl create -f`、`kubectl replace -f` | ***動作***<br />參數在命令列或 -f YAML |
+| **命令式** | `kubectl create deployment`、`kubectl set image`、<br />`kubectl create -f`、`kubectl replace -f` | ***動作***<br />參數在命令列或 -f YAML |
 | **聲明式** | `kubectl apply -f`                                                                                      | ***期望狀態***                          |
 
 ### 🔀 4. replace和apply的差別：PUT和PATCH

@@ -12,7 +12,7 @@
 <rect x="610" y="14" width="286" height="180" rx="14" fill="#fffaf0" stroke="#e08a00"/>
 </g>
 <g font-size="16" font-weight="800" text-anchor="middle">
-<text x="157" y="44" fill="#1a3f78">🖥️ 多租戶GPU叢集</text>
+<text x="157" y="44" fill="#1a3f78">🖥️ 多租戶GPU cluster</text>
 <text x="455" y="44" fill="#b3261e">🧪 AI agent執行不可信程式碼</text>
 <text x="753" y="44" fill="#8a4b00">⚖️ 實務限制</text>
 </g>

@@ -6,7 +6,7 @@ icon: lucide/ship-wheel
 **目錄**
 
 - [Pod：Kubernetes的原子排程單位](#podkubernetes的原子排程單位)
-- [Pod的實現：pause container](#pod的實現pause-container)
+- [Pod的implementation：pause container](#pod的implementationpause-container)
 - [Container常見設計思路](#container常見設計思路)
 - [Pod API object使用方法](#pod-api-object使用方法)
 
@@ -92,7 +92,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 - **溝通**：① 用`localhost`或socket檔案在本機溝通；② 非常頻繁地互相呼叫。
 - **共用namespace**：例如Istio的Envoy sidecar，和app container共用同一個network namespace，再用iptables把app進出的流量全部導到Envoy。app不用改任何程式，流量就自動經過Envoy做加密、重試和監控，見[Chap-6的Istio](chap-6-declarative-api.md#用istio理解聲明式api)。
 
-## Pod的實現：pause container
+## Pod的implementation：pause container
 
 **Pod只是一個*邏輯概念***。Kubernetes真正處理的，還是host上Linux container的[namespace](chap-1-container-namespace-cgroups.md#-1-建立namespace)和cgroups。**Pod本質是一組*共用了某些資源的container***：***Pod裡的所有container共用同一個network namespace，並且可以宣告共用同一個volume***。
 
@@ -127,9 +127,9 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 
 Pod裡共用哪些namespace、哪些各自獨立，完整的對照見[Pod中的container共用什麼](chap-1-container-namespace-cgroups.md#-2-pod中的container共用什麼)。
 
-### 🕸️ 2. CNI plugin設計實現注意事項
+### 🕸️ 2. CNI plugin implementation注意事項
 
-因此，實現CNI plugin我們要注意
+因此，implement CNI plugin時要注意
 
 - **只要設定Pod的network namespace**：不需要管每個container怎麼用網路。這也是[runtime建立sandbox時](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)，才呼叫CNI plugin的原因。CNI plugin的設計：***不用管app container有沒有啟動***：只要把pause container的network namespace設定好就夠了。
 - **不能在container裡裝東西**：pause image的rootfs裡幾乎什麼都沒有，CNI plugin不能依賴在container裡安裝pkg或config file。
@@ -236,7 +236,7 @@ sidecar和主container***在同一個Pod裡一起長期執行***，透過Pod共�
 - **共用network namespace**：app連`localhost`，就連到sidecar。
 - **共用volume**：app寫的檔案，sidecar讀得到；sidecar下載的config，app也讀得到。
 
-例如app要連雲端的DB，認證和加密交給[Cloud SQL Auth Proxy](https://cloud.google.com/sql/docs/mysql/sql-proxy)這個sidecar：
+例如app要連cloud的DB，認證和加密交給[Cloud SQL Auth Proxy](https://cloud.google.com/sql/docs/mysql/sql-proxy)這個sidecar：
 
 ```yaml
 spec:
@@ -250,7 +250,7 @@ spec:
       image: example/my-app:1.0
       env:
         - name: DB_HOST
-          value: "127.0.0.1"                  # app只連localhost，proxy負責認證、加密，再連到雲端的DB
+          value: "127.0.0.1"                  # app只連localhost，proxy負責認證、加密，再連到cloud的DB
 ```
 
 - **native sidecar**：寫在`initContainers`裡、加上`restartPolicy: Always`（Kubernetes 1.29起預設開啟，見[官方文件](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/)）。它***比主container先啟動、比主container晚結束***，所以app一啟動就連得到proxy；Job的主container結束時，sidecar也會跟著結束，不會讓Job一直完成不了。
@@ -421,7 +421,7 @@ PID   USER     TIME  COMMAND
    42 root      0:00 ps ax
 ```
 
-***在`shell` container裡，看得到`nginx` container的process***，而且PID 1是[pause container](#pod的實現pause-container)。這個做法常用來debug：用一個有工具的container，去看另一個沒有`ps`、`sh`的精簡image。
+***在`shell` container裡，看得到`nginx` container的process***，而且PID 1是[pause container](#pod的implementationpause-container)。這個做法常用來debug：用一個有工具的container，去看另一個沒有`ps`、`sh`的精簡image。
 
 對照不共用的時候：***每個container的第一個process，在自己的PID namespace裡都是PID 1***。這只是各自namespace裡的編號（[第2章的實驗](chap-2-container-fs-security.md#-在container裡實際看到的)也看得到），從host上看，它們有各自不同的真實PID：
 
@@ -464,7 +464,7 @@ Pod直接使用host的namespace，不另外建立。例如[control plane的Stati
 
 | phase                   | 意思                                                                                                         | 常見原因 / 下一步                                                                                                               |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| **`Pending`**   | Pod已經存進etcd，但還有container沒跑起來                                                                     | 還沒排程成功（資源不夠、`nodeSelector`沒有符合的Node）、正在拉image、init container還在跑。用`kubectl describe pod`看Events |
+| **`Pending`**   | Pod已經存進etcd，但還有container沒run起來                                                                     | 還沒排程成功（資源不夠、`nodeSelector`沒有符合的Node）、正在拉image、init container還在跑。用`kubectl describe pod`看Events |
 | **`Running`**   | 已經排程到某個Node，container都建好了，***至少有一個***正在執行、啟動或重啟                          | 正常狀態。能不能接流量要看`Ready`；container一直重啟（`CrashLoopBackOff`）時，phase也還是`Running`                        |
 | **`Succeeded`** | 所有container都***正常結束***（exit code 0），而且不會再重啟                                         | 只有`restartPolicy`是`OnFailure`或`Never`才會出現，例如Job；`Always`（Deployment預設）的container結束就會被重啟         |
 | **`Failed`**    | 所有container都結束了，***至少有一個失敗***（exit code不是0，或被系統kill，例如OOM），而且不會再重啟 | 用`kubectl logs --previous`看上一次的log、`kubectl describe pod`看Events。被Node驅逐（Evicted）的Pod也是`Failed`          |

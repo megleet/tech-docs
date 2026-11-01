@@ -33,7 +33,7 @@
 
 <rect x="20" y="270" width="200" height="44" rx="10" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
 <text x="120" y="291" font-size="16" font-weight="800" fill="#8a4b00" text-anchor="middle">PV</text>
-<text x="120" y="307" font-size="11" font-weight="600" fill="#8a4b00" text-anchor="middle">storage的實作</text>
+<text x="120" y="307" font-size="11" font-weight="600" fill="#8a4b00" text-anchor="middle">storage的implementation</text>
 
 <rect x="390" y="166" width="230" height="44" rx="10" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
 <text x="505" y="187" font-size="15" font-weight="800" fill="#8a4b00" text-anchor="middle">StorageClass</text>

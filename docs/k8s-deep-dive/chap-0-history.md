@@ -13,37 +13,37 @@ icon: lucide/history
 
 ## 從PaaS到container
 
-*雲端剛普及的時候，大家怎麼deploy app？container又改變了什麼？*
+*cloud剛普及的時候，大家怎麼deploy app？container又改變了什麼？*
 
-### ☁️ 1. PaaS：從實體機器到雲端VM
+### ☁️ 1. PaaS：從physical machine到cloud VM
 
-VM和雲端運算普及之後，常見的做法是：***租一批AWS或OpenStack的VM，再像以前管實體server一樣，用手動操作或script在這些VM上deploy app***。
+VM和cloud computing普及之後，常見的做法是：***租一批AWS或OpenStack的VM*，再像以前管physical server一樣，用手動操作或script在這些VM上deploy app**。
 
-PaaS（Platform as a Service）專案，例如Cloud Foundry，受歡迎的主要原因是它提供了「**應用託管**」的能力：開發者只要把app交給平台，平台負責把它跑起來，不用自己管VM。
+PaaS（Platform as a Service）project，例如Cloud Foundry，受歡迎的主要原因是它提供了「**應用託管**」的能力：開發者只要把app交給平台，平台負責把它run起來，**不用自己管VM**。
 
 ### 📦 2. Container：以container為核心的基礎設施
 
-接下來的轉變，是從***以實體機器和VM為主***的開發和ops，轉向***以container為核心***的基礎設施。
+接下來的轉變，是從**以****physical machine和VM為主**的開發和ops，轉向***以container為核心***的基礎設施。
 
-這個轉變的learning curve很陡：網路、storage、scheduling、OS、分散式系統，每一塊都要用container的方式重新理解。其中有兩個概念貫穿整個Kubernetes：
+這個轉變的learning curve很陡：**網路、storage、scheduling、OS、分散式系統**，每一塊都要用container的方式重新理解。其中有兩個概念貫穿整個Kubernetes：
 
-- **Linux的process模型**：container本質上是一個被隔離的process，見[Chap-1](chap-1-container-namespace-cgroups.md)。
-- **controller模式**：Kubernetes幾乎所有功能，都是一個個controller在做「把實際狀態調整成期望狀態」，見[控制器模式](chap-5-container-orchestration-controller.md#控制器模式)。
+- **① Linux的process模型**：container本質上是一個被隔離的process，見[Chap-1](chap-1-container-namespace-cgroups.md)。
+- **② controller模式**：Kubernetes幾乎所有功能，都是一個個controller在做「**把actual state調整成expected state**」，見[控制器模式](chap-5-container-orchestration-controller.md#控制器模式)。
 
 ## Docker為什麼贏過Cloud Foundry
 
 *兩者都用namespace和cgroups做隔離，Docker贏在哪裡？*
 
-***勝負關鍵是打包方式***：Cloud Foundry打包的是app，Docker打包的是app加上它需要的一切。
+***勝負關鍵是打包方式***：Cloud Foundry打包的是【**app**】，Docker打包的是【**app+它需要的一切**】
 
-<img src="images/ch00/cloud-foundry-vs-docker-package.svg" alt="左右對照打包內容。左邊Cloud Foundry只打包app：pkg裡只有app，libs / deps、config、OS rootfs用虛線畫在pkg外面，靠平台提供，每種語言、版本各配一套。右邊Docker打包app和它需要的一切：image裡由上到下是app、libs / deps、config、OS rootfs，同一份image到處跑" width="85%">
+<img src="images/ch00/cloud-foundry-vs-docker-package.svg" alt="左右對照打包內容。左邊Cloud Foundry只打包app：pkg裡只有app，runtime / libs / deps（由buildpack提供）和OS rootfs（由stack提供）用虛線畫在pkg外面，靠平台提供，每種語言、版本各配一套。右邊Docker打包app和它需要的一切：image裡由上到下是app、runtime / libs / deps、OS rootfs，同一份image到處跑" width="85%">
 
-| 面向                                                  | Cloud Foundry（PaaS）                                                            | Docker                                                | 誰贏                          |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------- |
-| **隔離機制**                                    | 呼叫OS的namespace + cgroups，建立sandbox                                         | 同樣的方式                                            | 🟡 平手：sandbox就是container |
-| **打包內容**                                    | app的執行檔 + start / stop script                                                | 完整的OS rootfs + app                                 | 🟢 Docker                     |
-| **打包成本**                                    | 每種語言、framework、版本都要維護一個pkg，沒有固定的方法，反覆trial and error    | `docker build`之後`docker run`，同一份image到處跑 | 🟢 Docker                     |
-| **local和雲端一致**<span class="row-hl"></span> | local能跑，上了PaaS還要改config、反覆試錯；`cf push`表面上一鍵，實際打包很麻煩 | image和local開發、測試時的OS完全一樣，不用任何修改    | 🟢 Docker（決勝點）           |
+| 面向                                                   | Cloud Foundry（PaaS）                                                            | Docker                                                | 誰贏                          |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------- |
+| **隔離機制**                                     | 呼叫OS的namespace + cgroups，建立sandbox                                         | 相同                                                  | 🟡 平手：sandbox就是container |
+| **打包內容**                                     | app executable + start / stop script                                            | app executable + runtime / libs / deps + OS rootfs（不含kernel） | 🟢 Docker                     |
+| **打包成本**                                     | 每種語言、framework、版本都要維護一個pkg，沒有固定的方法，反覆trial and error    | `docker build`之後`docker run`，同一份image到處跑 | 🟢 Docker                     |
+| **local和cloud一致**<span class="row-hl"></span> | local能跑，上了PaaS還要改config、反覆試錯；`cf push`表面上一鍵，實際打包很麻煩 | image裡的OS rootfs和local開發、測試時完全一樣，不用任何修改 | 🟢 Docker（決勝點）           |
 
 image現在的標準格式是OCI（Open Container Initiative）image，Docker build出來的image也是這個格式，containerd、CRI-O都能直接執行。
 
@@ -77,13 +77,13 @@ image現在的標準格式是OCI（Open Container Initiative）image，Docker bu
 
 Kubernetes源自Google內部的Borg和Omega系統。這些系統的設計，後來落到Kubernetes上，就是Pod、sidecar等功能和設計模式。
 
-Google在2014年發表Kubernetes，2015年發佈1.0。同一年，Linux Foundation底下成立了**CNCF**（Cloud Native Computing Foundation），Google把Kubernetes捐給CNCF，成為它的第一個專案。CNCF以Kubernetes為基礎，建立cloud native的生態。
+Google在2014年發表Kubernetes，2015年發佈1.0。同一年，Linux Foundation底下成立了**CNCF**（Cloud Native Computing Foundation），Google把Kubernetes捐給CNCF，成為它的第一個project。CNCF以Kubernetes為基礎，建立cloud native的生態。
 
 ### 🌱 2. 生態
 
-CNCF底下現在有很多專案，常見的例如：
+CNCF底下現在有很多project，常見的例如：
 
-<img src="images/ch00/cncf-ecosystem.svg" alt="CNCF生態：最上面是Kubernetes（CNCF第一個專案），下面分兩組。Observability（看見cluster裡發生什麼）：Prometheus是container監控的事實標準，也是CNCF第二個專案；OpenTelemetry是tracing、metrics、log的標準；Fluentd、Fluent Bit負責收集log。Kubernetes的標準介面（接到Node上執行Pod）：CNI是Pod網路的標準介面；containerd、CRI-O是container runtime" width="85%">
+<img src="images/ch00/cncf-ecosystem.svg" alt="CNCF生態：最上面是Kubernetes（CNCF第一個project），下面分兩組。Observability（看見cluster裡發生什麼）：Prometheus是container監控的事實標準，也是CNCF第二個project；OpenTelemetry是tracing、metrics、log的標準；Fluentd、Fluent Bit負責收集log。Kubernetes的標準介面（接到Node上執行Pod）：CNI是Pod網路的標準介面；containerd、CRI-O是container runtime" width="85%">
 
 CNI和container runtime怎麼接到Kubernetes上，見[Chap-3的架構](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)；實際裝一個CNI plugin，見[Chap-3的Step 5](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)。
 
@@ -102,11 +102,11 @@ Kubernetes能長成整個生態，靠的是它對**開發者開放**：
 
 <img src="images/ch00/orchestration-vs-choreography.svg" alt="左右兩塊。左邊Orchestration（centralized）：一個Orchestrator（central coordinator）用三個箭頭分別指向A、B、C，告訴每個component做什麼。右邊Choreography（decentralized）：A發event給B，B再發event給C，每個component看到event後自己決定下一步，沒有central coordinator" width="85%">
 
-|  | Orchestration | Choreography |
-| --- | --- | --- |
+|                    | Orchestration                                      | Choreography                              |
+| ------------------ | -------------------------------------------------- | ----------------------------------------- |
 | **怎麼運作** | 有一個central coordinator，告訴每個component做什麼 | event-driven，每個component自己決定下一步 |
-| **優點** | workflow看得見，好debug | loose coupling，scalability好 |
-| **缺點** | orchestrator是single point of failure | 整體workflow難trace |
+| **優點**     | workflow看得見，好debug                            | loose coupling，scalability好             |
+| **缺點**     | orchestrator是single point of failure              | 整體workflow難trace                       |
 
 Kubernetes兩種都有：使用者看到的是orchestration（交給Kubernetes管理container），但內部每個controller各自watch API Server、各做各的，更接近choreography，見[自訂controller的Informer](chap-7-crd-operator.md#-5a-informercontroller怎麼知道network變了)。
 

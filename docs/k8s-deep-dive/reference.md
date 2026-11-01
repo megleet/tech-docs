@@ -29,12 +29,8 @@ icon: lucide/book-open
 
 ## 簡寫對照
 
-K8S Deep Dive的技術名詞統一用簡寫，複數加s（libs、deps、pkgs）：
+K8S Deep Dive的技術名詞統一用簡寫，複數加s（libs、deps、pkgs、vars）：
 
-| 全寫 | 簡寫 |
-| --- | --- |
-| system call | sys call |
-| memory | mem |
-| library | lib |
-| dependency | dep |
-| package | pkg |
+| 全寫 | system call | memory | library | dependency | package | variable | environment variable |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **簡寫** | sys call | mem | lib | dep | pkg | var | env var |

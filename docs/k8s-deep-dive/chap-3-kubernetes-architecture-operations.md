@@ -109,9 +109,9 @@ Kubernetes用**Pod**把這些container包在一起：Pod裡的container共用同
 
 ### 🌐 3. Node的組成與外部流量
 
-前面的架構圖畫的是cluster內部的元件怎麼互動；下面這張圖畫的是***外部使用者的流量怎麼進到Pod***：End Users先連到雲端廠商的Load Balancer，再到各Node，由kube-proxy寫進kernel的規則轉發給Pod。Load Balancer是cloud-controller-manager呼叫雲端API建立的。
+前面的架構圖畫的是cluster內部的元件怎麼互動；下面這張圖畫的是***外部使用者的流量怎麼進到Pod***：End Users先連到cloud provider的Load Balancer，再到各Node，由kube-proxy寫進kernel的規則轉發給Pod。Load Balancer是cloud-controller-manager呼叫cloud API建立的。
 
-![外部流量：End Users經過雲端的Load Balancer到各Node的NodePort，由kube-proxy寫進kernel的規則轉發給Pods；cloud-controller-manager透過cloud API建立Load Balancer](images/ch03/k8s-external-traffic.svg)
+![外部流量：End Users經過cloud的Load Balancer到各Node的NodePort，由kube-proxy寫進kernel的規則轉發給Pods；cloud-controller-manager透過cloud API建立Load Balancer](images/ch03/k8s-external-traffic.svg)
 
 圖左邊的「**Control Plane × n**」，表示control plane可以跑好幾份。正式環境通常跑3份，其中一份壞了，cluster照常運作，也就是HA（High Availability）。etcd靠多數決保持資料一致，所以份數用奇數：3份可以容忍壞1份，5份可以容忍壞2份。
 
@@ -136,12 +136,12 @@ kubelet和container runtime不能是Pod：Pod要靠它們才能建立起來，�
 
 #### 一個Node上有幾個container runtime
 
-***通常只有一個high-level runtime***，也就是只有一個CRI的實作。但它可以搭配***好幾個low-level runtime***：
+***通常只有一個high-level runtime***，也就是只有一個CRI的implementation。但它可以搭配***好幾個low-level runtime***：
 
 | 層級                                          | 有幾個                                                                                         | 例子                                                           |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **high-level runtime**<br />（實作CRI） | 1個：kubelet設定的container runtime endpoint（`containerRuntimeEndpoint`）只能指向一個socket | containerd、CRI-O                                              |
-| **low-level runtime**<br />（實作OCI）  | 可以有好幾個：在containerd裡設定成不同的handler，再用`RuntimeClass`讓每個Pod自己選           | runc（預設）、runsc（gVisor）、kata-runtime（Kata Containers） |
+| **high-level runtime**<br />（implement CRI） | 1個：kubelet設定的container runtime endpoint（`containerRuntimeEndpoint`）只能指向一個socket | containerd、CRI-O                                              |
+| **low-level runtime**<br />（implement OCI）  | 可以有好幾個：在containerd裡設定成不同的handler，再用`RuntimeClass`讓每個Pod自己選           | runc（預設）、runsc（gVisor）、kata-runtime（Kata Containers） |
 
 ```
 kubelet
@@ -218,16 +218,16 @@ Kubernetes cluster
 
 **a）建立cluster時**
 
-- **啟動Master元件**：kubeadm把API Server、Scheduler、Controller Manager、etcd寫成[Static Pod](#static-pod)的YAML，由kubelet讀取並啟動。也就是說，***連Control Plane都是kubelet跑起來的***。
+- **啟動Master元件**：kubeadm把API Server、Scheduler、Controller Manager、etcd寫成[Static Pod](#static-pod)的YAML，由kubelet讀取並啟動。也就是說，***連Control Plane都是kubelet run起來的***。
 - **把Node加入cluster**：`kubeadm join`時，kubelet用[bootstrap token](#bootstrap-token)向API Server申請certificate、註冊這個Node，之後這台機器才會出現在`kubectl get nodes`裡。
 
 **b）cluster運作時**
 
-- **聽API Server的指示**：API Server把Pod排到這個Node之後，由kubelet負責把它跑起來。
+- **聽API Server的指示**：API Server把Pod排到這個Node之後，由kubelet負責把它run起來。
 - **管理這個Node上的所有Pod**：透過CRI叫container runtime建立Pod和container（網路由runtime再呼叫CNI設定），透過CSI設定volume。
 - **回報狀態**：定期把Node和Pod的狀態回報給API Server，Control Plane才知道這個Node還活著、Pod有沒有正常執行。
 
-***所以kubelet是完全獨立的元件，其他元件都要靠它才能跑起來***。
+***所以kubelet是完全獨立的元件，其他元件都要靠它才能run起來***。
 
 #### 為什麼kubelet不能是container
 
@@ -323,7 +323,7 @@ kubeadm讀取`kubeadm.yaml`，寫出的4種config file：
 
 ![kubeadm init讀取kubeadm.yaml的4段config，寫出certificate、kubeconfig、Static Pod YAML和kubelet的運行參數](images/ch03/kubeadm-init-outputs.svg)
 
-kubeadm怎麼把各元件跑起來：透過systemd啟動kubelet，kubelet再依Static Pod YAML啟動control plane的4個元件；kube-proxy、CoreDNS則是kubeadm透過API Server建立object，最後同樣由kubelet執行。
+kubeadm怎麼把各元件run起來：透過systemd啟動kubelet，kubelet再依Static Pod YAML啟動control plane的4個元件；kube-proxy、CoreDNS則是kubeadm透過API Server建立object，最後同樣由kubelet執行。
 
 ![kubeadm透過systemd啟動kubelet，kubelet以Static Pod啟動control plane的4個元件；kubeadm透過API Server建立kube-proxy和CoreDNS，再由kubelet執行它們的Pod](images/ch03/kubeadm-start-components.svg)
 
@@ -420,13 +420,13 @@ spec:
 - **和前後的步驟接得上**：`--tls-cert-file`用的就是第②步產生的certificate；[Step 2](#-為kubeadm-init準備執行參數optional)`extraArgs`加的參數，最後也會出現在`command`裡。
 - **control plane元件的特殊config**：`hostNetwork: true`直接用host的網路，因為它比CNI更早啟動；`hostPath`把host上的certificate目錄mount進去；`priorityClassName: system-cluster-critical`讓它在資源不夠時最後才被驅逐。
 
-kubelet一看到這些YAML，就把它們跑起來，見[kubelet：每個Node的「心臟」](#-kubelet每個node的心臟)。
+kubelet一看到這些YAML，就把它們run起來，見[kubelet：每個Node的「心臟」](#-kubelet每個node的心臟)。
 
 **⑤ 等待Master元件就緒**：檢查`https://localhost:6443/healthz`。
 
 **⑥ 產生bootstrap token**：<a id="bootstrap-token"></a>之後任何裝好kubelet和kubeadm的Node，只要持有這個token，就能用`kubeadm join`加入cluster。token會在`kubeadm init`結束時印出來，預設24小時後過期；過期後用`kubeadm token create --print-join-command`重新產生。
 
-***token要等Master的API Server跑起來之後，才能真正生效***。原因是bootstrap token不是一個本機檔案，而是***存在cluster裡的一個Secret***：
+***token要等Master的API Server run起來之後，才能真正生效***。原因是bootstrap token不是一個本機檔案，而是***存在cluster裡的一個Secret***：
 
 ```
 ⑤ 等待Master元件就緒（API Server可以用了）
@@ -577,7 +577,7 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 
 我們常把host上的目錄或檔案mount進container的mount namespace（原理見[mount --bind技術](chap-2-container-fs-security.md#mount---bind技術)），讓container和host共享這些目錄或檔案，container裡的app也能在其中新建、write檔案。但這種做法把storage***綁定在單一host上*** ：Pod一旦被重新排程到別的Node，原本寫的資料就找不到了。這正是container**無狀態**的典型表現
 
-要讓container**有狀態** ，就需要**持久化storage**：storage plugin會在container裡mount一份remote的儲存空間（透過網路等方式），檔案實際存放在remote storage server上，或分散在多個Node上， ***和目前這台host沒有綁定關係*** 。因此不管新的container在哪台host啟動，都能mount同一份儲存，讀到原來的資料，這就是「持久化」。在K8s中，這通常透過PV/PVC和CSI plugin來實現。
+要讓container**有狀態** ，就需要**持久化storage**：storage plugin會在container裡mount一份remote的儲存空間（透過網路等方式），檔案實際存放在remote storage server上，或分散在多個Node上， ***和目前這台host沒有綁定關係*** 。因此不管新的container在哪台host啟動，都能mount同一份儲存，讀到原來的資料，這就是「持久化」。在K8s中，這通常透過PV/PVC和CSI plugin來implement。
 
 #### 沒有CSI driver時，PVC會一直Pending
 
@@ -623,7 +623,7 @@ Ceph本身是分散式storage，主要有3種daemon（mon / mgr / OSD）。最�
 | -------------------------------------- | --------------------------------------------------------------- | ------------------------------------- | ---------------------------------------------------- |
 | **mon**（monitor）               | 保存cluster map，記錄有哪些成員、資料放在哪裡；用多數決維持一致 | 固定奇數個，通常3個                   | **Deployment** 每個mon一個                     |
 | **mgr**（manager）               | 監控、dashboard、提供metrics                                    | 固定1～2個（一個active，一個standby） | **Deployment** 每個mgr一個                     |
-| **OSD**（Object Storage Daemon） | 真正存資料的地方                                                | ***每顆disk一個***            | **Deployment** 一個Node可能有0顆或好幾顆disk  |
+| **OSD**（Object Storage Daemon） | 真正存資料的地方                                                | ***每顆disk一個***            | **Deployment** 一個Node可能有0顆或好幾顆disk  |
 | **CSI nodeplugin**               | kubelet透過它把volume mount進Pod                                | ***每個Node一個***            | **DaemonSet**                                  |
 
 所以Rook替每個mon、mgr、OSD各建一個`replicas: 1`的Deployment，例如`rook-ceph-osd-0`，用`nodeSelector`綁在它的Node上，升級時也能一個一個來。
@@ -792,7 +792,7 @@ Ceph每次write都要經過網路、等其他OSD確認，latency比local disk高
 | **多個Pod要共用檔案**                                        | **CephFS**（`ReadWriteMany`）                                                    | RBD做不到多個Node同時寫                                  |
 
 - **local PV會把Pod綁在Node上**：Node重開機時，Pod在同一個Node上恢復，資料還在。Node永久壞掉時，Pod會卡在`Pending`，要刪掉它的PVC，讓StatefulSet在別的Node上重建，再由app（例如CRDB）把資料補回來。
-- **雲端**：很多人直接用雲端的network block storage，例如AWS EBS、GCP PD。複製由雲端廠商做，不會和app搶自己的網路和CPU，Node壞掉時volume也能跟著Pod搬走。
+- **cloud**：很多人直接用cloud的network block storage，例如AWS EBS、GCP PD。複製由cloud provider做，不會和app搶自己的網路和CPU，Node壞掉時volume也能跟著Pod搬走。
 
 > [!TIP]
 > 💡 **一句話總結**

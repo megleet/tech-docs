@@ -24,7 +24,7 @@ Kubernetes把要跑的工作（workload）分成兩大類，每一類都有自�
 
 <img src="images/ch05/online-vs-batch-job.svg" alt="Online job和offline / batch job的owner：左邊online job的Pod一直是Running，ownerReferences指向ReplicaSet（維持Pod的數量，再指向負責版本更新和rollback的Deployment）、StatefulSet（固定名稱和PVC）或DaemonSet（每個Node一個），Pod停了就再建立；右邊batch job的Pod最後變成Completed，ownerReferences指向Job（執行到成功完成，再指向定時建立Job的CronJob），成功完成就結束" width="75%">
 
-- **Online job**：長期執行的服務，例如web server、資料庫。Pod停了就再建立，一直維持期望的數量。由[Deployment](#deployment)、[StatefulSet](#statefulset)或[DaemonSet](#daemonset)管理，Deployment中間還隔一層ReplicaSet。
+- **Online job**：長期執行的服務，例如web server、DB。Pod停了就再建立，一直維持期望的數量。由[Deployment](#deployment)、[StatefulSet](#statefulset)或[DaemonSet](#daemonset)管理，Deployment中間還隔一層ReplicaSet。
 - **Offline / batch job**：執行完就結束的工作，例如資料處理、備份。Pod成功完成後狀態是`Completed`，不再重新啟動。由[Job](#job)管理，要定時執行，再由[CronJob](#cronjob)建立Job。
 
 圖裡的箭頭是Pod的`ownerReferences`，記錄它的owner是誰，見[ownerReferences](#-4-ownerreferences記錄誰擁有誰)。
@@ -135,7 +135,7 @@ kubectl describe pod nginx-deployment-7c5ddbdf54-x2kqp | grep "Controlled By"
 
 *Deployment、ReplicaSet和Pod是什麼關係？*
 
-Deployment**不直接管理Pod**：它**管理ReplicaSet，ReplicaSet再管理Pod**，每一層都用[ownerReferences](#-4-ownerreferences記錄誰擁有誰)記錄自己的擁有者。Deployment同樣透過控制器模式，調整ReplicaSet的***數量和屬性***，實現兩種編排動作：[rolling update](#-2-rolling-update)和[scale out / scale in](#-3-scale-out--scale-in)。
+Deployment**不直接管理Pod**：它**管理ReplicaSet，ReplicaSet再管理Pod**，每一層都用[ownerReferences](#-4-ownerreferences記錄誰擁有誰)記錄自己的擁有者。Deployment同樣透過控制器模式，調整ReplicaSet的***數量和屬性***，做到兩種編排動作：[rolling update](#-2-rolling-update)和[scale out / scale in](#-3-scale-out--scale-in)。
 
 ### 📋 1. ReplicaSet
 
@@ -516,9 +516,9 @@ spec:
 ```
 
 - **兩份YAML都沒有storage的細節**：沒有server位址、username、認證檔，和[直接在Pod裡寫storage](#為什麼不直接在pod裡寫storage)比，開發者只需要知道「要多大、怎麼存取」。
-- **PV由誰提供**：管理cluster的人，見[PV](#pv管理cluster的人提供實作)。
+- **PV由誰提供**：管理cluster的人，見[PV](#pv管理cluster的人提供implementation)。
 
-#### PV：管理cluster的人提供實作
+#### PV：管理cluster的人提供implementation
 
 符合PVC條件的volume，來自管理cluster的人建立的***PV***（PersistentVolume）。例如一個透過Ceph CSI driver使用RBD的PV：
 
@@ -1258,7 +1258,7 @@ kubectl get pods -l job-name=pi -w
 
 [Job的控制循環](#-2-job的控制循環)裡`completions: 4`的例子，Pod都***一模一樣***：同一個image、同一個command，適合「**同一件事做N次**」。
 
-但如果要把「**一份工作切成N塊」**同時處理，例如5個檔案`data-0.csv`到`data-4.csv`，一模一樣的Pod就有問題了：**沒有任何資訊能分辨「我是第幾個」**，每個Pod都不知道自己該處理哪個檔案。
+但如果要把「**一份工作切成N塊**」同時處理，例如5個檔案`data-0.csv`到`data-4.csv`，一模一樣的Pod就有問題了：**沒有任何資訊能分辨「我是第幾個」**，每個Pod都不知道自己該處理哪個檔案。
 
 加上`completionMode: Indexed`，**Job controller會替Pod編號0到`completions - 1`，放進env var `JOB_COMPLETION_INDEX`**。程式讀這個env var，就知道自己該處理哪一塊：
 

@@ -19,6 +19,6 @@
 <text x="440" y="110" font-size="13" font-weight="600" fill="#64748b">負責「怎麼做到」</text>
 <text x="750" y="62" font-size="26" font-weight="800" fill="#8a4b00">Operator</text>
 <text x="750" y="88" font-size="14" font-weight="700" fill="#8a4b00">把維運知識寫進controller</text>
-<text x="750" y="110" font-size="13" font-weight="600" fill="#64748b">例如資料庫的備份、failover</text>
+<text x="750" y="110" font-size="13" font-weight="600" fill="#64748b">例如DB的備份、failover</text>
 </g>
 </svg>

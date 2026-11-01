@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 16 848 306" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="cb-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect width="880" height="340" fill="#ffffff"/>
+
+<!-- lines -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#cb-a)">
+<path d="M170 140 H 326"/>
+<path d="M424 175 V 226"/>
+<path d="M522 140 C 570 140, 580 48, 636 48"/>
+<path d="M522 140 C 570 140, 580 128, 636 128"/>
+<path d="M522 140 C 570 140, 580 208, 636 208"/>
+</g>
+
+<!-- labels -->
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+<text x="190" y="130" font-size="13" font-weight="800" fill="#334155">③ JSON</text>
+<text x="190" y="160" font-size="11.5" font-weight="600" fill="#64748b">不能用protobuf，比較慢</text>
+<text x="434" y="200" font-size="13" font-weight="800" fill="#334155">① 每次寫入都經過Raft</text>
+<text x="528" y="106" font-size="13" font-weight="800" fill="#334155">② watch fan-out</text>
+<text x="528" y="122" font-size="11.5" font-weight="600" fill="#64748b">每個client推一份</text>
+</g>
+
+<!-- writer -->
+<rect x="20" y="110" width="150" height="60" rx="10" fill="#2f6bb5"/>
+<text x="95" y="136" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">寫入CR</text>
+<text x="95" y="154" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle">kubectl、controller</text>
+
+<!-- API Server -->
+<rect x="330" y="105" width="188" height="70" rx="10" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<text x="424" y="146" font-size="16" font-weight="800" fill="#0b4f56" text-anchor="middle">API Server</text>
+
+<!-- etcd -->
+<rect x="330" y="230" width="188" height="88" rx="12" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<text x="424" y="252" font-size="14" font-weight="800" fill="#8a4b00" text-anchor="middle">etcd cluster</text>
+<g fill="#ffffff" stroke="#e08a00" stroke-width="2">
+<circle cx="378" cy="288" r="16"/><circle cx="424" cy="288" r="16"/><circle cx="470" cy="288" r="16"/>
+</g>
+<g font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">
+<text x="378" y="292">node</text><text x="424" y="292">node</text><text x="470" y="292">node</text>
+</g>
+
+<!-- informers -->
+<g font-size="13" font-weight="800" fill="#334155">
+<rect x="640" y="22" width="220" height="52" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="640" y="102" width="220" height="52" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="640" y="182" width="220" height="52" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="652" y="42">Informer 1</text>
+<text x="652" y="122">Informer 2</text>
+<text x="652" y="202">Informer N</text>
+</g>
+<g font-size="11" font-weight="600" fill="#64748b">
+<text x="652" y="62">cache</text><text x="652" y="142">cache</text><text x="652" y="222">cache</text>
+</g>
+<g fill="#ede9fe" stroke="#7c3aed" stroke-width="1">
+<rect x="692" y="53" width="12" height="12" rx="2"/><rect x="708" y="53" width="12" height="12" rx="2"/><rect x="724" y="53" width="12" height="12" rx="2"/><rect x="740" y="53" width="12" height="12" rx="2"/><rect x="756" y="53" width="12" height="12" rx="2"/><rect x="772" y="53" width="12" height="12" rx="2"/><rect x="788" y="53" width="12" height="12" rx="2"/><rect x="804" y="53" width="12" height="12" rx="2"/><rect x="820" y="53" width="12" height="12" rx="2"/><rect x="836" y="53" width="12" height="12" rx="2"/>
+<rect x="692" y="133" width="12" height="12" rx="2"/><rect x="708" y="133" width="12" height="12" rx="2"/><rect x="724" y="133" width="12" height="12" rx="2"/><rect x="740" y="133" width="12" height="12" rx="2"/><rect x="756" y="133" width="12" height="12" rx="2"/><rect x="772" y="133" width="12" height="12" rx="2"/><rect x="788" y="133" width="12" height="12" rx="2"/><rect x="804" y="133" width="12" height="12" rx="2"/><rect x="820" y="133" width="12" height="12" rx="2"/><rect x="836" y="133" width="12" height="12" rx="2"/>
+<rect x="692" y="213" width="12" height="12" rx="2"/><rect x="708" y="213" width="12" height="12" rx="2"/><rect x="724" y="213" width="12" height="12" rx="2"/><rect x="740" y="213" width="12" height="12" rx="2"/><rect x="756" y="213" width="12" height="12" rx="2"/><rect x="772" y="213" width="12" height="12" rx="2"/><rect x="788" y="213" width="12" height="12" rx="2"/><rect x="804" y="213" width="12" height="12" rx="2"/><rect x="820" y="213" width="12" height="12" rx="2"/><rect x="836" y="213" width="12" height="12" rx="2"/>
+</g>
+<text x="750" y="256" font-size="16" font-weight="800" fill="#94a3b8" text-anchor="middle">⋮</text>
+<text x="640" y="290" font-size="13" font-weight="800" fill="#334155">④ CR一多</text>
+<text x="640" y="308" font-size="11.5" font-weight="600" fill="#64748b">LIST變慢，每個cache都存一份，佔mem</text>
+</svg>

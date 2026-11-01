@@ -14,7 +14,7 @@ icon: lucide/layers
 - [mount point與mount tree](#mount-point與mount-tree)
 - [pivot_root工作原理](#pivot_root工作原理)
 - [pivot_root在container中如何工作](#pivot_root在container中如何工作)
-- [最小container實作：mini_container.c](#最小container實作mini_containerc)
+- [最小container implementation：mini_container.c](#最小container-implementationmini_containerc)
 - [UnionFS與Docker的Layered rootfs](#unionfs與docker的layered-rootfs)
 
 ## Container為什麼能seamless deploy
@@ -76,7 +76,7 @@ Docker社群推動了**OCI標準**，規範了：
 - **Image Spec**：檔案怎麼打包、Layer怎麼疊加、Manifest檔長怎樣。
 - **Runtime Spec**：底層工具（如`runc`）拿到Image（rootfs + `config.json`）後，要建立哪些namespace、mount哪些filesystem、怎麼config cgroup，以及`create` / `start` / `delete`的生命週期。
 
-這意味著，不論你在Mac（Docker Desktop）上Build，還是在CI/CD pipeline（GitHub Actions）上Build，產出的Image**都符合同一套規格**。送到remote的AWS ECS、Kubernetes或是平價VPS上，底層的Container Runtime（如`containerd`或`cri-o`）都能用完全相同的邏輯把它剖析並跑起來。
+這意味著，不論你在Mac（Docker Desktop）上Build，還是在CI/CD pipeline（GitHub Actions）上Build，產出的Image**都符合同一套規格**。送到remote的AWS ECS、Kubernetes或是平價VPS上，底層的Container Runtime（如`containerd`或`cri-o`）都能用完全相同的邏輯把它剖析並run起來。
 
 > [!TIP]
 > **總結**
@@ -170,7 +170,7 @@ seccomp用一份filter，***限制process能呼叫哪些sys call***，縮小kern
 ### 🏠 3. LSM：AppArmor / SELinux
 
 - **DAC**（Discretionary Access Control）：Linux傳統的權限模型。file的owner自己決定誰能access，而root幾乎無所不能。問題是，只要一個process被攻破，它就繼承了該使用者的所有權限。
-- **MAC**（Mandatory Access Control）：AppArmor、SELinux實作的模型。由admin制定policy，***每個process只能做policy允許的事***，process本身和root都無法改變。
+- **MAC**（Mandatory Access Control）：AppArmor、SELinux implement的模型。由admin制定policy，***每個process只能做policy允許的事***，process本身和root都無法改變。
 
 | | AppArmor | SELinux |
 | --- | --- | --- |
@@ -214,7 +214,7 @@ spec:
 *container靠namespace做隔離，為什麼說這種隔離「不徹底」？業界又是怎麼補強的？*
 
 > [!NOTE]
-> **簡答**：namespace只隔離了「**視圖**」，所有container仍***共用同一個Linux kernel***，所以kernel或runtime的任何一個漏洞，都可能讓攻擊者逃出container。要接近VM等級的隔離，必須在namespace之外**疊加其他機制**（gVisor、Kata、Firecracker等），而不是靠優化namespace本身。這個問題在***多租戶K8s、AI agent、GPU叢集***共享等場景下尤其關鍵。
+> **簡答**：namespace只隔離了「**視圖**」，所有container仍***共用同一個Linux kernel***，所以kernel或runtime的任何一個漏洞，都可能讓攻擊者逃出container。要接近VM等級的隔離，必須在namespace之外**疊加其他機制**（gVisor、Kata、Firecracker等），而不是靠優化namespace本身。這個問題在***多租戶K8s、AI agent、GPU cluster***共享等場景下尤其關鍵。
 
 ### 🔍 1. 根本原因：隔離的是「視圖」，不是kernel
 
@@ -238,7 +238,7 @@ namespace的隔離有天生上限，所以做法是**疊加機制，或換架構
 
 | 方案                         | 做法                                                                                                                         | 隔離強度來源          | 主要限制                                                                                                                  |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **gVisor（Google）**   | 在user space攔截所有sys call，由**Sentry**（用Go寫的、mem安全的模擬kernel）處理，縮小暴露給host kernel的attack surface | 攔截層                | 並未實作全部Linux sys call，相容性不是100%；依賴特殊sys call的應用（如某些debugger、高效能I/O場景）可能無法執行或效能下降 |
+| **gVisor（Google）**   | 在user space攔截所有sys call，由**Sentry**（用Go寫的、mem安全的模擬kernel）處理，縮小暴露給host kernel的attack surface | 攔截層                | 並未implement全部Linux sys call，相容性不是100%；依賴特殊sys call的應用（如某些debugger、高效能I/O場景）可能無法執行或效能下降 |
 | **Kata Containers**    | 每個Pod跑在一個輕量**microVM**裡，有獨立guest kernel，對K8s而言仍是一般container                                       | KVM硬體virtualization | 有mem開銷與啟動延遲                                                                                                       |
 | **Firecracker（AWS）** | 專為microVM設計的輕量VMM，開機約**100–200ms**，是AWS Lambda / Fargate背後的技術                                       | KVM硬體virtualization | 功能刻意精簡                                                                                                              |
 
@@ -248,9 +248,9 @@ namespace的隔離有天生上限，所以做法是**疊加機制，或換架構
 
 ### 🤖 4. 為什麼對LLM infra特別重要
 
-<img src="images/ch02/llm-infra-isolation.svg" alt="三張卡片：多租戶GPU叢集，團隊A和客戶B跑在同一個GPU node上，共享同一個kernel；AI agent執行不可信程式碼，LLM agent把使用者提供的程式碼放進gVisor / Kata sandbox執行；實務限制，GPU加上gVisor / Kata要考慮GPU passthrough、driver支援、performance overhead，和隔離強度一起比較" width="90%">
+<img src="images/ch02/llm-infra-isolation.svg" alt="三張卡片：多租戶GPU cluster，團隊A和客戶B跑在同一個GPU node上，共享同一個kernel；AI agent執行不可信程式碼，LLM agent把使用者提供的程式碼放進gVisor / Kata sandbox執行；實務限制，GPU加上gVisor / Kata要考慮GPU passthrough、driver支援、performance overhead，和隔離強度一起比較" width="90%">
 
-- 🖥️ **多租戶GPU叢集**：讓不同團隊或客戶共用同一批GPU節點跑推理或訓練時，「共享kernel」是必須面對的設計決策。
+- 🖥️ **多租戶GPU cluster**：讓不同團隊或客戶共用同一批GPU節點跑推理或訓練時，「共享kernel」是必須面對的設計決策。
 - 🧪 **AI agent執行不可信程式碼**：讓LLM agent執行使用者提供的程式碼，本質上就是執行**不可信workload**，標準container的隔離強度不夠，這是gVisor、Kata目前很熱門的應用場景。
 - ⚖️ **實務限制**：GPU workload要改用gVisor或Kata時，還有三個代價：
   - **GPU passthrough**：Kata的Pod跑在microVM裡，GPU要透過PCIe passthrough（VFIO）整張交給這台VM，一張GPU通常只能給一個Pod。
@@ -452,7 +452,7 @@ Docker的volume用的掛載技術，就是Linux的**bind mount**：把一個file
 >
 > bind mount＝***遮罩＋轉向，不是替換***；資料永遠只存在source那一份inode上。
 >
-> `mount --bind /home /test`實際上是[mount stacking](#-4-mount-stacking同一個位置掛好幾層)：在mount table加一筆記錄，把`/home`疊在`/test`這個mount point上方。`/test`的dentry、`/test → inode_2`這條路徑，以及inode_2本身**都沒有被改動**，只是被蓋住。路徑解析走到`/test`時，`__lookup_mnt()`會跳到最上層的mount，也就是`/home`的dentry和inode；`umount`則是拿掉最上層，inode_2自然重新露出來。kernel怎麼實作這個疊加，見[Q6](#-q6-mount-stack是怎麼實現的是用stack資料結構嗎)。
+> `mount --bind /home /test`實際上是[mount stacking](#-4-mount-stacking同一個位置掛好幾層)：在mount table加一筆記錄，把`/home`疊在`/test`這個mount point上方。`/test`的dentry、`/test → inode_2`這條路徑，以及inode_2本身**都沒有被改動**，只是被蓋住。路徑解析走到`/test`時，`__lookup_mnt()`會跳到最上層的mount，也就是`/home`的dentry和inode；`umount`則是拿掉最上層，inode_2自然重新露出來。kernel怎麼implement這個疊加，見[Q6](#-q6-mount-stack是怎麼implement的是用stack資料結構嗎)。
 
 ## mount point與mount tree
 
@@ -586,7 +586,7 @@ lsns -t mnt                 # 列出系統上所有mount namespace
 | **Directory tree** | 所有目錄與檔案，包括剛好是mount point的那些目錄        |
 | **Mount tree**     | 只有掛載實例，是一張精簡的「filesystem如何接合」的地圖 |
 
-以[mini_container.c](#最小container實作mini_containerc)的container為例，步驟6結束後，它的mount tree只有7個節點：
+以[mini_container.c](#最小container-implementationmini_containerc)的container為例，步驟6結束後，它的mount tree只有7個節點：
 
 ```
 [rootfs /]
@@ -707,9 +707,9 @@ ls /mnt           # 最底下原本的目錄內容
 > | **層數** | 任意多次mount    | 一個upper + 多個lower  |
 > | **本質** | 掛載關係         | 一個filesystem類型     |
 
-### ⚙️ Q6. mount stack是怎麼實現的？是用stack資料結構嗎？
+### ⚙️ Q6. mount stack是怎麼implement的？是用stack資料結構嗎？
 
-***不是傳統的stack。*** kernel沒有陣列或push / pop結構，它靠[Q4](#-q4-mount-tree怎麼記錄節點之間的連結mount之間有哪些關係)講的mount tree加上hash table實現，堆疊其實是一條父子鏈，效果上像是用linked list模擬stack。
+***不是傳統的stack。*** kernel沒有陣列或push / pop結構，它靠[Q4](#-q4-mount-tree怎麼記錄節點之間的連結mount之間有哪些關係)講的mount tree加上hash table implement，堆疊其實是一條父子鏈，效果上像是用linked list模擬stack。
 
 - **掛載時**：如果目標位置上已經有mount，新mount不會掛在原目錄上，而是掛在目前最上層那個mount的根目錄上，成為它的子節點。
 
@@ -809,7 +809,7 @@ mount /dev/sdc1 /mnt
 | **看到的目錄樹**             | VFS照著mount tree把各個dir tree縫起來的結果；同一份內容可以出現在多個位置                  |
 | **連結怎麼存**               | `mnt_parent`、`mnt_mountpoint`、子節點串列，加上全域hash table與`DCACHE_MOUNTED`flag |
 | **同一位置掛多個**           | 可以，形成一條父子鏈，只有最上層可達                                                       |
-| **堆疊的實作**               | 不是stack結構，是mount tree的鏈，加上路徑解析時的迴圈查詢                                  |
+| **堆疊的implementation**               | 不是stack結構，是mount tree的鏈，加上路徑解析時的迴圈查詢                                  |
 | **`pivot_root(".", ".")`** | 舊根疊在新根上，需要再`umount2`才算換根完成                                              |
 
 ## pivot_root工作原理
@@ -919,7 +919,7 @@ rmdir("/.old_root");                // 刪除這個mount point目錄
 ## pivot_root在container中如何工作
 
 > [!NOTE]
-> **簡答**：以最常見的**containerd + runc**為例（Docker和Kubernetes底下都是這一套）。containerd先用overlayfs把Image疊成一個目錄，runc在新的mount namespace裡把需要的filesystem掛進這個目錄，再用`pivot_root`把它換成`/`，***最後把host的根卸載掉***，才執行container的程式。最小可執行的實作見[mini_container.c](#最小container實作mini_containerc)。
+> **簡答**：以最常見的**containerd + runc**為例（Docker和Kubernetes底下都是這一套）。containerd先用overlayfs把Image疊成一個目錄，runc在新的mount namespace裡把需要的filesystem掛進這個目錄，再用`pivot_root`把它換成`/`，***最後把host的根卸載掉***，才執行container的程式。最小可執行的implementation見[mini_container.c](#最小container-implementationmini_containerc)。
 
 ### 🗺️ 整體流程
 
@@ -969,7 +969,7 @@ mount("", "/", NULL, MS_SLAVE | MS_REC, NULL);   // 不做mount，僅僅修改�
 mount(rootfs, rootfs, "bind", MS_BIND | MS_REC, NULL);
 ```
 
-這一步是為了下一步的`pivot_root`：它要求`new_root`***必須是mount point***，但`merged/`這類目錄不一定是。把一個目錄bind mount到它自己身上（[self bind](#-self-bind把目錄bind到自己身上)），內容完全不變，只是讓它多了一個mount point的身份，就能滿足這個要求。對應[mini_container.c](#最小container實作mini_containerc)的步驟5a。
+這一步是為了下一步的`pivot_root`：它要求`new_root`***必須是mount point***，但`merged/`這類目錄不一定是。把一個目錄bind mount到它自己身上（[self bind](#-self-bind把目錄bind到自己身上)），內容完全不變，只是讓它多了一個mount point的身份，就能滿足這個要求。對應[mini_container.c](#最小container-implementationmini_containerc)的步驟5a。
 
 ### 🧱 ④ 在新根裡掛好要用的filesystem
 
@@ -1010,7 +1010,7 @@ chdir("/");
 - **`pivot_root(".", ".")`**：舊根被掛在**新根的同一個位置**，兩層疊在一起，上面那層是舊根。
 - **不需要`.old_root`**：不用在Image裡建立任何多餘的目錄，Image可能是read-only的，或根本沒有這個目錄。
 - **`umount2(..., MNT_DETACH)`**：把上面那層舊根拆掉，露出底下的新根。從此***host的整棵檔案樹在這個container裡消失了***。
-- **對應實作**：[mini_container.c](#最小container實作mini_containerc)的步驟5b、6就是這段程式碼。
+- **對應的implementation**：[mini_container.c](#最小container-implementationmini_containerc)的步驟5b、6就是這段程式碼。
 
 ### 🛡️ ⑥ ⑦ 收尾，然後執process式
 
@@ -1027,10 +1027,10 @@ chdir("/");
 >
 > container的「根目錄」= ***Image疊出來的overlayfs + `pivot_root`把它換成`/` + 把host的根卸載掉***。前面要先用`unshare` / `clone`拿到自己的mount tree，再用rslave / private切斷和host的同步，這三件事加起來，才是container「看起來像一台獨立機器」的filesystem部分。
 
-## 最小container實作：mini_container.c
+## 最小container implementation：mini_container.c
 
 > [!NOTE]
-> **簡介**：`mini_container.c`用約130行C程式實作一個最小container：建立新namespace、關閉mount propagation、掛`/proc`、`/sys`、`/dev`，再用`pivot_root`換根並卸載舊根。***前面講的每一步，這裡都有對應的程式碼。***
+> **簡介**：`mini_container.c`用約130行C程式implement一個最小container：建立新namespace、關閉mount propagation、掛`/proc`、`/sys`、`/dev`，再用`pivot_root`換根並卸載舊根。***前面講的每一步，這裡都有對應的程式碼。***
 
 一個完整的container runtime建立container，大致分成6步：
 
@@ -1294,7 +1294,7 @@ nproc                     # → 2
 | --- | --- | --- |
 | **rootfs** | 一個process看到的`/`，包含`/bin`、`/etc`、`/lib`等 | 結果（what） |
 | **UnionFS** | 把多個directory合併成單一view的技術概念 | 概念（how，abstract） |
-| **OverlayFS** | Linux kernel內建的UnionFS實作 | 實作（how，concrete） |
+| **OverlayFS** | Linux kernel內建的UnionFS implementation | implementation（how，concrete） |
 
 > [!NOTE]
 > **結論**：Union File System把多個directory合併成同一個view；Docker用它把image的多個***read-only layer加上一個writable layer***，疊成container的rootfs。

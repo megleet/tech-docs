@@ -6,7 +6,7 @@
   --doc-label-color: #3d6b66;
   --doc-label2-color: #8a4f7d; /* labels in nested lists: muted plum */
   --doc-code-color: #c2185b;
-  --doc-code-bg: #fbeff4;
+  --doc-code-bg: #eef0f2;
   --doc-th-bg: #f2f3f5;
   --doc-row-hl-bg: #fbeee8;
   --doc-h2-bg: #fff8e1;
@@ -32,7 +32,7 @@
   --doc-label-color: #8fbfb8;
   --doc-label2-color: #d9a6cc;
   --doc-code-color: #ff8fb1;
-  --doc-code-bg: rgba(255, 143, 177, 0.12);
+  --doc-code-bg: rgba(255, 255, 255, 0.08);
   --doc-th-bg: rgba(255, 255, 255, 0.07);
   --doc-row-hl-bg: rgba(255, 170, 120, 0.10);
   --doc-h2-bg: rgba(255, 213, 79, 0.12);
@@ -83,7 +83,7 @@
   background-color: color-mix(in srgb, currentColor 10%, transparent);
 }
 
-/* Inline code (not code blocks) gets a soft pink pill */
+/* Inline code (not code blocks): pink text on a light gray pill */
 .md-typeset :not(pre) > code {
   color: var(--doc-code-color);
   background-color: var(--doc-code-bg);

@@ -84,7 +84,7 @@ container由***3大pillar***撐起來，底下再墊一層Security：
 
 - **3大pillar**：***Namespace***（隔離視野）、***cgroups***（限制資源）、***rootfs***（替換根目錄）。
 - **兩個視角**：3大pillar可以「一分為二」地看待：
-  - **Dynamic view：Container Runtime**：第1、2根pillar ***Namespace + cgroups***。它們是process執行時才存在的isolation環境，決定container***跑起來的樣子***：能看見什麼、能用多少。
+  - **Dynamic view：Container Runtime**：第1、2根pillar ***Namespace + cgroups***。它們是process執行時才存在的isolation環境，決定container***run起來的樣子***：能看見什麼、能用多少。
   - **Static view：Container Image**：第3根pillar ***rootfs***。它是一組用OverlayFS聯合mount的目錄，位置在`/run/containerd/io.containerd.runtime.v2.task/k8s.io/<id>/rootfs`。這是container***本身的內容***，也就是app和它的deps，container不跑的時候也存在。見[UnionFS與Docker的Layered rootfs](chap-2-container-fs-security.md#unionfs與docker的layered-rootfs)。
 - **Security**：不算pillar，是墊在pillar底下的hardening層，由***capabilities、seccomp、LSM***（AppArmor / SELinux）和user namespace組成。它限制container process能對shared kernel做什麼，見[Chap-2的Security](chap-2-container-fs-security.md#security)。
 
@@ -115,7 +115,7 @@ int flags = CLONE_NEWPID | CLONE_NEWNS  | CLONE_NEWNET |
 int pid = clone(main_function, stack_top, flags, NULL);
 ```
 
-`CLONE_NEWTIME`不能傳給`clone()`，要用`unshare()`或`clone3()`。完整可執行的例子見[Chap-2的mini_container.c](chap-2-container-fs-security.md#最小container實作mini_containerc)。
+`CLONE_NEWTIME`不能傳給`clone()`，要用`unshare()`或`clone3()`。完整可執行的例子見[Chap-2的mini_container.c](chap-2-container-fs-security.md#最小container-implementationmini_containerc)。
 
 `CLONE_NEWNS`的意思是new mount namespace。名字這麼籠統，是因為mount namespace是***第一個***加入Linux的namespace，當時沒預料到之後還會有其他種類。所以8種namespace裡，只有它的flag和`/proc/{pid}/ns/`底下的file名稱（`mnt`）對不上。
 
@@ -182,7 +182,7 @@ ls -l /proc/25686/ns/
 
 #### 🔗 補充：symlink、hard link與bind mount的差別
 
-三者都能讓「同一份內容從另一個路徑看得到」，但實作的層級完全不同：
+三者都能讓「同一份內容從另一個路徑看得到」，但implementation的層級完全不同：
 
 |                            | symlink                      | hard link                                       | bind mount                                         |
 | -------------------------- | ---------------------------- | ----------------------------------------------- | -------------------------------------------------- |
