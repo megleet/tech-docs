@@ -6,6 +6,7 @@ icon: lucide/hard-drive
 **目錄**
 
 - [Projected Volume](#projected-volume)
+- [PV、PVC、StorageClass](#pvpvcstorageclass)
 
 ## Projected Volume
 
@@ -374,3 +375,75 @@ spec:
 > 💡 **一句話總結**
 >
 > ***ServiceAccount是Pod的身分，RBAC決定它能做什麼***。Kubernetes自動把token、`ca.crt`、`namespace`用projected volume mount進`/var/run/secrets/kubernetes.io/serviceaccount/`；token有期限、綁定Pod，由kubelet自動更新。
+
+## PV、PVC、StorageClass
+
+*一個PVC，怎麼變成container裡的持久化目錄？*
+
+PVC和PV的基本用法（開發者寫PVC、管理cluster的人提供PV，像interface和implementation），見[Chap-5的PVC](chap-5-container-orchestration-controller.md#pvc開發者只要兩步)和[PV](chap-5-container-orchestration-controller.md#pv管理cluster的人提供實作)。這一節接著看三件事：***PV和PVC怎麼綁定、PV怎麼變成host上的目錄、PV怎麼自動建立***。
+
+<img src="images/ch08/pvc-pv-storageclass.svg" alt="PVC、PV和StorageClass的關係：Pod的volumes引用PVC（開發者寫：要多大、怎麼存取）。① Check：沒有合適的PV時，依PVC的storageClassName找到StorageClass（用哪個provisioner、什麼參數）；② Provision：StorageClass指定的Provisioner（通常是CSI driver）自動建立PV（storage的實作）；③ Bind：PV和PVC綁定，兩者都變成Bound。StorageClass和Provisioner是管理cluster的人事先設定的" width="75%">
+
+### 💞 1. Bind：PersistentVolumeController
+
+kube-controller-manager裡有一個***PersistentVolumeController***，專門撮合PV和PVC：
+
+- **控制循環**：不斷檢查每個PVC是不是`Bound`；不是的話，就在所有可用的PV裡找一個符合條件的綁上去。所以PVC先建、PV後建也沒關係，PV一出現就會被綁上。
+- **綁定的條件**：PV的`spec`要滿足PVC，例如容量夠大、`accessModes`對得上；而且兩邊的`storageClassName`要一樣，見[Chap-5的NOTE](chap-5-container-orchestration-controller.md#pv管理cluster的人提供實作)。
+- **「綁定」是什麼**：就是把PV的名字，寫進PVC的`spec.volumeName`。之後拿到PVC，就一定找得到它的PV。
+
+### 📂 2. 從PV到container裡的目錄：Attach和Mount
+
+container的volume，本質上就是把***host上的一個目錄***，[bind mount](chap-2-container-fs-security.md#mount---bind技術)到container裡。所謂「持久化volume」，指的是這個host目錄裡的內容，***不會因為container刪除而消失，也不和這台host綁死***。
+
+[emptyDir和hostPath](chap-4-container-orchestration-pod.md#emptydir跟著pod生跟著pod死)做不到：它們可能被kubelet清掉，也不能搬到別的Node。所以持久化volume通常靠remote storage：remote file storage（例如NFS），或remote block storage（例如雲端的disk、Ceph RBD）。
+
+kubelet替Pod準備的volume目錄在：
+
+```
+/var/lib/kubelet/pods/<Pod的UID>/volumes/kubernetes.io~<volume類型>/<volume名字>
+```
+
+把remote storage變成這個持久化目錄，分兩個階段：
+
+| 階段 | 做什麼 | 誰做 | 需要的參數 |
+| --- | --- | --- | --- |
+| **① Attach** | 把remote disk接到Pod所在的Node上，就像替VM加一顆disk | kube-controller-manager裡的***AttachDetachController***（CSI會建立VolumeAttachment，由external-attacher呼叫storage的API） | Node名稱 |
+| **② Mount** | 把disk format之後，mount到上面的volume目錄 | kubelet裡的***VolumeManager***，是一個獨立的goroutine | volume目錄 |
+
+- **NFS這類file storage不需要Attach**：沒有disk要接到Node上，kubelet直接`mount -t nfs`到volume目錄。
+- **最後一步**：volume目錄準備好之後，kubelet透過CRI把它交給container runtime，runtime再把它bind mount到container裡。
+- **為什麼拆成獨立的控制循環**：remote的attach、mount都很慢。拆出去之後，***kubelet的主控制循環就不會被block***，建立Pod的速度不受影響。刪除時反過來做Unmount和Detach。
+
+### 🏭 3. StorageClass：自動建立PV
+
+PV靠人手動建立（**static provisioning**），在大cluster裡做不到：可能有上千個PVC，每個都要先有一個符合的PV。所以Kubernetes提供**dynamic provisioning**：***StorageClass就是建立PV的template***，定義兩件事：
+
+- **用哪個provisioner**：也就是storage plugin，通常是CSI driver。
+- **PV的參數**：例如disk類型、replica數。
+
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: block-service
+provisioner: pd.csi.storage.gke.io    # GKE的Persistent Disk CSI driver
+parameters:
+  type: pd-ssd                        # SSD類型的disk
+```
+
+開發者在PVC裡寫`storageClassName: block-service`。建立PVC之後，Kubernetes就呼叫這個provisioner，建出一塊SSD disk，再自動建立對應的PV並綁上。自動建立的PV名字是`pvc-<uid>`，`storageClassName`和PVC一樣，`Reclaim Policy`預設是`Delete`：PVC刪掉，disk也會一起刪除。
+
+- **在自己的cluster上**：[Chap-3用Rook-Ceph建立的StorageClass](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)，就是同樣的機制。
+- **不在清單上的storage**：例如NFS，裝對應的CSI driver就好（例如csi-driver-nfs），它會帶著external-provisioner一起deploy。
+- **StorageClass不只用在dynamic provisioning**：PV和PVC都寫`storageClassName: manual`，cluster裡就算沒有叫`manual`的StorageClass也沒關係。這時是static provisioning，但Kubernetes仍然只會綁定`storageClassName`相同的PV和PVC，綁定關係完全由自己掌控。
+- **沒寫`storageClassName`時**：`DefaultStorageClass`這個admission plugin會替PVC補上default StorageClass；cluster沒有default時，值就是`""`，只能綁`storageClassName`也是`""`的PV。
+
+### 🤔 4. 會不會過度設計？
+
+PV、PVC、StorageClass三層看起來很多，但實際上***開發者通常只需要寫PVC***：cluster有default StorageClass時，連`storageClassName`都不用寫，PV會自動產生、自動綁定。另外兩層是留給管理cluster的人，把storage的細節和開發者分開。
+
+> [!TIP]
+> 💡 **一句話總結**
+>
+> ***PVC是需求，PV是實作，StorageClass是建PV的template***。PersistentVolumeController負責綁定；AttachDetachController和kubelet的VolumeManager分兩階段，把remote storage變成host上的持久化目錄，再bind mount進container。
