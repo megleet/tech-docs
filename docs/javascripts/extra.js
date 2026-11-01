@@ -179,8 +179,9 @@ document$.subscribe(() => {
   });
 
   const onlyEmojiOrSpace = /^[\s\p{Extended_Pictographic}️]*$/u;
-  // A label is bold text followed by a colon, optionally with a "（…）" note in between
-  document.querySelectorAll(".md-typeset strong").forEach((el) => {
+  // A label is bold text at the start of a list item, followed by a colon,
+  // optionally with a "（…）" note in between. Bold lead-ins of plain paragraphs stay black.
+  document.querySelectorAll(".md-typeset li strong").forEach((el) => {
     let after = "";
     for (let n = el.nextSibling; n && after.length < 80; n = n.nextSibling) after += n.textContent;
     if (!/^\s*(（[^）]*）)?\s*[：:]/.test(after)) return;

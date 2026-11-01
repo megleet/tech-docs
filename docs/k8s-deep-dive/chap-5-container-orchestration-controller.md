@@ -188,6 +188,23 @@ kubectl get rs
 
 - **舊的ReplicaSet不會刪掉**：只是`replicas`變成0。`kubectl rollout undo`回到上一版時，Deployment就是把它重新調多，見[Rollback](#-4-rollback回到之前的版本)。保留幾個舊版本，由`revisionHistoryLimit`決定，預設10個。
 
+**一次換幾個**：由Deployment的`strategy`決定。
+
+```yaml
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate             # 預設；另一種是Recreate：先全部刪掉再建新的
+    rollingUpdate:
+      maxSurge: 25%                 # 更新時，最多可以比replicas多出幾個Pod
+      maxUnavailable: 25%           # 更新時，最多可以有幾個Pod不可用
+```
+
+- **`maxSurge`**：可以寫數字或百分比，百分比***無條件進位***。`replicas: 3`時，25%是0.75，進位成1，所以更新時最多有4個Pod。
+- **`maxUnavailable`**：百分比***無條件捨去***。`replicas: 3`時，25%捨去成0，所以更新時至少要有3個Pod可用。
+- **兩個預設值合起來**：先多建1個新Pod，等它Ready，再刪掉1個舊Pod，重複3次。***服務不會少於3個Pod***，代價是多佔1個Pod的資源。
+- **怎麼調**：要更新得快，就把`maxSurge`調大，一次多建幾個新的；資源不夠多建，就調大`maxUnavailable`，允許先刪舊的。兩個不能同時是0，否則更新無法前進。
+
 ### 📈 3. Scale out / scale in
 
 scale最簡單：Deployment controller只要修改它所控制的ReplicaSet的`replicas`就好。
@@ -504,6 +521,8 @@ spec:
 #### PV：管理cluster的人提供實作
 
 符合PVC條件的volume，來自管理cluster的人建立的***PV***（PersistentVolume）。例如一個透過Ceph CSI driver使用RBD的PV：
+
+<!-- hl: 4 -->
 
 ```yaml
 apiVersion: v1

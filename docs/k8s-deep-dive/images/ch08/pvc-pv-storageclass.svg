@@ -14,9 +14,11 @@
 <text x="130" y="228" font-size="11.5" font-weight="600" fill="#64748b">兩者都變成Bound</text>
 
 <path d="M222 142 C 320 142, 360 150, 386 176" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ps-a)"/>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
 <text x="250" y="126" font-size="13" font-weight="800" fill="#334155">① Check</text>
 <text x="250" y="142" font-size="11.5" font-weight="600" fill="#64748b">沒有合適的PV：</text>
 <text x="250" y="157" font-size="11.5" font-weight="600" fill="#64748b">查storageClassName</text>
+</g>
 
 <path d="M480 260 C 460 300, 330 296, 226 292" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ps-a)"/>
 <text x="292" y="318" font-size="13" font-weight="800" fill="#334155">② Provision<tspan font-size="11.5" font-weight="600" fill="#64748b">：自動建立PV</tspan></text>

@@ -33,9 +33,10 @@ icon: lucide/palette
 | --- | --- | --- |
 | `**一般強調**` | 一般的強調、名詞 | 黑色粗體 |
 | `***非常重要***` | 核心結論、關鍵句，一節最多兩三處 | 灰褐色粗體，直體（不是斜體） |
-| `**小標題**：` | 條列或段落開頭的小標題，後面緊接全形冒號 | 青綠色粗體；第二層以下的條列是灰紫紅色粗體 |
+| `- **小標題**：` | 條列開頭的小標題，後面緊接全形冒號 | 青綠色粗體；第二層以下的條列是灰紫紅色粗體 |
 
-- 小標題前面可以有emoji，例如`✅ **包含了**：`，仍然算小標題。
+- ***只有條列（`-`、`1.`）開頭的才上色***：一般段落開頭的`**不適合用CRD的場景**：`是黑色粗體。
+- 小標題前面可以有emoji，例如`- ✅ **包含了**：`，仍然算小標題。
 - 句子中間碰巧接冒號的粗體**不算**小標題，維持黑色。
 - 表格裡的粗體一律是黑色粗體，**不另外上色**。
 
@@ -149,6 +150,7 @@ icon: lucide/palette
 - **命名**：貼上後如果檔名是數字，改成看得出內容的名字，例如`container-layers.png`。
 - **沒用到的圖要刪掉**：換圖或刪段落後，檢查`images/`裡有沒有文章不再引用的檔案。
 - **大小**：需要調整時用`<img src="…" alt="…" width="…">`；圖片本身的白邊先裁掉，避免和上下文之間空太多。
+- **SVG的文字不能被線蓋住**：文字靠近或壓在線上時，***文字要畫在line圖層上面***（SVG裡寫在line之後），再加一圈白邊：`<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">…文字…</g>`。重疊沒關係，不用為了避開線而移動文字。
 
 ### 交叉連結
 
@@ -217,7 +219,7 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
 | Chap-5 Container Orchestration之Controller篇 | `lucide/refresh-cw` |
 | Chap-6 Declarative API | `lucide/file-code` |
 | Chap-7 CRD & Operator | `lucide/puzzle` |
-| Chap-8 Volume | `lucide/hard-drive` |
+| Chap-8 Storage & Volume | `lucide/hard-drive` |
 
 ## 實作位置
 

@@ -15,4 +15,4 @@ icon: lucide/house
 - [Chap-5 Container Orchestration之Controller篇](k8s-deep-dive/chap-5-container-orchestration-controller.md)
 - [Chap-6 Declarative API](k8s-deep-dive/chap-6-declarative-api.md)
 - [Chap-7 CRD & Operator](k8s-deep-dive/chap-7-crd-operator.md)
-- [Chap-8 Volume](k8s-deep-dive/chap-8-volume.md)
+- [Chap-8 Storage & Volume](k8s-deep-dive/chap-8-volume.md)

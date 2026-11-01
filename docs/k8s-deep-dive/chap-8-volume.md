@@ -1,7 +1,7 @@
 ---
 icon: lucide/hard-drive
 ---
-# Chap-8 Volume
+# Chap-8 Storage & Volume
 
 **目錄**
 
@@ -380,7 +380,14 @@ spec:
 
 *一個PVC，怎麼變成container裡的持久化目錄？*
 
-PVC和PV的基本用法（開發者寫PVC、管理cluster的人提供PV，像interface和implementation），見[Chap-5的PVC](chap-5-container-orchestration-controller.md#pvc開發者只要兩步)和[PV](chap-5-container-orchestration-controller.md#pv管理cluster的人提供實作)。這一節接著看三件事：***PV和PVC怎麼綁定、PV怎麼變成host上的目錄、PV怎麼自動建立***。
+我們在Chap-5已經看過PVC和PV的基本用法：
+
+- **PVC是開發者寫的**：只寫要多大、怎麼存取（`accessModes`），Pod的`volumes`用`claimName`引用它，見[Chap-5的PVC](chap-5-container-orchestration-controller.md#pvc開發者只要兩步)。
+- **PV是管理cluster的人提供的**：寫清楚storage怎麼做到，例如用哪個CSI driver、哪個pool，見[Chap-5的PV](chap-5-container-orchestration-controller.md#pv管理cluster的人提供實作)。
+- **兩者像interface和implementation**：PVC說「要什麼」，PV說「怎麼做到」，由Kubernetes把兩個綁在一起；開發者不用知道storage的細節。
+- **PV也可以自動建立**：設定StorageClass後，Kubernetes依PVC自動建PV（dynamic provisioning），實務上大多這樣用。
+
+這一節接著看三件事：***PV和PVC怎麼綁定、PV怎麼變成host上的目錄、PV怎麼自動建立***。
 
 <img src="images/ch08/pvc-pv-storageclass.svg" alt="PVC、PV和StorageClass的關係：Pod的volumes引用PVC（開發者寫：要多大、怎麼存取）。① Check：沒有合適的PV時，依PVC的storageClassName找到StorageClass（用哪個provisioner、什麼參數）；② Provision：StorageClass指定的Provisioner（通常是CSI driver）自動建立PV（storage的實作）；③ Bind：PV和PVC綁定，兩者都變成Bound。StorageClass和Provisioner是管理cluster的人事先設定的" width="75%">
 
