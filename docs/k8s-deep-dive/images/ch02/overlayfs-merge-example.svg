@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 16 650 238" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="ov-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect width="680" height="270" fill="#ffffff"/>
+<!-- row labels -->
+<g font-size="15" font-weight="800" font-family="SFMono-Regular, Menlo, monospace">
+<text x="24" y="46" fill="#334155">C</text>
+<text x="24" y="106" fill="#1d5c43">upper</text>
+<text x="24" y="166" fill="#1a3f78">A</text>
+<text x="24" y="226" fill="#0b4f56">B</text>
+</g>
+<g font-size="11.5" font-weight="700" fill="#64748b">
+<text x="24" y="62">merged</text>
+<text x="24" y="122">writable layer</text>
+<text x="24" y="182">lowerdir（左）</text>
+<text x="24" y="242">lowerdir（右）</text>
+</g>
+<!-- bands -->
+<rect x="140" y="20" width="330" height="50" rx="10" fill="#334155"/>
+<rect x="140" y="80" width="330" height="50" rx="10" fill="#f3faf5" stroke="#2e7d5b" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="140" y="140" width="330" height="50" rx="10" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="2"/>
+<rect x="140" y="200" width="330" height="50" rx="10" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<!-- C chips: colored by source -->
+<g font-size="14" font-weight="800" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">
+<rect x="185" y="31" width="60" height="28" rx="7" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="2"/><text x="215" y="50" fill="#1a3f78">a</text>
+<rect x="275" y="31" width="60" height="28" rx="7" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/><text x="305" y="50" fill="#0b4f56">b</text>
+<rect x="365" y="31" width="60" height="28" rx="7" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="2"/><text x="395" y="50" fill="#1a3f78">x</text>
+</g>
+<text x="305" y="110" font-size="12" font-weight="600" fill="#2e7d5b" text-anchor="middle">一開始是空的，修改file時才copy-up到這裡</text>
+<!-- A chips -->
+<g font-size="14" font-weight="800" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace" fill="#1a3f78">
+<rect x="185" y="151" width="60" height="28" rx="7" fill="#ffffff" stroke="#2f6bb5" stroke-width="1.5"/><text x="215" y="170">a</text>
+<rect x="365" y="151" width="60" height="28" rx="7" fill="#ffffff" stroke="#2f6bb5" stroke-width="1.5"/><text x="395" y="170">x</text>
+</g>
+<!-- B chips -->
+<g font-size="14" font-weight="800" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace" fill="#0b4f56">
+<rect x="275" y="211" width="60" height="28" rx="7" fill="#ffffff" stroke="#0e9aa7" stroke-width="1.5"/><text x="305" y="230">b</text>
+<g opacity="0.4"><rect x="365" y="211" width="60" height="28" rx="7" fill="#ffffff" stroke="#0e9aa7" stroke-width="1.5" stroke-dasharray="4 3"/><text x="395" y="230">x</text></g>
+</g>
+<text x="432" y="230" font-size="11" font-weight="700" fill="#64748b">被蓋住</text>
+<!-- lookup order -->
+<line x1="514" y1="88" x2="514" y2="244" stroke="#475569" stroke-width="2.5" marker-end="url(#ov-a)"/>
+<g font-size="12.5" font-weight="800" fill="#475569">
+<text x="526" y="150">查找順序</text>
+<text x="526" y="170" font-family="SFMono-Regular, Menlo, monospace">upper → A → B</text>
+<text x="526" y="190" font-size="11.5" font-weight="700" fill="#64748b">先找到的優先</text>
+</g>
+</svg>

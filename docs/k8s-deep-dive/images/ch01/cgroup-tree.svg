@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 18 520 342" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect width="560" height="376" fill="#ffffff"/>
+<path d="M40 37 V67 H62" fill="none" stroke="#7cc9cf" stroke-width="1.5"/>
+<path d="M40 37 V97 H62" fill="none" stroke="#7cc9cf" stroke-width="1.5"/>
+<path d="M40 37 V127 H62" fill="none" stroke="#7cc9cf" stroke-width="1.5"/>
+<path d="M74 127 V157 H96" fill="none" stroke="#e3b46b" stroke-width="1.5"/>
+<path d="M74 127 V187 H96" fill="none" stroke="#e3b46b" stroke-width="1.5"/>
+<path d="M108 187 V217 H130" fill="none" stroke="#e3b46b" stroke-width="1.5"/>
+<path d="M142 217 V247 H164" fill="none" stroke="#e3b46b" stroke-width="1.5"/>
+<path d="M142 217 V277 H164" fill="none" stroke="#e3b46b" stroke-width="1.5"/>
+<path d="M74 127 V307 H96" fill="none" stroke="#e3b46b" stroke-width="1.5"/>
+<path d="M108 307 V337 H130" fill="none" stroke="#e3b46b" stroke-width="1.5"/>
+<rect x="28" y="26" width="132" height="22" rx="6" fill="#e08a00" stroke="#e08a00" stroke-width="1.5"/>
+<text x="37" y="41.5" font-size="12.5" font-weight="800" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">/sys/fs/cgroup/</text>
+<text x="300" y="41.5" font-size="12" font-weight="600" fill="#64748b">← root：整台機器</text>
+<rect x="62" y="56" width="117" height="22" rx="6" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="1.5"/>
+<text x="71" y="71.5" font-size="12.5" font-weight="700" fill="#0b4f56" font-family="SFMono-Regular, Menlo, monospace">system.slice/</text>
+<text x="300" y="71.5" font-size="12" font-weight="600" fill="#0b4f56">← 系統服務</text>
+<rect x="62" y="86" width="102" height="22" rx="6" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="1.5"/>
+<text x="71" y="101.5" font-size="12.5" font-weight="700" fill="#0b4f56" font-family="SFMono-Regular, Menlo, monospace">user.slice/</text>
+<text x="300" y="101.5" font-size="12" font-weight="600" fill="#0b4f56">← 使用者</text>
+<rect x="62" y="116" width="132" height="22" rx="6" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="1.5"/>
+<text x="71" y="131.5" font-size="12.5" font-weight="700" fill="#0b4f56" font-family="SFMono-Regular, Menlo, monospace">kubepods.slice/</text>
+<text x="300" y="131.5" font-size="12" font-weight="600" fill="#0b4f56">← Kubernetes的總額度</text>
+<rect x="96" y="146" width="64" height="22" rx="6" fill="#fff4e0" stroke="#e08a00" stroke-width="1.5"/>
+<text x="105" y="161.5" font-size="12.5" font-weight="700" fill="#8a4b00" font-family="SFMono-Regular, Menlo, monospace">pod-G/</text>
+<text x="300" y="161.5" font-size="12" font-weight="600" fill="#1a3f78">← G＝Guaranteed：這類Pod直接放這層</text>
+<rect x="96" y="176" width="94" height="22" rx="6" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="1.5"/>
+<text x="105" y="191.5" font-size="12.5" font-weight="700" fill="#1a3f78" font-family="SFMono-Regular, Menlo, monospace">burstable/</text>
+<text x="300" y="191.5" font-size="12" font-weight="600" fill="#1a3f78">← Burstable的Pod放這層</text>
+<rect x="130" y="206" width="64" height="22" rx="6" fill="#fff4e0" stroke="#e08a00" stroke-width="1.5"/>
+<text x="139" y="221.5" font-size="12.5" font-weight="700" fill="#8a4b00" font-family="SFMono-Regular, Menlo, monospace">pod-A/</text>
+<rect x="164" y="236" width="102" height="22" rx="6" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/>
+<text x="173" y="251.5" font-size="12.5" font-weight="700" fill="#8a4b00" font-family="SFMono-Regular, Menlo, monospace">container-1</text>
+<text x="300" y="251.5" font-size="12" font-weight="600" fill="#64748b">← process在這裡</text>
+<rect x="164" y="266" width="102" height="22" rx="6" fill="#ffffff" stroke="#e08a00" stroke-width="1.5"/>
+<text x="173" y="281.5" font-size="12.5" font-weight="700" fill="#8a4b00" font-family="SFMono-Regular, Menlo, monospace">container-2</text>
+<rect x="96" y="296" width="102" height="22" rx="6" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="1.5"/>
+<text x="105" y="311.5" font-size="12.5" font-weight="700" fill="#1a3f78" font-family="SFMono-Regular, Menlo, monospace">besteffort/</text>
+<text x="300" y="311.5" font-size="12" font-weight="600" fill="#1a3f78">← BestEffort的Pod放這層</text>
+<rect x="130" y="326" width="64" height="22" rx="6" fill="#fff4e0" stroke="#e08a00" stroke-width="1.5"/>
+<text x="139" y="341.5" font-size="12.5" font-weight="700" fill="#8a4b00" font-family="SFMono-Regular, Menlo, monospace">pod-B/</text>
+</svg>

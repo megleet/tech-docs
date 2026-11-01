@@ -268,7 +268,9 @@ controller分成5個部分：先了解informer怎麼把變化送過來，再依�
 
 controller不會一直去問API Server「Network有沒有變」，而是透過[產生的程式碼](#-4-產生client程式碼)裡的**informer**：
 
-<img src="images/ch07/custom-controller-informer.svg" alt="自訂controller的流程：API Server經過LIST + WATCH把Network的變化送到Informer。Informer裡：① Reflector做List + Watch；② 每個事件連同object叫delta，依序放進DeltaFIFO；③ Indexer從DeltaFIFO取出delta更新local cache；④ 同時呼叫controller註冊的event handler（AddFunc、UpdateFunc、DeleteFunc）。Controller裡：⑤ event handler只把namespace/name放進workqueue；⑥ worker從workqueue取出key，用lister到local cache讀最新的Network，交給syncHandler比較期望狀態和實際狀態，再呼叫雲端的VPC API建立、更新或刪除subnet；失敗時AddRateLimited放回workqueue重試" width="90%">
+**Informer**就是一個***自帶local cache和index、可以註冊event handler的client***。它和API object一一對應：要watch Network，就用Network Informer。它從[5.b](#-5b-main啟動controller)的`SharedInformerFactory`拿到，用傳進去的`networkClient`和API Server連線。
+
+<img src="images/ch07/custom-controller-informer.svg" alt="自訂controller的流程：API Server的資料存在etcd，它透過networkClient的LIST + WATCH把Network的變化送到Informer。Informer裡：① Reflector做List + Watch；② 每個事件連同object叫delta，依序放進DeltaFIFO；③ Indexer從DeltaFIFO取出delta，更新local Store（{key: value}）；④ 同時呼叫controller註冊的event handler（AddFunc、UpdateFunc、DeleteFunc）。Controller裡：⑤ event handler只把namespace/name放進workqueue；⑥ worker從workqueue取出key，用lister到local cache讀最新的Network，交給syncHandler比較期望狀態和實際狀態，再呼叫雲端的VPC API建立、更新或刪除subnet；失敗時AddRateLimited放回workqueue重試" width="90%">
 
 1. **Reflector：List + Watch**：Informer裡的Reflector先用`LIST`拿到所有Network，再用`WATCH`和API Server保持連線，見[完整的URL](chap-6-declarative-api.md#-2-完整的url)的`?watch=true`。Network被新增、修改、刪除時，API Server就push一個事件過來。
 2. **DeltaFIFO**：每個事件連同object，叫做一個delta，依序放進DeltaFIFO queue。
@@ -277,11 +279,17 @@ controller不會一直去問API Server「Network有沒有變」，而是透過[�
 5. **Workqueue**：event handler只做一件事：把object的`namespace/name`放進workqueue。
 6. **Worker**：controller的worker從workqueue取出`namespace/name`，到cache讀出最新的Network，開始調整。
 
+歸納起來，Informer有兩個職責：
+
+- **同步local cache**（最重要）：local cache在Kubernetes裡叫做***Store***。Indexer除了存object，還會建立***index***，例如依namespace，讓lister能快速查詢。
+- **觸發event handler**：依事件類型呼叫`AddFunc`、`UpdateFunc`、`DeleteFunc`。這些handler是在[5.c](#-5c-newcontroller註冊event-handler)建立controller時註冊的。
+
 **resync**：Informer每隔一段時間，會把cache裡所有object再送一次`UpdateFunc`，避免漏掉事件。這時新舊object的`ResourceVersion`一樣，controller可以直接略過。
 
 > [!NOTE]
 > **為什麼queue裡只放`namespace/name`，不放整個object？**
 >
+> - **解開快和慢**：Informer收到事件很快，業務邏輯（例如呼叫雲端API）很慢。event handler如果直接做業務邏輯，就會拖慢甚至block Informer；先放進queue，兩邊就能各跑各的速度。
 > - **自動去重**：同一個Network短時間改了5次，queue裡還是只有一筆`default/my-net`，worker只處理一次。
 > - **永遠讀最新的**：worker處理時才去cache讀object，拿到的一定是最新狀態，不會照著過時的版本做。
 > - **失敗可以重試**：處理失敗時用`AddRateLimited()`放回queue，等待時間會一次比一次長。
@@ -456,7 +464,7 @@ kubectl delete net my-net                         # controller：刪除雲端的
 ```
 
 > [!NOTE]
-> **實務上常用kubebuilder**：上面的informer、workqueue、`Run()`都是固定的寫法。實務上大多用kubebuilder產生，見[Auto：用kubebuilder產生](#auto用kubebuilder產生)。
+> **實務上常用kubebuilder**：上面的informer、workqueue、`Run()`都是固定的寫法。實務上大多用kubebuilder產生，見[Auto：用kubebuilder產生](#auto用kubebuilder產生)。完整可執行的手寫範例，可以參考官方的[kubernetes/sample-controller](https://github.com/kubernetes/sample-controller)，它一直跟著新版client-go更新。
 
 > [!TIP]
 > 💡 **一句話總結**
@@ -587,7 +595,7 @@ func (r *NetworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
 - **informer、workqueue都看不到了**：`For(&netv1.Network{})`就是「watch Network」，controller-runtime在背後建立[informer和workqueue](#-5a-informercontroller怎麼知道network變了)，把`namespace/name`包成`req`交給`Reconcile()`。
 - **`r.Get()`讀的是cache**：拿到的是副本，可以直接改，不用自己`DeepCopy()`。
 - **重試**：return error就會自動`AddRateLimited`；要定時重新檢查，return `ctrl.Result{RequeueAfter: time.Minute}`。
-- **`+kubebuilder:rbac`**：`make manifests`會依這些註解產生`config/rbac/`，controller deploy到cluster後才有權限讀寫Network。
+- **`+kubebuilder:rbac`**：`make manifests`會依這些註解產生`config/rbac/`，controller deploy到cluster後才有權限讀寫Network，RBAC見[Chap-6的RBAC](chap-6-declarative-api.md#rbac)。
 
 ### 🧪 4. 跑起來
 
@@ -621,5 +629,111 @@ kubectl apply -f config/samples/net_v1_network.yaml
 
 ## Operator
 
+*有狀態app的維運知識，怎麼寫成程式？*
+
+[Chap-5的StatefulSet](chap-5-container-orchestration-controller.md#statefulset)能管理有狀態app，但寫Pod template時常有「在YAML裡寫程式」的感覺。Operator換一個做法：***用CRD描述想要的有狀態app，在controller裡用程式完成deploy和維運***。
+
+Operator本身就是一個普通的Deployment。它要透過API Server建立Pod、Service、自己的CR，所以deploy前要先給它[RBAC](chap-6-declarative-api.md#rbac)權限。下面用etcd Operator的設計來說明。
+
+### 🗄️ 1. 例子：etcd叢集要怎麼組
+
+etcd用***static cluster***的方式組叢集時，每個member的啟動參數都要寫清楚整個叢集的拓撲：
+
+```bash
+etcd --name infra0 \
+  --initial-advertise-peer-urls http://10.0.1.10:2380 \
+  --listen-peer-urls http://10.0.1.10:2380 \
+  --initial-cluster infra0=http://10.0.1.10:2380,infra1=http://10.0.1.11:2380,infra2=http://10.0.1.12:2380 \
+  --initial-cluster-token etcd-cluster-1 \
+  --initial-cluster-state new
+```
+
+- **`--initial-cluster`**：這個member啟動時，叢集裡有哪些member，格式是`<名字>=<peer URL>`。
+- **`--listen-peer-urls`**：member之間用2380 port溝通。
+- **`--initial-cluster-token`**：這個叢集獨一無二的名字。
+- **`--initial-cluster-state`**：`new`代表建立新叢集，`existing`代表加入已有的叢集。
+
+拓撲寫死在參數裡，就沒辦法scale。Operator改成***先建一個種子節點，再一個一個加進去***：
+
+```bash
+# ① bootstrap：種子節點，叢集裡只有它自己
+etcd --name infra0 ... \
+  --initial-cluster infra0=http://10.0.1.10:2380 \
+  --initial-cluster-state new \
+  --initial-cluster-token 4b5215fa-5401-4a95-a8c6-892317c9bef8
+
+# ② 加入新member：先告訴叢集，再用existing啟動它
+etcdctl member add infra1 --peer-urls=http://10.0.1.11:2380
+etcd --name infra1 ... \
+  --initial-cluster infra0=http://10.0.1.10:2380,infra1=http://10.0.1.11:2380 \
+  --initial-cluster-state existing
+```
+
+重複②，直到member數量等於想要的大小。***Operator要做的，就是用程式產生這些命令，再用Pod把它們跑起來***。
+
+### 📝 2. 使用者只寫一個EtcdCluster
+
+```yaml
+apiVersion: etcd.database.coreos.com/v1beta2
+kind: EtcdCluster
+metadata:
+  name: example-etcd-cluster
+spec:
+  size: 3
+  version: "3.5.17"
+```
+
+`size`是叢集的member數量。要scale時，改`size`再`kubectl apply`，Operator就會增減member。
+
+### 🔁 3. Operator的控制循環
+
+<img src="images/ch07/etcd-operator-loops.svg" alt="etcd Operator的控制循環：API Server的資料存在etcd，透過LIST + WATCH送到Operator裡的Informer（AddFunc、UpdateFunc、DeleteFunc，沒有workqueue，直接呼叫）。新增EtcdCluster時，cluster.New為它建立一個Cluster，例如Cluster 1、Cluster 2；之後的修改用cluster.Update交給對應的Cluster。每個Cluster有自己的控制循環，比較diff(Pod數, size)，第一次執行bootstrap，之後依差異執行addOneMember或removeOneMember" width="100%">
+
+etcd Operator的特別之處，是***每個EtcdCluster都有一個自己的控制循環***：
+
+1. **新增**：Informer收到新的EtcdCluster，就在Operator裡建立一個對應的Cluster（`cluster.New`）。它的生命週期和真實的etcd叢集一樣。
+2. **bootstrap**：Cluster第一次執行時，先建一個和EtcdCluster同名的[Headless Service](chap-5-container-orchestration-controller.md#-3-topology-stateservicename和固定的dns名稱)，再建種子節點的Pod。建Pod之前還不知道它的IP，所以`--initial-cluster`裡用的是***Pod的DNS名稱***，不是IP。
+3. **控制循環**：每隔一段時間比較一次：
+   - 實際狀態：正在跑、屬於這個叢集的Pod數量。
+   - 期望狀態：EtcdCluster的`size`。
+   - Pod不夠就`addOneMember`：產生新Pod的名字、`etcdctl member add`、組出新的`--initial-cluster`、用`existing`啟動Pod；太多就`removeOneMember`。
+4. **修改**：之後改`size`或`version`，都由這個Cluster的控制循環處理（`cluster.Update`）。
+
 > [!NOTE]
-> 撰寫中。
+> etcd Operator的Informer***沒有用workqueue***，event handler直接執行業務邏輯。這和[5.a](#-5a-informercontroller怎麼知道network變了)的寫法不同：建立一個etcd叢集很慢，會拖慢Informer。寫新的Operator時，照[Manual](#manualcrd和controller)或[kubebuilder](#auto用kubebuilder產生)的寫法就好。
+
+### ⚖️ 4. 設計上的取捨
+
+和[Chap-5的MySQL StatefulSet](chap-5-container-orchestration-controller.md#statefulset實踐mysql)比較，會有兩個問題：
+
+- **為什麼Pod可以用隨機名字**：StatefulSet用`web-0`、`web-1`這種編號把拓撲固定下來。etcd Operator每次加減member都先執行`etcdctl member add`、`member remove`，***拓撲由etcd自己記錄***，不需要在外面用編號固定。
+- **為什麼不用PV**：etcd用Raft，***少於一半***的member掛掉時，叢集照樣能讀寫；控制循環建新Pod加進去就恢復了。但***一半以上***掛掉時，叢集就不能寫入，新Pod也救不回來，只能從備份恢復：
+  - **Backup Operator**：每建立一個EtcdBackup object，就替指定的叢集備份一次，例如存到S3。實務上用[CronJob](chap-5-container-orchestration-controller.md#cronjob)定時建立。
+  - **Restore Operator**：建立一個EtcdRestore object，從備份恢復出一個新叢集，再交給etcd Operator接管。
+
+### 🤝 5. Operator和StatefulSet
+
+兩者不是二選一。app既需要StatefulSet的固定名稱和storage，又有很多維運邏輯要寫時，可以寫一個Operator，***在控制循環裡建立和管理StatefulSet***，而不是直接管理Pod。例如Prometheus Operator，就是替每個Prometheus建立一個StatefulSet。
+
+寫Operator的框架，用[kubebuilder](#auto用kubebuilder產生)就好；Operator SDK的Go版本，底層也是kubebuilder。
+
+### 🚧 6. CRD不是萬能的
+
+**不適合用CRD的場景**：
+
+- **大量、頻繁寫入的資料**：例如metrics、log、event stream。每次寫入都要經過API Server和etcd。
+- **很大的object**：etcd單筆資料有大小上限（預設約1.5MB）。
+- **需要複雜查詢**：API Server只能依label、field篩選，不能像資料庫一樣查詢。
+- **不是「期望狀態」的API**：例如一次性的命令、串流資料。這類需求要自己寫API，或用aggregated API server。
+
+**效能瓶頸主要在**：
+
+- **etcd**：所有CR都存在etcd，每次寫入都要經過Raft。
+- **watch的fan-out**：每個watch這種object的client，API Server都要推一份事件。
+- **JSON**：CR只能用JSON傳輸和儲存，不像內建object可以用protobuf，encode / decode比較慢。
+- **數量一多**：`LIST`變慢，Informer的cache也佔很多mem。
+
+> [!TIP]
+> 💡 **一句話總結**
+>
+> ***Operator = CRD描述有狀態app + controller用程式完成維運***。etcd Operator把「種子節點 + 逐一加入」寫成控制循環，讓一個etcd叢集能自己scale、自己修復；修不好時，再交給Backup / Restore Operator。

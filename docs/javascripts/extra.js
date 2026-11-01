@@ -179,9 +179,11 @@ document$.subscribe(() => {
   });
 
   const onlyEmojiOrSpace = /^[\s\p{Extended_Pictographic}️]*$/u;
+  // A label is bold text followed by a colon, optionally with a "（…）" note in between
   document.querySelectorAll(".md-typeset strong").forEach((el) => {
-    const next = el.nextSibling;
-    if (!next || next.nodeType !== Node.TEXT_NODE || !/^\s*[：:]/.test(next.textContent)) return;
+    let after = "";
+    for (let n = el.nextSibling; n && after.length < 80; n = n.nextSibling) after += n.textContent;
+    if (!/^\s*(（[^）]*）)?\s*[：:]/.test(after)) return;
     let before = "";
     for (let n = el.previousSibling; n; n = n.previousSibling) before = n.textContent + before;
     if (onlyEmojiOrSpace.test(before)) el.classList.add("doc-label");

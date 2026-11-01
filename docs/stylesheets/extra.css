@@ -77,6 +77,12 @@
   color: var(--doc-label2-color);
 }
 
+/* Inline code inside a label follows the label color instead of the pink code style */
+.md-typeset strong.doc-label code {
+  color: inherit;
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
 /* Inline code (not code blocks) gets a soft pink pill */
 .md-typeset :not(pre) > code {
   color: var(--doc-code-color);

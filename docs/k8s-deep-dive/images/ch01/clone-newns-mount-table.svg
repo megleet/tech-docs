@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 16 852 264" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="cn-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<marker id="cn-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e08a00"/></marker>
+</defs>
+<rect width="860" height="290" fill="#ffffff"/>
+<g fill="#fbfcfd" stroke="#94a3b8" stroke-width="1.5">
+<rect x="8" y="20" width="204" height="220" rx="14"/>
+<rect x="344" y="20" width="508" height="220" rx="14"/>
+</g>
+<g font-size="14" font-weight="800" fill="#334155" text-anchor="middle">
+<text x="110" y="44"><tspan font-family="SFMono-Regular, Menlo, monospace">clone()</tspan>之前</text>
+<text x="598" y="44"><tspan font-family="SFMono-Regular, Menlo, monospace">clone()</tspan>之後</text>
+</g>
+
+<!-- before: host -->
+<rect x="20" y="56" width="180" height="172" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="36" y="80" font-size="14" font-weight="800" fill="#334155">Host / Parent</text>
+<text x="36" y="98" font-size="11.5" font-weight="600" fill="#64748b">mount table</text>
+<g font-size="12.5" font-weight="600" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">
+<text x="36" y="126">/</text><text x="36" y="150">/proc</text><text x="36" y="174">/sys</text><text x="36" y="198">/var/lib/…/merged</text>
+</g>
+
+<!-- clone arrow -->
+<line x1="216" y1="142" x2="340" y2="142" stroke="#475569" stroke-width="2.5" marker-end="url(#cn-a)"/>
+<text x="278" y="132" font-size="10.5" font-weight="800" fill="#475569" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">clone(CLONE_NEWNS)</text>
+
+<!-- after: host -->
+<rect x="356" y="56" width="180" height="172" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="372" y="80" font-size="14" font-weight="800" fill="#334155">Host / Parent</text>
+<text x="372" y="98" font-size="11.5" font-weight="600" fill="#64748b">mount table</text>
+<g font-size="12.5" font-weight="600" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">
+<text x="372" y="126">/</text><text x="372" y="150">/proc</text><text x="372" y="174">/sys</text><text x="372" y="198">/var/lib/…/merged</text>
+</g>
+
+<!-- after: child -->
+<rect x="660" y="56" width="180" height="172" rx="10" fill="#f1ecfa" stroke="#7c5cbf" stroke-width="2"/>
+<text x="676" y="80" font-size="14" font-weight="800" fill="#5b3fa0">Child</text>
+<text x="676" y="98" font-size="11.5" font-weight="600" fill="#7c5cbf">mount table（copy）</text>
+<g font-size="12.5" font-weight="600" fill="#5b3fa0" font-family="SFMono-Regular, Menlo, monospace">
+<text x="676" y="126">/</text><text x="676" y="150">/proc</text><text x="676" y="174">/sys</text><text x="676" y="198">/var/lib/…/merged</text>
+</g>
+<text x="676" y="217" font-size="11" font-weight="600" fill="#7c5cbf">↑ 之後的new_root</text>
+
+<!-- propagation link -->
+<line x1="542" y1="142" x2="654" y2="142" stroke="#e08a00" stroke-width="2.5" stroke-dasharray="6 4" marker-start="url(#cn-o)" marker-end="url(#cn-o)"/>
+<g font-size="12" font-weight="800" fill="#8a4b00" text-anchor="middle">
+<text x="598" y="126">是否同步</text>
+<text x="598" y="164">由propagation決定</text>
+</g>
+
+<text x="430" y="266" font-size="12.5" font-weight="600" fill="#64748b" text-anchor="middle">shared：一邊mount，另一邊也看得到　private / slave：切斷同步，或只從host單向傳進來</text>
+</svg>

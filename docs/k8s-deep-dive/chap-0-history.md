@@ -9,7 +9,7 @@ icon: lucide/history
 - [Docker為什麼贏過Cloud Foundry](#docker為什麼贏過cloud-foundry)
 - [從Docker到Kubernetes](#從docker到kubernetes)
 - [Kubernetes的起源和生態](#kubernetes的起源和生態)
-- [Orchestration、Choreography、Automation](#orchestrationchoreographyautomation)
+- [IaC vs Orchestration vs Choreography](#iac-vs-orchestration-vs-choreography)
 
 ## 從PaaS到container
 
@@ -94,11 +94,11 @@ Kubernetes能長成整個生態，靠的是它對**開發者開放**：
 - **靈活的擴展性**：從API到container runtime，每一層都有***可以擴展的介面***：CRI、CNI、CSI、Device Plugin，見[Chap-3的架構圖](chap-3-kubernetes-architecture-operations.md)。
 - **用程式碼介入每一個階段**：可以用[CRD](chap-7-crd-operator.md#manualcrd和controller)加入自己的object、用自訂controller讓它做事，也可以用[admission webhook](chap-6-declarative-api.md#api-server怎麼處理request)在object寫進etcd之前檢查或修改它。
 
-## Orchestration、Choreography、Automation
+## IaC vs Orchestration vs Choreography
 
 *這幾個詞常常一起出現，差在哪裡？*
 
-### 🎼 1. Orchestration和Choreography
+### 🎼 1. Orchestration vs Choreography
 
 <img src="images/ch00/orchestration-vs-choreography.svg" alt="左右兩塊。左邊Orchestration（centralized）：一個Orchestrator（central coordinator）用三個箭頭分別指向A、B、C，告訴每個component做什麼。右邊Choreography（decentralized）：A發event給B，B再發event給C，每個component看到event後自己決定下一步，沒有central coordinator" width="85%">
 
@@ -110,14 +110,14 @@ Kubernetes能長成整個生態，靠的是它對**開發者開放**：
 
 Kubernetes兩種都有：使用者看到的是orchestration（交給Kubernetes管理container），但內部每個controller各自watch API Server、各做各的，更接近choreography，見[自訂controller的Informer](chap-7-crd-operator.md#-5a-informercontroller怎麼知道network變了)。
 
-### 🤖 2. Orchestration和Automation
+### 🤖 2. Orchestration vs Automation
 
 - **Automation**：把***單一task***自動化，例如一個deploy script。
 - **Orchestration**：把***多個automation task***串起來協調，處理它們之間的順序、deps和failure。
 
-### 🏗️ 3. IaC
+### 🏗️ 3. Orchestration vs IaC（Infrastructure as Code）
 
-IaC（Infrastructure as Code）是用code描述infrastructure，例如用Terraform、OpenTofu、Pulumi建立VM、network、Load Balancer。它和Kubernetes的[聲明式API](chap-6-declarative-api.md#命令式和聲明式)是同一個想法：***寫下desired state，交給工具去達成***。
+IaC是用code描述infrastructure，例如用Terraform、OpenTofu、Pulumi建立VM、network、Load Balancer。它和Kubernetes的[聲明式API](chap-6-declarative-api.md#命令式和聲明式)是同一個想法：***寫下desired state，交給工具去達成***。
 
 兩者管的是不同層：***IaC負責建出Infrastructure***，例如VM、VPC、Load Balancer、disk；***Kubernetes跑在這些機器上，在runtime管理上面的app***，負責schedule、scale、self-healing。
 

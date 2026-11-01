@@ -10,6 +10,7 @@ icon: lucide/container
 - [3大pillar + Security](#3大pillar--security)
 - [Namespace](#namespace)
 - [setns：加入另一個process的namespace](#setns加入另一個process的namespace)
+- [Cgroups](#cgroups)
 - [延伸：Pod、container與process](#延伸podcontainer與process)
 
 ## VM vs Container
@@ -77,7 +78,7 @@ icon: lucide/container
 
 *container由哪幾項技術組成？各自負責什麼？*
 
-<img src="images/ch01/container-pillars.svg" alt="container像一棟建築：屋頂是Container，由3根柱子撐起來。第1根Namespace（隔離：修改process視圖），PID、NET、MNT、UTS、IPC等；第2根cgroups（限制：製造限制約束），CPU、mem、Block I/O、PIDs；前兩根合起來是Container Runtime（dynamic view）。第3根rootfs（替換：更換根目錄檔案），OverlayFS的image layers和writable layer，屬於Container Image（static view）。柱子下面是Security層（收斂：拆分root權限）：capabilities、seccomp、LSM、user namespace，再下面是地基shared Linux kernel" width="100%">
+<img src="images/ch01/container-pillars.svg" alt="container像一棟建築：屋頂是Container，由3根柱子撐起來。第1根Namespace（隔離：修改process視圖），PID、NET、MNT、UTS、IPC等；第2根cgroups（限制：製造限制約束），CPU、mem、Block I/O、PIDs；前兩根合起來是Container Runtime（dynamic view）。第3根rootfs（替換：更換根目錄檔案），OverlayFS的image layers和writable layer，屬於Container Image（static view）。柱子下面是Security層（收斂：拆分root權限）：capabilities、seccomp、LSM、user namespace，再下面是地基shared Linux kernel" width="90%">
 
 container由***3大pillar***撐起來，底下再墊一層Security：
 
@@ -85,7 +86,7 @@ container由***3大pillar***撐起來，底下再墊一層Security：
 - **兩個視角**：3大pillar可以「一分為二」地看待：
   - **Dynamic view：Container Runtime**：第1、2根pillar ***Namespace + cgroups***。它們是process執行時才存在的isolation環境，決定container***跑起來的樣子***：能看見什麼、能用多少。
   - **Static view：Container Image**：第3根pillar ***rootfs***。它是一組用OverlayFS聯合mount的目錄，位置在`/run/containerd/io.containerd.runtime.v2.task/k8s.io/<id>/rootfs`。這是container***本身的內容***，也就是app和它的deps，container不跑的時候也存在。見[UnionFS與Docker的Layered rootfs](chap-2-container-fs-security.md#unionfs與docker的layered-rootfs)。
-- **Security**：不算pillar，是墊在pillar底下的hardening層，由***capabilities、seccomp、LSM***（AppArmor / SELinux）和user namespace組成。它限制container process能對shared kernel做什麼，見[Container隔離的limit與solution](chap-2-container-fs-security.md#container隔離的limit與solution)。
+- **Security**：不算pillar，是墊在pillar底下的hardening層，由***capabilities、seccomp、LSM***（AppArmor / SELinux）和user namespace組成。它限制container process能對shared kernel做什麼，見[Chap-2的Security](chap-2-container-fs-security.md#security)。
 
 | 概念 | 解決的問題 | 核心含義 | 比喻 |
 | --- | --- | --- | --- |
@@ -98,20 +99,29 @@ container由***3大pillar***撐起來，底下再墊一層Security：
 
 *container怎麼拿到自己的namespace？*
 
+Linux目前有8種namespace，同一個kernel讓不同的process看到不同的「世界」。建立時用對應的`CLONE_NEW*` flag（`CLONE_NEWTIME`只能用`unshare()`或`clone3()`）：
+
+<img src="images/ch01/linux-namespaces-8.svg" alt="Linux的8種namespace。1. PID（CLONE_NEWPID）：隔離process ID，container裡第一個process是PID 1，看不到host上其他process。2. Mount（CLONE_NEWNS）：隔離mount point / filesystem，有自己的/、/proc、/dev等filesystem view。3. Network（CLONE_NEWNET）：隔離network stack，有獨立的network device、IP、routing table、port。4. IPC（CLONE_NEWIPC）：隔離IPC資源，shared mem、message queue、semaphore。5. UTS（CLONE_NEWUTS）：隔離hostname / domain name，container可以有自己的hostname。6. User（CLONE_NEWUSER）：隔離UID / GID，container裡的root（UID 0）可以對應到host上的普通user。7. Cgroup（CLONE_NEWCGROUP）：隔離cgroup hierarchy，/proc/self/cgroup只顯示container自己那一層。8. Time（CLONE_NEWTIME）：隔離system clock，可以有自己的CLOCK_MONOTONIC / CLOCK_BOOTTIME offset" width="75%">
+
 ### 🧬 1. 建立namespace
 
-runc用`clone()`產生container的第一個process（`runc init`），同時帶上`CLONE_NEWNS`等flag。
+runc用`clone()`產生container的第一個process（`runc init`），同時帶上`CLONE_NEWNS`等flag。一次建立7種namespace的寫法：
+
+```c
+int flags = CLONE_NEWPID | CLONE_NEWNS  | CLONE_NEWNET |
+            CLONE_NEWIPC | CLONE_NEWUTS | CLONE_NEWUSER |
+            CLONE_NEWCGROUP | SIGCHLD;   // SIGCHLD：child結束時通知parent，不是namespace
+
+int pid = clone(main_function, stack_top, flags, NULL);
+```
+
+`CLONE_NEWTIME`不能傳給`clone()`，要用`unshare()`或`clone3()`。完整可執行的例子見[Chap-2的mini_container.c](chap-2-container-fs-security.md#最小container實作mini_containerc)。
+
+`CLONE_NEWNS`的意思是new mount namespace。名字這麼籠統，是因為mount namespace是***第一個***加入Linux的namespace，當時沒預料到之後還會有其他種類。所以8種namespace裡，只有它的flag和`/proc/{pid}/ns/`底下的file名稱（`mnt`）對不上。
 
 ***`clone`之後，舊的mount tree（host的整棵mount tree）會被複製到新的mount namespace裡***。從這一刻起，這個process有了一份**複製出來的**mount tree：這時它看到的`/`還是host的根，只是一份copy。之後在新namespace裡的掛載和卸載，只改這份copy；但copy和原本的mount point之間可能還保持著同步關係，所以下一步要設定propagation，見[Chap-2的② 設定propagation](chap-2-container-fs-security.md#-②-設定propagation)。
 
-```
-host的mount namespace           新的mount namespace（container）
-/                                 /                    <-- 複製出來的copy
-├── proc/                         ├── proc/
-├── sys/                          ├── sys/
-├── dev/                          ├── dev/
-└── var/lib/.../merged/           └── var/lib/.../merged/   <-- 之後的new_root
-```
+<img src="images/ch01/clone-newns-mount-table.svg" alt="clone()之前，只有Host / Parent的mount table，裡面有/、/proc、/sys、/var/lib/…/merged。clone(CLONE_NEWNS)之後，Host / Parent的mount table不變，另外多一份Child的mount table（copy），內容一樣，其中/var/lib/…/merged是之後的new_root。兩份之間是否同步由propagation決定：shared時一邊mount，另一邊也看得到；private / slave時切斷同步，或只從host單向傳進來" width="100%">
 
 ### 🆚 2. unshare()和clone()的差別
 
@@ -125,7 +135,11 @@ host的mount namespace           新的mount namespace（container）
 ## setns：加入另一個process的namespace
 
 > [!NOTE]
-> **簡答**：一個process可以用`setns()`這個sys call，***加入另一個process已經存在的namespace***，從而「進入」那個process所在的container。這正是`docker exec`的實作原理。[最小container實作](chap-2-container-fs-security.md#最小container實作mini_containerc)用`clone()`***建立***新的namespace；`setns()`則是***加入***已經存在的namespace。
+> 一個process可以選擇***加入已經存在的namespace***，而不是建立新的：
+>
+> - **做法**：用`setns()`這個sys call，加入另一個process已經存在的namespace。[`clone()`](#-1-建立namespace)則是***建立***新的namespace。
+> - **效果**：加入之後，這個process看到的network、filesystem、process等，都和那個container一樣，等於「進入」了那個container。
+> - **用途**：`docker exec`、`kubectl exec`就是用一個新的process加入container的namespace，再執行`bash`、`ps`、`ip`這些指令來debug。Pod裡的sidecar也是：建立時由runtime用`setns()`加入pause container的network、IPC、UTS namespace，見[Pod中的container共用什麼](#-2-pod中的container共用什麼)。
 
 ### 📜 1. setns()函式說明
 
@@ -141,18 +155,11 @@ int setns(int fd, int nstype);
 | `fd`     | 指向某個namespace的fd。最常見的來源是`open("/proc/{pid}/ns/{type}", O_RDONLY)`，也就是「某個process目前所在的namespace」 |
 | `nstype` | 要加入的namespace類型，用來檢查`fd`是不是預期的類型。`0`表示不檢查，任何類型都接受                                     |
 
-`nstype`可以填的值：
+`nstype`填`0`表示不檢查，任何一種都接受；要檢查的話，就填該namespace的`CLONE_NEW*` flag（見[8種namespace](#namespace)）。每種namespace對應`/proc/{pid}/ns/`底下的一個file：
 
-| 值                  | namespace | 對應的file                |
-| ------------------- | --------- | ------------------------- |
-| `0`               | 不檢查    | 任何一個                  |
-| `CLONE_NEWNET`    | network   | `/proc/{pid}/ns/net`    |
-| `CLONE_NEWNS`     | mount     | `/proc/{pid}/ns/mnt`    |
-| `CLONE_NEWPID`    | PID       | `/proc/{pid}/ns/pid`    |
-| `CLONE_NEWUTS`    | hostname  | `/proc/{pid}/ns/uts`    |
-| `CLONE_NEWIPC`    | IPC       | `/proc/{pid}/ns/ipc`    |
-| `CLONE_NEWUSER`   | user      | `/proc/{pid}/ns/user`   |
-| `CLONE_NEWCGROUP` | cgroup    | `/proc/{pid}/ns/cgroup` |
+| namespace | PID | Mount | Network | IPC | UTS | User | Cgroup | Time |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **file名稱** | `pid` | `mnt` | `net` | `ipc` | `uts` | `user` | `cgroup` | `time` |
 
 - **Return value**：成功return `0`；失敗return `-1`，並設定`errno`。例如`EINVAL`表示`fd`的類型和`nstype`不符，`EPERM`表示權限不足。
 - **權限**：需要`CAP_SYS_ADMIN`，所以一般要用`sudo`執行。
@@ -283,6 +290,71 @@ docker run -it --net container:{container_id} busybox ifconfig
 >
 > `/proc/{pid}/ns/`底下的每個file代表一個namespace；***用`setns()`加入它，就等於「進入」那個container***，`docker exec`和`--net container:`都是這個原理。
 
+## Cgroups
+
+*namespace管「看得見什麼」，cgroups管「能用多少」。*
+
+namespace不能阻止process吃光mem，那是cgroups（Linux Control Group）的工作：***限制一組process能用的資源上限***，例如CPU、mem、disk I/O、process數量。
+
+### 🔍 1. 三個核心概念
+
+- **Controller**：`cpu`、`memory`、`io`、`pids`等，每個controller負責一種資源。
+- **Hierarchy**：用樹狀結構組織，每個process屬於樹上的某一個節點（cgroup）。
+- **Interface**：透過cgroupfs這個filesystem提供介面，mount在`/sys/fs/cgroup/`。***一個目錄就是一個cgroup***，裡面的file就是它的參數。
+
+### 🌳 2. Hierarchy：一棵cgroup樹
+
+<img src="images/ch01/cgroup-tree.svg" alt="一棵cgroup樹：root是/sys/fs/cgroup/，代表整台機器；底下有system.slice/（系統服務）、user.slice/（使用者）、kubepods.slice/（Kubernetes的總額度）。kubepods.slice/底下，pod-G/的G是Guaranteed，這類Pod直接放這層，另外有burstable/和besteffort/；burstable/底下的pod-A/裡有container-1和container-2，process就在container這一層；besteffort/底下有pod-B/" width="60%">
+
+`kubepods.slice/`底下再依Pod的***QoS class***分層。QoS class不是自己設定的，而是Kubernetes依Pod裡每個container的`resources`自動判斷：
+
+| QoS class | 條件 | cgroup位置 | mem不夠時 |
+| --- | --- | --- | --- |
+| **Guaranteed** | ***每個***container的CPU和mem都設了`requests`和`limits`，而且兩者相等 | 直接放在`kubepods.slice/`底下 | 最後才被趕走或OOM kill |
+| **Burstable** | 不符合Guaranteed，但至少一個container設了CPU或mem的`requests`或`limits` | `burstable/`底下 | 用量超過`requests`的先被處理 |
+| **BestEffort** | 所有container都***沒有***設CPU和mem的`requests`、`limits` | `besteffort/`底下 | 最先被趕走或OOM kill |
+
+- **為什麼要分層**：同一層的Pod共用上一層的額度。kubelet只要設定`burstable/`、`besteffort/`整層的上限，就能保護Guaranteed的Pod不被其他Pod擠掉。
+- **mem不夠時的順序**：kubelet依QoS決定先趕走哪些Pod（eviction）；kernel的OOM killer也會參考它，因為kubelet替不同QoS的process設了不同的`oom_score_adj`。
+
+樹的上下層有三條規則：
+
+<img src="images/ch01/cgroup-hierarchy-rules.svg" alt="cgroup樹的三條規則。Quota inheritance &amp; limit：子cgroup的限制不能超過父cgroup；parent的memory.max是1G，child-1設了memory.max=2G，實際最多仍是1G，child-2是500M。Upward accounting：父cgroup的用量是所有子孫的總和；child-1用300M、child-2用200M，parent的memory.current是500M。Downward control：父層打開controller，子層才能用；parent的cgroup.subtree_control寫+cpu +memory，child-1和child-2裡才出現cpu.max和memory.max這些file" width="100%">
+
+### 🛠️ 3. 實際建立一個cgroup
+
+```bash
+# 列出已mount的cgroup v2（只有一個統一的mount point）
+mount -t cgroup2
+# → cgroup2 on /sys/fs/cgroup type cgroup2
+
+# 這棵樹支援哪些controller
+cat /sys/fs/cgroup/cgroup.controllers
+# → cpuset cpu io memory hugetlb pids
+
+# 前置：在父層打開controller，子cgroup才會產生對應的file
+echo "+cpu +memory +pids" > /sys/fs/cgroup/cgroup.subtree_control
+
+# 建立一個cgroup：建目錄就好，kernel自動產生裡面的參數file
+mkdir /sys/fs/cgroup/demo
+
+# 設定資源限制
+echo "100000 100000" > /sys/fs/cgroup/demo/cpu.max   # 每100ms最多用100ms：1顆CPU
+echo 256M > /sys/fs/cgroup/demo/memory.max            # mem上限256MB
+echo 50 > /sys/fs/cgroup/demo/pids.max                # 最多50個process
+
+# 把process放進這個cgroup，限制才會對它生效
+echo <pid> > /sys/fs/cgroup/demo/cgroup.procs
+```
+
+用量超過`memory.max`時，kernel會觸發***OOM kill***。`docker run -m 256m`底層做的就是這件事。
+
+> [!WARNING]
+> - **cgroup的限制不會反映在`/proc`、`/sys`**：`free`、`top`讀的是`/proc/meminfo`、`/proc/stat`，`nproc`讀的是CPU數量，看到的都是***host的值***，不是cgroup的限制。
+>   - **解法：LXCFS**：在host上用FUSE動態產生「container視角」的`/proc`檔案，再用bind mount蓋到container的`/proc/meminfo`等路徑上。
+>   - **FUSE**：kernel把filesystem的請求，delegate給user-space的程式處理。
+> - **不要和cgroup namespace混淆**：[cgroup namespace](#namespace)只是讓container看到的`/proc/self/cgroup`路徑變短，***不負責限制***。限制是cgroups本身做的。
+
 ## 延伸：Pod、container與process
 
 ### 🌳 1. Pod、container與process的關係
@@ -311,13 +383,13 @@ kubectl exec啟動的bash              ← 不屬於任何process tree，從Pod�
 
 | Namespace                  | Pod裡的container | 說明                                                                                                                    |
 | -------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **PID（pid）**       | ⚙️ 預設獨立    | 設定`shareProcessNamespace: true`後共用：看得到彼此的process，PID 1變成pause                                          |
+| **Mount（mnt）**     | ❌ 獨立          | 每個container有自己image的rootfs；要共用檔案，就要mount同一個volume                                                     |
 | **Network（net）**   | ✅ 共用          | 同一個IP、同一組port，彼此用`localhost`連線；兩個container不能同時listen同一個port                                    |
 | **IPC（ipc）**       | ✅ 共用          | 可以用System V IPC、POSIX message queue、`/dev/shm`互相溝通                                                           |
 | **UTS（uts）**       | ✅ 共用          | 同一個hostname，也就是Pod名稱                                                                                           |
-| **Mount（mnt）**     | ❌ 獨立          | 每個container有自己image的rootfs；要共用檔案，就要mount同一個volume                                                     |
-| **PID（pid）**       | ⚙️ 預設獨立    | 設定`shareProcessNamespace: true`後共用：看得到彼此的process，PID 1變成pause                                          |
-| **Cgroup（cgroup）** | ❌ 獨立          | 每個container看到的cgroup根，是自己的那一層                                                                             |
 | **User（user）**     | ⚠️ 預設不使用  | 預設不建立user ns，所有container都用host的user ns。設定`hostUsers: false`後，整個Pod一個user ns，Pod裡的container共用 |
+| **Cgroup（cgroup）** | ❌ 獨立          | 每個container看到的cgroup根，是自己的那一層                                                                             |
 
 ns以外，Pod裡也共用這些：
 

@@ -7,6 +7,7 @@ icon: lucide/layers
 
 - [Container為什麼能seamless deploy](#container為什麼能seamless-deploy)
 - [Image能不能跨OS運行](#image能不能跨os運行)
+- [Security](#security)
 - [Container隔離的limit與solution](#container隔離的limit與solution)
 - [mount基本命令](#mount基本命令)
 - [mount --bind技術](#mount---bind技術)
@@ -28,6 +29,8 @@ icon: lucide/layers
 
 ### 1. 關鍵核心：它打包了完整的「RootFS」
 
+多數developer對dep的理解，停在programming lang這一層，例如Go的`go.mod`、Python的`requirements.txt`。但一個長期被忽略的事實是：***對app來說，OS本身才是它runtime最完整的dep***。有了container image「打包OS」的能力，這份完整的dep就能跟著app一起build、ship、run。
+
 當我們在傳統server上deploy程式時，常常因為local與remote的`libc`版本不一致、Python / Java dep lib版本不同、或是缺少某個特定Dynamic Link Library（`.so`）而導致deploy失敗。
 
 但Container Image不僅僅是打包你的程式碼，它是直接把OS的**User Space所有檔案**完整抓了下來：
@@ -46,6 +49,12 @@ icon: lucide/layers
 這歸功於Linux Kernel廣為人知的設計鐵律——***"Never break userspace"***。
 
 **Linux的sys call**（如`open`、`read`、`socket`）**interface非常穩定**。只要remote server的Linux Kernel版本沒有old到不支援container所需的sys call（例如kernel≥**3.10**），container內部的user space程式碼就能毫無障礙地透過sys call與remote kernel對話。
+
+但這個保證***有邊界，不是100% seamless***。image只帶user space，所有用到kernel的地方，仍然取決於host：
+
+- **較新的kernel功能**：程式用到`io_uring`、較新的eBPF功能這類sys call或kernel功能時，host的kernel太舊就會失敗。
+- **kernel module**：需要特定kernel module的程式（例如某些network、storage driver），host沒有載入就不能用；container也不能自己帶一個。
+- **kernel參數與資源**：`sysctl`、mem、CPU的行為都由host的kernel決定，container只能在它允許的範圍內調整。
 
 ### 3. Copy-on-Write與layering（OverlayFS / UnionFS）
 
@@ -128,6 +137,78 @@ kernel像引擎，container像車身：引擎可以不一樣，但***引擎接�
 | Linux               | Windows Server     | 相同    | ❌ **不行**（除非開WSL2 VM）    | Kernel API完全不同（POSIX vs Win32） |
 | Linux（`x86_64`） | Linux（`arm64`） | 不同    | ❌ **不行**（除非用Multi-arch） | CPU機器instruction set不相容         |
 
+## Security
+
+*namespace和cgroups之外，還要限制container process能對kernel做什麼。*
+
+[Chap-1的3大pillar](chap-1-container-namespace-cgroups.md#3大pillar--security)裡，Security是墊在pillar底下的hardening層，由四種機制組成。它們檢查的東西不一樣，可以疊在一起用：
+
+<img src="images/ch02/security-mechanisms.svg" alt="四種Security機制的對照。Capabilities：檢查這個process有沒有privilege，只有需要privilege的操作才會被檢查，比喻是發給你哪幾把key。seccomp：檢查這個sys call能不能被呼叫，不管需不需要privilege，所有sys call都能filter，比喻是能向kernel提出哪些請求。AppArmor / SELinux：檢查這個process能不能access這項resource（file、network等），依admin制定的policy檢查，root也要遵守，比喻是能進入哪些room。user namespace：決定container裡的root在host上是誰，影響所有用到UID / GID的地方，比喻是在host上換成普通身分" width="100%">
+
+### 🔑 1. Capabilities：把root拆成小權限
+
+傳統上UID 0擁有全部權力。Capabilities把它拆成約40個獨立的權限，例如：
+
+| Capability | 允許的操作 |
+| --- | --- |
+| `CAP_NET_BIND_SERVICE` | bind 1024以下的port |
+| `CAP_NET_ADMIN` | 設定network interface、routing |
+| `CAP_SYS_ADMIN` | 一大堆操作（mount、建立namespace等），被戲稱為「新的root」 |
+| `CAP_SYS_PTRACE` | trace其他process |
+| `CAP_CHOWN` | 任意修改file的owner |
+
+container的做法是：***container裡的root照樣是UID 0，但只保留一小撮capabilities***。Docker和containerd預設只留14個，並且拿掉`CAP_SYS_ADMIN`、`CAP_SYS_MODULE`這類危險的。
+
+### 🛡️ 2. seccomp：限制能呼叫哪些sys call
+
+seccomp用一份filter，***限制process能呼叫哪些sys call***，縮小kernel暴露給container的attack surface。
+
+- **和capabilities的差別**：capabilities只在需要privilege的操作上檢查；seccomp不管需不需要privilege，每個sys call都能擋。
+- **預設profile**：Docker預設會套一份profile，擋掉`reboot`、`kexec_load`、載入kernel module的`init_module`等少數危險的sys call。
+- **Kubernetes的預設不一樣**：Pod預設是`Unconfined`，***不套任何seccomp profile***。要在`securityContext`裡設`seccompProfile.type: RuntimeDefault`，才會用runtime的預設profile。
+
+### 🏠 3. LSM：AppArmor / SELinux
+
+- **DAC**（Discretionary Access Control）：Linux傳統的權限模型。file的owner自己決定誰能access，而root幾乎無所不能。問題是，只要一個process被攻破，它就繼承了該使用者的所有權限。
+- **MAC**（Mandatory Access Control）：AppArmor、SELinux實作的模型。由admin制定policy，***每個process只能做policy允許的事***，process本身和root都無法改變。
+
+| | AppArmor | SELinux |
+| --- | --- | --- |
+| **怎麼描述規則** | 依***路徑***，例如「可以讀`/etc/nginx/**`」 | 依***label***，file和process都帶一個label，policy規定哪些label之間可以互動 |
+| **常見的distro** | Ubuntu、Debian | RHEL、Fedora |
+| **Kubernetes的設定** | `securityContext.appArmorProfile` | `securityContext.seLinuxOptions` |
+
+### 👤 4. user namespace：container的root不是host的root
+
+前三種機制都在限制「root能做什麼」；user namespace則讓container裡的root在host上***根本不是root***：container裡的UID 0，對應到host上一個沒有權限的普通UID。就算process逃出container，在host上也只是普通使用者。Pod裡怎麼開啟，見[Chap-1的Pod中的container共用什麼](chap-1-container-namespace-cgroups.md#-2-pod中的container共用什麼)。
+
+### 🧩 5. 在Kubernetes裡一起設定
+
+四種機制都在Pod或container的`securityContext`裡設定：
+
+```yaml
+spec:
+  hostUsers: false                  # user namespace
+  containers:
+  - name: app
+    image: nginx:1.27
+    securityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]               # 先全部拿掉
+        add: ["NET_BIND_SERVICE"]   # 只加回需要的
+      seccompProfile:
+        type: RuntimeDefault        # seccomp
+      appArmorProfile:
+        type: RuntimeDefault        # AppArmor
+```
+
+> [!TIP]
+> 💡 **一句話總結**
+>
+> ***Capabilities決定有哪些privilege，seccomp決定能呼叫哪些sys call，AppArmor / SELinux決定能access哪些resource，user namespace讓container的root在host上只是普通使用者***。四種疊在一起，仍然共用同一個kernel，這個上限見下一節。
+
 ## Container隔離的limit與solution
 
 *container靠namespace做隔離，為什麼說這種隔離「不徹底」？業界又是怎麼補強的？*
@@ -163,7 +244,7 @@ namespace的隔離有天生上限，所以做法是**疊加機制，或換架構
 
 使用Kata或Firecracker時，攻擊者要逃逸必須先攻破guest kernel，再突破hypervisor，**兩層**都要打穿。
 
-- **較輕量的前置手段**：在考慮上述方案前，通常先做`seccomp`、AppArmor / SELinux、移除不必要的capabilities、user namespace與rootless container。這些成本低，能縮小attack surface，但***不改變「共用kernel」的本質***。
+- **較輕量的前置手段**：在考慮上述方案前，通常先做[上一節的Security](#security)：`seccomp`、AppArmor / SELinux、移除不必要的capabilities、user namespace與rootless container。這些成本低，能縮小attack surface，但***不改變「共用kernel」的本質***。
 
 ### 🤖 4. 為什麼對LLM infra特別重要
 
@@ -377,8 +458,7 @@ Docker的volume用的掛載技術，就是Linux的**bind mount**：把一個file
 
 ### 📍 Q1. mount point是什麼？和普通目錄有什麼區別與聯繫？
 
-> [!NOTE]
-> **簡答**：mount point本質上就是directory tree裡一個**普通的目錄**，只是被賦予了「連接另一個filesystem」的特殊任務：***上面剛好掛了另一個filesystem***。任何目錄都可以在被掛載的那一刻成為mount point。
+**簡答**：mount point本質上就是directory tree裡一個**普通的目錄**，只是被賦予了「連接另一個filesystem」的特殊任務：***上面剛好掛了另一個filesystem***。任何目錄都可以在被掛載的那一刻成為mount point。
 
 ### 🌲 Q2. filesystem為什麼是「兩層樹」？directory tree、mount tree和Linux unified view有什麼區別與聯繫？
 
@@ -396,6 +476,10 @@ Docker的volume用的掛載技術，就是Linux的**bind mount**：把一個file
 | **誰建立**   | `mount -t xxx`或kernel內部                                                                   | `clone` / `unshare(CLONE_NEWNS)`                 | 由mount tree拼接dir tree                                 |
 | **查看工具** | `ls`、`tree`                                                                               | `findmnt`、`/proc/self/mountinfo`                | 在某個process裡`ls`、`tree`                          |
 
+下圖用[(b)的例子](#b-實例三個src-dir和四次bind-mount)對照三者，顏色代表來源目錄：
+
+<img src="images/ch02/dir-mount-unified-tree.svg" alt="Directory tree + Mount tree = Unified tree。Directory tree：Dir_A/有fileA.txt、空目錄dirB/和dirC_2/；Dir_B/有fileB.txt和空目錄dirC/；Dir_C/有fileC.txt。Mount tree：[Parent] /mnt/root → Dir_A，底下[Child 1] .../dirB → Dir_B，再底下[Grandchild] .../dirB/dirC → Dir_C；[Parent]底下還有[Child 2] .../dirC_2 → Dir_C。Unified tree：/mnt/root/底下有fileA.txt、dirB/（裡面fileB.txt和dirC/，dirC/裡有fileC.txt）、dirC_2/（裡面fileC.txt）；fileC.txt出現兩次，dir tree裡只有一份" width="100%">
+
 **聯繫**：每個mount節點記錄兩個指向目錄樹的位置：
 
 - **`mnt_root`**：它自己的filesystem（或subtree）的根目錄。
@@ -405,7 +489,7 @@ Docker的volume用的掛載技術，就是Linux的**bind mount**：把一個file
 
 假設有三個來源目錄，裡面預先建好要當mount point的空目錄（mount point必須是已經存在的目錄）：
 
-- **`Dir_A`**：`fileA.txt`、空目錄`dirB/`、空目錄`dirC_bind/`。
+- **`Dir_A`**：`fileA.txt`、空目錄`dirB/`、空目錄`dirC_2/`。
 - **`Dir_B`**：`fileB.txt`、空目錄`dirC/`。
 - **`Dir_C`**：`fileC.txt`。
 
@@ -438,7 +522,7 @@ Dir_C/
 └── fileC.txt
 ```
 
-***mount完全不會改動這些內容***：`dirB/`、`dirC_bind/`、`dirC/`仍然是空目錄，只是被蓋住。
+***mount完全不會改動這些內容***：`dirB/`、`dirC_2/`、`dirC/`仍然是空目錄，只是被蓋住。
 
 #### (d) mount tree：kernel記錄的掛載關係
 
@@ -448,11 +532,11 @@ Dir_C/
 [Parent]  (/mnt/root → Dir_A)
 ├── [Child 1]  (/mnt/root/dirB → Dir_B)
 │   └── [Grandchild]  (/mnt/root/dirB/dirC → Dir_C)
-└── [Child 2]  (/mnt/root/dirC_bind → Dir_C)
+└── [Child 2]  (/mnt/root/dirC_2 → Dir_C)
 ```
 
 - **Parent**：`/mnt/root`，1個。它本身也是掛在`/mnt`所在的那個mount下面，這裡只畫出這棵subtree。
-- **Child**：`/mnt/root/dirB`和`/mnt/root/dirC_bind`，2個。
+- **Child**：`/mnt/root/dirB`和`/mnt/root/dirC_2`，2個。
 - **Grandchild**：`/mnt/root/dirB/dirC`，1個，掛在Child 1下面。
 
 #### (e) Unified Tree : VFS縫合後的single view
@@ -744,8 +828,12 @@ int pivot_root(const char *new_root, const char *put_old);
 | `new_root` | 要成為新根目錄的路徑，**必須是一個mount point**  |
 | `put_old`  | 舊根目錄要被移到哪裡，**必須在`new_root`底下** |
 
+<img src="images/ch02/pivot-root-overview.svg" alt="pivot_root的三個階段。① 執行前：/是舊根（host），裡面有bin/、lib/、a.txt和new_root/；new_root/是mount point，裡面有app和預先建好的空目錄.old_root/。② pivot_root之後：原本的new_root變成新的/，裡面有app；舊根整個移到.old_root/裡，看得到bin/、lib/、a.txt、new_root/。③ umount2之後：/是新根，只剩app，舊根已卸載，看不到host的任何檔案" width="100%">
+
 > [!WARNING]
 > glibc沒有提供`pivot_root()`這個包裝函式，實際程式裡要寫成`syscall(SYS_pivot_root, new_root, put_old)`。下面的範例為了好讀，仍然寫成`pivot_root(...)`。
+
+下面用圖中的例子，一步一步說明這三個階段。
 
 ### 🌳 1. 執行前的初始狀態
 
@@ -946,7 +1034,7 @@ chdir("/");
 
 一個完整的container runtime建立container，大致分成6步：
 
-<img src="images/ch02/minimal-container-6-steps.svg" alt="Minimal container的6個步驟，右邊標出對應的部分。1. clone(CLONE_NEWUSER|NEWPID|NEWNS|NEWNET|NEWIPC|NEWUTS|NEWCGROUP)，parent寫uid_map / gid_map，child sethostname：Namespace。2. 建cgroup：/sys/fs/cgroup/<container>/memory.max、cpu.max，parent把child的PID寫進cgroup.procs：cgroups。3. parent建veth pair，一端移進child的netns，另一端接bridge，設IP / route：network。4. mount private → bind rootfs → 掛/proc、/sys、/dev → pivot_root → umount2舊根：rootfs。5. drop capabilities、set AppArmor / SELinux label、載入seccomp：Security。6. execve(entrypoint)：container開始執行" width="100%">
+<img src="images/ch02/minimal-container-6-steps.svg" alt="建立container的6個步驟，每一步標出對應的部分和執行者（parent是host上的runtime process，child是clone出來、之後變成container的process）。1. Namespace：clone(CLONE_NEW*)建立USER、PID、NS、NET、IPC、UTS、CGROUP，parent寫uid_map / gid_map，child sethostname。2. cgroups（parent）：建/sys/fs/cgroup/&lt;container&gt;/，設memory.max、cpu.max，把child的PID寫進cgroup.procs。3. network（parent）：建veth pair，一端移進child的netns，另一端接bridge，設IP / route。4. rootfs（child）：mount private → bind rootfs → 掛/proc、/sys、/dev → pivot_root → umount2舊根。5. Security（child）：drop capabilities → AppArmor / SELinux → seccomp，seccomp最後載入，緊接著execve。6. exec（child）：execve(entrypoint)，entrypoint成為PID 1，container開始執行" width="75%">
 
 `mini_container.c`只做了第1、4、6步，其他的見[刻意省略的功能](#-刻意省略的功能)。
 
@@ -1191,7 +1279,7 @@ nproc                     # → 2
 - **PID隔離有效**：只看得到`/bin/sh`（PID 1）和`top`自己，***host上的process一個都看不到***。`/bin/sh`是這個PID namespace裡的第一個process，所以是PID 1。
 - **PID是3不是2**：PID 2被之前執行過的指令用掉了，PID只會往上遞增。
 - **USER顯示0**：rootfs裡沒有`/etc/passwd`，`top`查不到UID 0對應的名字，就直接顯示數字。
-- **mem和CPU數字是host的**：`Mem`加起來約2G、`nproc`回答`2`，都是整台VM的數字。這個最小container***沒有用cgroup限制資源***，而`/proc/meminfo`、`/proc/stat`這類資訊本來就反映整台機器，不會因為namespace而改變。
+- **mem和CPU數字是host的**：`Mem`加起來約2G、`nproc`回答`2`，都是整台VM的數字。這個最小container***沒有用[cgroup](chap-1-container-namespace-cgroups.md#cgroups)限制資源***，而`/proc/meminfo`、`/proc/stat`這類資訊本來就反映整台機器，不會因為namespace而改變。
 - **Docker也一樣**：在一般的Docker container裡跑`top`或`free`，看到的同樣是host的總量；要讓container「看到」自己的配額，需要額外的工具，例如lxcfs。
 
 ### 🚧 刻意省略的功能
@@ -1199,6 +1287,14 @@ nproc                     # → 2
 沒有`devpts`（所以shell沒有完整的job control）、user namespace、cgroup資源限制、網路namespace、overlay layer，也沒有capability與seccomp的收緊。***這些就是Docker、runc在這個骨架之上加的功能。***
 
 ## UnionFS與Docker的Layered rootfs
+
+先分清三個常一起出現的詞。比喻：rootfs是***成品蛋糕***，UnionFS是***疊層蛋糕的做法***，OverlayFS是***其中一種具體的食譜***。
+
+|  | 是什麼 | 層級 |
+| --- | --- | --- |
+| **rootfs** | 一個process看到的`/`，包含`/bin`、`/etc`、`/lib`等 | 結果（what） |
+| **UnionFS** | 把多個directory合併成單一view的技術概念 | 概念（how，abstract） |
+| **OverlayFS** | Linux kernel內建的UnionFS實作 | 實作（how，concrete） |
 
 > [!NOTE]
 > **結論**：Union File System把多個directory合併成同一個view；Docker用它把image的多個***read-only layer加上一個writable layer***，疊成container的rootfs。
@@ -1227,12 +1323,7 @@ sudo mount -t overlay overlay -o lowerdir=./A:./B,upperdir=./upper,workdir=./wor
 tree ./C
 ```
 
-```
-./C
-├── a
-├── b
-└── x
-```
+<img src="images/ch02/overlayfs-merge-example.svg" alt="OverlayFS的分層，由上到下：C（merged）裡有a、b、x；upper（writable layer）一開始是空的，修改file時才copy-up到這裡；A（lowerdir左邊）有a和x；B（lowerdir右邊）有b和x，B的x被A的x蓋住。C裡的a、x來自A，b來自B。查找順序是upper → A → B，先找到的優先" width="75%">
 
 - **合併**：`C`裡有`a`、`b`、`x`三個file，而且`x`只有一份。
 - **同名file誰優先**：兩個lower directory都有`x`時，`lowerdir`裡***左邊的優先***，這裡是`A`的`x`。
@@ -1277,12 +1368,7 @@ CMD ["python", "app.py"]
 
 `docker build`由上往下執行每條指令，每條指令的結果疊成一層：
 
-| 指令                                      | 產生的layer                                                   |
-| ----------------------------------------- | ------------------------------------------------------------- |
-| `FROM python:3.13-slim`                  | base image自己的那幾層，放在最下面                            |
-| `ADD . /app`                            | 有內容：app的程式碼                                           |
-| `RUN pip install …`                    | 有內容：安裝好的Python pkg                                    |
-| `WORKDIR`、`EXPOSE`、`ENV`、`CMD` | 只改image的metadata，在`docker history`裡顯示為`0B`的空層 |
+<img src="images/ch02/dockerfile-to-layers.svg" alt="Dockerfile的每條指令疊成一層，由下往上：FROM python:3.13-slim是base image自己的那幾層；WORKDIR /app是0B，只改image的metadata；ADD . /app是app的程式碼；RUN pip install …是安裝好的Python pkg；EXPOSE 80、ENV NAME World、CMD [&quot;python&quot;, &quot;app.py&quot;]都是0B，只改image的metadata，在docker history裡顯示為0B的空層" width="80%">
 
 - **只有`RUN`、`ADD`、`COPY`會產生有內容的layer**：其他指令只記錄config，不改filesystem。
 - **`FROM`省掉了什麼**：不用`FROM python:3.13-slim`的話，就要從`ubuntu`開始自己裝Python：
@@ -1312,22 +1398,7 @@ docker history {image_name}           # 由上到下列出每一層，以及它�
 
 Docker（`overlay2` storage driver）用OverlayFS，把container的rootfs疊成三個部分：
 
-```
-+---------------------------------------------+
-| Writable layer   (upperdir)                 |  rw
-+---------------------------------------------+
-| Init layer       ({layer_id}-init)          |  ro
-+---------------------------------------------+
-| Image layer N                               |  ro
-| ...                                         |  ro   (lowerdir)
-| Image layer 1                               |  ro
-+---------------------------------------------+
-        |
-        v  OverlayFS merge
-+---------------------------------------------+
-| merged = container的rootfs                  |
-+---------------------------------------------+
-```
+<img src="images/ch02/overlay2-rootfs-layers.svg" alt="overlay2的三個部分，由上到下：Writable layer（rw），就是upperdir；Init layer（ro，目錄名稱是{layer_id}-init）和Image layer N … Image layer 1（ro），合起來是lowerdir。OverlayFS把它們merge成merged，也就是container的rootfs" width="60%">
 
 下面的例子裡，`{container_id}`是container ID；`{layer_id}`是overlay2替每個layer產生的ID，也就是`/var/lib/docker/overlay2/`底下的目錄名稱，怎麼找見[實例](#-4-實例docker如何使用overlayfs)。
 

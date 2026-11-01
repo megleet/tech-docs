@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 10 940 412" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="eo-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker></defs>
+<rect width="970" height="440" fill="#ffffff"/>
+<rect x="204" y="16" width="742" height="400" rx="14" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="222" y="402" font-size="14" font-weight="800" fill="#334155">etcd Operator<tspan font-weight="600" fill="#64748b">（一個Deployment）：每個EtcdCluster一個控制循環</tspan></text>
+<rect x="20" y="150" width="130" height="60" rx="12" fill="#1a3f78"/><text x="85" y="186" font-size="16" font-weight="800" fill="#ffffff" text-anchor="middle">API Server</text>
+<path d="M85 210 V 236" stroke="#334155" stroke-width="2" marker-end="url(#eo-a)" fill="none"/>
+<g fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"><path d="M49 248 V 292 A36 9 0 0 0 121 292 V 248"/><ellipse cx="85" cy="248" rx="36" ry="9"/></g><text x="85" y="278" font-size="15" font-weight="800" fill="#334155" text-anchor="middle">etcd</text>
+<path d="M150 180 H 232" stroke="#334155" stroke-width="2.5" marker-end="url(#eo-a)" fill="none"/>
+<text x="177" y="160" font-size="11" font-weight="800" fill="#334155" text-anchor="middle">LIST +</text><text x="177" y="173" font-size="11" font-weight="800" fill="#334155" text-anchor="middle">WATCH</text>
+<rect x="238" y="120" width="150" height="120" rx="12" fill="#e8f0fb" stroke="#2f6bb5" stroke-width="2"/>
+<text x="313" y="150" font-size="16" font-weight="800" fill="#1a3f78" text-anchor="middle">Informer</text>
+<text x="313" y="176" font-size="12.5" font-weight="600" fill="#1a3f78" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">AddFunc</text>
+<text x="313" y="196" font-size="12.5" font-weight="600" fill="#1a3f78" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">UpdateFunc</text>
+<text x="313" y="216" font-size="12.5" font-weight="600" fill="#1a3f78" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">DeleteFunc</text>
+<text x="313" y="262" font-size="11.5" font-weight="600" fill="#64748b" text-anchor="middle">沒有workqueue，直接呼叫</text>
+<circle cx="620" cy="110" r="64" fill="#fff4e0" stroke="#e08a00" stroke-width="3"/>
+<path d="M556 118 l -7 -12 l 14 0 z" fill="#e08a00"/>
+<text x="620" y="100" font-size="15" font-weight="800" fill="#8a4b00" text-anchor="middle">Cluster 1</text>
+<text x="620" y="120" font-size="11.5" font-weight="700" fill="#8a4b00" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">diff(Pod數,</text>
+<text x="620" y="135" font-size="11.5" font-weight="700" fill="#8a4b00" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">size)</text>
+<path d="M680 90 C 710 90, 720 76, 724 76" fill="none" stroke="#e08a00" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="724" y="64" width="150" height="24" rx="7" fill="#e08a00"/>
+<text x="799" y="80.5" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">bootstrap</text>
+<text x="880" y="80.5" font-size="11" font-weight="600" fill="#64748b">只在第一次</text>
+<path d="M680 110 C 710 110, 720 114, 724 114" fill="none" stroke="#e08a00" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="724" y="102" width="150" height="24" rx="7" fill="#e08a00"/>
+<text x="799" y="118.5" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">addOneMember</text>
+<path d="M680 130 C 710 130, 720 152, 724 152" fill="none" stroke="#e08a00" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="724" y="140" width="150" height="24" rx="7" fill="#e08a00"/>
+<text x="799" y="156.5" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">removeOneMember</text>
+<circle cx="620" cy="320" r="64" fill="#fff4e0" stroke="#e08a00" stroke-width="3"/>
+<path d="M556 328 l -7 -12 l 14 0 z" fill="#e08a00"/>
+<text x="620" y="310" font-size="15" font-weight="800" fill="#8a4b00" text-anchor="middle">Cluster 2</text>
+<text x="620" y="330" font-size="11.5" font-weight="700" fill="#8a4b00" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">diff(Pod數,</text>
+<text x="620" y="345" font-size="11.5" font-weight="700" fill="#8a4b00" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">size)</text>
+<path d="M680 300 C 710 300, 720 286, 724 286" fill="none" stroke="#e08a00" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="724" y="274" width="150" height="24" rx="7" fill="#e08a00"/>
+<text x="799" y="290.5" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">bootstrap</text>
+<text x="880" y="290.5" font-size="11" font-weight="600" fill="#64748b">只在第一次</text>
+<path d="M680 320 C 710 320, 720 324, 724 324" fill="none" stroke="#e08a00" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="724" y="312" width="150" height="24" rx="7" fill="#e08a00"/>
+<text x="799" y="328.5" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">addOneMember</text>
+<path d="M680 340 C 710 340, 720 362, 724 362" fill="none" stroke="#e08a00" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="724" y="350" width="150" height="24" rx="7" fill="#e08a00"/>
+<text x="799" y="366.5" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">removeOneMember</text>
+<path d="M388 150 C 450 90, 490 70, 552 82" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#eo-a)"/>
+<path d="M388 190 C 460 170, 500 140, 556 128" fill="none" stroke="#334155" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#eo-a)"/>
+<path d="M388 225 C 460 260, 500 300, 556 302" fill="none" stroke="#334155" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#eo-a)"/>
+<path d="M388 232 C 440 330, 490 360, 552 350" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#eo-a)"/>
+<text x="452" y="60" font-size="12" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">cluster.New</text>
+<text x="440" y="200" font-size="12" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">cluster.Update</text>
+<text x="440" y="236" font-size="12" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">cluster.Update</text>
+<text x="430" y="368" font-size="12" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">cluster.New</text>
+</svg>
