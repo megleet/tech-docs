@@ -13,10 +13,10 @@
 <text x="170" y="76" font-size="15" font-weight="800" fill="#7c5cbf" text-anchor="middle">靜態表現</text>
 <text x="170" y="104" font-size="13.5" font-weight="600" fill="#475569" text-anchor="middle">平常都安安靜靜地待在disk上</text>
 <!-- disk -->
-<path d="M90 140 V 214 A 80 14 0 0 0 250 214 V 140" fill="#ffffff" stroke="#7c5cbf" stroke-width="2"/>
-<ellipse cx="170" cy="140" rx="80" ry="14" fill="#e4dbf6" stroke="#7c5cbf" stroke-width="2"/>
-<text x="170" y="184" font-size="14" font-weight="800" fill="#334155" text-anchor="middle">Data + Code的二進位檔</text>
-<text x="170" y="206" font-size="13" font-weight="700" fill="#5b3fa0" text-anchor="middle">executable image</text>
+<path d="M90 140 V 214 A 80 14 0 0 0 250 214 V 140" fill="#6d4fc2"/>
+<ellipse cx="170" cy="140" rx="80" ry="14" fill="#a28ae0"/>
+<text x="170" y="184" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">Data + Code的二進位檔</text>
+<text x="170" y="206" font-size="13" font-weight="700" fill="#e9e3f8" text-anchor="middle">executable image</text>
 
 <!-- arrow -->
 <path d="M330 139 H 410" fill="none" stroke="#475569" stroke-width="2.5" marker-end="url(#pp-a)"/>

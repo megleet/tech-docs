@@ -89,7 +89,7 @@ kubectl apply -f nginx.yaml
 
 ### 🔀 4. replace和apply的差別：PUT和PATCH
 
-兩個指令都能更新object，但送給API Server的request不一樣：
+兩個指令都能更新object，但send給API Server的request不一樣：
 
 |                          | `kubectl replace`                                      | `kubectl apply`                                                        |
 | ------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -203,7 +203,7 @@ Pod裡的container***共用同一個network namespace***（見[Chap-4](chap-4-co
 > [!NOTE]
 > Istio CNI和ambient mode的ztunnel都是每個Node一個的DaemonSet，但角色不同：Istio CNI只在建立Pod網路時***設定iptables規則***，不處理流量；ztunnel是***真正處理流量***的proxy。ambient mode也需要Istio CNI，用它把Pod的流量導到ztunnel。
 
-例如app要呼叫另一個叫`reviews`的服務（Service名稱是`reviews`，port 9080），程式裡照樣連`reviews:9080`，完全不知道Envoy的存在；但outbound流量已經先被iptables導到Envoy，由Envoy決定送到哪個Pod，並加上mTLS。這就是[Chap-4的sidecar](chap-4-container-orchestration-pod.md#-2-sidecar和app一起執行)設計思路。
+例如app要呼叫另一個叫`reviews`的服務（Service名稱是`reviews`，port 9080），程式裡照樣連`reviews:9080`，完全不知道Envoy的存在；但outbound流量已經先被iptables導到Envoy，由Envoy決定route到哪個Pod，並加上mTLS。這就是[Chap-4的sidecar](chap-4-container-orchestration-pod.md#-2-sidecar和app一起執行)設計思路。
 
 ### 💉 3. sidecar怎麼自動加進Pod
 
@@ -342,11 +342,11 @@ spec:
 
 Kubernetes裡所有元件都透過API Server讀寫object：不管是你用**kubectl**或者**controller**自動建立Pod；還是**kubelet**回報Pod的狀態，都是send request給API Server。每個write object的request，都會照同一個順序經過這幾關：
 
-<img src="images/ch06/api-server-request-flow.svg" alt="API Server處理write request的流程：kubectl、controller或kubelet送出request，依序經過① Authentication（失敗回401 Unauthorized）、② Authorization（失敗回403 Forbidden）、③ Mutating admission（修改object，可以呼叫Mutating webhook或MutatingAdmissionPolicy，例如istiod inject Envoy）、④ Schema validation（失敗回422 Invalid）、⑤ Validating admission（只檢查，可以呼叫Validating webhook或ValidatingAdmissionPolicy，失敗通常回403），最後⑥ write到etcd；controller和kubelet透過API Server的watch收到變化。讀取的request只經過①②，不經過admission" width="90%">
+<img src="images/ch06/api-server-request-flow.svg" alt="API Server處理write request的流程：kubectl、controller或kubelet send request，依序經過① Authentication（失敗回401 Unauthorized）、② Authorization（失敗回403 Forbidden）、③ Mutating admission（修改object，可以呼叫Mutating webhook或MutatingAdmissionPolicy，例如istiod inject Envoy）、④ Schema validation（失敗回422 Invalid）、⑤ Validating admission（只檢查，可以呼叫Validating webhook或ValidatingAdmissionPolicy，失敗通常回403），最後⑥ write到etcd；controller和kubelet透過API Server的watch收到變化。讀取的request只經過①②，不經過admission" width="90%">
 
 | 步驟                              | 做什麼                                         | 例子                                                                             |
 | --------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
-| **① Authentication**       | 確認request是誰送的                            | client certificate、ServiceAccount的token                                        |
+| **① Authentication**       | 確認request是誰send的                            | client certificate、ServiceAccount的token                                        |
 | **② Authorization**        | 確認這個身分能不能對這個resource做這個動作     | [RBAC](#rbac)：Role / RoleBinding                                                         |
 | **③ Mutating admission**   | ***修改***object                       | `ServiceAccount` admission controller替Pod加上token volume；Istio inject Envoy |
 | **④ Schema validation**    | 檢查欄位型別、必填欄位                         | `replicas`寫成字串就失敗                                                       |
@@ -354,7 +354,7 @@ Kubernetes裡所有元件都透過API Server讀寫object：不管是你用**kube
 | **⑥ Write**                | 存進etcd                                       |                                                                                  |
 
 - **① AuthN ② AuthZ**：[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)用curl實際跑過一次：token負責① AuthN，RBAC負責② AuthZ。
-- **③ mutating在 ⑤ validating之前**：③ mutating可以看成***input/pre hook***：拿到送進來的原始object，可以修改它；⑤ validating 可以看成***output/post hook***：檢查改完之後、準備write進etcd的最終object，只能放行或拒絕。
+- **③ mutating在 ⑤ validating之前**：③ mutating可以看成***input/pre hook***：拿到send進來的原始object，可以修改它；⑤ validating 可以看成***output/post hook***：檢查改完之後、準備write進etcd的最終object，只能放行或拒絕。
 - **讀取的request**（`get`、`list`、`watch`）只經過① AuthN ② AuthZ，不經過admission。
 
 ### 🧩 2. Admission Control：內建的和Dynamic的
@@ -499,7 +499,7 @@ spec:
   validationActions: ["Deny"]
 ```
 
-- **Policy**：規則本身，`expression`是CEL，`object`就是送進來的Deployment。
+- **Policy**：規則本身，`expression`是CEL，`object`就是send進來的Deployment。
 - **Binding**：決定這個規則套用到哪裡、違反時怎麼處理。`Deny`是拒絕；也可以用`Warn`只警告，或`Audit`只記錄。
 
 ```bash
@@ -582,7 +582,7 @@ kind: CronJob
 - **`batch`是Group，`v1`是Version**：兩個合起來寫在`apiVersion`裡。
 - **`CronJob`是Kind，不是Resource**：Kind是object的型別，寫在YAML裡；Resource是URL裡的名字，複數小寫，也就是`cronjobs`。
 
-<img src="images/ch06/api-server-gvr-routing.svg" alt="建立CronJob時API Server的處理流程：kubectl apply把YAML轉成JSON，用discovery把Kind換成Resource，send POST /apis/batch/v1/namespaces/default/cronjobs；API Server裡依序是A. Filters（限流APF、authentication、audit、authorization）、B. 依URL找handler（/apis → batch → v1 → cronjobs，分別是Group、Version、Resource）、C. Handler（Decode：JSON → v1 → internal version，再經過mutating admission、schema validation、validating admission）、D. Encode（internal version → storage version v1），write到etcd，key是/registry/cronjobs/default/my-cron，沒有group和version。左邊是同一個object的三種version：request的version（JSON，HTTP body，client送來的，例如batch/v1）在Decode時轉成internal version（Go struct，在API Server的mem裡，admission和validation都對它做），再在Encode時轉成storage version（protobuf，CRD用JSON，實際存進etcd的version，只有一個）。右邊並列畫出object在每一步的變化，並標出對應「處理request」流程圖的哪一關：A對應①② Authentication、Authorization；B依URL找到CronJob的handler；C裡object從batch/v1（request的version）轉成internal version（API Server mem裡），再經過③ Mutating admission、④ Schema validation、⑤ Validating admission；D轉成storage version（v1），⑥ write，以protobuf存進etcd" width="90%">
+<img src="images/ch06/api-server-gvr-routing.svg" alt="建立CronJob時API Server的處理流程：kubectl apply把YAML轉成JSON，用discovery把Kind換成Resource，send POST /apis/batch/v1/namespaces/default/cronjobs；API Server裡依序是A. Filters（限流APF、authentication、audit、authorization）、B. 依URL找handler（/apis → batch → v1 → cronjobs，分別是Group、Version、Resource）、C. Handler（Decode：JSON → v1 → internal version，再經過mutating admission、schema validation、validating admission）、D. Encode（internal version → storage version v1），write到etcd，key是/registry/cronjobs/default/my-cron，沒有group和version。左邊是同一個object的三種version：request的version（JSON，HTTP body，client send來的，例如batch/v1）在Decode時轉成internal version（Go struct，在API Server的mem裡，admission和validation都對它做），再在Encode時轉成storage version（protobuf，CRD用JSON，實際存進etcd的version，只有一個）。右邊並列畫出object在每一步的變化，並標出對應「處理request」流程圖的哪一關：A對應①② Authentication、Authorization；B依URL找到CronJob的handler；C裡object從batch/v1（request的version）轉成internal version（API Server mem裡），再經過③ Mutating admission、④ Schema validation、⑤ Validating admission；D轉成storage version（v1），⑥ write，以protobuf存進etcd" width="90%">
 
 這張圖和[API Server怎麼處理request](#api-server怎麼處理request)的流程圖是***同一個request***：那張圖展開的是admission的各個關卡，這張圖展開的是***路由和version轉換***。右邊並列的那一欄，用①～⑥標出每一步對應那張圖的哪一關。
 
@@ -596,7 +596,7 @@ kind: CronJob
 
 | version                        | 格式                                                                 | 是什麼                                                                                               |
 | ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **request<br />version** | JSON<br /><span style="white-space: nowrap">（HTTP body）</span>     | client送來的，例如`batch/v1`。kubectl會把YAML轉成JSON再送出                                        |
+| **request<br />version** | JSON<br /><span style="white-space: nowrap">（HTTP body）</span>     | client send來的，例如`batch/v1`。kubectl會把YAML轉成JSON再send出去                                        |
 | **internal version**     | Go struct                                                            | 只存在API Server的mem裡。不管request是哪個version，decode後都先轉成它，admission和validation都對它做 |
 | **storage version**      | protobuf<br /><span style="white-space: nowrap">（CRD用JSON）</span> | 實際存進etcd的version，***只有一個***。client之後用其他version讀，再由API Server當場轉換     |
 
@@ -621,6 +621,21 @@ kubectl get --raw /apis | jq '.groups[].name'               # 列出所有group
 kubectl get --raw /apis/batch/v1 | jq '.resources[].name'   # batch/v1下有哪些resource
 kubectl get job pi -v=6                                     # 印出kubectl實際send的URL
 ```
+
+> [!TIP]
+> **🔎 `-v=6`是什麼**
+>
+> `-v`是kubectl的log等級（verbosity），數字越大，印出來的除錯資訊越多：
+>
+> | 等級 | 會多印出什麼 |
+> | --- | --- |
+> | `0`（預設） | 只有結果，不印log |
+> | `6` | 每個HTTP request的method、URL、status、花了多久 |
+> | `7` | 再加上request header |
+> | `8` | 再加上response body（太長會截斷） |
+> | `9` | 完整的response body |
+>
+> kubectl的每個命令，其實都是send一個HTTP request給API Server。例如`kubectl get job pi`就是send `GET /apis/batch/v1/namespaces/default/jobs/pi`；加上`-v=6`，就能看到kubectl實際send了哪個URL。
 
 > [!TIP]
 > 💡 **一句話總結**

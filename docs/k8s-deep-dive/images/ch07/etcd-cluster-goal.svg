@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="24 6 552 304" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="eg-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect width="600" height="320" fill="#ffffff"/>
+
+<!-- cluster frame -->
+<rect x="30" y="82" width="540" height="158" rx="14" fill="#f7f4fd" stroke="#b9a8ea" stroke-width="2" stroke-dasharray="6 6"/>
+
+<!-- client lines (2379) -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#eg-a)">
+<path d="M282 54 C 220 64, 120 84, 120 112"/>
+<path d="M300 54 V 112"/>
+<path d="M318 54 C 380 64, 480 84, 480 112"/>
+</g>
+
+<!-- peer lines (2380) -->
+<g fill="none" stroke="#7c5cbf" stroke-width="2.5" stroke-dasharray="6 4">
+<path d="M190 149 H 228"/>
+<path d="M370 149 H 408"/>
+<path d="M120 182 C 120 214, 480 214, 480 182"/>
+</g>
+
+<!-- labels (drawn after the lines, with a white halo) -->
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+<text x="44" y="99" font-size="12.5" font-weight="800" fill="#5b3fa0">etcd cluster<tspan font-weight="600" fill="#7c5cbf">（3個member）</tspan></text>
+</g>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="700">
+<text x="392" y="68" fill="#475569">port 2379：讀寫資料</text>
+<text x="300" y="228" fill="#5b3fa0" text-anchor="middle">port 2380：member之間同步資料、選leader（Raft）</text>
+</g>
+
+<!-- client -->
+<rect x="210" y="12" width="180" height="42" rx="10" fill="#1a3f78"/>
+<text x="300" y="31" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">client</text>
+<text x="300" y="46" font-size="10.5" font-weight="600" fill="#dbe7f7" text-anchor="middle">例如kube-apiserver</text>
+
+<!-- members -->
+<g font-weight="800" text-anchor="middle">
+<rect x="50" y="116" width="140" height="66" rx="12" fill="#d6457f"/>
+<text x="120" y="139" font-size="15" fill="#ffffff">infra0</text>
+<text x="120" y="156" font-size="11" font-weight="600" fill="#fde2ee" font-family="SFMono-Regular, Menlo, monospace">10.0.1.10</text>
+<text x="120" y="173" font-size="11" font-weight="600" fill="#fde2ee">Raft選出</text>
+
+<rect x="230" y="116" width="140" height="66" rx="12" fill="#6d4fc2"/>
+<text x="300" y="139" font-size="15" fill="#ffffff">infra1</text>
+<text x="300" y="156" font-size="11" font-weight="600" fill="#e9e3f8" font-family="SFMono-Regular, Menlo, monospace">10.0.1.11</text>
+<text x="300" y="173" font-size="11" font-weight="700" fill="#e9e3f8">follower</text>
+
+<rect x="410" y="116" width="140" height="66" rx="12" fill="#6d4fc2"/>
+<text x="480" y="139" font-size="15" fill="#ffffff">infra2</text>
+<text x="480" y="156" font-size="11" font-weight="600" fill="#e9e3f8" font-family="SFMono-Regular, Menlo, monospace">10.0.1.12</text>
+<text x="480" y="173" font-size="11" font-weight="700" fill="#e9e3f8">follower</text>
+</g>
+
+<!-- leader badge -->
+<rect x="146" y="105" width="74" height="22" rx="11" fill="#ffd23f" stroke="#e6a800" stroke-width="1"/>
+<text x="183" y="120" font-size="11.5" font-weight="800" fill="#4a3600" text-anchor="middle">★ leader</text>
+
+<!-- goal -->
+<rect x="30" y="252" width="540" height="52" rx="10" fill="#fff8e1" stroke="#f2b600" stroke-width="1.5"/>
+<text x="300" y="273" font-size="12.5" font-weight="800" fill="#5c4400" text-anchor="middle">🎯 目標：3個member組成一個cluster，每個member都知道另外兩個在哪裡</text>
+<text x="300" y="293" font-size="11" font-weight="600" fill="#5c4400" text-anchor="middle">寫進leader的資料會複製到follower；壞掉1個member，剩下2個還能繼續服務</text>
+</svg>

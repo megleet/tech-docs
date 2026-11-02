@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 8 878 258" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="eh-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect width="900" height="280" fill="#ffffff"/>
+<g font-size="12.5" font-weight="800" fill="#64748b" text-anchor="middle">
+<text x="130" y="24">什麼情況</text><text x="375" y="24">event handler<tspan fill="#d6457f">（自己寫）</tspan></text><text x="605" y="24">workqueue</text><text x="815" y="24">syncHandler</text>
+</g>
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#eh-a)">
+<path d="M240 65 H 296"/>
+<path d="M240 145 H 296"/>
+<path d="M240 225 H 296"/>
+<path d="M450 65 C 490 65, 500 122, 526 128"/>
+<path d="M450 145 H 526"/>
+<path d="M450 225 C 490 225, 500 168, 526 162"/>
+<path d="M684 145 H 746"/>
+</g>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-size="11.5" font-weight="700" fill="#475569">
+<text x="488" y="88" text-anchor="middle">放進key</text><text x="715" y="137" text-anchor="middle">Get()</text>
+</g>
+<rect x="20" y="40" width="220" height="50" rx="10" fill="#6d4fc2"/>
+<text x="130" y="61" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">kubectl apply建立my-net</text>
+<text x="130" y="79" font-size="11.5" font-weight="600" fill="#e9e3f8" text-anchor="middle">或啟動時LIST拿到</text>
+<rect x="300" y="40" width="150" height="50" rx="10" fill="#d6457f"/>
+<text x="375" y="62" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">AddFunc</text>
+<text x="375" y="80" font-size="11" font-weight="600" fill="#fde2ee" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">c.enqueue(obj)</text>
+<rect x="20" y="120" width="220" height="50" rx="10" fill="#6d4fc2"/>
+<text x="130" y="141" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">kubectl patch修改my-net</text>
+<text x="130" y="159" font-size="11.5" font-weight="600" fill="#e9e3f8" text-anchor="middle">或resync定時trigger</text>
+<rect x="300" y="120" width="150" height="50" rx="10" fill="#d6457f"/>
+<text x="375" y="142" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">UpdateFunc</text>
+<text x="375" y="160" font-size="11" font-weight="600" fill="#fde2ee" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">c.enqueue(obj)</text>
+<rect x="20" y="200" width="220" height="50" rx="10" fill="#6d4fc2"/>
+<text x="130" y="221" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">kubectl delete my-net</text>
+<text x="130" y="239" font-size="11.5" font-weight="600" fill="#e9e3f8" text-anchor="middle">controller清理完、真的刪除時</text>
+<rect x="300" y="200" width="150" height="50" rx="10" fill="#d6457f"/>
+<text x="375" y="222" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">DeleteFunc</text>
+<text x="375" y="240" font-size="11" font-weight="600" fill="#fde2ee" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">c.enqueue(obj)</text>
+<rect x="530" y="100" width="150" height="90" rx="12" fill="#1f9d76"/>
+<text x="605" y="124" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">Workqueue</text>
+<rect x="546" y="138" width="118" height="24" rx="12" fill="#e3f7ef"/>
+<text x="605" y="155" font-size="11.5" font-weight="700" fill="#11634a" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">default/my-net</text>
+<text x="605" y="180" font-size="10.5" font-weight="600" fill="#e3f7ef" text-anchor="middle">同一個key只會有一筆</text>
+<rect x="750" y="100" width="136" height="90" rx="12" fill="#ffd23f"/>
+<text x="818" y="128" font-size="14" font-weight="800" fill="#4a3600" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">syncHandler()</text>
+<text x="818" y="152" font-size="11" font-weight="700" fill="#6b5000" text-anchor="middle">讀最新的Network，</text>
+<text x="818" y="168" font-size="11" font-weight="700" fill="#6b5000" text-anchor="middle">判斷要建立、更新</text>
+<text x="818" y="184" font-size="11" font-weight="700" fill="#6b5000" text-anchor="middle">還是刪除</text>
+</svg>

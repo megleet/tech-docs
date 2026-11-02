@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 16 886 294" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="ng-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect width="910" height="330" fill="#ffffff"/>
+
+<!-- cluster frame (under the lines) -->
+<rect x="240" y="30" width="190" height="200" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+
+<!-- lines -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#ng-a)">
+<path d="M187 95 H 251"/>
+<path d="M335 125 V 166"/>
+<path d="M422 100 H 476"/>
+<path d="M649 140 H 728"/>
+</g>
+
+<!-- labels on lines -->
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-weight="700" fill="#475569">
+<text x="210" y="72" font-size="11.5" text-anchor="middle">kubectl</text>
+<text x="210" y="86" font-size="11.5" text-anchor="middle">apply</text>
+<text x="449" y="91" font-size="11.5" text-anchor="middle">watch</text>
+<text x="688" y="131" font-size="11" text-anchor="middle">建立、更新、</text>
+<text x="688" y="158" font-size="11" text-anchor="middle">刪除subnet</text>
+</g>
+
+<!-- YAML -->
+<rect x="15" y="64" width="170" height="150" rx="10" fill="#0e8a96"/>
+<text x="100" y="88" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">② my-net.yaml</text>
+<text x="100" y="104" font-size="10.5" font-weight="600" fill="#d9f4f6" text-anchor="middle">使用者寫的Network</text>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#ffffff">
+<text x="28" y="132">kind: Network</text>
+<text x="28" y="150">spec:</text>
+<text x="40" y="168">cidr: <tspan fill="#ffe08a" font-weight="700">192.168.0.0/16</tspan></text>
+<text x="40" y="186">gateway: <tspan fill="#ffe08a" font-weight="700">192.168.0.1</tspan></text>
+</g>
+
+<!-- cluster -->
+<text x="254" y="50" font-size="12" font-weight="800" fill="#475569">Kubernetes cluster</text>
+<rect x="255" y="66" width="160" height="58" rx="10" fill="#1a3f78"/>
+<text x="335" y="90" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">API Server</text>
+<text x="335" y="110" font-size="10.5" font-weight="600" fill="#dbe7f7" text-anchor="middle">① CRD：認識Network</text>
+<rect x="255" y="170" width="160" height="48" rx="10" fill="#2f9e6e"/>
+<text x="335" y="191" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">etcd</text>
+<text x="335" y="208" font-size="10.5" font-weight="600" fill="#e3f5ec" text-anchor="middle">存下my-net，只是一筆資料</text>
+
+<!-- controller -->
+<rect x="480" y="64" width="167" height="150" rx="12" fill="#e08a00"/>
+<text x="563" y="90" font-size="14.5" font-weight="800" fill="#ffffff" text-anchor="middle">network-controller</text>
+<text x="563" y="108" font-size="10.5" font-weight="600" fill="#fff4e0" text-anchor="middle">這一章要寫的Go程式</text>
+<g font-size="11" font-weight="700" fill="#ffffff">
+<text x="494" y="138">③④ Go型別、client</text>
+<text x="494" y="160">⑤ Informer、workqueue</text>
+<text x="494" y="182">⑤ syncHandler：</text>
+<text x="508" y="198">比較YAML和cloud</text>
+</g>
+
+<!-- cloud -->
+<rect x="732" y="56" width="160" height="164" rx="14" fill="#eef4fc" stroke="#2f6bb5" stroke-width="2"/>
+<text x="812" y="80" font-size="14" font-weight="800" fill="#1a3f78" text-anchor="middle">cloud（VPC）</text>
+<rect x="748" y="94" width="128" height="86" rx="8" fill="#2f6bb5"/>
+<text x="812" y="116" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">subnet my-net</text>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="700" fill="#ffe08a" text-anchor="middle">
+<text x="812" y="140">192.168.0.0/16</text>
+<text x="812" y="160">gw 192.168.0.1</text>
+</g>
+<text x="812" y="204" font-size="10.5" font-weight="600" fill="#475569" text-anchor="middle">這一章用vpc.go模擬</text>
+
+<!-- goal -->
+<rect x="15" y="250" width="877" height="56" rx="10" fill="#fff8e1" stroke="#f2b600" stroke-width="1.5"/>
+<text x="453" y="273" font-size="13.5" font-weight="800" fill="#5c4400" text-anchor="middle">🎯 目標：寫一個Network YAML，cloud上就自動有一個對應的subnet</text>
+<text x="453" y="294" font-size="11.5" font-weight="600" fill="#5c4400" text-anchor="middle">改YAML裡的cidr、gateway，subnet跟著更新；刪掉Network，subnet也跟著刪掉（⑥ Run it!）</text>
+</svg>

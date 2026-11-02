@@ -60,7 +60,7 @@
 </g><g text-anchor="middle">
 <text x="161.0" y="428" font-size="15" font-weight="800" fill="#075985">request的version</text>
 <text x="161.0" y="448" font-size="12" font-weight="700" fill="#075985" font-family="SFMono-Regular, Menlo, monospace">JSON（HTTP body）</text>
-<text x="161.0" y="470" font-size="12" fill="#475569">client送來的，例如batch/v1</text>
+<text x="161.0" y="470" font-size="12" fill="#475569">client send來的，例如batch/v1</text>
 <text x="161.0" y="536" font-size="15" font-weight="800" fill="#9a3412">internal version</text>
 <text x="161.0" y="556" font-size="12" font-weight="700" fill="#9a3412" font-family="SFMono-Regular, Menlo, monospace">Go struct（mem裡）</text>
 <text x="161.0" y="578" font-size="12" fill="#475569">admission和validation都對它做</text>

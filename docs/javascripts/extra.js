@@ -137,7 +137,8 @@ document$.subscribe(() => {
   });
 
   // Directory trees (any code block drawn with ├ └ │): gray branches,
-  // blue directories (ending in "/"), gray "<-- ..." and "(...)" notes.
+  // blue directories (ending in "/"), gray "<-- ..." and "(...)" notes;
+  // notes on a directory line are teal, so they stand out from file notes.
   document.querySelectorAll(".md-typeset div.highlight").forEach((block) => {
     if (block.dataset.treeColored || !/[├└│]/.test(block.textContent)) return;
     block.dataset.treeColored = "true";
@@ -160,6 +161,7 @@ document$.subscribe(() => {
       // A bare "/" is the root directory only at the start or right after a branch;
       // elsewhere (e.g. "mnt / pid") it is just a separator.
       let atNodeStart = true;
+      let lastIsDir = false;
       for (const [piece, branch, word] of body.matchAll(/([│├└─]+)|(\S+)|\s+/g)) {
         if (branch) {
           line.append(span("doc-tree-branch", piece));
@@ -168,12 +170,13 @@ document$.subscribe(() => {
           const isDir = word === "/" ? atNodeStart : word.endsWith("/");
           line.append(span(isDir ? "doc-tree-dir" : "doc-tree-file", piece));
           atNodeStart = false;
+          lastIsDir = isDir;
         } else {
           line.append(piece);
           if (piece.length >= 2) atNodeStart = true; // a wide gap starts a new column
         }
       }
-      if (note) line.append(span("doc-tree-note", note));
+      if (note) line.append(span(lastIsDir ? "doc-tree-note doc-tree-dir-note" : "doc-tree-note", note));
       line.append(newline);
     });
   });
@@ -223,6 +226,42 @@ document$.subscribe(() => {
       if (on) block.scrollIntoView({ block: "nearest" });
     });
     block.after(button);
+    collapse(true);
+  });
+
+  // A numbered list split by a callout (1. 2. 3. 4. > [!NOTE] 5. 6.) keeps counting:
+  // Python-Markdown restarts the second list at 1, so continue from the first one.
+  document.querySelectorAll(".md-typeset ol").forEach((ol) => {
+    if (ol.dataset.numberReady || ol.hasAttribute("start")) return;
+    ol.dataset.numberReady = "true";
+    const box = ol.previousElementSibling;
+    const prev = box && box.matches("div.admonition") ? box.previousElementSibling : null;
+    if (!prev || prev.tagName !== "OL") return;
+    ol.start = (prev.start || 1) + prev.children.length;
+  });
+
+  // Long callouts (NOTE / TIP / WARNING taller than BOX_MIN px): show only the
+  // first BOX_SHOW px, fade out the rest, and add the same expand / collapse button.
+  const BOX_MIN = 420;
+  const BOX_SHOW = 280;
+  document.querySelectorAll(".md-typeset div.admonition").forEach((box) => {
+    if (box.dataset.collapseReady) return;
+    box.dataset.collapseReady = "true";
+    if (box.getBoundingClientRect().height < BOX_MIN) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "doc-code-toggle";
+    const collapse = (on) => {
+      box.classList.toggle("doc-box-collapsed", on);
+      box.style.maxHeight = on ? BOX_SHOW + "px" : "";
+      button.textContent = on ? "展開全部" : "收起";
+    };
+    button.addEventListener("click", () => {
+      const on = !box.classList.contains("doc-box-collapsed");
+      collapse(on);
+      if (on) box.scrollIntoView({ block: "nearest" });
+    });
+    box.after(button);
     collapse(true);
   });
 
@@ -292,6 +331,42 @@ document$.subscribe(() => {
       const n = Number(span.id.split("-").pop());
       if (hl.has(n)) span.classList.add("hll");
       if (hl2.has(n)) span.classList.add("doc-hl-2");
+    });
+  });
+  // Placeholders the reader must replace, like <you> in github.com/<you>/…, get a
+  // bright marker. The text may be split across syntax-highlight spans, so match on
+  // the joined text and wrap each overlapping piece.
+  const PLACEHOLDER = /<you>/g;
+  document.querySelectorAll(".md-typeset code").forEach((code) => {
+    if (code.dataset.placeholderReady) return;
+    code.dataset.placeholderReady = "true";
+    const walker = document.createTreeWalker(code, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let pos = 0;
+    while (walker.nextNode()) {
+      nodes.push({ node: walker.currentNode, start: pos });
+      pos += walker.currentNode.length;
+    }
+    const text = nodes.map((x) => x.node.data).join("");
+    const ranges = [...text.matchAll(PLACEHOLDER)].map((m) => [m.index, m.index + m[0].length]);
+    if (!ranges.length) return;
+    nodes.forEach(({ node, start }) => {
+      const end = start + node.length;
+      const cuts = ranges.filter(([a, b]) => a < end && b > start);
+      if (!cuts.length) return;
+      const frag = document.createDocumentFragment();
+      let at = start;
+      cuts.forEach(([a, b]) => {
+        const from = Math.max(a, start), to = Math.min(b, end);
+        if (from > at) frag.append(node.data.slice(at - start, from - start));
+        const mark = document.createElement("span");
+        mark.className = "doc-placeholder";
+        mark.textContent = node.data.slice(from - start, to - start);
+        frag.append(mark);
+        at = to;
+      });
+      if (at < end) frag.append(node.data.slice(at - start));
+      node.replaceWith(frag);
     });
   });
 });

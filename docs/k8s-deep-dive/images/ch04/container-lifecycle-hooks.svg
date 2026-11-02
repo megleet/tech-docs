@@ -62,7 +62,7 @@
     <circle cx="23" cy="318" r="10" fill="#2563eb"/><text x="23" y="323" font-size="13" fill="#ffffff" text-anchor="middle">1</text><text x="40" y="324" fill="#2563eb">container啟動：app和postStart同時開始</text>
     <circle cx="23" cy="344" r="10" fill="#7c3aed"/><text x="23" y="349" font-size="13" fill="#ffffff" text-anchor="middle">2</text><text x="40" y="350" fill="#7c3aed">postStart跑完 → state變running</text>
     <circle cx="23" cy="370" r="10" fill="#db2777"/><text x="23" y="375" font-size="13" fill="#ffffff" text-anchor="middle">3</text><text x="40" y="376" fill="#db2777">要求停止（刪除Pod、liveness probe失敗）→ 執行preStop</text>
-    <circle cx="525" cy="318" r="10" fill="#c2410c"/><text x="525" y="323" font-size="13" fill="#ffffff" text-anchor="middle">4</text><text x="542" y="324" fill="#c2410c">preStop跑完 → kubelet送SIGTERM給app</text>
+    <circle cx="525" cy="318" r="10" fill="#c2410c"/><text x="525" y="323" font-size="13" fill="#ffffff" text-anchor="middle">4</text><text x="542" y="324" fill="#c2410c">preStop跑完 → kubelet send SIGTERM給app</text>
     <circle cx="525" cy="344" r="10" fill="#475569"/><text x="525" y="349" font-size="13" fill="#ffffff" text-anchor="middle">5</text><text x="542" y="350" fill="#475569">app處理完、結束 → state變terminated</text>
     <text x="14" y="402" fill="#475569" font-size="14">app自己正常結束時，不會經過③④，preStop不會執行</text>
   </g>

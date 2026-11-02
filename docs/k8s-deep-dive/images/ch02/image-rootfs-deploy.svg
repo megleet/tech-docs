@@ -38,7 +38,7 @@
 <text x="680" y="140" font-size="12.5" font-weight="700" fill="#8a4b00" text-anchor="middle">和local開發時一模一樣的檔案結構</text>
 <!-- ship: the image's RootFS lands in the container's root -->
 <path d="M402 124 H 496" fill="none" stroke="#e08a00" stroke-width="4" marker-end="url(#rf-o)"/>
-<text x="438" y="112" font-size="12" font-weight="800" fill="#b45309" text-anchor="middle">送到remote</text>
+<text x="438" y="112" font-size="12" font-weight="800" fill="#b45309" text-anchor="middle">deploy</text>
 <text x="680" y="190" font-size="12.5" font-weight="700" fill="#2e7d32" text-anchor="middle">mount namespace + pivot_root：把根目錄換掉</text>
 
 <g filter="url(#rf-sh)">

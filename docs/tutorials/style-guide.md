@@ -77,6 +77,8 @@ icon: lucide/palette
 | 寫入、讀取、寫入者 | write、read、writer |
 | 回傳、回傳值 | return、return value |
 | 推、推送（config、certificate） | push（例如istiod用xDS push config給Envoy） |
+| 事件 | event（例如WATCH push一個event過來） |
+| 解耦、解開 | decouple |
 | 流量規則 | traffic rule（例如VirtualService、DestinationRule） |
 | 本地 | local |
 | 遠端 | remote |
@@ -121,7 +123,8 @@ icon: lucide/palette
 - **長程式碼自動折疊**：20行以上的程式碼區塊，網站上只顯示前12行，底部淡出，加一個「展開全部（共N行）」按鈕；複製按鈕仍然複製完整內容。行數config在`extra.js`的`COLLAPSE_MIN` / `COLLAPSE_SHOW`。GitHub上照常完整顯示。
 - **標出重點行**（***覺得需要時就加***，只標正文有解釋的關鍵行，不要每個區塊都加）：在程式碼區塊的上一行加HTML註解，例如`<!-- hl: 2 10 11 -->`（黃色）或`<!-- hl: 6 13 | hl2: 10 11 -->`（再加青綠色），行號從1算。`extra.js`讀這個註解，替那幾行加上`.hll`（黃）或`.doc-hl-2`（青綠）。***不要把設定寫在fence那一行***（` ```yaml hl_lines="…" `或` ```{.yaml …} `）：VS Code的Markdown擴充存檔時會把空格後面的字全部刪掉。
 - 同一個例子裡的ID或佔位符要前後一致，例如都寫`{container_id}`，並說明它從哪裡來。
-- 目錄樹：用` ``` `不標語言，畫成`├──` `└──` `│`的樹狀。只要區塊裡有這些符號就會自動上色：線條和`<-- 註解`、`(括號說明)`是灰色，**以`/`結尾的目錄**是藍色，檔案是一般文字顏色。所以目錄名稱後面一定要加`/`。
+- **讀者要自己換掉的`<you>`**：程式碼和行內`code`裡的`<you>`（例如`github.com/<you>/network-controller`），`extra.js`會自動標成黃底紅字，讓讀者知道這裡要換成自己的GitHub帳號。要標其他佔位符時，加到`extra.js`的`PLACEHOLDER`。
+- 目錄樹：用` ``` `不標語言，畫成`├──` `└──` `│`的樹狀。只要區塊裡有這些符號就會自動上色：線條和`<-- 註解`、`(括號說明)`是灰色，**以`/`結尾的目錄**是藍色，檔案是一般文字顏色；***寫在目錄後面的註解***是青綠色粗體，比檔案的註解明顯。所以目錄名稱後面一定要加`/`。
 
 ### 提示框
 
@@ -140,6 +143,7 @@ icon: lucide/palette
 - **`[!NOTE]`**：簡答、判斷方法、補充說明。
 - **`[!TIP]`**：每一節最後的總結（「一句話總結」「一句話記憶」）。
 - **`[!WARNING]`**：需要特別注意的地方。
+- **長的提示框自動折疊**：高度超過420px的提示框，網站上只顯示前280px，底部淡出，下面加一個「展開全部」按鈕，和長程式碼的折疊一樣。數值在`extra.js`的`BOX_MIN` / `BOX_SHOW`。
 - 不要用Material的`!!! note`寫法，GitHub上會顯示成純文字。
 
 ### 表格
@@ -147,8 +151,10 @@ icon: lucide/palette
 - 分隔線寫成`| --- | --- |`（兩邊有空格），避免編輯器的Markdown警告。
 - 第一欄常作為「列標題」，可以整格加粗。
 - ***表格不要包`<div>`***：`extra.css`有`.row-header-table`樣式（第一欄用表頭底色），但要把表格包在`<div class="row-header-table" markdown>`裡。Office Viewer存檔時會把div裡的表格和`</div>`一起刪掉，只剩開頭那行div，後面的內容也可能被截掉。所以不要用。
+- ***表格不要放在bullet裡面***（縮排在某個bullet底下）：Office Viewer存檔時會把表格接到bullet那一行後面，或刪掉表格前面的空行，表格就會變成一串`|`。要在bullet後面放表格，先結束bullet（例如寫「見下表。」），空一行，把表格放在最外層（提示框裡就是`> | … |`），再接下一組bullet。
 - 可以用 ✅ / ❌ 表示可以 / 不行。
 - **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和cloud一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Chap-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
+- **彩色標籤**：表格裡重複出現的分類值（平台、類型、誰管理），寫成`<span class="doc-tag doc-tag-linux">Linux</span>`這種小標籤，***相同的值用相同的顏色***，不要用行內`code`。目前有的顏色：`linux`、`macos`、`windows`、`cloud`、`self`（self-managed）、`managed`、`official`、`local`、`light`（輕量）；新增的值要在`extra.css`加一組淺色、深色模式的顏色。Chap-3的「各種工具的比較」就用了這個寫法。
 - 表格裡的程式碼如果含有`|`，不能寫`\|`（反斜線會原樣顯示），要改寫成HTML：`<code>MS_REC &#124; MS_PRIVATE</code>`。
 
 ### 圖片
@@ -158,6 +164,7 @@ icon: lucide/palette
 - **命名**：貼上後如果檔名是數字，改成看得出內容的名字，例如`container-layers.png`。
 - **沒用到的圖要刪掉**：換圖或刪段落後，檢查`images/`裡有沒有文章不再引用的檔案。
 - **大小**：需要調整時用`<img src="…" alt="…" width="…">`；圖片本身的白邊先裁掉，避免和上下文之間空太多。
+- **元件用實心底、淺色字**：圖裡的box、圓圈等元件，用實心的顏色填滿，上面的字用白色或很淺的同色系（例如藍底配`#dbe7f7`、橘底配`#fff4e0`）；不要用淺色底加深色字。外框（把幾個元件框在一起的虛線框）維持淺色背景。配色要有變化，多用粉紅（`#d6457f`）、莓紅（`#b8336a`）、紫色（`#6d4fc2`）、金黃（`#c99a00`）、亮黃（`#ffd23f`，小色塊用），不要每張圖都用橘色；固定的慣例：etcd綠色（`#2f9e6e`）、API Server深藍（`#1a3f78`）。範本是Chap-7的`images/ch07/event-handlers.svg`：紫色（`#6d4fc2`）、粉紅（`#d6457f`）、綠色（`#1f9d76`）、亮黃（`#ffd23f`，亮黃底配深褐色字`#4a3600`），畫新圖時照這個風格。
 - **SVG的文字不能被線蓋住**：文字靠近或壓在線上時，***文字要畫在line圖層上面***（SVG裡寫在line之後），再加一圈白邊：`<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">…文字…</g>`。重疊沒關係，不用為了避開線而移動文字。
 
 ### 交叉連結
@@ -273,7 +280,7 @@ source .venv/bin/activate
 zensical serve                    # 預覽：http://localhost:8000/tech-docs/
 zensical build --clean            # 只建置，檢查有沒有錯誤
 git add -A && git commit -m "…"
-git push                          # 推上去後GitHub Actions自動發佈
+git push                          # push上去後GitHub Actions自動發佈
 ```
 
 - **改完樣式看不到效果**：按**Cmd + Shift + R**強制重新整理。GitHub Pages的CSS快取是10分鐘。
@@ -286,11 +293,11 @@ git push                          # 推上去後GitHub Actions自動發佈
 - **zsh的var modifier**：在shell裡寫`$v:a`會被當成路徑修飾符，要寫成`${v}:a`。
 - **perl處理中文**：要加`-Mutf8 -CSD`，否則中文比對不到。
 - **SSH金鑰**：`~/.ssh/config`裡`github.com`用`~/.ssh/id_ed25519_megleet`，對應GitHub帳號megleet。
-- **GitHub網頁上的修改**：push被拒絕時，先`git fetch`看remote改了什麼，再`git rebase origin/main`，**不要強制推送**。
+- **GitHub網頁上的修改**：push被拒絕時，先`git fetch`看remote改了什麼，再`git rebase origin/main`，**不要force push**。
 - **`zensical build`偶爾出現`cache directory could not be removed`**：預覽伺服器開著時同時建置可能會撞到，等一下重跑一次就好。
 - **巢狀條列縮排2格**：配合VS Code的Office Viewer（它存檔時一律縮2格），`zensical.toml`加了`mdx_truly_sane_lists`（`nested_indent = 2`）。子條列縮2格；縮4格反而會被攤平成同一層。條列下面的code block縮2、3格都可以。
 - **標題裡的`-`會保留在錨點裡**：`## mount --bind技術`的錨點是`#mount---bind技術`（空白變`-`，加上原本的`--`），不是`#mount-bind技術`。
 - **`(c)`會變成©**：`smartsymbols`擴充會把`(c)`轉成版權符號（`(r)`、`(tm)`也一樣）。用`(a)`、`(b)`、`(c)`編號時，要寫成`\(c)`。
 - **新文章忘了加到首頁**：`nav`會自動出現在左側導覽列，但首頁`index.md`的清單要手動加，兩邊都要更新。
 - **短頁面的左側導覽列被footer擠掉**：頁面內容很短時（例如首頁），footer緊接在內容下面，左側導覽列的高度被壓縮，後面的項目要在導覽列裡捲動才看得到。`extra.css`用`.md-main__inner { min-height: 100vh; }`讓footer一定在第一個畫面之外。新增文章後，用寬而矮的視窗（例如`--window-size=1400,700`）截首頁確認最後一章看得到。
-- **左側導覽列的section標題點不動**：主題對section標題（例如「Tutorials」）設了`pointer-events: none`，JS加的click事件不會觸發。要讓它可以點，CSS要改回`pointer-events: auto`。無頭Chrome只能截圖、不能點擊，這類互動要在瀏覽器裡實際點一次確認。
+- **左側導覽列的section標題點不動**：主題對section標題（例如「Tutorials」）設了`pointer-events: none`，JS加的click event不會觸發。要讓它可以點，CSS要改回`pointer-events: auto`。無頭Chrome只能截圖、不能點擊，這類互動要在瀏覽器裡實際點一次確認。

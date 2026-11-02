@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 16 868 300" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="ta-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect width="900" height="330" fill="#ffffff"/>
+<rect x="20" y="20" width="260" height="46" rx="10" fill="#6d4fc2"/>
+<text x="150" y="42" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">① Terraform</text>
+<text x="150" y="59" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle">建立infra</text>
+<rect x="20" y="78" width="260" height="206" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="150" y="306" font-size="11.5" font-weight="600" fill="#475569" text-anchor="middle">建立VM、網路、Load Balancer</text>
+<rect x="35" y="90" width="230" height="24" rx="6" fill="#ede9fe" stroke="#6d4fc2" stroke-width="1"/>
+<text x="150" y="106" font-size="11" font-weight="700" fill="#4c1d95" text-anchor="middle">網路、Load Balancer</text>
+<rect x="35" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="70" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">VM</text>
+<rect x="115" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="150" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">VM</text>
+<rect x="195" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="230" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">VM</text>
+<path d="M282 180 H 316" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#ta-a)"/>
+<rect x="320" y="20" width="260" height="46" rx="10" fill="#e08a00"/>
+<text x="450" y="42" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">② Ansible</text>
+<text x="450" y="59" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle">設定每台機器</text>
+<rect x="320" y="78" width="260" height="206" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="450" y="306" font-size="11.5" font-weight="600" fill="#475569" text-anchor="middle">設定OS、安裝containerd、kubeadm、kubelet</text>
+<rect x="335" y="90" width="230" height="24" rx="6" fill="#ede9fe" stroke="#6d4fc2" stroke-width="1"/>
+<text x="450" y="106" font-size="11" font-weight="700" fill="#4c1d95" text-anchor="middle">網路、Load Balancer</text>
+<rect x="335" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="370" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">VM</text>
+<rect x="340" y="154" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="370" y="169" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">OS設定</text>
+<rect x="340" y="182" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="370" y="197" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">containerd</text>
+<rect x="340" y="210" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="370" y="225" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubeadm</text>
+<rect x="340" y="238" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="370" y="253" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubelet</text>
+<rect x="415" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="450" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">VM</text>
+<rect x="420" y="154" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="450" y="169" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">OS設定</text>
+<rect x="420" y="182" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="450" y="197" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">containerd</text>
+<rect x="420" y="210" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="450" y="225" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubeadm</text>
+<rect x="420" y="238" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="450" y="253" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubelet</text>
+<rect x="495" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="530" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">VM</text>
+<rect x="500" y="154" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="530" y="169" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">OS設定</text>
+<rect x="500" y="182" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="530" y="197" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">containerd</text>
+<rect x="500" y="210" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="530" y="225" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubeadm</text>
+<rect x="500" y="238" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="530" y="253" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubelet</text>
+<path d="M582 180 H 616" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#ta-a)"/>
+<rect x="620" y="20" width="260" height="46" rx="10" fill="#2f6bb5"/>
+<text x="750" y="42" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">③ kubeadm</text>
+<text x="750" y="59" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle">組成cluster</text>
+<rect x="620" y="78" width="260" height="206" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="750" y="306" font-size="11.5" font-weight="600" fill="#475569" text-anchor="middle">kubeadm init（Master）、kubeadm join（Worker）</text>
+<rect x="635" y="90" width="230" height="24" rx="6" fill="#ede9fe" stroke="#6d4fc2" stroke-width="1"/>
+<text x="750" y="106" font-size="11" font-weight="700" fill="#4c1d95" text-anchor="middle">網路、Load Balancer</text>
+<rect x="635" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="670" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">Master</text>
+<rect x="640" y="154" width="60" height="22" rx="5" fill="#2f6bb5" stroke="#2f6bb5" stroke-width="1"/>
+<text x="670" y="169" font-size="9.5" font-weight="700" fill="#ffffff" text-anchor="middle">control plane</text>
+<rect x="640" y="182" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="670" y="197" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">containerd</text>
+<rect x="640" y="210" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="670" y="225" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubeadm</text>
+<rect x="640" y="238" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="670" y="253" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubelet</text>
+<rect x="715" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="750" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">Worker</text>
+<rect x="720" y="154" width="60" height="22" rx="5" fill="#e6effa" stroke="#2f6bb5" stroke-width="1"/>
+<text x="750" y="169" font-size="10" font-weight="700" fill="#1a3f78" text-anchor="middle">Pod</text>
+<rect x="720" y="182" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="750" y="197" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">containerd</text>
+<rect x="720" y="210" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="750" y="225" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubeadm</text>
+<rect x="720" y="238" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="750" y="253" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubelet</text>
+<rect x="795" y="126" width="70" height="146" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="830" y="144" font-size="12" font-weight="800" fill="#334155" text-anchor="middle">Worker</text>
+<rect x="800" y="154" width="60" height="22" rx="5" fill="#e6effa" stroke="#2f6bb5" stroke-width="1"/>
+<text x="830" y="169" font-size="10" font-weight="700" fill="#1a3f78" text-anchor="middle">Pod</text>
+<rect x="800" y="182" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="830" y="197" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">containerd</text>
+<rect x="800" y="210" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="830" y="225" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubeadm</text>
+<rect x="800" y="238" width="60" height="22" rx="5" fill="#fff4e0" stroke="#e08a00" stroke-width="1"/>
+<text x="830" y="253" font-size="10" font-weight="700" fill="#8a4b00" text-anchor="middle">kubelet</text>
+<rect x="626" y="120" width="248" height="158" rx="10" fill="none" stroke="#2f6bb5" stroke-width="2"/>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"><text x="750" y="124" font-size="11.5" font-weight="800" fill="#2f6bb5" text-anchor="middle">Kubernetes cluster</text></g>
+</svg>

@@ -7,6 +7,7 @@ icon: simple/kubernetes
 
 - [Kubernetes的架構](#kubernetes的架構)
 - [聲明式API](#聲明式api)
+- [建立cluster的幾種方式](#建立cluster的幾種方式)
 - [用kubeadm deploy Kubernetes](#用kubeadm-deploy-kubernetes)
 
 ## Kubernetes的架構
@@ -67,7 +68,7 @@ Linux kernel（netfilter）
 
 |                  | CNI plugin                                          | kube-proxy                                       |
 | ---------------- | --------------------------------------------------- | ------------------------------------------------ |
-| **負責**   | Pod本身的網路：替Pod建立網卡、分配IP，讓Pod之間互通 | Service的網路：把送到Service IP的流量轉給後端Pod |
+| **負責**   | Pod本身的網路：替Pod建立網卡、分配IP，讓Pod之間互通 | Service的網路：把send到Service IP的流量轉給後端Pod |
 | **誰呼叫** | container runtime，建立、刪除Pod時各執行一次        | 自己一直在跑，監看API Server                     |
 
 另外，有些CNI會***取代kube-proxy***，例如Cilium用eBPF直接處理Service轉發。這時cluster裡就不需要kube-proxy。
@@ -180,6 +181,96 @@ containerd
 
 回到[公司的比喻](#比喻公司組織)：你不用親自安排每位員工坐哪裡、轉接哪通電話，只要寫一份「***組織規劃***」交給Kubernetes，它就會照著安排。
 
+## 建立cluster的幾種方式
+
+*建立cluster有哪些方式？各適合什麼場景？*
+
+### 🧭 各種工具的比較
+
+不管用哪種方式建cluster，操作都用同一個工具：**kubectl**，Kubernetes官方的CLI。差別只在cluster怎麼建、control plane由誰管理：
+
+| 工具 | 類型 | 平台 | control plane | 適合 |
+| --- | --- | --- | --- | --- |
+| **kubeadm** | <span class="doc-tag doc-tag-official">官方</span> | <span class="doc-tag doc-tag-linux">Linux</span> | <span class="doc-tag doc-tag-self">self-managed</span> | 在自己的VM、physical machine上建正式cluster |
+| **minikube** | <span class="doc-tag doc-tag-local">local</span> | <span class="doc-tag doc-tag-linux">Linux</span><span class="doc-tag doc-tag-macos">macOS</span><span class="doc-tag doc-tag-windows">Windows</span> | <span class="doc-tag doc-tag-self">self-managed</span> | local學習、開發；addon多，可以stop再start |
+| **kind** | <span class="doc-tag doc-tag-local">local</span> | <span class="doc-tag doc-tag-linux">Linux</span><span class="doc-tag doc-tag-macos">macOS</span><span class="doc-tag doc-tag-windows">Windows</span> | <span class="doc-tag doc-tag-self">self-managed</span> | 節點是Docker container，建、刪只要幾十秒；測試、CI |
+| **k3s** | <span class="doc-tag doc-tag-light">輕量</span> | <span class="doc-tag doc-tag-linux">Linux</span> | <span class="doc-tag doc-tag-self">self-managed</span> | edge、IoT等資源少的機器；整個Kubernetes是一個binary |
+| **k3d** | <span class="doc-tag doc-tag-local">local</span> | <span class="doc-tag doc-tag-linux">Linux</span><span class="doc-tag doc-tag-macos">macOS</span><span class="doc-tag doc-tag-windows">Windows</span> | <span class="doc-tag doc-tag-self">self-managed</span> | 在Docker裡跑k3s，在Mac上也能試k3s |
+| **EKS / GKE / AKS** | <span class="doc-tag doc-tag-cloud">cloud</span> | <span class="doc-tag doc-tag-cloud">cloud</span> | <span class="doc-tag doc-tag-managed">managed</span> | 正式環境；control plane由cloud provider管，Pod等resource自己管 |
+| **kops** | <span class="doc-tag doc-tag-cloud">cloud</span> | <span class="doc-tag doc-tag-cloud">cloud</span> | <span class="doc-tag doc-tag-self">self-managed</span> | 在cloud上自己管整個cluster，主要用在AWS |
+
+### 🐳 用kind在local建cluster
+
+[kind](https://kind.sigs.k8s.io/)（Kubernetes in Docker）只需要Docker。後面章節的練習，例如[Chap-7的CRD](chap-7-crd-operator.md#-2-建立network)，都可以在kind cluster上跑：
+
+```bash
+brew install kind
+kind create cluster --name demo                   # 單節點cluster
+kubectl get nodes
+kind delete cluster --name demo                   # 用完刪掉
+```
+
+要多個節點的話，寫一個config，例如`kind-4nodes.yaml`：
+
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+- role: worker
+```
+
+```bash
+kind create cluster --name demo --config kind-4nodes.yaml
+```
+
+### 🧊 用minikube在local建cluster
+
+[minikube](https://minikube.sigs.k8s.io/)也是在local建cluster，節點可以跑在Docker container或VM裡。和kind比，它多了一些開發用的功能，例如內建的addon（dashboard、ingress、metrics-server）、`minikube service`直接打開Service的網址：
+
+```bash
+brew install minikube
+minikube start --driver=docker                    # 單節點cluster，節點跑在Docker裡
+kubectl get nodes
+minikube dashboard                                # 在瀏覽器打開Kubernetes Dashboard
+minikube stop                                     # 暫停，下次start會保留資料
+minikube delete                                   # 刪掉cluster
+```
+
+要多個節點的話，用`--nodes`，再用`-p`（profile）替cluster取名字：
+
+```bash
+minikube start --driver=docker --nodes 4 -p demo  # 1個control plane + 3個worker
+```
+
+- **kind**：建立、刪除很快，適合測試、CI，或一次開好幾個cluster。
+- **minikube**：addon多，可以`stop`後再`start`，適合長時間開著的local開發環境。
+
+### 🪶 用k3s建輕量cluster
+
+[k3s](https://k3s.io/)是一個輕量的Kubernetes發行版：整個Kubernetes包成一個binary，mem用量比標準Kubernetes少很多，適合edge、IoT、Raspberry Pi這種資源少的機器。它要裝在Linux上，一行命令就能安裝並啟動：
+
+```bash
+curl -sfL https://get.k3s.io | sh -              # 安裝k3s server，並用systemd啟動
+sudo k3s kubectl get nodes                       # k3s內建kubectl
+```
+
+再把其他機器加進來當worker（k3s叫agent）：
+
+```bash
+sudo cat /var/lib/rancher/k3s/server/node-token  # 在server上取得join用的token
+
+# 在其他機器上執行，<server-ip>和<token>換成上面的值
+curl -sfL https://get.k3s.io | K3S_URL=https://<server-ip>:6443 K3S_TOKEN=<token> sh -
+```
+
+- **為什麼輕**：預設用SQLite（一個嵌入式的DB）取代etcd，只有一個server時不用另外跑etcd；也內建了常用的元件，例如containerd、Flannel（CNI plugin）、Traefik（Ingress controller）、local-path（StorageClass），裝好就能用。
+- **kubeconfig**：在`/etc/rancher/k3s/k3s.yaml`，複製到`~/.kube/config`就能用一般的`kubectl`。
+- **移除**：server執行`/usr/local/bin/k3s-uninstall.sh`，agent執行`/usr/local/bin/k3s-agent-uninstall.sh`。
+- **在Mac上**：k3s不能直接裝在macOS上，可以用[k3d](https://k3d.io/)，它和kind一樣把節點跑在Docker裡，只是裡面跑的是k3s：`k3d cluster create demo --agents 3`。
+
 ## 用kubeadm deploy Kubernetes
 
 *kubeadm是Kubernetes官方提供的cluster初始化工具：`kubeadm init`建立Master，`kubeadm join`把其他Node加進來。*
@@ -197,18 +288,7 @@ Kubernetes是Go寫的，每個元件編譯好就是一個完整的binary，不�
 
 ***三者不衝突，常見的是分工合作***：
 
-```
-Terraform
-   │ 建立VM、網路
-   ▼
-Ansible
-   │ 設定OS、安裝containerd / kubeadm / kubelet
-   ▼
-kubeadm
-   │ 初始化cluster（init / join）
-   ▼
-Kubernetes cluster
-```
+<img src="images/ch03/terraform-ansible-kubeadm.svg" alt="Terraform、Ansible、kubeadm分工：① Terraform建立infra：網路、Load Balancer和3台空的VM；② Ansible設定每台機器：在每台VM上設定OS、安裝containerd、kubeadm、kubelet；③ kubeadm組成cluster：kubeadm init把第一台變成Master（跑control plane），kubeadm join把另外兩台加進來當Worker（跑Pod），三台合起來就是Kubernetes cluster" width="100%">
 
 [Kubespray](https://github.com/kubernetes-sigs/kubespray)就是這樣：它是一組Ansible playbook，底層呼叫kubeadm。
 
@@ -305,7 +385,7 @@ bindAddress: 0.0.0.0
 ...
 ```
 
-這幾段config用`---`分隔，放在同一個`kubeadm.yaml`裡。它是你交給kubeadm的***輸入檔***：kubeadm讀完之後，把每一段config***分送***到各元件真正會讀的地方：
+這幾段config用`---`分隔，放在同一個`kubeadm.yaml`裡。它是你交給kubeadm的***輸入檔***：kubeadm讀完之後，把每一段config***distribute***到各元件真正會讀的地方：
 
 | `kubeadm.yaml`裡的那一段                                                                 | 內容                                                  | kubeadm把它寫到哪裡                                                                   | 最後誰讀取                                                       |
 | ------------------------------------------------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
@@ -315,7 +395,7 @@ bindAddress: 0.0.0.0
 | `KubeletConfiguration`                                                                   | kubelet的config                                         | host上的`/var/lib/kubelet/config.yaml`，另外存一份成ConfigMap `kubelet-config`    | 直接跑在host上的kubelet；之後`join`的Node也從ConfigMap拿同一份 |
 | `KubeProxyConfiguration`                                                                 | kube-proxy的config                                      | ConfigMap `kube-proxy`                                                              | kube-proxy的**DaemonSet** Pod                              |
 
-***`kubeadm.yaml`只在執行`kubeadm init`的那一刻被讀取***，kubeadm也不是常駐的程式。之後元件讀的，都是kubeadm分送出去的檔案或ConfigMap，不會再回頭讀`kubeadm.yaml`。
+***`kubeadm.yaml`只在執行`kubeadm init`的那一刻被讀取***，kubeadm也不是常駐的程式。之後元件讀的，都是kubeadm distribute出去的檔案或ConfigMap，不會再回頭讀`kubeadm.yaml`。
 
 #### 🗺️ kubeadm流程講解
 

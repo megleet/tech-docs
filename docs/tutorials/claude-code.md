@@ -63,7 +63,7 @@ C="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 - **改了規則或配色**：同步更新「網站排版風格」頁，下一個對話才會照新規則寫。
 - **git**：
   - commit可以在local做；**push一定要等使用者說「push」**；
-  - push前先`git fetch`，remote有新commit時用`git rebase origin/main`合併，**不要強制推送**；
+  - push前先`git fetch`，remote有新commit時用`git rebase origin/main`合併，**不要force push**；
   - commit訊息最後加上Claude共同作者那一行。
 - **SSH**：`github.com`用`~/.ssh/id_ed25519_megleet`（GitHub帳號megleet），config在`~/.ssh/config`，不要改。
 

@@ -35,9 +35,9 @@ icon: lucide/layers
 
 但Container Image不僅僅是打包你的程式碼，它是直接把OS的**User Space所有檔案**完整抓了下來：
 
-<img src="images/ch02/image-rootfs-deploy.svg" alt="左邊local打包Container Image：包含OS的User Space所有檔案，也就是你的程式碼、dep pkg、env var、config、glibc、/bin/bash，這一整套就是RootFS；不包含Linux Kernel。送到remote後，右邊remote host上container內的process，根目錄/就是Image裡的RootFS，和local開發時一模一樣的檔案結構，靠mount namespace + pivot_root把根目錄換掉；底下用的是remote host自己的Linux kernel" width="85%">
+<img src="images/ch02/image-rootfs-deploy.svg" alt="左邊local打包Container Image：包含OS的User Space所有檔案，也就是你的程式碼、dep pkg、env var、config、glibc、/bin/bash，這一整套就是RootFS；不包含Linux Kernel。deploy到remote後，右邊remote host上container內的process，根目錄/就是Image裡的RootFS，和local開發時一模一樣的檔案結構，靠mount namespace + pivot_root把根目錄換掉；底下用的是remote host自己的Linux kernel" width="85%">
 
-當你把這個Image送到remote時，remote host透過**mount namespace**和[`pivot_root`](#pivot_root在container中如何工作)，把container的根目錄`/`替換成Image裡載入的RootFS。對container內的process來說，它看到的完全是local開發時那一套**一模一樣的檔案結構**，根本感受不到底層硬體或host OS變了。
+當你把這個Image deploy到remote時，remote host透過**mount namespace**和[`pivot_root`](#pivot_root在container中如何工作)，把container的根目錄`/`替換成Image裡載入的RootFS。對container內的process來說，它看到的完全是local開發時那一套**一模一樣的檔案結構**，根本感受不到底層硬體或host OS變了。
 
 ### 2. ABI的穩定性
 
@@ -58,13 +58,13 @@ icon: lucide/layers
 
 ### 3. Copy-on-Write與layering（OverlayFS / UnionFS）
 
-如果每次deploy都要傳送幾GB的完整OS，那網路會被塞爆，也談不上seamless。
+如果每次deploy都要transfer幾GB的完整OS，那網路會被塞爆，也談不上seamless。
 
 container利用了**Union Filesystem**（如Linux中的`overlay2`），把RootFS切分成***多個******Read-Only Layers***：
 
 <img src="images/ch02/image-layers.svg" alt="image的三層Read-Only Layers，由下往上：Base層是Ubuntu / Alpine OS基本環境；Dep層安裝Node.js / Python / Java等Runtime；App層是你的App程式碼與Config" width="75%">
 
-seamless運送的關鍵在於：
+seamless deploy的關鍵在於：
 
 - **incremental傳輸**：remote server如果已經有Ubuntu基底層，deploy新版程式時只需要下載**幾MB的應用層**，幾秒鐘就能完成更新。
 - **Copy-on-Write**：container執行時，所有修改只會寫在最頂層的「暫存writable層」（`UpperDir`），**絕不破壞**底下read-only的Image。詳見[UnionFS與Docker的Layered rootfs](#unionfs與docker的layered-rootfs)。
@@ -76,7 +76,7 @@ Docker社群推動了**OCI標準**，規範了：
 - **Image Spec**：檔案怎麼打包、Layer怎麼疊加、Manifest檔長怎樣。
 - **Runtime Spec**：底層工具（如`runc`）拿到Image（rootfs + `config.json`）後，要建立哪些namespace、mount哪些filesystem、怎麼config cgroup，以及`create` / `start` / `delete`的生命週期。
 
-這意味著，不論你在Mac（Docker Desktop）上Build，還是在CI/CD pipeline（GitHub Actions）上Build，產出的Image**都符合同一套規格**。送到remote的AWS ECS、Kubernetes或是平價VPS上，底層的Container Runtime（如`containerd`或`cri-o`）都能用完全相同的邏輯把它剖析並run起來。
+這意味著，不論你在Mac（Docker Desktop）上Build，還是在CI/CD pipeline（GitHub Actions）上Build，產出的Image**都符合同一套規格**。deploy到remote的AWS ECS、Kubernetes或是平價VPS上，底層的Container Runtime（如`containerd`或`cri-o`）都能用完全相同的邏輯把它剖析並run起來。
 
 > [!TIP]
 > **總結**
@@ -250,11 +250,11 @@ namespace的隔離有天生上限，所以做法是**疊加機制，或換架構
 
 <img src="images/ch02/llm-infra-isolation.svg" alt="三張卡片：多租戶GPU cluster，團隊A和客戶B跑在同一個GPU node上，共享同一個kernel；AI agent執行不可信程式碼，LLM agent把使用者提供的程式碼放進gVisor / Kata sandbox執行；實務限制，GPU加上gVisor / Kata要考慮GPU passthrough、driver支援、performance overhead，和隔離強度一起比較" width="90%">
 
-- 🖥️ **多租戶GPU cluster**：讓不同團隊或客戶共用同一批GPU節點跑推理或訓練時，「共享kernel」是必須面對的設計決策。
+- 🖥️ **多租戶GPU cluster**：讓不同團隊或客戶共用同一批GPU節點跑inference或training時，「共享kernel」是必須面對的設計決策。
 - 🧪 **AI agent執行不可信程式碼**：讓LLM agent執行使用者提供的程式碼，本質上就是執行**不可信workload**，標準container的隔離強度不夠，這是gVisor、Kata目前很熱門的應用場景。
 - ⚖️ **實務限制**：GPU workload要改用gVisor或Kata時，還有三個代價：
   - **GPU passthrough**：Kata的Pod跑在microVM裡，GPU要透過PCIe passthrough（VFIO）整張交給這台VM，一張GPU通常只能給一個Pod。
-  - **driver支援**：GPU driver透過`ioctl`這類sys call和kernel溝通。gVisor要自己攔截並轉送這些呼叫（nvproxy），只支援部分driver版本；Kata的guest kernel裡也要另外裝一份driver。
+  - **driver支援**：GPU driver透過`ioctl`這類sys call和kernel溝通。gVisor要自己攔截並forward這些呼叫（nvproxy），只支援部分driver版本；Kata的guest kernel裡也要另外裝一份driver。
   - **performance overhead**：多了一層攔截（gVisor）或virtualization（Kata），sys call和啟動都會變慢。
 
   所以在runc、gVisor、Kata之間選擇時，要把這些代價和隔離強度放在一起比較。

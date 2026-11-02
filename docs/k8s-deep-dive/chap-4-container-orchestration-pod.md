@@ -201,7 +201,7 @@ spec:
 - **`war`是init container**：`initContainers`裡的container會比`containers`先執行，而且一個一個依序執行，***全部成功結束後***，`containers`才會啟動。它把`sample.war`複製到`/app`，也就是`app-volume`，然後結束。
 - **`tomcat`把同一個volume mount到`webapps`**：所以它啟動時，`webapps`裡一定已經有`sample.war`。
 
-***WAR包和Tomcat解耦了***：更新app只要換`war`的image，升級Tomcat只要換`tomcat`的image，兩邊互不影響。
+***WAR包和Tomcat decouple了***：更新app只要換`war`的image，升級Tomcat只要換`tomcat`的image，兩邊互不影響。
 
 > [!NOTE]
 > 在Kubernetes的用法，***跑完就結束的叫init container***；***和主container一起長期執行的叫sidecar***，見[Sidecar：和app一起執行](#-2-sidecar和app一起執行)。
@@ -492,7 +492,7 @@ Pod直接使用host的namespace，不另外建立。例如[control plane的Stati
 ***`Running`不等於`Ready`***：
 
 - **`Running`**：container已經啟動了，但app可能還在載入config、暖cache。
-- **`Ready`**：[readiness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)通過，***真的可以服務了***，Service才會把流量送過來。
+- **`Ready`**：[readiness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)通過，***真的可以服務了***，Service才會把流量send過來。
 
 ```bash
 kubectl get pod
@@ -539,13 +539,13 @@ spec:
             command: ["/usr/sbin/nginx", "-s", "quit"]   # 讓nginx處理完手上的request再結束
 ```
 
-<img src="images/ch04/container-lifecycle-hooks.svg" alt="container的lifecycle hooks：①container啟動，app和postStart同時開始；②postStart跑完，state從waiting變running；③要求停止（刪除Pod、liveness probe失敗），執行preStop；④preStop跑完，kubelet送SIGTERM，app開始graceful shutdown；⑤app結束，state變terminated。從③開始算grace period（預設30秒），到期還沒結束就SIGKILL" width="85%">
+<img src="images/ch04/container-lifecycle-hooks.svg" alt="container的lifecycle hooks：①container啟動，app和postStart同時開始；②postStart跑完，state從waiting變running；③要求停止（刪除Pod、liveness probe失敗），執行preStop；④preStop跑完，kubelet send SIGTERM，app開始graceful shutdown；⑤app結束，state變terminated。從③開始算grace period（預設30秒），到期還沒結束就SIGKILL" width="85%">
 
 - **`postStart`**：container啟動後立刻執行。
   - ***和`ENTRYPOINT`同時跑，不保證先後順序***：`postStart`執行時，app可能還沒準備好。
   - `postStart`還沒跑完之前，container不會被標成`running`；它失敗的話，container會被kill，再依`restartPolicy`處理。
 - **`preStop`**：container***被要求停止時***，在send `SIGTERM`之前執行，例如刪除Pod、liveness probe失敗。
-  - ***同步執行***：`preStop`跑完，kubelet才送`SIGTERM`給container。
+  - ***同步執行***：`preStop`跑完，kubelet才send `SIGTERM`給container。
   - 時間算在`terminationGracePeriodSeconds`（預設30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
   - container自己正常結束時***不會***觸發。
 

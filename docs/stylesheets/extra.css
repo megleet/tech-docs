@@ -22,6 +22,17 @@
   --doc-code-block-bg: #f6f7f8;
   --doc-code-block-bg-solid: #f6f7f8;
   --doc-subtitle-bg: #f3f4f6;
+  /* Tags in tables: <span class="doc-tag doc-tag-linux">Linux</span> */
+  --doc-tag-linux: #8a5a00;   --doc-tag-linux-bg: #fff3d6;
+  --doc-tag-macos: #374151;   --doc-tag-macos-bg: #eceef1;
+  --doc-tag-windows: #1a4fae; --doc-tag-windows-bg: #e4edfc;
+  --doc-tag-cloud: #0b6b73;   --doc-tag-cloud-bg: #ddf3f5;
+  --doc-tag-self: #6b3fa0;    --doc-tag-self-bg: #f1e9fb;
+  --doc-tag-managed: #1e7a3a; --doc-tag-managed-bg: #e3f3e7;
+  --doc-tag-official: #3730a3; --doc-tag-official-bg: #e8e8fb;
+  --doc-placeholder: #b00020;   --doc-placeholder-bg: #ffe08a;
+  --doc-tag-local: #b4530a;    --doc-tag-local-bg: #ffeddc;
+  --doc-tag-light: #9d2a8a;    --doc-tag-light-bg: #f8e6f4;
 }
 
 /* Dark scheme */
@@ -48,6 +59,16 @@
   --doc-code-block-bg: rgba(255, 255, 255, 0.03);
   --doc-code-block-bg-solid: #1e2129;
   --doc-subtitle-bg: rgba(255, 255, 255, 0.06);
+  --doc-tag-linux: #f2c46b;   --doc-tag-linux-bg: rgba(242, 196, 107, 0.14);
+  --doc-tag-macos: #cbd2dc;   --doc-tag-macos-bg: rgba(203, 210, 220, 0.12);
+  --doc-tag-windows: #8ab4ff; --doc-tag-windows-bg: rgba(138, 180, 255, 0.14);
+  --doc-tag-cloud: #7fdbca;   --doc-tag-cloud-bg: rgba(127, 219, 202, 0.14);
+  --doc-tag-self: #c9a7f2;    --doc-tag-self-bg: rgba(201, 167, 242, 0.14);
+  --doc-tag-managed: #8fd18f; --doc-tag-managed-bg: rgba(143, 209, 143, 0.14);
+  --doc-tag-official: #b4b0ff; --doc-tag-official-bg: rgba(180, 176, 255, 0.14);
+  --doc-placeholder: #1a1a1a;   --doc-placeholder-bg: #ffd54f;
+  --doc-tag-local: #ffb27a;    --doc-tag-local-bg: rgba(255, 178, 122, 0.14);
+  --doc-tag-light: #f0a6e2;    --doc-tag-light-bg: rgba(240, 166, 226, 0.14);
 }
 
 /* **Bold**: ordinary emphasis stays in the body text color */
@@ -158,6 +179,11 @@
 
 .md-typeset .doc-tree-dir {
   color: var(--doc-sh-cmd);
+}
+
+.md-typeset .doc-tree-dir-note {
+  color: var(--doc-hl-number);
+  font-weight: 600;
 }
 
 /* Shell commands blue, arguments green (spans added by extra.js) */
@@ -402,6 +428,13 @@ body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .m
   background: var(--doc-code-block-bg);
 }
 
+/* Long callouts: cut off and fade the bottom (mask, so it works on any callout color) */
+.md-typeset div.admonition.doc-box-collapsed {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 4em), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 4em), transparent);
+}
+
 
 /* Short pages (e.g. the home page): keep the footer below the first screen,
    so the left sidebar is not squeezed and every nav item stays visible. */
@@ -480,4 +513,51 @@ body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .m
 
 .md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"]):has(> img.ref-thumb)::after {
   content: none;
+}
+
+/* Small colored tags in tables (platform, who manages what) */
+.md-typeset .doc-tag {
+  display: inline-block;
+  margin: 0.1em 0.2em 0.1em 0;
+  padding: 0.05em 0.5em;
+  border-radius: 0.8em;
+  font-size: 0.85em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.md-typeset .doc-tag-linux   { color: var(--doc-tag-linux);   background-color: var(--doc-tag-linux-bg); }
+.md-typeset .doc-tag-macos   { color: var(--doc-tag-macos);   background-color: var(--doc-tag-macos-bg); }
+.md-typeset .doc-tag-windows { color: var(--doc-tag-windows); background-color: var(--doc-tag-windows-bg); }
+.md-typeset .doc-tag-cloud   { color: var(--doc-tag-cloud);   background-color: var(--doc-tag-cloud-bg); }
+.md-typeset .doc-tag-self    { color: var(--doc-tag-self);    background-color: var(--doc-tag-self-bg); }
+.md-typeset .doc-tag-managed { color: var(--doc-tag-managed); background-color: var(--doc-tag-managed-bg); }
+.md-typeset .doc-tag-official { color: var(--doc-tag-official); background-color: var(--doc-tag-official-bg); }
+.md-typeset .doc-tag-local    { color: var(--doc-tag-local);    background-color: var(--doc-tag-local-bg); }
+.md-typeset .doc-tag-light    { color: var(--doc-tag-light);    background-color: var(--doc-tag-light-bg); }
+
+/* Tables with tags: tag columns and the first column take only the width they
+   need (tags stay on one line), so the remaining text column gets the space */
+.md-typeset table:has(.doc-tag) td:has(.doc-tag) {
+  width: 1%;
+  white-space: nowrap;
+}
+.md-typeset table:has(.doc-tag) td:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
+.md-typeset table:has(.doc-tag) th,
+.md-typeset table:has(.doc-tag) td {
+  padding-left: 0.8em;
+  padding-right: 0.8em;
+}
+.md-typeset table:has(.doc-tag) th {
+  min-width: 0;
+}
+
+/* Placeholders the reader must replace, like <you> (marked by extra.js) */
+.md-typeset code .doc-placeholder {
+  color: var(--doc-placeholder) !important;
+  background-color: var(--doc-placeholder-bg);
+  font-weight: 700;
+  border-radius: 0.2em;
 }
