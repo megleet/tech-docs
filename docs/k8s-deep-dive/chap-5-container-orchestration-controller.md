@@ -50,6 +50,9 @@ ls -d */
 - **每個目錄是一個controller**：各自負責一種編排功能，Deployment只是其中之一。
 - **放在一起，是因為它們遵循同一個模式**：***控制循環***。
 - **跑在同一個process裡**：kube-controller-manager把它們編進同一個binary，以[Static Pod](chap-3-kubernetes-architecture-operations.md#static-pod)執行。
+- **共用Informer**：同一種object只開一個Informer、一份cache。例如Pod Informer同時給Deployment、ReplicaSet、DaemonSet、StatefulSet、Job controller用，不用每個controller各自watch一次。Informer是什麼，見[5. 控制循環實際怎麼跑](#-5-控制循環實際怎麼跑)。
+
+<img src="images/ch05/kube-controller-manager.svg" alt="kube-controller-manager的架構：它是control plane節點上的一個Static Pod，一個process裡有二十幾個controller，例如Deployment（管ReplicaSet）、ReplicaSet（管Pod）、StatefulSet（管Pod、PVC）、DaemonSet（每個Node一個Pod）、Job、CronJob、Namespace、Node lifecycle、Garbage collector、EndpointSlice、ServiceAccount。它們共用一個SharedInformerFactory，每種object只開一個Informer、一份cache，透過LIST + WATCH從API Server收到變化，再把建立、修改object的request送回API Server，API Server存進etcd。多個control plane節點時，靠leader election，同時只有一個kube-controller-manager在工作" width="100%">
 
 ### 🔁 2. 控制循環
 
@@ -64,6 +67,8 @@ for {
     }
 }
 ```
+
+<img src="images/ch05/control-loop.svg" alt="控制循環：① 讀期望狀態（使用者寫的YAML，存在etcd，例如replicas: 2）→ ② 讀實際狀態（cluster現在的樣子，例如帶app: nginx的Pod有1個）→ ③ 比較、調整（reconcile）：不一樣就執行編排動作，例如少1個就建立1個Pod → 回到①，一直重複" width="70%">
 
 - **實際狀態**：來自cluster本身，例如kubelet回報的container和Node狀態、監控系統的資料，或controller自己收集的資訊。
 - **期望狀態**：來自使用者提交的YAML，例如`replicas: 2`，存在etcd裡。controller透過API Server watch這些object，不直接讀etcd。
@@ -126,10 +131,16 @@ kubectl describe pod nginx-deployment-7c5ddbdf54-x2kqp | grep "Controlled By"
 > [!NOTE]
 > Deployment中間多一層ReplicaSet，是為了做rolling update：更新image時，Deployment建立一個新的ReplicaSet，再逐步把新的調多、舊的調少。每個ReplicaSet只負責「維持幾個Pod」，更新的流程由Deployment控制。見[Deployment](#deployment)。
 
+### ⚙️ 5. 控制循環實際怎麼跑
+
+[2. 控制循環](#-2-控制循環)裡的`for`循環只是概念。如果controller真的一直去問API Server「現在有幾個Pod」，API Server會被問到撐不住。kube-controller-manager裡的每個controller，實際上都用同一套零件，***只在有變化時才做事***：Informer watch變化、event handler把key放進workqueue、worker取出key交給syncHandler比較和調整。
+
+下面每種controller的最後一節，都有一張圖畫出它怎麼用這套零件，從[Deployment controller](#-5-deployment-controller實際怎麼跑)開始。
+
 > [!TIP]
 > 💡 **一句話總結**
 >
-> ***每個controller都是一個控制循環：拿期望狀態和實際狀態比較，不一樣就動手調整***。controller的YAML上半部寫期望狀態，下半部是被控制對象的模板，建立出來的object用`ownerReferences`記住自己屬於誰。
+> ***每個controller都是一個控制循環：拿期望狀態和實際狀態比較，不一樣就動手調整***。controller的YAML上半部寫期望狀態，下半部是被控制對象的模板，建立出來的object用`ownerReferences`記住自己屬於誰。實際上靠Informer、event handler、workqueue和syncHandler，只在有變化時才做事。
 
 ## Deployment
 
@@ -165,14 +176,14 @@ spec:
           image: nginx:1.27
 ```
 
-- **ReplicaSet是Deployment的子集**：`replicas`、`selector`、`template`兩者共通；Deployment多了rolling update相關的欄位，例如`strategy`、`revisionHistoryLimit`，沒寫的話就用預設值。
+- **ReplicaSet是Deployment的子集**：`replicas`、`selector`、`template`兩者共通；Deployment多了rolling update相關的欄位，例如`strategy`、`revisionHistoryLimit`，沒寫的話就用default value。
 - **ReplicaSet只做一件事**：讓label符合的Pod維持`replicas`個，少了就建立、多了就刪除。
 - ***Deployment controller實際操作的是ReplicaSet，不是Pod***：它只調整各個ReplicaSet的`replicas`；真正建立、刪除Pod的，是ReplicaSet controller。
 - **一般不直接建立ReplicaSet**：直接用Deployment，才有rolling update和回到上一版的功能。
 
 ### 🔄 2. Rolling update
 
-<img src="images/ch05/deployment-replicaset-pod.svg" alt="Deployment、ReplicaSet和Pod的關係：Deployment nginx-deployment（replicas: 3）底下有ReplicaSet v1（nginx:1.26，replicas: 2）和ReplicaSet v2（nginx:1.27，replicas: 1）；v1有2個舊版本的Pod，逐步減少到0，v2有1個新版本的Pod，逐步增加到3，是rolling update進行到一半的狀態" width="75%">
+<img src="images/ch05/deployment-replicaset-pod.svg" alt="Deployment、ReplicaSet和Pod的關係：Deployment nginx-deployment（replicas: 3）底下有ReplicaSet v1（nginx:1.26，replicas: 2）和ReplicaSet v2（nginx:1.27，replicas: 1）；v1有2個舊版本的Pod，逐步減少到0，v2有1個新版本的Pod，逐步增加到3，是rolling update進行到一半的狀態" width="60%">
 
 - **Deployment管理ReplicaSet**：改了Pod template，例如image從`nginx:1.26`換成`nginx:1.27`，Deployment就建立一個新的ReplicaSet（v2）。每個ReplicaSet對應***一個版本***的Pod template。
 - **逐步替換**：Deployment把v2一個一個調多、v1一個一個調少，直到v2有3個、v1剩0個。圖裡就是更新到一半的狀態：v1還有2個Pod，v2已經有1個。
@@ -186,7 +197,7 @@ kubectl get rs
 #   nginx-deployment-3167673210   0         0         0       30s   ← v1：舊版本
 ```
 
-- **舊的ReplicaSet不會刪掉**：只是`replicas`變成0。`kubectl rollout undo`回到上一版時，Deployment就是把它重新調多，見[Rollback](#-4-rollback回到之前的版本)。保留幾個舊版本，由`revisionHistoryLimit`決定，預設10個。
+- **舊的ReplicaSet不會刪掉**：只是`replicas`變成0。`kubectl rollout undo`回到上一版時，Deployment就是把它重新調多，見[Rollback](#-4-rollback回到之前的版本)。保留幾個舊版本，由`revisionHistoryLimit`決定，default 10個。
 
 **一次換幾個**：由Deployment的`strategy`決定。
 
@@ -194,7 +205,7 @@ kubectl get rs
 spec:
   replicas: 3
   strategy:
-    type: RollingUpdate             # 預設；另一種是Recreate：先全部刪掉再建新的
+    type: RollingUpdate             # default；另一種是Recreate：先全部刪掉再建新的
     rollingUpdate:
       maxSurge: 25%                 # 更新時，最多可以比replicas多出幾個Pod
       maxUnavailable: 25%           # 更新時，最多可以有幾個Pod不可用
@@ -202,7 +213,7 @@ spec:
 
 - **`maxSurge`**：可以寫數字或百分比，百分比***無條件進位***。`replicas: 3`時，25%是0.75，進位成1，所以更新時最多有4個Pod。
 - **`maxUnavailable`**：百分比***無條件捨去***。`replicas: 3`時，25%捨去成0，所以更新時至少要有3個Pod可用。
-- **兩個預設值合起來**：先多建1個新Pod，等它Ready，再刪掉1個舊Pod，重複3次。***服務不會少於3個Pod***，代價是多佔1個Pod的資源。
+- **兩個default value合起來**：先多建1個新Pod，等它Ready，再刪掉1個舊Pod，重複3次。***服務不會少於3個Pod***，代價是多佔1個Pod的資源。
 - **怎麼調**：要更新得快，就把`maxSurge`調大，一次多建幾個新的；資源不夠多建，就調大`maxUnavailable`，允許先刪舊的。兩個不能同時是0，否則更新無法前進。
 
 ### 📈 3. Scale out / scale in
@@ -256,7 +267,7 @@ kubectl rollout undo deployment/nginx-deployment --to-revision=2
 - **rollback也是rolling update**：Deployment controller把revision 2的ReplicaSet調多、revision 3的調少，和[rolling update](#-2-rolling-update)一樣逐步替換。
 - **不加`--to-revision`**：回到上一個revision。
 - **revision號碼會往上加**：回到revision 2之後，它變成***revision 4***，歷史裡的2就不見了。
-- **能回到多久以前**：由`revisionHistoryLimit`決定，預設保留10個舊的ReplicaSet。
+- **能回到多久以前**：由`revisionHistoryLimit`決定，default保留10個舊的ReplicaSet。
 
 > [!NOTE]
 > **一次改好幾個地方：`rollout pause`**
@@ -277,6 +288,24 @@ kubectl rollout undo deployment/nginx-deployment --to-revision=2
 > - **只產生一次rolling update、一個revision**：pause期間的修改都會累積起來，resume之後一起套用。
 > - **pause期間scale照常**：改`replicas`不受影響，因為scale不會改Pod template。
 > - **pause期間不能rollback**：要先`resume`，才能`rollout undo`。
+
+### ⚙️ 5. Deployment controller實際怎麼跑
+
+[控制器模式](#-5-控制循環實際怎麼跑)說過，每個controller都用Informer、event handler、workqueue、syncHandler這套零件。下圖是Deployment controller的樣子：
+
+<img src="images/ch05/deployment-controller-internals.svg" alt="Deployment controller的內部：它跑在control plane節點上kube-controller-manager這個Static Pod裡。3個Informer（Deployment、ReplicaSet、Pod，client-go提供）用LIST + WATCH和API Server保持連線，各自把object存進cache；有變化時呼叫controller的handler：Deployment變了就放它自己的key，ReplicaSet變了就用ownerReferences找到它的Deployment、放Deployment的key，Pod被刪除時（Recreate策略）也放它的Deployment的key。key放進Workqueue（例如default/web、default/api），5個worker用Get()取出key，呼叫syncDeployment()：用lister從cache讀Deployment（期望狀態）和它的ReplicaSet（實際狀態），比較後建立或scale ReplicaSet，再用clientset把結果和Deployment的status寫回API Server" width="100%">
+
+| 零件 | 做什麼 | Deployment controller裡 |
+| --- | --- | --- |
+| **Informer** | 用LIST + WATCH和API Server保持連線，把object存進local cache；它watch的object（例如某個Deployment）一被新增、修改或刪除，就呼叫controller註冊的event handler | 3個：Deployment、ReplicaSet、Pod |
+| **event handler** | 有三種，依變化的種類呼叫：`AddFunc`（新增）、`UpdateFunc`（修改）、`DeleteFunc`（刪除）；三種都只把「要處理哪一個」的key放進workqueue | Deployment `web`變了 → 把它的key `default/web`放進workqueue；ReplicaSet變了 → 用[`ownerReferences`](#-4-ownerreferences記錄誰擁有誰)找到它的Deployment，放***那個Deployment的key*** |
+| **workqueue** | 排隊、去重、失敗重試；裡面放的是key：`<namespace>/<name>`這個字串 | 例如`default/web`：`default` namespace裡、名叫`web`的Deployment |
+| **worker** | 從workqueue取key，呼叫syncHandler | default 5個（`--concurrent-deployment-syncs`） |
+| **syncHandler** | 就是`for`循環的內容：讀期望狀態、讀實際狀態、比較、調整 | `syncDeployment()`：讀Deployment（期望）和它的ReplicaSet（實際），需要時建立新的ReplicaSet，照`maxSurge` / `maxUnavailable`一邊scale up新的、一邊scale down舊的，最後寫回Deployment的`status` |
+
+- **讀用cache，寫用API Server**：syncHandler讀Deployment、ReplicaSet都用lister從local cache讀，不問API Server；建立、scale ReplicaSet才用clientset送request給API Server，由API Server寫進etcd。
+- **一層管一層**：Deployment controller只管ReplicaSet；ReplicaSet controller再用同樣的零件管Pod。
+- **自己寫controller也是同一套**：[Chap-7](chap-7-crd-operator.md#manualcrd和controller)會用同樣的零件，自己寫一個管Network的controller，每個零件的細節都在那裡。
 
 ## Service
 
@@ -611,7 +640,7 @@ kubectl exec web-0 -- cat /usr/share/nginx/html/index.html
 ```
 
 - **重建的`web-0`掛回`www-web-0`**：StatefulSet照名稱找到原本的PVC，PVC還綁著原本的PV，所以讀到的是同一份資料。
-- **Pod刪掉，PVC還在**：PVC的生命週期和Pod分開，所以重建時接得回去。StatefulSet被刪除或scale in時，PVC要不要一起刪，由`persistentVolumeClaimRetentionPolicy`設定，預設是保留。
+- **Pod刪掉，PVC還在**：PVC的生命週期和Pod分開，所以重建時接得回去。StatefulSet被刪除或scale in時，PVC要不要一起刪，由`persistentVolumeClaimRetentionPolicy`設定，default是保留。
 
 ***StatefulSet管理storage state的方式，就是讓每個Pod的編號，對應一個固定的PVC***。加上[topology state](#-3-topology-stateservicename和固定的dns名稱)的固定名稱和DNS，Pod怎麼重建，身分和資料都接得回來。
 
@@ -673,6 +702,23 @@ spec:
 > - ***每個Pod透過`serviceName`指定的headless Service，得到帶同樣編號的固定DNS名稱***：例如`web-0.nginx.default.svc.cluster.local`，由CoreDNS解析成這個Pod目前的IP。
 > - ***StatefulSet依`volumeClaimTemplates`，替每個Pod建立同樣編號的PVC***：例如`www-web-0`，Pod重建後掛回同一個PVC，讀到同一份資料。
 
+
+### ⚙️ 7. StatefulSet controller實際怎麼跑
+
+零件和[Deployment controller](#-5-deployment-controller實際怎麼跑)一樣，差別在它***直接管Pod和PVC，而且要照編號順序***：
+
+<img src="images/ch05/statefulset-controller-internals.svg" alt="StatefulSet controller的內部：4個Informer（StatefulSet是期望狀態，Pod、PVC是實際狀態，ControllerRevision是版本紀錄）。只有StatefulSet和Pod註冊了handler，都把StatefulSet的key（例如default/web）放進Workqueue；PVC和ControllerRevision沒有handler，只用lister讀。5個worker取出key，呼叫syncStatefulSet()：照編號順序建立Pod和PVC，前一個Ready才建下一個，再寫回StatefulSet的status" width="100%">
+
+| | Deployment controller | StatefulSet controller |
+| --- | --- | --- |
+| **直接管的object** | ReplicaSet | ***Pod和PVC***，中間沒有ReplicaSet，見[5. 為什麼不需要ReplicaSet](#-5-為什麼不需要replicaset) |
+| **有handler的Informer** | Deployment、ReplicaSet、Pod | StatefulSet、Pod |
+| **只讀、沒有handler的Informer** | 無 | PVC、ControllerRevision |
+| **syncHandler做什麼** | scale ReplicaSet | 照編號`web-0`、`web-1`……依序建立Pod和它的PVC，前一個Ready才建下一個 |
+
+- **PVC為什麼沒有handler**：PVC是controller自己照`volumeClaimTemplates`建立的，建好之後就一直留著，不需要因為PVC變了而重新檢查；syncStatefulSet要用時，用lister從cache讀就好。
+- **版本紀錄**：rolling update和rollback用ControllerRevision記錄每一版的Pod template，和DaemonSet一樣。
+
 ## StatefulSet實踐：MySQL
 
 *用StatefulSet部署一個primary加兩個replica的MySQL cluster，topology state和storage state分別怎麼派上用場？*
@@ -688,7 +734,7 @@ spec:
 
 先從1個primary加2個replica開始：
 
-<img src="images/ch05/mysql-primary-replica.svg" alt="MySQL的primary-replica架構：mysql-0是primary（index 0），負責write和read；mysql-1和mysql-2是replica（index 1、2），從primary replication資料，只負責讀取" width="75%">
+<img src="images/ch05/mysql-primary-replica.svg" alt="MySQL的primary-replica架構：mysql-0是primary（index 0），負責write和read；mysql-1和mysql-2是replica（index 1、2），從primary replication資料，只負責讀取" width="50%">
 
 - **topology state**：`mysql-0`一定是primary，必須最先啟動；replica要等primary準備好，才能開始同步。
 - **storage state**：每個Pod有自己的資料，重建後要接回原本那一份，不能從頭來過。
@@ -861,7 +907,7 @@ spec:
                   # 指定primary、開始同步：
                   #   SOURCE_HOST：primary固定的DNS名稱（headless Service）
                   #   SOURCE_AUTO_POSITION=1：用GTID，自動從缺的地方開始同步
-                  #   GET_SOURCE_PUBLIC_KEY=1：MySQL 8.0預設的認證方式需要它
+                  #   GET_SOURCE_PUBLIC_KEY=1：MySQL 8.0 default的認證方式需要它
                   sql "CHANGE REPLICATION SOURCE TO
                          SOURCE_HOST='mysql-0.mysql',
                          SOURCE_USER='root',
@@ -929,7 +975,7 @@ kubectl scale statefulset mysql --replicas=5
 > [!WARNING]
 > 這是學習用的簡化版本：
 >
-> - **replica從頭同步**：新的replica靠GTID從primary的第一筆binlog開始同步。primary的binlog一旦被清掉（`binlog_expire_logs_seconds`預設30天），新的replica就要先用MySQL內建的Clone plugin，從primary複製一份資料。
+> - **replica從頭同步**：新的replica靠GTID從primary的第一筆binlog開始同步。primary的binlog一旦被清掉（`binlog_expire_logs_seconds` default 30天），新的replica就要先用MySQL內建的Clone plugin，從primary複製一份資料。
 > - **用root做replication**：正式環境要另外建一個只有replication權限的帳號，password也不要寫在指令裡。
 > - **primary掛掉不會自動換人**：`mysql-0`永遠是primary。要自動failover，用MySQL Operator、Percona Operator這類專門的operator。
 
@@ -1109,7 +1155,7 @@ spec:
 ```
 
 - **沒有`replicas`**：Pod的數量由Node的數量決定，一個Node一個。
-- **`tolerations`**：control plane的Node預設有`NoSchedule`的taint，一般的Pod排不上去。加上這個toleration，control plane的Node也會跑一個，見[第3章的Taint / Toleration](chap-3-kubernetes-architecture-operations.md#taint-toleration)。
+- **`tolerations`**：control plane的Node default有`NoSchedule`的taint，一般的Pod排不上去。加上這個toleration，control plane的Node也會跑一個，見[第3章的Taint / Toleration](chap-3-kubernetes-architecture-operations.md#taint-toleration)。
 - **`hostPath`**：把Node上的`/var/log`mount進來，agent才讀得到這個Node上所有container的log。
 
 ```bash
@@ -1172,8 +1218,26 @@ spec:
 
 所以DaemonSet的Pod，就算Node不健康、被`kubectl drain`標成unschedulable，也還是排得上去、不會被趕走。這正是daemon該有的行為：***只要Node還在，它就要在***。
 
-> [!NOTE]
-> 撰寫中。
+
+### ⚙️ 4. DaemonSet controller實際怎麼跑
+
+零件和[Deployment controller](#-5-deployment-controller實際怎麼跑)一樣，下圖只要看它***多出來的那一條路***：Node。
+
+<img src="images/ch05/daemonset-controller-internals.svg" alt="DaemonSet controller的內部：它跑在kube-controller-manager裡。4個Informer（DaemonSet是期望狀態，ControllerRevision是版本紀錄，Pod是實際狀態，Node是有哪些Node）用LIST + WATCH和API Server保持連線。DaemonSet、ControllerRevision、Pod的handler都把DaemonSet的key（例如kube-system/fluent-bit）放進Workqueue；Node的handler在新Node加入，或Node的label、taint變了時，把Node名稱（例如node-3）放進另一個nodeUpdateQueue，由syncNodeUpdate()判斷這個Node影響哪些DaemonSet，再把它們的key放進Workqueue。2個worker用Get()取出key，呼叫syncDaemonSet()：比較DaemonSet（期望）和每個Node上的Pod（實際），少了就建、多了就刪，再用clientset寫回API Server" width="100%">
+
+和Deployment controller不一樣的地方：
+
+| | Deployment controller | DaemonSet controller |
+| --- | --- | --- |
+| **watch哪些object** | Deployment、ReplicaSet、Pod | DaemonSet、ControllerRevision、Pod、***Node*** |
+| **workqueue** | 1個 | ***2個***：Workqueue放DaemonSet的key；`nodeUpdateQueue`放Node名稱 |
+| **實際狀態** | 它的ReplicaSet | ***每個Node上***有沒有它的Pod |
+| **直接管的object** | ReplicaSet（Pod交給ReplicaSet controller） | ***直接建立、刪除Pod***，中間沒有ReplicaSet |
+| **版本紀錄** | 舊的ReplicaSet | ControllerRevision，rolling update和rollback用 |
+
+- **為什麼要watch Node**：DaemonSet的期望狀態是「每個符合條件的Node一個Pod」，所以Node本身也是實際狀態的一部分。新的Node加入cluster時，Node Informer收到event，DaemonSet controller就在那個Node上建立Pod，這就是[2. 怎麼保證每個Node剛好一個](#-2-怎麼保證每個node剛好一個)背後的機制。
+- **為什麼Node要另外一個queue**：Node event不知道要放哪個DaemonSet的key，因為Node沒有`ownerReferences`指向DaemonSet。所以先把Node名稱放進`nodeUpdateQueue`，由`syncNodeUpdate()`一一檢查每個DaemonSet：這個Node現在該不該有它的Pod、實際上有沒有，有落差才把那個DaemonSet的key放進主Workqueue。所以`syncNodeUpdate()`***不是reconcile***：它不建Pod、不刪Pod，只把「Node變了」轉成「哪幾個DaemonSet要重新檢查」。真正比較、調整的只有`syncDaemonSet()`；分開成兩個queue，是因為檢查所有DaemonSet比較慢，不能放在Node的handler裡拖慢Informer。
+- **只看label和taint**：Node的`status`每隔幾秒就會更新一次，例如kubelet回報的heartbeat。如果每次都觸發，queue會塞爆。所以`updateNode`只在label或taint變了才放進queue，因為只有這兩個會影響Pod能不能排上去，見[3. Tolerations](#-3-tolerations連不健康的node也要排得上去)。
 
 ## Job
 
@@ -1203,7 +1267,7 @@ spec:
 
 - **沒有`selector`**：Job自動替Pod加上`batch.kubernetes.io/controller-uid`和`job-name`這兩個label，並用它們當`selector`，不需要自己寫。
 - **`restartPolicy`不能是`Always`**：Pod做完就該結束，`Always`會讓container一直重新啟動，所以Job不接受。
-- **`backoffLimit`**：失敗時最多重試幾次，預設6。
+- **`backoffLimit`**：失敗時最多重試幾次，default 6。
 
 ```bash
 kubectl apply -f pi.yaml
@@ -1225,8 +1289,8 @@ Pod跑完後狀態是`Completed`，***不會被刪掉***，所以還看得到它
 
 Job controller也是一個[控制循環](#-2-控制循環)，比較的是這兩個值：
 
-- **`completions`**：總共要成功完成幾次，預設1。
-- **`parallelism`**：同時最多跑幾個Pod，預設1。
+- **`completions`**：總共要成功完成幾次，default 1。
+- **`parallelism`**：同時最多跑幾個Pod，default 1。
 
 每一輪，controller數出已經成功的Pod和正在跑的Pod，算出還要建立幾個：
 
@@ -1329,6 +1393,21 @@ Pod失敗時，依`restartPolicy`有兩種處理方式：
 | **不固定數量 + queue** | 不設 | N | 每個Pod一直拿，***queue空了就退出*** | 總數不知道 |
 | **每個工作項一個Job** | 1 | 1 | 外部工具照模板產生多個Job | 每個工作項的參數差很多 |
 
+
+### ⚙️ 6. Job controller實際怎麼跑
+
+零件和[Deployment controller](#-5-deployment-controller實際怎麼跑)一樣，差別在它的期望狀態是***「成功完成幾次」***，不是「維持幾個Pod」：
+
+<img src="images/ch05/job-controller-internals.svg" alt="Job controller的內部：2個Informer（Job是期望狀態，Pod是實際狀態）。Job的handler把它的key（例如default/pi）放進Workqueue；Pod的handler用ownerReferences找到它的Job，放Job的key。5個worker取出key，呼叫syncJob()：數成功、失敗的Pod，不夠就再建，夠了就停，寫回Job的status；也會拿掉Pod上的finalizer" width="100%">
+
+| | Deployment controller | Job controller |
+| --- | --- | --- |
+| **watch哪些object** | Deployment、ReplicaSet、Pod | Job、Pod |
+| **直接管的object** | ReplicaSet | ***直接建立Pod***，中間沒有ReplicaSet |
+| **syncHandler做什麼** | 維持Pod的數量 | 數成功、失敗的Pod：還沒達到`completions`就再建（同時最多`parallelism`個），失敗超過`backoffLimit`就停 |
+
+- **Pod上的finalizer**：Job controller建立Pod時，會在Pod上加finalizer `batch.kubernetes.io/job-tracking`。Pod跑完被刪掉之前，controller要先把它算進成功或失敗的次數，再拿掉finalizer，Pod才真的消失。這就是[Chap-7的finalizer](chap-7-crd-operator.md#finalizer)，只是這次擋住的是Pod的刪除，不是自己的CR。
+
 > [!TIP]
 > 💡 **一句話總結**
 >
@@ -1388,7 +1467,7 @@ Job的名稱是CronJob的名稱加上排程時間（從1970年起算的分鐘數
 
 | `concurrencyPolicy`       | 上一個Job還在跑時           |
 | --------------------------- | --------------------------- |
-| **`Allow`**（預設） | 照樣建立新的Job，多個同時跑 |
+| **`Allow`**（default） | 照樣建立新的Job，多個同時跑 |
 | **`Forbid`**        | 跳過這一次，不建立新的Job   |
 | **`Replace`**       | 刪掉還在跑的Job，換成新的   |
 
@@ -1397,7 +1476,7 @@ CronJob能判斷「上一個Job還在不在跑」，靠的就是Job的`ownerRefe
 ### 🧹 3. 其他常用欄位
 
 - **`startingDeadlineSeconds`**：錯過排程時間（例如kube-controller-manager剛好重新啟動）多少秒內還可以補跑；超過就跳過這一次。
-- **`successfulJobsHistoryLimit`** / **`failedJobsHistoryLimit`**：保留幾個成功 / 失敗的Job，預設3和1，更舊的連同Pod自動刪掉。
+- **`successfulJobsHistoryLimit`** / **`failedJobsHistoryLimit`**：保留幾個成功 / 失敗的Job，default 3和1，更舊的連同Pod自動刪掉。
 - **`suspend: true`**：暫停排程，已經在跑的Job不受影響。
 
 不想等排程，要馬上手動跑一次，可以從CronJob建立一個Job：
@@ -1405,6 +1484,22 @@ CronJob能判斷「上一個Job還在不在跑」，靠的就是Job的`ownerRefe
 ```bash
 kubectl create job hello-manual --from=cronjob/hello
 ```
+
+
+### ⚙️ 4. CronJob controller實際怎麼跑
+
+零件和[Deployment controller](#-5-deployment-controller實際怎麼跑)一樣，差別在***它不只靠event，還靠時間***：
+
+<img src="images/ch05/cronjob-controller-internals.svg" alt="CronJob controller的內部：2個Informer（CronJob是期望狀態，Job是實際狀態）。CronJob的handler把它的key（例如default/hello）放進Workqueue；Job的handler用ownerReferences找到它的CronJob，放CronJob的key。5個worker取出key，呼叫sync()：排程時間到就建立Job、處理重疊的Job、清掉太舊的Job，寫回CronJob的status；最後算出下一次排程時間，用AddAfter在時間到時再把key放回Workqueue" width="100%">
+
+| | Deployment controller | CronJob controller |
+| --- | --- | --- |
+| **watch哪些object** | Deployment、ReplicaSet、Pod | CronJob、Job |
+| **直接管的object** | ReplicaSet | ***Job***（Pod交給Job controller） |
+| **什麼時候跑syncHandler** | 有event時 | 有event時，***加上排程時間到時*** |
+
+- **為什麼需要AddAfter**：「每分鐘一次」的時間到了，API Server不會有任何event，因為什麼都沒變。所以`sync()`處理完一個CronJob，會算出下一次排程時間，用`AddAfter`告訴workqueue「這個key，等這麼久之後再放回來」。時間一到，key自己回到queue，worker取出來，就建立新的Job。
+- **一層管一層**：CronJob controller只建立Job；Job controller再建立Pod，和Deployment → ReplicaSet → Pod是同一個模式。
 
 > [!TIP]
 > 💡 **一句話總結**

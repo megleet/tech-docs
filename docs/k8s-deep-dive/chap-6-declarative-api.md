@@ -629,7 +629,7 @@ kubectl get job pi -v=6                                     # 印出kubectl實�
 >
 > | 等級 | 會多印出什麼 |
 > | --- | --- |
-> | `0`（預設） | 只有結果，不印log |
+> | `0`（default） | 只有結果，不印log |
 > | `6` | 每個HTTP request的method、URL、status、花了多久 |
 > | `7` | 再加上request header |
 > | `8` | 再加上response body（太長會截斷） |
@@ -722,7 +722,7 @@ ServiceAccount在RBAC裡對應的名字，一定要記住：
 | **group**：某個namespace的所有ServiceAccount | `system:serviceaccounts:<namespace>` |
 | **group**：整個cluster的所有ServiceAccount | `system:serviceaccounts` |
 
-每個namespace都有一個`default` ServiceAccount，***預設沒有任何權限***。需要存取API Server時，只給最小權限。
+每個namespace都有一個`default` ServiceAccount，***default沒有任何權限***。需要存取API Server時，只給最小權限。
 
 檢查某個身分有沒有權限：
 

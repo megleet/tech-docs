@@ -1,9 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 16 886 294" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 16 886 230" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
 <defs><marker id="ng-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
 <rect width="910" height="330" fill="#ffffff"/>
 
 <!-- cluster frame (under the lines) -->
-<rect x="240" y="30" width="190" height="200" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+<rect x="236" y="20" width="198" height="222" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+<rect x="246" y="40" width="178" height="194" rx="10" fill="#eef2f7" stroke="#64748b" stroke-width="1.5"/>
+
+<!-- your machine frame (under the lines) -->
+<rect x="470" y="30" width="187" height="200" rx="12" fill="#fdf2f7" stroke="#e79ab9" stroke-width="1.5" stroke-dasharray="6 5"/>
 
 <!-- lines -->
 <g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#ng-a)">
@@ -34,7 +38,8 @@
 </g>
 
 <!-- cluster -->
-<text x="254" y="50" font-size="12" font-weight="800" fill="#475569">Kubernetes cluster</text>
+<text x="248" y="35" font-size="11.5" font-weight="800" fill="#475569">Kubernetes cluster</text>
+<text x="256" y="57" font-size="11" font-weight="800" fill="#334155">control plane節點<tspan font-weight="600" fill="#64748b">（master）</tspan></text>
 <rect x="255" y="66" width="160" height="58" rx="10" fill="#1a3f78"/>
 <text x="335" y="90" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">API Server</text>
 <text x="335" y="110" font-size="10.5" font-weight="600" fill="#dbe7f7" text-anchor="middle">① CRD：認識Network</text>
@@ -42,10 +47,15 @@
 <text x="335" y="191" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">etcd</text>
 <text x="335" y="208" font-size="10.5" font-weight="600" fill="#e3f5ec" text-anchor="middle">存下my-net，只是一筆資料</text>
 
+<!-- your machine title (above the lines) -->
+<g paint-order="stroke" stroke="#fdf2f7" stroke-width="4" stroke-linejoin="round">
+<text x="484" y="50" font-size="12" font-weight="800" fill="#b8336a">你的電腦<tspan font-weight="600" fill="#d6457f">（cluster外）</tspan></text>
+</g>
+
 <!-- controller -->
-<rect x="480" y="64" width="167" height="150" rx="12" fill="#e08a00"/>
+<rect x="480" y="64" width="167" height="150" rx="12" fill="#d6457f"/>
 <text x="563" y="90" font-size="14.5" font-weight="800" fill="#ffffff" text-anchor="middle">network-controller</text>
-<text x="563" y="108" font-size="10.5" font-weight="600" fill="#fff4e0" text-anchor="middle">這一章要寫的Go程式</text>
+<text x="563" y="108" font-size="10.5" font-weight="600" fill="#fde2ee" text-anchor="middle">這一章要寫的Go程式</text>
 <g font-size="11" font-weight="700" fill="#ffffff">
 <text x="494" y="138">③④ Go型別、client</text>
 <text x="494" y="160">⑤ Informer、workqueue</text>
@@ -64,8 +74,4 @@
 </g>
 <text x="812" y="204" font-size="10.5" font-weight="600" fill="#475569" text-anchor="middle">這一章用vpc.go模擬</text>
 
-<!-- goal -->
-<rect x="15" y="250" width="877" height="56" rx="10" fill="#fff8e1" stroke="#f2b600" stroke-width="1.5"/>
-<text x="453" y="273" font-size="13.5" font-weight="800" fill="#5c4400" text-anchor="middle">🎯 目標：寫一個Network YAML，cloud上就自動有一個對應的subnet</text>
-<text x="453" y="294" font-size="11.5" font-weight="600" fill="#5c4400" text-anchor="middle">改YAML裡的cidr、gateway，subnet跟著更新；刪掉Network，subnet也跟著刪掉（⑥ Run it!）</text>
 </svg>

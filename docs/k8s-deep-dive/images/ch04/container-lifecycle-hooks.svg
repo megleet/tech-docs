@@ -55,7 +55,7 @@
 
   <!-- ===== Grace period ===== -->
   <path d="M640 252 V 260 H 930 V 252" fill="none" stroke="#b91c1c" stroke-width="2"/>
-  <text x="930" y="280" font-size="14" fill="#b91c1c" text-anchor="end">grace period（預設30秒）：到期還沒結束 → SIGKILL</text>
+  <text x="930" y="280" font-size="14" fill="#b91c1c" text-anchor="end">grace period（default 30秒）：到期還沒結束 → SIGKILL</text>
 
   <!-- ===== Event legend ===== -->
   <g font-size="15">

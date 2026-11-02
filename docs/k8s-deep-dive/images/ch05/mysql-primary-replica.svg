@@ -1,41 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 2 460 236" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker>
     <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
       <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
     </filter>
   </defs>
-  <rect width="700" height="380" fill="#ffffff"/>
+  <rect width="460" height="250" fill="#ffffff"/>
 
   <!-- ===== Replication arrows ===== -->
   <g fill="none" stroke="#334155" stroke-width="2">
-    <path d="M290 130 C 230 160, 170 190, 160 240" marker-end="url(#arr)"/>
-    <path d="M410 130 C 470 160, 530 190, 540 240" marker-end="url(#arr)"/>
+    <path d="M185 92 C 150 110, 115 122, 105 144" marker-end="url(#arr)"/>
+    <path d="M275 92 C 310 110, 345 122, 355 144" marker-end="url(#arr)"/>
   </g>
-  <g font-size="14" font-weight="600" fill="#64748b">
-    <text x="208" y="196">replication</text>
-    <text x="492" y="196" text-anchor="end">replication</text>
+  <g font-size="12" font-weight="600" fill="#64748b" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+    <text x="138" y="122" text-anchor="end">replication</text>
+    <text x="322" y="122">replication</text>
   </g>
 
   <!-- ===== Boxes ===== -->
   <g filter="url(#sh)">
-    <rect x="250" y="50" width="200" height="80" rx="14" fill="#04a3ff"/>
-    <rect x="60" y="244" width="200" height="80" rx="14" fill="#ee5fa6"/>
-    <rect x="440" y="244" width="200" height="80" rx="14" fill="#ee5fa6"/>
+    <rect x="160" y="30" width="140" height="62" rx="12" fill="#04a3ff"/>
+    <rect x="35"  y="148" width="140" height="62" rx="12" fill="#ee5fa6"/>
+    <rect x="285" y="148" width="140" height="62" rx="12" fill="#ee5fa6"/>
   </g>
   <g fill="#ffffff" text-anchor="middle">
-    <text x="350" y="86" font-size="22" font-weight="800">mysql-0</text>
-    <text x="350" y="112" font-size="14">primary · index 0</text>
-    <text x="160" y="280" font-size="22" font-weight="800">mysql-1</text>
-    <text x="160" y="306" font-size="14">replica · index 1</text>
-    <text x="540" y="280" font-size="22" font-weight="800">mysql-2</text>
-    <text x="540" y="306" font-size="14">replica · index 2</text>
+    <text x="230" y="58" font-size="18" font-weight="800">mysql-0</text>
+    <text x="230" y="79" font-size="12">primary · index 0</text>
+    <text x="105" y="176" font-size="18" font-weight="800">mysql-1</text>
+    <text x="105" y="197" font-size="12">replica · index 1</text>
+    <text x="355" y="176" font-size="18" font-weight="800">mysql-2</text>
+    <text x="355" y="197" font-size="12">replica · index 2</text>
   </g>
 
   <!-- ===== Read / Write ===== -->
-  <g font-size="17" font-weight="800" fill="#1e293b" text-anchor="middle">
-    <text x="350" y="34">Write ＋ Read</text>
-    <text x="160" y="356">Read</text>
-    <text x="540" y="356">Read</text>
+  <g font-size="14" font-weight="800" fill="#1e293b" text-anchor="middle">
+    <text x="230" y="22">Write ＋ Read</text>
+    <text x="105" y="230">Read</text>
+    <text x="355" y="230">Read</text>
   </g>
 </svg>

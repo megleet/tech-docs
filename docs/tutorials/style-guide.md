@@ -79,6 +79,7 @@ icon: lucide/palette
 | 推、推送（config、certificate） | push（例如istiod用xDS push config給Envoy） |
 | 事件 | event（例如WATCH push一個event過來） |
 | 解耦、解開 | decouple |
+| 預設、預設值 | default、default value |
 | 流量規則 | traffic rule（例如VirtualService、DestinationRule） |
 | 本地 | local |
 | 遠端 | remote |
@@ -165,6 +166,7 @@ icon: lucide/palette
 - **沒用到的圖要刪掉**：換圖或刪段落後，檢查`images/`裡有沒有文章不再引用的檔案。
 - **大小**：需要調整時用`<img src="…" alt="…" width="…">`；圖片本身的白邊先裁掉，避免和上下文之間空太多。
 - **元件用實心底、淺色字**：圖裡的box、圓圈等元件，用實心的顏色填滿，上面的字用白色或很淺的同色系（例如藍底配`#dbe7f7`、橘底配`#fff4e0`）；不要用淺色底加深色字。外框（把幾個元件框在一起的虛線框）維持淺色背景。配色要有變化，多用粉紅（`#d6457f`）、莓紅（`#b8336a`）、紫色（`#6d4fc2`）、金黃（`#c99a00`）、亮黃（`#ffd23f`，小色塊用），不要每張圖都用橘色；固定的慣例：etcd綠色（`#2f9e6e`）、API Server深藍（`#1a3f78`）。範本是Chap-7的`images/ch07/event-handlers.svg`：紫色（`#6d4fc2`）、粉紅（`#d6457f`）、綠色（`#1f9d76`）、亮黃（`#ffd23f`，亮黃底配深褐色字`#4a3600`），畫新圖時照這個風格。
+- **箭頭和線同色**：每種顏色的線都要有自己同色的`<marker>`，不要讓彩色的線配灰色的箭頭。箭頭的終點要落在目標元件的外面，不要被元件蓋住。
 - **SVG的文字不能被線蓋住**：文字靠近或壓在線上時，***文字要畫在line圖層上面***（SVG裡寫在line之後），再加一圈白邊：`<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">…文字…</g>`。重疊沒關係，不用為了避開線而移動文字。
 
 ### 交叉連結
@@ -187,7 +189,7 @@ icon: lucide/palette
 ```markdown
 ---
 icon: lucide/container      # 必填，每篇用不同的圖示
-toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預設到h3）
+toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（default到h3）
 ---
 
 # 文章標題
@@ -211,7 +213,7 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
     *容器靠namespace做隔離，為什麼說這種隔離「不徹底」？業界又是怎麼補強的？*
     ```
 - **錨點**：保留中文。規則是轉小寫、去掉標點、空白換成`-`，例如`## mount常用命令總結` → `#mount常用命令總結`。不確定時建置後到HTML裡查`<h2 id="…">`。
-- **右側目錄**：全站預設顯示兩層（h2和h3），h3可以折疊：一開始全部收起，只看到h2，點`>`展開、再點收起（不會隨捲動自動展開）。要顯示到h4，在front matter加`toc_depth: 4`。implementation在`extra.js`和`extra.css`。
+- **右側目錄**：全站default顯示兩層（h2和h3），h3可以折疊：一開始全部收起，只看到h2，點`>`展開、再點收起（不會隨捲動自動展開）。要顯示到h4，在front matter加`toc_depth: 4`。implementation在`extra.js`和`extra.css`。
 - **導覽列**：新文章要加到`zensical.toml`的`nav`裡對應的分類。
 - **h2改名時**：記得同步更新開頭目錄的文字和錨點。
 
@@ -242,7 +244,7 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（預
 | --- | --- |
 | `zensical.toml` | 網站config、`nav`、Markdown擴充、`extra_css` / `extra_javascript`、`custom_dir`、中文錨點（`toc.slugify`）、GitHub alert（`github-callouts`） |
 | `docs/stylesheets/extra.css` | 所有顏色和間距。顏色都是檔案開頭的CSS var，淺色 / 深色模式各一組 |
-| `docs/javascripts/extra.js` | 把頁面圖示移到h1前、首頁連結加圖示、程式碼語言標籤、shell指令上色、C語法補強（函式呼叫 / 參數 / #define）、目錄樹上色、標記青綠色小標題 、長程式碼折疊 、右側目錄折疊、左側導覽列Tutorials折疊（預設收起，記住展開狀態） |
+| `docs/javascripts/extra.js` | 把頁面圖示移到h1前、首頁連結加圖示、程式碼語言標籤、shell指令上色、C語法補強（函式呼叫 / 參數 / #define）、目錄樹上色、標記青綠色小標題 、長程式碼折疊 、右側目錄折疊、左側導覽列Tutorials折疊（default收起，記住展開狀態） |
 | `overrides/main.html` | 覆寫主題樣板：輸出頁面圖示、首頁標記、`toc_depth`標記 |
 | `.github/workflows/docs.yml` | GitHub Actions：安裝`zensical`和`markdown-callouts`，建置並發佈到Pages |
 

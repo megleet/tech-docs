@@ -157,15 +157,15 @@ kernel像引擎，container像車身：引擎可以不一樣，但***引擎接�
 | `CAP_SYS_PTRACE` | trace其他process |
 | `CAP_CHOWN` | 任意修改file的owner |
 
-container的做法是：***container裡的root照樣是UID 0，但只保留一小撮capabilities***。Docker和containerd預設只留14個，並且拿掉`CAP_SYS_ADMIN`、`CAP_SYS_MODULE`這類危險的。
+container的做法是：***container裡的root照樣是UID 0，但只保留一小撮capabilities***。Docker和containerd default只留14個，並且拿掉`CAP_SYS_ADMIN`、`CAP_SYS_MODULE`這類危險的。
 
 ### 🛡️ 2. seccomp：限制能呼叫哪些sys call
 
 seccomp用一份filter，***限制process能呼叫哪些sys call***，縮小kernel暴露給container的attack surface。
 
 - **和capabilities的差別**：capabilities只在需要privilege的操作上檢查；seccomp不管需不需要privilege，每個sys call都能擋。
-- **預設profile**：Docker預設會套一份profile，擋掉`reboot`、`kexec_load`、載入kernel module的`init_module`等少數危險的sys call。
-- **Kubernetes的預設不一樣**：Pod預設是`Unconfined`，***不套任何seccomp profile***。要在`securityContext`裡設`seccompProfile.type: RuntimeDefault`，才會用runtime的預設profile。
+- **default profile**：Docker default會套一份profile，擋掉`reboot`、`kexec_load`、載入kernel module的`init_module`等少數危險的sys call。
+- **Kubernetes的default不一樣**：Pod default是`Unconfined`，***不套任何seccomp profile***。要在`securityContext`裡設`seccompProfile.type: RuntimeDefault`，才會用runtime的default profile。
 
 ### 🏠 3. LSM：AppArmor / SELinux
 
@@ -393,7 +393,7 @@ mount -o remount,bind,ro /srv/data        # 把這個入口改成read-only
 ```
 
 - source是**已存在的dir或file**，***不產生新的filesystem***
-- 預設不是recursive，僅僅bind最外一層；要子掛載用`--rbind`
+- default不是recursive，僅僅bind最外一層；要子掛載用`--rbind`
 - ***重開機後消失***
 
 #### 加`--bind`和不加的差別
@@ -957,7 +957,7 @@ runc用`clone()`產生container的第一個process（`runc init`），同時帶�
 
 ```c
 mount("", "/", NULL, MS_SLAVE | MS_REC, NULL);   // 不做mount，僅僅修改屬性：
-                                                 // propagation改為slave（recursive，runc預設rslave）
+                                                 // propagation改為slave（recursive，runc default rslave）
 ```
 
 - **為什麼是slave**：host之後掛上的東西還能傳進來，container裡的動作不會傳出去。OCI config裡的`rootfsPropagation`可以改成`private` / `shared`。各種類型的差別見[mount propagation](#-3-mount-propagation)。
@@ -1229,7 +1229,7 @@ int main(int argc, char **argv)
 | **6. 卸舊根**             | `fchdir(oldroot)` → `umount2(".", MNT_DETACH)` → `chdir("/")`                     |
 
 - **為什麼先`open("/")`**：`pivot_root(".", ".")`之後，舊根疊在新根上面，***已經沒有任何路徑能可靠地指到它***。所以換根前先用fd留住舊根，換根後`fchdir`回去，讓`"."`指向舊根，再`umount2(".")`。這也是runc的做法。
-- **private還是slave**：步驟2這裡用`MS_PRIVATE`，比較簡單；runc預設用`MS_SLAVE`，好讓host之後的掛載還能傳進container。兩者都能滿足`pivot_root`的要求。
+- **private還是slave**：步驟2這裡用`MS_PRIVATE`，比較簡單；runc default用`MS_SLAVE`，好讓host之後的掛載還能傳進container。兩者都能滿足`pivot_root`的要求。
 
 ### ✅ 驗證
 

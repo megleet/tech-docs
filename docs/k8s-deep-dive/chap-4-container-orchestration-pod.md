@@ -68,7 +68,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
     ```
     Go app container
     └── my-api（PID 1）           ← 只有這一個process
-        ├── {my-api}（thread）    ← Go runtime的OS thread，數量大約是GOMAXPROCS（預設等於CPU核數）
+        ├── {my-api}（thread）    ← Go runtime的OS thread，數量大約是GOMAXPROCS（default等於CPU核數）
         ├── {my-api}（thread）
         └── …                     ← 上萬個goroutine輪流排在這幾個thread上跑
     ```
@@ -79,7 +79,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
     └── nginx master（PID 1）       ← 讀config、管理worker：掛掉就重新fork一個
         ├── nginx worker（PID 29）  ← 真正處理request
         ├── nginx worker（PID 30）
-        └── nginx worker（PID 31）  ← 數量預設等於CPU核數（worker_processes auto）
+        └── nginx worker（PID 31）  ← 數量default等於CPU核數（worker_processes auto）
     ```
 
 兩種都符合one app per container，重點是***一個app***，不是一個process。需要一起工作的不同app，各放一個container，再用Pod組在一起。
@@ -253,7 +253,7 @@ spec:
           value: "127.0.0.1"                  # app只連localhost，proxy負責認證、加密，再連到cloud的DB
 ```
 
-- **native sidecar**：寫在`initContainers`裡、加上`restartPolicy: Always`（Kubernetes 1.29起預設開啟，見[官方文件](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/)）。它***比主container先啟動、比主container晚結束***，所以app一啟動就連得到proxy；Job的主container結束時，sidecar也會跟著結束，不會讓Job一直完成不了。
+- **native sidecar**：寫在`initContainers`裡、加上`restartPolicy: Always`（Kubernetes 1.29起default開啟，見[官方文件](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/)）。它***比主container先啟動、比主container晚結束***，所以app一啟動就連得到proxy；Job的主container結束時，sidecar也會跟著結束，不會讓Job一直完成不了。
 - 其他常見的sidecar：[`git-sync`](https://github.com/kubernetes/git-sync)（定時從Git拉最新的config或網頁）、config reload（config變更時通知app重新載入）、Istio的Envoy（見[為什麼排程單位是Pod](#-4-為什麼排程單位是pod)）。
 
 ### 🖥️ 3. Node agent：每個Node一份
@@ -466,7 +466,7 @@ Pod直接使用host的namespace，不另外建立。例如[control plane的Stati
 | ----------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | **`Pending`**   | Pod已經存進etcd，但還有container沒run起來                                                                     | 還沒排程成功（資源不夠、`nodeSelector`沒有符合的Node）、正在拉image、init container還在跑。用`kubectl describe pod`看Events |
 | **`Running`**   | 已經排程到某個Node，container都建好了，***至少有一個***正在執行、啟動或重啟                          | 正常狀態。能不能接流量要看`Ready`；container一直重啟（`CrashLoopBackOff`）時，phase也還是`Running`                        |
-| **`Succeeded`** | 所有container都***正常結束***（exit code 0），而且不會再重啟                                         | 只有`restartPolicy`是`OnFailure`或`Never`才會出現，例如Job；`Always`（Deployment預設）的container結束就會被重啟         |
+| **`Succeeded`** | 所有container都***正常結束***（exit code 0），而且不會再重啟                                         | 只有`restartPolicy`是`OnFailure`或`Never`才會出現，例如Job；`Always`（Deployment default）的container結束就會被重啟         |
 | **`Failed`**    | 所有container都結束了，***至少有一個失敗***（exit code不是0，或被系統kill，例如OOM），而且不會再重啟 | 用`kubectl logs --previous`看上一次的log、`kubectl describe pod`看Events。被Node驅逐（Evicted）的Pod也是`Failed`          |
 | **`Unknown`**   | 拿不到Pod的狀態，kubelet沒辦法把狀態回報給API Server                                                         | 通常是Node和control plane之間斷線，例如Node當機、網路斷了                                                                       |
 
@@ -510,10 +510,10 @@ image本來就是container定義的一部分，所以`imagePullPolicy`是contain
 | **`IfNotPresent`** | Node上沒有這個image才拉                           |
 | **`Never`**        | 從不拉，只用Node上已經有的image，沒有就啟動失敗   |
 
-***沒寫的話，預設值看image的tag***：
+***沒寫的話，default value看image的tag***：
 
-- **tag是`:latest`或沒寫tag**（例如`nginx`）：預設`Always`。
-- **其他tag**（例如`nginx:1.27`）：預設`IfNotPresent`。
+- **tag是`:latest`或沒寫tag**（例如`nginx`）：default `Always`。
+- **其他tag**（例如`nginx:1.27`）：default `IfNotPresent`。
 
 所以正式環境建議用固定的版本tag，不要用`latest`：同一個tag永遠是同一個image，重建Pod也不會不小心換版本。
 
@@ -539,14 +539,14 @@ spec:
             command: ["/usr/sbin/nginx", "-s", "quit"]   # 讓nginx處理完手上的request再結束
 ```
 
-<img src="images/ch04/container-lifecycle-hooks.svg" alt="container的lifecycle hooks：①container啟動，app和postStart同時開始；②postStart跑完，state從waiting變running；③要求停止（刪除Pod、liveness probe失敗），執行preStop；④preStop跑完，kubelet send SIGTERM，app開始graceful shutdown；⑤app結束，state變terminated。從③開始算grace period（預設30秒），到期還沒結束就SIGKILL" width="85%">
+<img src="images/ch04/container-lifecycle-hooks.svg" alt="container的lifecycle hooks：①container啟動，app和postStart同時開始；②postStart跑完，state從waiting變running；③要求停止（刪除Pod、liveness probe失敗），執行preStop；④preStop跑完，kubelet send SIGTERM，app開始graceful shutdown；⑤app結束，state變terminated。從③開始算grace period（default 30秒），到期還沒結束就SIGKILL" width="85%">
 
 - **`postStart`**：container啟動後立刻執行。
   - ***和`ENTRYPOINT`同時跑，不保證先後順序***：`postStart`執行時，app可能還沒準備好。
   - `postStart`還沒跑完之前，container不會被標成`running`；它失敗的話，container會被kill，再依`restartPolicy`處理。
 - **`preStop`**：container***被要求停止時***，在send `SIGTERM`之前執行，例如刪除Pod、liveness probe失敗。
   - ***同步執行***：`preStop`跑完，kubelet才send `SIGTERM`給container。
-  - 時間算在`terminationGracePeriodSeconds`（預設30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
+  - 時間算在`terminationGracePeriodSeconds`（default 30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
   - container自己正常結束時***不會***觸發。
 
 `preStop`最常見的用途是***graceful shutdown***：讓app先停止接新的request、處理完手上未完成的工作，再結束。例子裡的`nginx -s quit`就是這個作用。
@@ -559,4 +559,4 @@ spec:
 > [!NOTE]
 > 📚 **延伸閱讀**
 >
-> 讀完這一章，推薦把Pod的原始定義讀一遍：[`kubernetes/api`的`core/v1/types.go`](https://github.com/kubernetes/api/blob/master/core/v1/types.go)裡的`type Pod struct`，***尤其是`PodSpec`***。每個欄位上面都有註解，說明它的用途和預設值。目標是下次看到一個Pod的YAML，不用查文件，就能說出常用欄位的作用。
+> 讀完這一章，推薦把Pod的原始定義讀一遍：[`kubernetes/api`的`core/v1/types.go`](https://github.com/kubernetes/api/blob/master/core/v1/types.go)裡的`type Pod struct`，***尤其是`PodSpec`***。每個欄位上面都有註解，說明它的用途和default value。目標是下次看到一個Pod的YAML，不用查文件，就能說出常用欄位的作用。

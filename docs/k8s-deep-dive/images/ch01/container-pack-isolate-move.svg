@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 900 266" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
 <defs>
 <marker id="pim-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<marker id="pim-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0e9aa7"/></marker>
 <marker id="pim-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#d1495b"/></marker>
 <filter id="pim-sh" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
 <!-- a shipping container: 120 x 64, ribs -->
@@ -60,9 +61,9 @@
 </g>
 <path d="M694 157 H 708" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#pim-a)"/>
 <path d="M778 157 H 792" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#pim-a)"/>
-<path d="M715 104 V 134" fill="none" stroke="#0e9aa7" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pim-a)"/>
-<path d="M745 86 C 790 86, 829 100, 829 134" fill="none" stroke="#0e9aa7" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pim-a)"/>
-<path d="M685 86 C 661 86, 661 110, 661 134" fill="none" stroke="#0e9aa7" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pim-a)"/>
+<path d="M715 104 V 134" fill="none" stroke="#0e9aa7" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pim-t)"/>
+<path d="M745 86 C 790 86, 829 100, 829 134" fill="none" stroke="#0e9aa7" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pim-t)"/>
+<path d="M685 86 C 661 86, 661 110, 661 134" fill="none" stroke="#0e9aa7" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pim-t)"/>
 <g font-size="13" font-weight="700" fill="#334155" text-anchor="middle">
 <text x="745" y="224">被裝進集裝箱的app，</text>
 <text x="745" y="244">也可以被方便地搬來搬去</text>

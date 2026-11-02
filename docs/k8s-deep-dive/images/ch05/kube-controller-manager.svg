@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 6 900 424" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="kcm-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker><marker id="kcm-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e08a00"/></marker></defs>
+<rect width="920" height="410" fill="#ffffff"/>
+<rect x="16" y="12" width="888" height="410" rx="12" fill="#eef2f7" stroke="#64748b" stroke-width="1.5"/>
+<text x="30" y="32" font-size="12.5" font-weight="800" fill="#334155">control plane節點</text>
+<rect x="250" y="44" width="640" height="334" rx="14" fill="#dde3ec" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="266" y="66" font-size="13" font-weight="800" fill="#1e293b">kube-controller-manager<tspan font-weight="600" fill="#475569">（Static Pod，一個process）：每個方塊是一個controller</tspan></text>
+<rect x="266" y="80" width="146" height="58" rx="10" fill="#e08a00"/>
+<text x="339" y="104" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">Deployment</text>
+<text x="339" y="123" font-size="10.5" font-weight="600" fill="#fff4e0" text-anchor="middle">管ReplicaSet</text>
+<rect x="420" y="80" width="146" height="58" rx="10" fill="#e08a00"/>
+<text x="493" y="104" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">ReplicaSet</text>
+<text x="493" y="123" font-size="10.5" font-weight="600" fill="#fff4e0" text-anchor="middle">管Pod</text>
+<rect x="574" y="80" width="146" height="58" rx="10" fill="#e08a00"/>
+<text x="647" y="104" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">StatefulSet</text>
+<text x="647" y="123" font-size="10.5" font-weight="600" fill="#fff4e0" text-anchor="middle">管Pod、PVC</text>
+<rect x="728" y="80" width="146" height="58" rx="10" fill="#e08a00"/>
+<text x="801" y="104" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">DaemonSet</text>
+<text x="801" y="123" font-size="10.5" font-weight="600" fill="#fff4e0" text-anchor="middle">每個Node一個Pod</text>
+<rect x="266" y="148" width="146" height="58" rx="10" fill="#6d4fc2"/>
+<text x="339" y="172" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">Job</text>
+<text x="339" y="191" font-size="10.5" font-weight="600" fill="#e9e3f8" text-anchor="middle">管Pod，跑到完成</text>
+<rect x="420" y="148" width="146" height="58" rx="10" fill="#6d4fc2"/>
+<text x="493" y="172" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">CronJob</text>
+<text x="493" y="191" font-size="10.5" font-weight="600" fill="#e9e3f8" text-anchor="middle">定時建Job</text>
+<rect x="574" y="148" width="146" height="58" rx="10" fill="#ffd23f"/>
+<text x="647" y="172" font-size="12.5" font-weight="800" fill="#4a3600" text-anchor="middle">Namespace</text>
+<text x="647" y="191" font-size="10.5" font-weight="600" fill="#6b5000" text-anchor="middle">刪namespace裡的object</text>
+<rect x="728" y="148" width="146" height="58" rx="10" fill="#ffd23f"/>
+<text x="801" y="172" font-size="12.5" font-weight="800" fill="#4a3600" text-anchor="middle">Node lifecycle</text>
+<text x="801" y="191" font-size="10.5" font-weight="600" fill="#6b5000" text-anchor="middle">Node失聯就加taint</text>
+<rect x="266" y="216" width="146" height="58" rx="10" fill="#ffd23f"/>
+<text x="339" y="240" font-size="12.5" font-weight="800" fill="#4a3600" text-anchor="middle">Garbage collector</text>
+<text x="339" y="259" font-size="10.5" font-weight="600" fill="#6b5000" text-anchor="middle">照ownerReferences刪</text>
+<rect x="420" y="216" width="146" height="58" rx="10" fill="#ffd23f"/>
+<text x="493" y="240" font-size="12.5" font-weight="800" fill="#4a3600" text-anchor="middle">ServiceAccount</text>
+<text x="493" y="259" font-size="10.5" font-weight="600" fill="#6b5000" text-anchor="middle">每個namespace一個default</text>
+<rect x="728" y="216" width="146" height="58" rx="10" fill="#eef0f3"/>
+<text x="801" y="240" font-size="12.5" font-weight="800" fill="#64748b" text-anchor="middle">…</text>
+<text x="801" y="259" font-size="10.5" font-weight="600" fill="#64748b" text-anchor="middle">還有二十幾個</text>
+<rect x="574" y="216" width="146" height="58" rx="10" fill="#1f9d76"/>
+<text x="647" y="240" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">EndpointSlice</text>
+<text x="647" y="259" font-size="10.5" font-weight="600" fill="#e3f7ef" text-anchor="middle">Service對到哪些Pod</text>
+<rect x="266" y="292" width="608" height="70" rx="10" fill="#d6457f"/>
+<text x="570" y="316" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">共用的SharedInformerFactory</text>
+<text x="570" y="336" font-size="11" font-weight="600" fill="#fde2ee" text-anchor="middle">Pod、Deployment、ReplicaSet、Node……每種object只開一個Informer、一份cache</text>
+<text x="570" y="352" font-size="11" font-weight="600" fill="#fde2ee" text-anchor="middle">例如Pod Informer同時給Deployment、ReplicaSet、DaemonSet、StatefulSet、Job controller用</text>
+<g stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3">
+<path d="M339 274 V 290"/>
+<path d="M493 274 V 290"/>
+<path d="M647 274 V 290"/>
+<path d="M801 274 V 290"/>
+</g>
+<rect x="40" y="150" width="150" height="58" rx="12" fill="#1e293b"/><text x="115" y="185" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">API Server</text>
+<path d="M115 208 V 246" stroke="#334155" stroke-width="2" marker-end="url(#kcm-a)" fill="none"/>
+<path d="M83 258 V 294 A32 8 0 0 0 147 294 V 258" fill="#1a3f78"/><ellipse cx="115" cy="258" rx="32" ry="8" fill="#4a73b5"/><text x="115" y="286" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">etcd</text>
+<path d="M262 322 C 225 322, 215 196, 194 196" fill="none" stroke="#334155" stroke-width="2" marker-start="url(#kcm-a)"/>
+<path d="M262 110 C 225 110, 215 164, 194 164" fill="none" stroke="#e08a00" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#kcm-o)"/>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="700">
+<text x="218" y="262" fill="#334155" text-anchor="middle">LIST +</text><text x="218" y="275" fill="#334155" text-anchor="middle">WATCH</text>
+<text x="212" y="128" fill="#b45309" text-anchor="middle">建立、修改</text><text x="212" y="141" fill="#b45309" text-anchor="middle">object</text>
+</g>
+<text x="115" y="340" font-size="10.5" font-weight="700" fill="#64748b" text-anchor="middle">多個control plane節點時，</text>
+<text x="115" y="355" font-size="10.5" font-weight="700" fill="#64748b" text-anchor="middle">靠leader election，</text>
+<text x="115" y="370" font-size="10.5" font-weight="700" fill="#64748b" text-anchor="middle">同時只有一個在工作</text>
+<g font-size="11.5" font-weight="700" fill="#334155">
+<rect x="266" y="394" width="14" height="14" rx="3" fill="#e08a00"/><text x="286" y="406">online job（長期執行）</text>
+<rect x="430" y="394" width="14" height="14" rx="3" fill="#6d4fc2"/><text x="450" y="406">offline / batch job（跑完就結束）</text>
+<rect x="768" y="394" width="14" height="14" rx="3" fill="#1f9d76"/><text x="788" y="406">網路</text>
+<rect x="660" y="394" width="14" height="14" rx="3" fill="#ffd23f"/><text x="680" y="406">cluster維護</text>
+</g>
+</svg>

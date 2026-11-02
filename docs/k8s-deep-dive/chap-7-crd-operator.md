@@ -7,6 +7,7 @@ toc_depth: 4
 **目錄**
 
 - [CRD、controller和Operator](#crdcontroller和operator)
+- [Goal：自定義Network CRD和Controller](#goal自定義network-crd和controller)
 - [Manual：CRD和controller](#manualcrd和controller)
 - [Auto：用kubebuilder產生](#auto用kubebuilder產生)
 - [Operator](#operator)
@@ -28,21 +29,61 @@ toc_depth: 4
 >
 > ***CRD描述「要什麼」***；*把維運知識寫進controller，**controller負責「怎麼做到」***；***CRD+Controller就是Operator***。
 
+## Goal：自定義Network CRD和Controller
+
+*最後要做出什麼？controller要放在哪裡？*
+
+這一章要做的是：***寫一個Network YAML，cloud上就自動建好一個對應的subnet***；改YAML，subnet跟著更新；刪掉YAML，subnet也跟著刪掉。
+
+同一個目標，這一章用兩種寫法各做一次：
+
+|                              | [Manual：手寫](#manualcrd和controller)       | [Auto：kubebuilder](#auto用kubebuilder產生)                 |
+| ---------------------------- | ------------------------------------------- | ---------------------------------------------------------- |
+| **controller怎麼寫**   | 自己寫informer、workqueue、syncHandler      | kubebuilder產生，只寫`Reconcile()`                       |
+| **controller跑在哪裡** | 你的電腦上（cluster外），用`go run .`執行 | ***cluster裡的Pod***（一個Deployment），業界的做法 |
+| **怎麼連API Server**   | kubeconfig                                  | Pod的ServiceAccount，權限由RBAC決定                        |
+| **適合**               | 看懂controller的每個零件                    | 正式環境                                                   |
+
+**Manual：controller在你的電腦上**（cluster外，用`go run .`執行）
+
+<img src="images/ch07/network-controller-goal.svg" alt="Manual的架構：使用者寫一個Network（my-net.yaml，cidr 192.168.0.0/16、gateway 192.168.0.1），用kubectl apply建進Kubernetes cluster；API Server因為① CRD而認識Network，把my-net存進etcd；network-controller跑在你的電腦上（cluster外），是這一章要寫的Go程式（③④ Go型別、client，⑤ Informer、workqueue、syncHandler），它watch API Server，比較YAML和cloud，在cloud（VPC）上建立、更新、刪除subnet my-net；cloud用vpc.go模擬" width="100%">
+
+圖上的①～⑤是[Manual](#manualcrd和controller)的步驟編號，標出每一步做的是哪一塊。
+
+**Auto：controller是cluster裡的Pod**（業界的做法）
+
+<img src="images/ch07/network-controller-goal-auto.svg" alt="Auto的架構：使用者寫一個Network；API Server因為CRD而認識Network，存進etcd；controller是Kubernetes cluster裡的一個Pod，由kubebuilder產生，以Deployment的形式跑在network-operator-system namespace，用自己的ServiceAccount + RBAC連API Server，並開啟leader election；它watch API Server，在cloud（VPC）上建立、更新、刪除subnet my-net" width="100%">
+
+圖上的①～④是[Auto](#auto用kubebuilder產生)的步驟編號，標出每一步做的是哪一塊。
+
+***業界幾乎都用Auto的方式***：controller部署成cluster裡的Pod，跟著cluster一起運作，不依賴任何一台電腦；Manual只是開發時方便，改完程式碼直接`go run`，不用每次重新打包image。
+
+> [!NOTE]
+> **🏭 業界怎麼放controller**
+>
+> 正式環境裡，controller幾乎都部署成cluster裡的Pod，很少跑在某台電腦上：
+>
+> | 面向               | 業界常見做法                                                                                                                     | 例子                                                                                                                        |
+> | ------------------ | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+> | **形式**     | 一個Deployment，放在***專用的namespace***，和app分開                                                                     | kubebuilder產生的namespace是`<project>-system`，例如`network-operator-system`                                           |
+> | **副本數**   | 2個以上，開***leader election***                                                                                         | 同一時間只有一個Pod真的在處理，另一個待命；leader掛了，另一個馬上接手                                                       |
+> | **權限**     | 專用的ServiceAccount，[RBAC](chap-6-declarative-api.md#rbac)只給需要的權限                                                        | 只能讀寫自己的CR，以及要建立的Pod、Service等                                                                                |
+> | **安裝方式** | 把controller的CRD、RBAC、Deployment打包成一份YAML或Helm chart，使用者一個命令就裝好；也可以交給OLM（Operator Lifecycle Manager） | kubebuilder的`make build-installer`產生`dist/install.yaml`，使用者`kubectl apply -f install.yaml`就裝好整個controller |
+> | **維運**     | 設定resource requests / limits、health probe，暴露metrics                                                                        | kubebuilder產生的project default就有`/healthz`、`/metrics`                                                              |
+>
+> - **OLM（Operator Lifecycle Manager）**：一個專門管理Operator的Operator，也裝在cluster裡。使用者建立一個`Subscription`，寫要裝哪個Operator、跟著哪個channel（例如`stable`），OLM就自動裝好CRD、RBAC、Deployment；之後出新版時照channel自動升級，也會先裝好它依賴的其他Operator。[OperatorHub.io](https://operatorhub.io/)上的Operator都用OLM安裝。
+
 ## Manual：CRD和controller
 
 *Kubernetes沒有的object型別，怎麼自己加？加了之後，誰來讓它真的做事？*
 
-這一章要做的是：***寫一個Network YAML，cloud上就自動建好一個對應的subnet***；改YAML，subnet跟著更新；刪掉YAML，subnet也跟著刪掉。
-
-<img src="images/ch07/network-controller-goal.svg" alt="這一章的目標：使用者寫一個Network（my-net.yaml，cidr 192.168.0.0/16、gateway 192.168.0.1），用kubectl apply send進Kubernetes cluster；API Server因為① CRD而認識Network，把my-net存進etcd，這時它只是一筆資料；network-controller是這一章要寫的Go程式（③④ Go型別、client，⑤ Informer、workqueue、syncHandler），它watch API Server，比較YAML和cloud，在cloud（VPC）上建立、更新、刪除subnet my-net（192.168.0.0/16，gateway 192.168.0.1）；這一章的cloud用vpc.go模擬。改YAML裡的cidr、gateway，subnet跟著更新；刪掉Network，subnet也跟著刪掉（⑥ Run it!）" width="100%">
-
-以一個描述網路的`Network`為例，從零開始手寫，整體分成6步，每一步對應圖上的①～⑥：
+以一個描述網路的`Network`為例，從零開始手寫。controller在你的電腦上執行，就是[Goal](#goal自定義network-crd和controller)裡Manual那張圖的樣子。整體分成6步，每一步對應目標圖上的①～⑥：
 
 1. **[寫CRD](#-1-crd讓api-server認識新的object型別)**：告訴API Server有`Network`這種object。
 2. **[建立Network](#-2-建立network)**：用`kubectl`建立`my-net`，確認它存進etcd；但這時還沒有人讓它做事。
 3. **[用Go定義Network型別](#-3-用go定義network型別)**：寫[doc.go](#-3a-docgo整個pkg共用的tag)、[types.go](#-3b-typesgonetwork的完整定義)、[register.go](#-3c-registergo註冊到scheme)。
 4. **[產生client程式碼](#-4-產生client程式碼)**：用code-generator產生clientset、informer、lister。
-5. **[寫controller](#-5-寫controller)**：了解Informer怎麼send change events給controller，再寫[main](#-5b-main啟動controller)、[NewController](#-5c-newcontroller註冊event-handler)、[Run](#-5d-run控制循環)，最後是真正的邏輯[syncHandler](#-5e-synchandler比較期望狀態和實際狀態)。
+5. **[寫controller](#-5-寫controller)**：了解Informer怎麼send change events給controller，再寫[main](#-5b-main啟動controller)、[NewController](#-5c-newcontroller註冊event-handler)、[Run](#-5d-runreconcile-loop)，最後是真正的邏輯[syncHandler](#-5e-synchandler比較期望狀態和實際狀態)。
 6. **[Run it!](#-6-run-it)**：建立、修改、刪除`my-net`，看controller怎麼反應。
 
 開始之前，先建立project，產生`go.mod`：
@@ -88,16 +129,16 @@ network-controller/
     │           ├── register.go   <-- 註冊到scheme，見第3.c節
     │           └── types.go      <-- Network的Go定義，見第3.b節
     └── generated/                <-- code-generator產生，不用自己寫，見第4節
-        ├── clientset/
-        ├── informers/
-        └── listers/
+        ├── clientset/            <-- 連API Server讀寫Network
+        ├── informers/            <-- watch Network的變化，維護local cache
+        └── listers/              <-- 從local cache讀Network
 ```
 
 ### 🧩 1. CRD：讓API Server認識新的object型別
 
 [Chap-5](chap-5-container-orchestration-controller.md)看到的Deployment、Job、CronJob，都是Kubernetes**內建的object型別**，API Server的程式碼裡本來就有它們的定義。如果想要一種新的object型別，例如用來描述網路的`Network`，就用**CRD**（CustomResourceDefinition）告訴API Server。把下面的內容寫進`crd/network-crd.yaml`：
 
-<!-- hl: 4 6 9 10 15 16 23 -->
+<!-- hl: 6 10 14 | hl2: 4 9 15 16 23 -->
 
 ```yaml
 apiVersion: apiextensions.k8s.io/v1
@@ -112,10 +153,10 @@ spec:
     plural: networks
     singular: network
     shortNames: [net]               # list，目前只有一個簡稱net
-  versions:
-  - name: v1
-    served: true                    # 這個version可以用來send request
-    storage: true                   # 存進etcd時用這個version
+  versions:                         # 這個CRD有哪些version，一項一個
+  - name: v1                        # version的名字，就是URL和apiVersion裡的v1
+    served: true                    # v1可以用來send request
+    storage: true                   # 存進etcd時用v1
     schema:
       openAPIV3Schema:
         type: object
@@ -131,9 +172,9 @@ spec:
 ```
 
 - **`group`、`version`、`plural`**：就是[Group、Version、Resource](chap-6-declarative-api.md#-1-groupversionresource)那三層。這個CRD會在樹上多長出`/apis/example.com/v1/networks`。
-- **`served`和`storage`**：一個CRD可以同時有好幾個version，例如`v1`和`v2`。這兩個欄位管的是不同的事：
+- **`served`和`storage`**：一個CRD可以同時有好幾個version，例如`v1`和`v2`。version下面的這兩個欄位管的是不同的事：
 
-  - **`served: true`**：client可以用這個version讀寫，例如`/apis/example.com/v1/...`和`/apis/example.com/v2/...`都能用，***所以可以有好幾個***。
+  - **`served: true`**：client可以用這個version（`name`寫的那個，例如`v1`）讀寫，例如`/apis/example.com/v1/...`和`/apis/example.com/v2/...`都能用，***所以可以有好幾個***。
   - **`storage: true`**：etcd裡實際存成哪個version。一筆資料在etcd裡只存一份，***所以只能有一個***，也就是[storage version](chap-6-declarative-api.md#multi-version)。client用其他version讀寫時，API Server會把資料轉換成client要的version。
 - **`schema`**：API Server在[④ Schema validation](chap-6-declarative-api.md#api-server怎麼處理request)用它檢查欄位。例如少了`cidr`，或型別不對，request會直接被擋下來。
 - **`required: [cidr, gateway]`**：建立Network時，`spec`裡***一定要有***`cidr`和`gateway`，少一個都不行。`[cidr, gateway]`是YAML清單的簡寫，等於分兩行寫`- cidr`、`- gateway`。沒寫`required`的話，這兩個欄位都是選填，controller就要自己處理欄位是空的情況。
@@ -167,8 +208,23 @@ kind create cluster --name demo
 kubectl wait --for=condition=Ready nodes --all --timeout=120s   # 剛建好時節點是NotReady，等它變成Ready
 ```
 
+先看CRD裝進去前後，API Server認不認得`Network`：
+
 ```bash
+kubectl api-resources --api-group=example.com     # apply CRD之前
+# → NAME   SHORTNAMES   APIVERSION   NAMESPACED   KIND           （空的，不認得）
+
 kubectl apply -f crd/network-crd.yaml
+kubectl api-resources --api-group=example.com     # apply CRD之後
+# → NAME       SHORTNAMES   APIVERSION       NAMESPACED   KIND
+#   networks   net          example.com/v1   true         Network
+```
+
+CRD一建好，API Server馬上在API樹上多了`networks`，不用重開任何東西。這時`kubectl get net`會回「No resources found」：API認得這種object，只是還沒有任何一個。
+
+再建立`my-net`：
+
+```bash
 kubectl get crd networks.example.com
 kubectl apply -f examples/my-net.yaml
 kubectl get net                       # shortNames生效
@@ -449,12 +505,11 @@ controller要怎麼知道Network什麼時候被新增、修改、刪除？最直
 > | -------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 > | `AddFunc`    | cache裡多了一個Network | `kubectl apply`建立`my-net`；或controller啟動時，LIST拿到已經存在的`my-net`                                                              |
 > | `UpdateFunc` | cache裡的Network被修改 | `kubectl patch`改了`cidr`；或resync定時trigger                                                                                             |
-> | `DeleteFunc` | Network從cache裡消失   | `kubectl delete my-net`後，controller刪掉subnet、清理完，`my-net`真的被刪除時（見[5.e的finalizer](#-5e-synchandler比較期望狀態和實際狀態)） |
+> | `DeleteFunc` | Network從cache裡消失   | `kubectl delete my-net`後，controller刪掉subnet、清理完，`my-net`真的被刪除時（見[finalizer](#finalizer)） |
 >
 > 在這個controller裡，三個handler都只做一件事：`c.enqueue(obj)`，把key放進workqueue。要建立、更新還是刪除，留給syncHandler讀最新的Network再判斷。
 
 5. **Workqueue**：event handler只做一件事：把object的`namespace/name`放進workqueue，例如`my-net`就是`default/my-net`。這個字串叫做***key***，只放key、不放整個object的原因，見下面的note。
-
 6. **Worker**：controller的worker從workqueue取出`namespace/name`，用lister到cache讀出最新的Network，開始調整。
 
 > [!NOTE]
@@ -476,7 +531,29 @@ controller要怎麼知道Network什麼時候被新增、修改、刪除？最直
 > - **失敗可以重試**：處理失敗時用`AddRateLimited()`放回queue，等待時間會一次比一次長。
 > - **同一個key不會同時處理**：開好幾個worker，workqueue也保證同一個`namespace/name`同時只會被一個worker處理。
 
-**resync**：Informer每隔一段時間（[5.b](#-5b-main啟動controller)設定的30秒），會對cache裡所有object再trigger一次`UpdateFunc`，避免漏掉event。`UpdateFunc`被呼叫時會拿到兩個參數：`old`是修改前的object，`new`是修改後的object。controller比較兩者的`ResourceVersion`，就能分辨是不是真的有變化：`ResourceVersion`是API Server替object記的版本號，object每被修改一次就換一個新值。真的被修改時，新舊兩個的`ResourceVersion`不一樣；resync沒有任何修改，兩個的`ResourceVersion`一樣，controller就可以直接略過，見[5.c](#-5c-newcontroller註冊event-handler)的`UpdateFunc`。
+**resync**：Informer每隔一段時間（[5.b](#-5b-main啟動controller)設定的30秒），會對cache裡所有object再trigger一次`UpdateFunc`，即使object完全沒變；這時傳進去的`old`和`new`是cache裡同一份object。`UpdateFunc`會把key放進workqueue，worker取出key後就會呼叫syncHandler（④ → ⑤ → ⑥），***等於定期強迫controller再檢查一次：Network寫的期望狀態，和cloud上subnet的實際狀態是不是一樣***。如果沒有變化，就什麼都不做；如果有變化，就更新實際的CR進行reconcile.
+
+為什麼需要：實際狀態可能在Kubernetes以外被改了，例如有人在cloud的console上手動刪掉subnet。這時Kubernetes裡的`my-net`（存在etcd裡的那個object）完全沒被修改，API Server也就沒有event可以push。resync本身不會去查cloud，它只是把cache裡的Network再trigger一次，讓syncHandler再跑一次；***是syncHandler裡的`vpc.Get()`去cloud查***，發現subnet不見了就重新建立。
+
+> [!TIP]
+> **💡 cluster內部的東西需要resync嗎？基本上不需要**
+>
+> - **有event可以收**：cluster內的object（例如Pod、ReplicaSet）一被改，API Server就會push event；controller只要也watch它們，就會馬上收到，不用定期重查。
+> - **Informer不會漏event**：WATCH斷線時，Reflector會重新LIST把cache補齊，所以也不用靠resync補。
+>
+> 所以只管cluster內object的controller，常把resync關掉（設成`0`）或設得很長，例如Deployment controller。只有像這一章這樣，實際狀態在cluster外、改了也沒有event時，才需要resync讓syncHandler定期再跑。
+
+> [!NOTE]
+> **🔄 `old`和`new`從哪裡來**
+>
+> local cache裡每個object只存一份（最新的），`old`和`new`是Informer呼叫`UpdateFunc`那一刻臨時拿的兩個參數：
+>
+> | 情況                                              | `old`                                             | `new`                                               |
+> | ------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------- |
+> | **平常，真的被修改**，例如`kubectl patch` | local cache裡現在那一份（還沒更新，所以是修改前的） | WATCH收到的`MODIFIED` event帶來的object（修改後的） |
+> | **resync**                                  | local cache裡那一份                                 | ***同一份***，沒有新的event                   |
+>
+> 平常被修改時，Informer先取出cache裡的舊版當`old`，把event帶來的新版存進cache，再呼叫`UpdateFunc(old, new)`；呼叫完，cache裡只剩新版。需要知道「改了什麼」的controller，可以比較`old`和`new`，例如只在`cidr`變了才處理。
 
 #### 🚀 5.b main：啟動controller
 
@@ -505,30 +582,40 @@ func main() {
 	flag.Parse()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+	defer stop()                                       // 收到Ctrl+C或SIGTERM時，ctx會被取消
 
+	// ① 連API Server
+	// 有給--kubeconfig：讀這個檔案，controller在你的電腦上（cluster外）執行，這一章就是這樣
+	// 留空：用in-cluster config，也就是Pod的ServiceAccount token
+	//       （kubelet自動掛在/var/run/secrets/kubernetes.io/serviceaccount/），deploy成Pod時用
 	cfg, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		klog.Fatal(err)
 	}
-	networkClient := clientset.NewForConfigOrDie(cfg)                              // 產生的Network clientset
+	networkClient := clientset.NewForConfigOrDie(cfg)  // 第4節產生的clientset
 
-	factory := informers.NewSharedInformerFactory(networkClient, 30*time.Second)  // resync週期
+	// ② 建立factory，向它要Network Informer
+	// Informer用networkClient連API Server；真正負責LIST + WATCH、斷線重連的是Informer裡的Reflector
+	// Shared：同一種object只開一條Watch，多個地方要Network Informer，拿到的都是同一個
+	factory := informers.NewSharedInformerFactory(networkClient, 30*time.Second)  // 30秒：resync週期
 	controller := NewController(networkClient, factory.Example().V1().Networks())
 
-	factory.Start(ctx.Done())                                                      // 開始List + Watch
-	if err := controller.Run(ctx, 2); err != nil {                                 // 2個worker
+	// ③ 啟動：先啟動informer，再啟動controller
+	// factory.Start：啟動informer，在背景goroutine裡LIST + WATCH、更新cache；馬上return，不會卡住
+	// controller.Run：先等cache同步完（所以要先Start），再開worker處理workqueue；
+	//                 會一直卡在這裡，直到ctx被取消（Ctrl+C或SIGTERM）
+	factory.Start(ctx.Done())
+	if err := controller.Run(ctx, 2); err != nil {     // 2個worker
 		klog.Fatal(err)
 	}
 }
 ```
 
-- **`--kubeconfig`**：controller在cluster外面跑時（例如開發時在自己的電腦上），用kubeconfig連API Server；deploy成Pod時留空，改用Pod的ServiceAccount連API Server。
-- **`SharedInformerFactory`**：同一種object在同一個程式裡只開一條Watch。controller如果同時要watch Network和Deployment，就各從自己的factory拿informer。
+`main()`做三件事：① 連API Server、② 建立factory並拿到Network Informer、③ 啟動informer和controller，細節寫在程式碼的註解裡。in-cluster config見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)，Reflector見[5.a](#-5a-informercontroller怎麼知道network變了)。
 
 #### 🔌 5.c NewController：註冊event handler
 
-`controller.go`分成三段寫，***依序貼進同一個檔案***：這一節是第一段，5.d、5.e接在後面。
+`controller.go`分成三段寫，***依序貼進同一個檔案***：這一節是第一段：註冊event handler，5.d、5.e接在後面。
 
 ```go
 package main
@@ -553,19 +640,22 @@ import (
 	listers "github.com/<you>/network-controller/pkg/generated/listers/example/v1"
 )
 
-const finalizer = "example.com/network-cleanup"
+const finalizer = "example.com/network-cleanup"     // 刪除Network時用，見5.e的finalizer
 
+// Controller把controller要用的工具放在一起
 type Controller struct {
-	networkclientset clientset.Interface
-	networksLister   listers.NetworkLister
-	networksSynced   cache.InformerSynced
-	workqueue        workqueue.TypedRateLimitingInterface[cache.ObjectName]
+	networkclientset clientset.Interface              // 寫入用：連API Server，例如加、拿掉finalizer
+	networksLister   listers.NetworkLister            // 讀取用：從local cache讀Network，不問API Server
+	networksSynced   cache.InformerSynced             // 問informer：cache第一次同步完了沒（5.d用）
+	workqueue        workqueue.TypedRateLimitingInterface[cache.ObjectName]  // 放待處理的key
 }
 
 func NewController(networkclientset clientset.Interface, networkInformer informers.NetworkInformer) *Controller {
+	// ① 準備工具：lister和HasSynced都從Network Informer拿
+	// workqueue是rate limiting queue：失敗時AddRateLimited，重試間隔一次比一次長
 	c := &Controller{
 		networkclientset: networkclientset,
-		networksLister:   networkInformer.Lister(),             // 從local cache讀
+		networksLister:   networkInformer.Lister(),
 		networksSynced:   networkInformer.Informer().HasSynced,
 		workqueue: workqueue.NewTypedRateLimitingQueueWithConfig(
 			workqueue.DefaultTypedControllerRateLimiter[cache.ObjectName](),
@@ -573,113 +663,185 @@ func NewController(networkclientset clientset.Interface, networkInformer informe
 		),
 	}
 
+	// ② 註冊event handler：Network有變化時，informer呼叫對應的handler
+	// 三個handler都只做一件事：把key放進workqueue；要建立、更新還是刪除，留給syncHandler判斷
 	networkInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: c.enqueue,
+		AddFunc: c.enqueue,                            // 新增，或啟動時LIST拿到已經存在的
 		UpdateFunc: func(old, new interface{}) {
-			if old.(*examplev1.Network).ResourceVersion == new.(*examplev1.Network).ResourceVersion {
-				return                                              // resync，沒有變化
-			}
-			c.enqueue(new)
+			c.enqueue(new)                             // 修改，或resync定時trigger，見5.a
 		},
-		DeleteFunc: c.enqueue,
+		DeleteFunc: c.enqueue,                         // 真的被刪除
 	})
 	return c
 }
 
+// enqueue把object的key（namespace/name，例如default/my-net）放進workqueue
 func (c *Controller) enqueue(obj interface{}) {
-	ref, err := cache.DeletionHandlingObjectToName(obj)          // 取出namespace/name
+	// DeletionHandlingObjectToName：Watch斷線期間object被刪掉時，informer收到的不是Network，
+	// 而是DeletedFinalStateUnknown；這個函式一樣能從裡面取出namespace/name
+	ref, err := cache.DeletionHandlingObjectToName(obj)
 	if err != nil {
 		utilruntime.HandleError(err)
 		return
 	}
-	c.workqueue.Add(ref)
+	c.workqueue.Add(ref)                               // 同一個key已經在queue裡，就不會重複加
 }
 ```
 
-`DeletionHandlingObjectToName`會處理一種特殊情況：Watch斷線期間object被刪掉了，Informer收到的不是Network本身，而是一個`DeletedFinalStateUnknown`。它一樣能從裡面取出`namespace/name`。
+`NewController()`做兩件事：① 準備lister、workqueue這些工具、② 向Network Informer註冊event handler，細節寫在程式碼的註解裡。三個handler什麼時候被呼叫，見[5.a](#event-handlers)。
 
-#### ♻️ 5.d Run：控制循環
+#### ♻️ 5.d Run：reconcile loop
 
 接在`controller.go`後面：
 
 ```go
+// Run啟動控制循環：等cache同步完，開workers個worker，一直跑到ctx被取消
 func (c *Controller) Run(ctx context.Context, workers int) error {
-	defer c.workqueue.ShutDown()
+	defer c.workqueue.ShutDown()                       // 結束時關掉queue，worker的Get()會收到shutdown
 
-	if !cache.WaitForCacheSync(ctx.Done(), c.networksSynced) {  // 等cache第一次同步完
+	// ① 等cache第一次同步完
+	// 沒等的話，會把「cache裡還沒有」誤以為「object不存在」
+	if !cache.WaitForCacheSync(ctx.Done(), c.networksSynced) {
 		return fmt.Errorf("failed to wait for caches to sync")
 	}
 	klog.Info("controller started")
+
+	// ② 開worker：每個worker一直重複runWorker；runWorker結束的話，1秒後再開一個
 	for i := 0; i < workers; i++ {
 		go wait.UntilWithContext(ctx, c.runWorker, time.Second)
 	}
-	<-ctx.Done()
+	<-ctx.Done()                                       // 卡在這裡，直到Ctrl+C或SIGTERM
 	return nil
 }
 
+// runWorker一直從workqueue取key來處理，直到queue被關掉
 func (c *Controller) runWorker(ctx context.Context) {
 	for c.processNextWorkItem(ctx) {
 	}
 }
 
+// processNextWorkItem取一個key，交給syncHandler；return false表示queue已關掉
 func (c *Controller) processNextWorkItem(ctx context.Context) bool {
-	ref, shutdown := c.workqueue.Get()
+	ref, shutdown := c.workqueue.Get()                 // queue是空的就等，直到有key
 	if shutdown {
 		return false
 	}
+	// Done：告訴queue這個key處理完了
+	// 處理期間如果又有新event，Done之後會再放回queue；同一個key不會同時被兩個worker處理
 	defer c.workqueue.Done(ref)
 
 	if err := c.syncHandler(ctx, ref); err != nil {
-		c.workqueue.AddRateLimited(ref)                            // 失敗：等一下再重試
+		c.workqueue.AddRateLimited(ref)                // 失敗：等一下再重試，間隔一次比一次長
 		utilruntime.HandleError(err)
 		return true
 	}
-	c.workqueue.Forget(ref)                                      // 成功：清掉重試次數
+	c.workqueue.Forget(ref)                            // 成功：清掉這個key的重試次數
 	return true
 }
 ```
 
-- **`WaitForCacheSync`**：cache還沒同步完就開始處理，會把「cache裡還沒有」誤以為「object不存在」。
-- **`Done()`**：告訴workqueue這個key處理完了；處理期間如果又有新event，`Done()`之後會再放回queue。
+`Run()`做兩件事：① 等cache同步完、② 開worker，每個worker不斷從workqueue取key、交給syncHandler，細節寫在程式碼的註解裡。
 
 #### 🎯 5.e syncHandler：比較期望狀態和實際狀態
 
-這是***唯一真正要自己寫的邏輯***。其他程式碼幾乎都是固定的寫法。接在`controller.go`最後面：
+寫syncHandler之前，先認識它會用到的**finalizer**。<a id="finalizer"></a>
 
-<!-- hl: 2 10 14 20 -->
+**finalizer是什麼**：object的`metadata.finalizers`清單裡的一個字串，例如`example.com/network-cleanup`，可以想成貼在object上的「***還不能刪***」標籤。每個object都有`finalizers`這個欄位，但default是空的；`my-net.yaml`裡也沒寫，是controller第一次處理`my-net`時，用clientset `Update`加上去的，所以它和`spec`一樣存在etcd裡。用`kubectl get net my-net -o yaml`才看得到：
+
+```yaml
+metadata:
+  name: my-net
+  finalizers:
+  - example.com/network-cleanup     # controller加的，my-net.yaml裡沒有
+```
+
+**為什麼需要**：比較使用者執行`kubectl delete my-net`時的兩種情況。
+
+沒有finalizer：
+
+```
+kubectl delete my-net
+  → API Server馬上把my-net從etcd刪掉
+  → Informer收到DELETED event，cache裡的my-net也沒了
+  → DeleteFunc把key default/my-net放進workqueue
+  → syncHandler用key去cache讀my-net → 找不到
+  → controller不知道它原本的cidr是什麼、cloud上有沒有subnet
+  → cloud上的subnet沒人刪，一直留著 ❌
+```
+
+如果刪除時controller剛好沒在跑，更糟：它重開後，cache裡根本沒有`my-net`，連「有一個Network被刪了」都不知道。
+
+有finalizer：
+
+```
+kubectl delete my-net
+  → API Server看到my-net上有finalizer，不刪，只寫上deletionTimestamp（刪除中）
+  → my-net還在etcd、還在cache裡，內容完整
+  → syncHandler讀到my-net，看到deletionTimestamp
+  → vpc.Delete刪掉cloud上的subnet ✅
+  → removeFinalizer拿掉finalizer
+  → API Server這時才真的刪掉my-net
+```
+
+就算controller刪除時沒在跑，`my-net`也會一直卡在「刪除中」，等controller重開、刪掉subnet，才會消失。
+
+***finalizer讓`my-net`在被刪除前，先留在etcd裡等controller清理完cloud。*** 沒有它，`my-net`會在controller清理之前就消失，cloud上的subnet就沒人管了。
+
+**什麼時候需要finalizer**：不是每個controller都需要。判斷方法：***object被刪除時，有沒有Kubernetes自己清不掉的東西要清理***。
+
+| controller管的東西 | 刪除時誰清理 | 需要finalizer嗎 |
+| --- | --- | --- |
+| **cluster外的資源**（cloud subnet、load balancer、DNS record） | 只有controller自己知道要清 | ✅ 需要，否則會留下沒人管的外部資源 |
+| **cluster裡的object**（Pod、StatefulSet、Service） | 設好`ownerReferences`，garbage collector自動刪 | ❌ 通常不需要 |
+| **只讀、不建立任何東西** | 沒有東西要清 | ❌ 不需要 |
+
+這一章的controller管的是cloud上的subnet，所以需要finalizer。
+
+**寫syncHandler**：下面的`syncHandler()`是整個controller裡***唯一真正要自己寫的邏輯***，其他程式碼（5.b～5.d）幾乎都是固定的寫法。把它接在`controller.go`最後面：
+
+<!-- hl: 4 15 19 27 -->
 
 ```go
+// syncHandler比較一個Network的期望狀態和實際狀態，不一樣就調整cloud
 func (c *Controller) syncHandler(ctx context.Context, ref cache.ObjectName) error {
-	network, err := c.networksLister.Networks(ref.Namespace).Get(ref.Name)  // 期望狀態
+	// ① 期望狀態：用lister從local cache讀Network
+	network, err := c.networksLister.Networks(ref.Namespace).Get(ref.Name)
 	if errors.IsNotFound(err) {
-		return nil                                                    // 已經刪除，finalizer處理過了
+		return nil                                     // 已經刪除，finalizer處理過了
 	}
 	if err != nil {
 		return err
 	}
 
-	if !network.DeletionTimestamp.IsZero() {                          // 使用者刪除了Network
+	// ② 使用者刪除了Network：kubectl delete只設定了DeletionTimestamp（因為有finalizer）
+	// 先刪cloud上的subnet，再拿掉finalizer，API Server才真的把Network從etcd刪掉
+	// 就算刪除時controller沒在跑，重開後也一定會看到它，不會漏刪
+	if !network.DeletionTimestamp.IsZero() {
 		if err := vpc.Delete(ref.Namespace, ref.Name); err != nil {
 			return err
 		}
-		return c.removeFinalizer(ctx, network)                          // 拿掉finalizer，API Server才真的刪除
+		return c.removeFinalizer(ctx, network)
 	}
+	// 還沒有finalizer：先加上，Update後會觸發一次UpdateFunc，下一輪再往下做
 	if !slices.Contains(network.Finalizers, finalizer) {
 		return c.addFinalizer(ctx, network)
 	}
 
-	actual, exists := vpc.Get(ref.Namespace, ref.Name)            // 實際狀態
+	// ③ 實際狀態：直接去cloud查subnet，見下面的note
+	actual, exists := vpc.Get(ref.Namespace, ref.Name)
 	switch {
-	case !exists:
+	case !exists:                                      // cloud上沒有：建立
 		return vpc.Create(ref.Namespace, ref.Name, network.Spec)
 	case actual.Cidr != network.Spec.Cidr || actual.Gateway != network.Spec.Gateway:
-		return vpc.Update(ref.Namespace, ref.Name, network.Spec)
+		return vpc.Update(ref.Namespace, ref.Name, network.Spec)  // 不一樣：更新
 	}
-	return nil
+	return nil                                         // 一樣：什麼都不做（resync大多走到這裡）
 }
 
+// addFinalizer、removeFinalizer：改副本再Update回API Server
+// 不能直接改cache裡的object：它是大家共用的，改了會讓cache和API Server不一致
 func (c *Controller) addFinalizer(ctx context.Context, network *examplev1.Network) error {
-	n := network.DeepCopy()                                       // 改副本，不改cache裡的object
+	n := network.DeepCopy()
 	n.Finalizers = append(n.Finalizers, finalizer)
 	_, err := c.networkclientset.ExampleV1().Networks(n.Namespace).Update(ctx, n, metav1.UpdateOptions{})
 	return err
@@ -693,8 +855,17 @@ func (c *Controller) removeFinalizer(ctx context.Context, network *examplev1.Net
 }
 ```
 
-- **finalizer**：Network加上finalizer之後，`kubectl delete`不會馬上刪掉它，只會設定`DeletionTimestamp`。controller看到之後先刪掉cloud的subnet，再拿掉finalizer，API Server才真的把它從etcd刪掉。所以就算刪除的時候controller沒在跑，重開後也一定會看到這個Network，不會漏刪。
-- **不要直接改cache裡的object**：`addFinalizer`、`removeFinalizer`要先`network.DeepCopy()`，改的是副本，再用clientset `Update`回API Server。cache裡的object是大家共用的。
+`syncHandler()`做三件事：① 讀期望狀態、② 處理刪除和finalizer、③ 查實際狀態並調整cloud，細節寫在程式碼的註解裡。
+
+> [!NOTE]
+> **🔍 實際狀態從哪裡讀**
+>
+> 實際狀態要去controller負責管理的那個東西那裡讀：
+>
+> - **管的是其他Kubernetes object**（例如Pod、StatefulSet）：再開一個Informer watch它們，從local cache讀。它們一變，controller馬上收到event。
+> - **管的是cluster外的東西**（cloud資源、DNS、資料庫、app本身）：在syncHandler裡直接呼叫那個系統的API去查。這些東西被改了，Kubernetes不會有任何event，所以要靠[resync](#-5a-informercontroller怎麼知道network變了)讓syncHandler定期再跑一次：resync本身只是把cache裡的Network（來自etcd）再trigger一次，***真正去查cluster外狀態的是syncHandler***。
+>
+> 這一章管的是cloud上的subnet，屬於第二種，所以用`vpc.Get()`直接去cloud查。
 
 `vpc`代表cloud provider建立網路的API（例如AWS、GCP的VPC / subnet API）。這裡不連真的cloud，用一個map模擬，每次操作印一行log，方便在[第6節](#-6-run-it)看到controller做了什麼。建立`vpc.go`：
 
@@ -819,6 +990,7 @@ vpc: delete subnet default/my-net
 ### 🏗️ 1. 建立project
 
 ```bash
+mkdir network-operator && cd network-operator      # project名稱取自資料夾名稱
 # <you>換成自己的GitHub帳號
 kubebuilder init --domain example.com --repo github.com/<you>/network-operator
 kubebuilder create api --group net --version v1 --kind Network   # 問要不要產生resource和controller，都選y
@@ -853,9 +1025,9 @@ network-operator/
 
 ### 📝 2. 用註解描述CRD
 
-在`network_types.go`裡填上欄位。***CRD的YAML不用手寫***：`make manifests`會讀Go型別和`+kubebuilder`開頭的註解，產生`config/crd/`底下的CRD。
+打開`api/v1/network_types.go`，***只改兩個地方***，其他kubebuilder產生的程式碼保留：把`NetworkSpec`換成下面的欄位，並在`Network`上面加一行`+kubebuilder:resource:shortName=net`。***CRD的YAML不用手寫***：`make manifests`會讀Go型別和`+kubebuilder`開頭的註解，產生`config/crd/`底下的CRD。
 
-<!-- hl: 3 5 9 10 -->
+<!-- hl: 3 5 10 -->
 
 ```go
 type NetworkSpec struct {
@@ -866,15 +1038,19 @@ type NetworkSpec struct {
 }
 
 // +kubebuilder:object:root=true
-// +kubebuilder:resource:shortName=net
+// +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=net                  <-- 自己加的這一行
 
 // Network is the Schema for the networks API
 type Network struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec NetworkSpec `json:"spec"`
+	...                                                 // kubebuilder產生的，不用改
 }
+```
+
+改完型別，重新產生DeepCopy和CRD：
+
+```bash
+make generate manifests
 ```
 
 - **`+required`**：產生CRD時，會變成`schema`裡的`required: [cidr, gateway]`，和[手寫版的CRD](#-1-crd讓api-server認識新的object型別)一樣。
@@ -883,10 +1059,19 @@ type Network struct {
 
 ### 🧠 3. 只寫Reconcile()
 
-`network_controller.go`裡，kubebuilder已經產生了骨架，只要填`Reconcile()`。邏輯和手寫版的[syncHandler](#-5e-synchandler比較期望狀態和實際狀態)一樣：
+`internal/controller/network_controller.go`裡，kubebuilder已經產生了骨架。改三個地方：import加上`controllerutil`、拿掉沒用到的`logf`；加一個`finalizer`常數；填好`Reconcile()`。邏輯和手寫版的[syncHandler](#-5e-synchandler比較期望狀態和實際狀態)一樣：
 
 ```go
-// +kubebuilder:rbac:groups=net.example.com,resources=networks,verbs=get;list;watch;update;patch
+import (
+	...
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"   // 加上
+	// logf "sigs.k8s.io/controller-runtime/pkg/log"               // 拿掉
+)
+
+const finalizer = "net.example.com/network-cleanup"
+
+// +kubebuilder:rbac:groups=net.example.com,resources=networks,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=net.example.com,resources=networks/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=net.example.com,resources=networks/finalizers,verbs=update
 
 func (r *NetworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -931,14 +1116,49 @@ func (r *NetworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 ### 🧪 4. Run it!
 
+再補兩個檔案：
+
+- **`internal/controller/vpc.go`**：和Manual的[vpc.go](#-5e-synchandler比較期望狀態和實際狀態)一樣，把`package main`改成`package controller`、`examplev1`改成`netv1`（import `github.com/<you>/network-operator/api/v1`）。
+- **`config/samples/net_v1_network.yaml`**：把`spec`填上和Manual一樣的`cidr`、`gateway`，`metadata.name`改成`my-net`。
+
+這一節照業界的做法，***把controller deploy成cluster裡的Pod***。Manual的CRD還在cluster裡的話，先刪掉，否則兩個CRD的shortName都是`net`：
+
 ```bash
-make manifests generate                            # 從註解產生CRD、RBAC、DeepCopy
-make install                                       # 把CRD裝進cluster
-make run                                           # 在cluster外面跑controller
-kubectl apply -f config/samples/net_v1_network.yaml
+kubectl delete crd networks.example.com --ignore-not-found       # 刪掉Manual的CRD
+
+make docker-build IMG=network-operator:dev                        # 把controller打包成image
+kind load docker-image network-operator:dev --name demo            # 把image載入kind cluster
+make deploy IMG=network-operator:dev                               # 裝CRD、RBAC、Deployment
+kubectl -n network-operator-system get pods
+# → NAME                                                   READY   STATUS    RESTARTS   AGE
+#   network-operator-controller-manager-746c98795c-smb8t   1/1     Running   0          11s
 ```
 
-要deploy到cluster裡，用`make docker-build docker-push IMG=<image>`和`make deploy IMG=<image>`。
+- **`kind load docker-image`**：kind的節點是Docker container，看不到你電腦上的image，要先載進去。正式環境則是`make docker-push`到image registry。
+- **`make deploy`**：用kustomize套用`config/default`，一次建好namespace、CRD、ServiceAccount、RBAC和controller的Deployment。
+
+再建立、修改、刪除`my-net`：
+
+```bash
+kubectl apply -f config/samples/net_v1_network.yaml
+kubectl patch networks.net.example.com my-net --type=merge \
+  -p '{"spec":{"cidr":"10.1.0.0/16","gateway":"10.1.0.1"}}'
+kubectl delete networks.net.example.com my-net
+kubectl -n network-operator-system logs deploy/network-operator-controller-manager | grep vpc
+# → vpc: create subnet default/my-net cidr=192.168.0.0/16 gateway=192.168.0.1
+#   vpc: update subnet default/my-net cidr=10.1.0.0/16 gateway=10.1.0.1
+#   vpc: delete subnet default/my-net
+```
+
+- **用完整名稱`networks.net.example.com`**：剛刪掉Manual的CRD後，`kubectl`的discovery cache可能還記得它，`net`這個shortName會被解析成舊的`networks.example.com`而找不到。用完整名稱就不會弄錯。
+
+結果和Manual的Run it!一樣，只是controller現在是cluster裡的Pod。開發時想快速重跑，也可以用`make install`（只裝CRD）加`make run`（在你的電腦上跑controller），和Manual的方式一樣。
+
+清理：
+
+```bash
+make undeploy                                      # 刪掉controller、RBAC、CRD和namespace
+```
 
 ### ⚖️ 5. 手寫和kubebuilder的比較
 
@@ -1062,7 +1282,7 @@ etcd Operator的特別之處，是***每個EtcdCluster都有一個自己的控�
 | 場景                       | 例子                       | 為什麼不適合                                       |
 | -------------------------- | -------------------------- | -------------------------------------------------- |
 | **大量、頻繁寫入**   | metrics、log、event stream | 每次寫入都要經過API Server和etcd                   |
-| **很大的object**     | 大型config、binary資料     | etcd單筆資料有大小上限（預設約1.5MB）              |
+| **很大的object**     | 大型config、binary資料     | etcd單筆資料有大小上限（default約1.5MB）           |
 | **複雜查詢**         | 排序、join、統計           | API Server只能依label、field篩選，不能像DB一樣查詢 |
 | **不是「期望狀態」** | 一次性的命令、串流資料     | CRD描述的是要維持的狀態，不是要執行一次的動作      |
 

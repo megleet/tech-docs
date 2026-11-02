@@ -70,7 +70,7 @@ kubectl exec -it test-projected-volume -- ls /projected-volume/
 - **Secret更新後，檔案會自動更新**：kubelet定期同步，會有一點延遲。改用env var inject的話，要重建Pod才會更新，見[env var還是volume](#-5-env-var還是volume)。
 
 > [!WARNING]
-> [Secret](https://kubernetes.io/docs/concepts/configuration/secret/)預設***只做base64編碼，沒有加密***，etcd裡存的內容可以直接還原。要真的加密，要另外設定[encryption at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)，或改用Vault這類外部的secret管理系統。
+> [Secret](https://kubernetes.io/docs/concepts/configuration/secret/)default***只做base64編碼，沒有加密***，etcd裡存的內容可以直接還原。要真的加密，要另外設定[encryption at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)，或改用Vault這類外部的secret管理系統。
 
 ### ⚙️ 3. ConfigMap：一般的config
 
@@ -459,7 +459,7 @@ parameters:
   type: pd-ssd                        # SSD類型的disk
 ```
 
-開發者在PVC裡寫`storageClassName: block-service`。建立PVC之後，Kubernetes就呼叫這個provisioner，建出一塊SSD disk，再自動建立對應的PV並綁上。自動建立的PV名字是`pvc-<uid>`，`storageClassName`和PVC一樣，`Reclaim Policy`預設是`Delete`：PVC刪掉，disk也會一起刪除。
+開發者在PVC裡寫`storageClassName: block-service`。建立PVC之後，Kubernetes就呼叫這個provisioner，建出一塊SSD disk，再自動建立對應的PV並綁上。自動建立的PV名字是`pvc-<uid>`，`storageClassName`和PVC一樣，`Reclaim Policy` default是`Delete`：PVC刪掉，disk也會一起刪除。
 
 - **在自己的cluster上**：[Chap-3用Rook-Ceph建立的StorageClass](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)，就是同樣的機制。
 - **不在清單上的storage**：例如NFS，裝對應的CSI driver就好（例如csi-driver-nfs），它會帶著external-provisioner一起deploy。

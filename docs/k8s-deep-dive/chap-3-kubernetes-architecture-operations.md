@@ -50,7 +50,7 @@ Linux（namespace、cgroups）
 | **位置**       | 每個Node各一個。通常以DaemonSet的形式執行，所以每台機器都會有一個kube-proxy Pod                                 |
 | **和誰溝通**   | ***直接和API Server溝通***，用REST watch監看Service和EndpointSlice的變化。它***不經過kubelet*** |
 | **做什麼**     | 把「Service的虛擬IP（ClusterIP）→ 後端Pod IP」的轉發規則，寫進Node的Linux kernel                               |
-| **怎麼寫規則** | 預設用iptables，也可以用nftables，都是設定kernel的netfilter                                               |
+| **怎麼寫規則** | default用iptables，也可以用nftables，都是設定kernel的netfilter                                               |
 
 所以比喻裡的「Service = 部門總機」，負責替總機設定轉接規則的，就是每台Node上的kube-proxy；真正轉接電話（轉發封包）的，是kernel的netfilter。
 
@@ -142,7 +142,7 @@ kubelet和container runtime不能是Pod：Pod要靠它們才能建立起來，�
 | 層級                                          | 有幾個                                                                                         | 例子                                                           |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | **high-level runtime**<br />（implement CRI） | 1個：kubelet設定的container runtime endpoint（`containerRuntimeEndpoint`）只能指向一個socket | containerd、CRI-O                                              |
-| **low-level runtime**<br />（implement OCI）  | 可以有好幾個：在containerd裡設定成不同的handler，再用`RuntimeClass`讓每個Pod自己選           | runc（預設）、runsc（gVisor）、kata-runtime（Kata Containers） |
+| **low-level runtime**<br />（implement OCI）  | 可以有好幾個：在containerd裡設定成不同的handler，再用`RuntimeClass`讓每個Pod自己選           | runc（default）、runsc（gVisor）、kata-runtime（Kata Containers） |
 
 ```
 kubelet
@@ -266,7 +266,7 @@ sudo cat /var/lib/rancher/k3s/server/node-token  # 在server上取得join用的t
 curl -sfL https://get.k3s.io | K3S_URL=https://<server-ip>:6443 K3S_TOKEN=<token> sh -
 ```
 
-- **為什麼輕**：預設用SQLite（一個嵌入式的DB）取代etcd，只有一個server時不用另外跑etcd；也內建了常用的元件，例如containerd、Flannel（CNI plugin）、Traefik（Ingress controller）、local-path（StorageClass），裝好就能用。
+- **為什麼輕**：default用SQLite（一個嵌入式的DB）取代etcd，只有一個server時不用另外跑etcd；也內建了常用的元件，例如containerd、Flannel（CNI plugin）、Traefik（Ingress controller）、local-path（StorageClass），裝好就能用。
 - **kubeconfig**：在`/etc/rancher/k3s/k3s.yaml`，複製到`~/.kube/config`就能用一般的`kubectl`。
 - **移除**：server執行`/usr/local/bin/k3s-uninstall.sh`，agent執行`/usr/local/bin/k3s-agent-uninstall.sh`。
 - **在Mac上**：k3s不能直接裝在macOS上，可以用[k3d](https://k3d.io/)，它和kind一樣把節點跑在Docker裡，只是裡面跑的是k3s：`k3d cluster create demo --agents 3`。
@@ -337,7 +337,7 @@ apt-get install -y kubelet kubeadm kubectl
 kubeadm default參數可以適合大部分情況。但要自訂components(例如：kube-apiserver)的啟動參數，就把config寫成一個YAML檔，`init`時用`--config`帶進去：
 
 ```bash
-kubeadm config print init-defaults > kubeadm.yaml    # 先產生一份預設值當範本
+kubeadm config print init-defaults > kubeadm.yaml    # 先產生一份default value當範本
 kubeadm init --config kubeadm.yaml
 ```
 
@@ -426,7 +426,7 @@ kubeadm怎麼把各元件run起來：透過systemd啟動kubelet，kubelet再依S
 
 - OS kernel版本、cgroups是否符合要求；
 - hostname是否符合DNS命名（Kubernetes裡的機器名稱和存在etcd裡的API object，都要用標準的DNS名稱）；
-- swap是否關閉：kubelet預設要求關閉swap；
+- swap是否關閉：kubelet default要求關閉swap；
 - kubeadm和kubelet的版本是否相符；
 - 要用的port是否被占用：6443（API Server）、2379-2380（etcd）、10250（kubelet）、10257（controller-manager）、10259（scheduler）；
 - container runtime是否已經安裝，`ip`、`mount`等指令是否存在。
@@ -504,7 +504,7 @@ kubelet一看到這些YAML，就把它們run起來，見[kubelet：每個Node的
 
 **⑤ 等待Master元件就緒**：檢查`https://localhost:6443/healthz`。
 
-**⑥ 產生bootstrap token**：<a id="bootstrap-token"></a>之後任何裝好kubelet和kubeadm的Node，只要持有這個token，就能用`kubeadm join`加入cluster。token會在`kubeadm init`結束時印出來，預設24小時後過期；過期後用`kubeadm token create --print-join-command`重新產生。
+**⑥ 產生bootstrap token**：<a id="bootstrap-token"></a>之後任何裝好kubelet和kubeadm的Node，只要持有這個token，就能用`kubeadm join`加入cluster。token會在`kubeadm init`結束時印出來，default 24小時後過期；過期後用`kubeadm token create --print-join-command`重新產生。
 
 ***token要等Master的API Server run起來之後，才能真正生效***。原因是bootstrap token不是一個本機檔案，而是***存在cluster裡的一個Secret***：
 
@@ -593,7 +593,7 @@ kubelet用自己的certificate連API Server，Node註冊完成
 > [!NOTE]
 > 「不安全模式」不代表完全不驗證：`cluster-info`裡附有用bootstrap token簽的簽章，kubeadm用token確認內容沒被竄改；`--discovery-token-ca-cert-hash`再確認拿到的`ca.crt`是對的CA。接著kubelet用token向API Server申請自己的client certificate（TLS bootstrap），之後就改用這張certificate連線。
 
-***Worker和Master幾乎一樣***：兩者執行的都是kubelet。唯一的差別是在master上`kubeadm init`時，kubelet啟動後，Master上還會以[Static Pod](#static-pod)執行control plane元件：kube-apiserver、kube-scheduler、kube-controller-manager，以及etcd（kubeadm預設把etcd也放在Master上）。
+***Worker和Master幾乎一樣***：兩者執行的都是kubelet。唯一的差別是在master上`kubeadm init`時，kubelet啟動後，Master上還會以[Static Pod](#static-pod)執行control plane元件：kube-apiserver、kube-scheduler、kube-controller-manager，以及etcd（kubeadm default把etcd也放在Master上）。
 
 ### 🕸️ Step 5：Deploy CNI plugin
 
@@ -645,7 +645,7 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 ```
 
 - **只要執行一次**：它建立的是DaemonSet，已經join的Node和之後才join的Node，都會自動有一個Flannel Pod。
-- **網段要一致**：Flannel預設的Pod網段是`10.244.0.0/16`，和[Step 2](#-為kubeadm-init準備執行參數optional)`kubeadm.yaml`裡的`podSubnet`一樣。換別的CNI plugin時，要確認兩邊config相同。
+- **網段要一致**：Flannel default的Pod網段是`10.244.0.0/16`，和[Step 2](#-為kubeadm-init準備執行參數optional)`kubeadm.yaml`裡的`podSubnet`一樣。換別的CNI plugin時，要確認兩邊config相同。
 
 裝好之後，再跑一次`kubectl get nodes`和`kubectl get pods -n kube-system`，確認所有Node都變成`Ready`、CoreDNS變成`Running`。
 
@@ -899,7 +899,7 @@ kubectl get pods -n kube-system | grep headlamp
 
 #### 怎麼存取
 
-***web UI預設不對外開放***：web UI要是暴露到公開網路，任何人都能看到、甚至修改cluster。所以Service預設是`ClusterIP`，只能在cluster裡面連。
+***web UI default不對外開放***：web UI要是暴露到公開網路，任何人都能看到、甚至修改cluster。所以Service default是`ClusterIP`，只能在cluster裡面連。
 
 Master通常是沒有瀏覽器的VM，用SSH port forwarding從自己的電腦連進去：
 
@@ -920,6 +920,6 @@ kubectl create clusterrolebinding headlamp-admin \
 kubectl create token headlamp-admin -n kube-system --duration=24h
 ```
 
-- **token會過期**：預設1小時，`--duration`可以調長。ServiceAccount、RBAC和token的原理，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
-- **權限**：`cluster-admin`權限最大，只適合練習環境。另外，Helm chart預設也替Headlamp自己的ServiceAccount綁了`cluster-admin`，正式環境可以在安裝時加`--set clusterRoleBinding.create=false`關掉。
+- **token會過期**：default 1小時，`--duration`可以調長。ServiceAccount、RBAC和token的原理，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+- **權限**：`cluster-admin`權限最大，只適合練習環境。另外，Helm chart default也替Headlamp自己的ServiceAccount綁了`cluster-admin`，正式環境可以在安裝時加`--set clusterRoleBinding.create=false`關掉。
 - **從cluster外存取**：不要直接把Service改成`NodePort`或`LoadBalancer`，要透過Ingress，並加上TLS和認證。

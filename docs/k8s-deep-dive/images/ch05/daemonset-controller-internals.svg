@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 6 1086 448" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="ds-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#334155"/></marker><marker id="ds-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#d6457f"/></marker></defs>
+<rect width="1110" height="500" fill="#ffffff"/>
+<rect x="172" y="44" width="918" height="404" rx="14" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+<g fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ds-a)">
+<path d="M140 178 C 165 178, 170 91, 196 91"/>
+<path d="M390 91 H 426"/>
+<path d="M140 178 C 165 178, 170 171, 196 171"/>
+<path d="M390 171 H 426"/>
+<path d="M140 178 C 165 178, 170 251, 196 251"/>
+<path d="M390 251 H 426"/>
+<path d="M140 178 C 165 178, 170 351, 196 351"/>
+<path d="M390 351 H 426"/>
+<path d="M650 91 C 680 91, 670 170, 686 178"/>
+<path d="M650 171 H 686"/>
+<path d="M650 251 C 680 251, 670 205, 686 200"/>
+<path d="M650 351 H 686"/>
+<path d="M840 351 H 866"/>
+<path d="M840 191 H 899"/>
+</g>
+<path d="M940 316 C 940 280, 790 290, 770 252" fill="none" stroke="#d6457f" stroke-width="2.2" marker-end="url(#ds-p)"/>
+<path d="M295 382 C 295 420, 1066 420, 1066 370 V 232" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="3 4" marker-end="url(#ds-a)"/>
+<path d="M985 106 V 26 H 80 V 146" fill="none" stroke="#d6457f" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#ds-p)"/>
+<rect x="20" y="150" width="120" height="56" rx="12" fill="#1e293b"/><text x="80" y="184" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">API Server</text>
+<path d="M80 206 V 236" stroke="#334155" stroke-width="2" marker-end="url(#ds-a)" fill="none"/>
+<path d="M48 248 V 284 A32 8 0 0 0 112 284 V 248" fill="#1a3f78"/><ellipse cx="80" cy="248" rx="32" ry="8" fill="#4a73b5"/><text x="80" y="276" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">etcd</text>
+<text x="80" y="306" font-size="10.5" font-weight="700" fill="#1a3f78" text-anchor="middle">期望、實際狀態</text><text x="80" y="319" font-size="10.5" font-weight="700" fill="#1a3f78" text-anchor="middle">都存在這裡</text>
+<rect x="200" y="60" width="190" height="62" rx="10" fill="#0284c7"/>
+<text x="295" y="87" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">DaemonSet Informer</text>
+<text x="295" y="107" font-size="11.5" font-weight="600" fill="#e0f2fe" text-anchor="middle">cache：DaemonSet<tspan fill="#fef08a" font-weight="800">（期望狀態）</tspan></text>
+<rect x="200" y="140" width="190" height="62" rx="10" fill="#0284c7"/>
+<text x="295" y="167" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">ControllerRevision Informer</text>
+<text x="295" y="187" font-size="11.5" font-weight="600" fill="#e0f2fe" text-anchor="middle">cache：版本紀錄</text>
+<rect x="200" y="220" width="190" height="62" rx="10" fill="#0284c7"/>
+<text x="295" y="247" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">Pod Informer</text>
+<text x="295" y="267" font-size="11.5" font-weight="600" fill="#e0f2fe" text-anchor="middle">cache：Pod<tspan fill="#bef264" font-weight="800">（實際狀態）</tspan></text>
+<rect x="200" y="320" width="190" height="62" rx="10" fill="#0284c7"/>
+<text x="295" y="347" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">Node Informer</text>
+<text x="295" y="367" font-size="11.5" font-weight="600" fill="#e0f2fe" text-anchor="middle">cache：Node<tspan fill="#bef264" font-weight="800">（有哪些Node）</tspan></text>
+<rect x="430" y="60" width="220" height="62" rx="10" fill="#6d4fc2"/>
+<text x="540" y="81" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">DaemonSet的handler</text>
+<text x="540" y="98" font-size="11" font-weight="600" fill="#e9e3f8" text-anchor="middle">DaemonSet變了</text>
+<text x="540" y="113" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">→ 放它的key：<tspan font-family="SFMono-Regular, Menlo, monospace">kube-system/fluent-bit</tspan></text>
+<rect x="430" y="140" width="220" height="62" rx="10" fill="#6d4fc2"/>
+<text x="540" y="161" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">ControllerRevision的handler</text>
+<text x="540" y="178" font-size="11" font-weight="600" fill="#e9e3f8" text-anchor="middle">用ownerReferences找到</text>
+<text x="540" y="193" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">→ 放DaemonSet的key</text>
+<rect x="430" y="220" width="220" height="62" rx="10" fill="#6d4fc2"/>
+<text x="540" y="241" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">Pod的handler</text>
+<text x="540" y="258" font-size="11" font-weight="600" fill="#e9e3f8" text-anchor="middle">用ownerReferences找到</text>
+<text x="540" y="273" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">→ 放DaemonSet的key</text>
+<rect x="430" y="320" width="220" height="62" rx="10" fill="#6d4fc2"/>
+<text x="540" y="341" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">Node的handler</text>
+<text x="540" y="358" font-size="11" font-weight="600" fill="#e9e3f8" text-anchor="middle">新Node，或label / taint變了</text>
+<text x="540" y="373" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">→ 放Node名稱：<tspan font-family="SFMono-Regular, Menlo, monospace">node-3</tspan></text>
+<rect x="690" y="136" width="150" height="112" rx="12" fill="#d6457f"/>
+<text x="765" y="160" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">Workqueue</text>
+<rect x="700" y="172" width="130" height="24" rx="12" fill="#fde2ee"/><text x="765" y="188" font-size="9.5" font-weight="700" fill="#9d174d" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">kube-system/fluent-bit</text>
+<rect x="700" y="202" width="130" height="24" rx="12" fill="#fde2ee"/><text x="765" y="218" font-size="9.5" font-weight="700" fill="#9d174d" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">kube-system/kube-proxy</text>
+<rect x="690" y="318" width="150" height="66" rx="12" fill="#d6457f"/>
+<text x="765" y="338" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">nodeUpdateQueue</text>
+<rect x="725" y="348" width="80" height="24" rx="12" fill="#fde2ee"/><text x="765" y="364" font-size="11" font-weight="700" fill="#9d174d" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">node-3</text>
+<rect x="870" y="310" width="176" height="80" rx="12" fill="#6d4fc2"/>
+<text x="958" y="330" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">syncNodeUpdate()</text>
+<text x="958" y="347" font-size="10.5" font-weight="700" fill="#e9e3f8" text-anchor="middle">這個Node影響哪些DaemonSet？</text>
+<text x="958" y="363" font-size="10.5" font-weight="700" fill="#e9e3f8" text-anchor="middle">把它們的key放進Workqueue</text>
+<text x="958" y="380" font-size="10.5" font-weight="800" fill="#fef08a" text-anchor="middle">不是reconcile，只做分派</text>
+<circle cx="985" cy="190" r="82" fill="#ffd23f" stroke="#ffe99a" stroke-width="7"/>
+<path d="M-9 6 L0 -11 L9 6 z" fill="#e6b800" transform="translate(927,248) rotate(-45)"/>
+<text x="985" y="160" font-size="11.5" font-weight="700" fill="#6b5000" text-anchor="middle">worker ×2</text>
+<text x="985" y="182" font-size="14" font-weight="800" fill="#4a3600" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">syncDaemonSet()</text>
+<text x="985" y="203" font-size="10.5" font-weight="700" fill="#6b5000" text-anchor="middle">比較DaemonSet（期望）</text>
+<text x="985" y="219" font-size="10.5" font-weight="700" fill="#6b5000" text-anchor="middle">和每個Node上的Pod（實際）</text>
+<text x="985" y="235" font-size="10.5" font-weight="700" fill="#6b5000" text-anchor="middle">少了建、多了刪</text>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-size="11.5" font-weight="700" fill="#334155">
+<text x="152" y="134" text-anchor="middle">LIST +</text><text x="152" y="147" text-anchor="middle">WATCH</text>
+<text x="870" y="183" text-anchor="middle">Get()</text>
+<text x="855" y="294" fill="#b8336a" text-anchor="middle">放DaemonSet的key</text>
+<text x="660" y="408" text-anchor="middle">lister：從cache讀DaemonSet、Pod、Node</text>
+<text x="520" y="31" fill="#b8336a" text-anchor="middle">clientset：在缺的Node上建立Pod、刪掉多的Pod，寫回DaemonSet的status</text>
+</g>
+<g paint-order="stroke" stroke="#f8fafc" stroke-width="4" stroke-linejoin="round"><text x="188" y="438" font-size="12.5" font-weight="800" fill="#334155">kube-controller-manager<tspan font-weight="600" fill="#64748b">（control plane節點上的Static Pod）裡的DaemonSet controller</tspan></text></g>
+<g font-size="11.5" font-weight="700" fill="#334155">
+<rect x="20" y="344" width="14" height="14" rx="3" fill="#0284c7"/><text x="40" y="356">client-go提供</text>
+<rect x="20" y="364" width="14" height="14" rx="3" fill="#6d4fc2"/><text x="40" y="376">controller的程式碼</text>
+<rect x="20" y="384" width="14" height="14" rx="3" fill="#ffd23f"/><text x="40" y="396">reconcile</text>
+</g>
+</svg>
