@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 14 880 322" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="cg-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="0" y="0" width="900" height="350" fill="#ffffff"/>
+
+<!-- frames -->
+<rect x="16" y="20" width="220" height="254" rx="14" fill="#f3effc" stroke="#b9a8ea" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="28" y="42" font-size="13" font-weight="800" fill="#5b3fa0">輸入<tspan font-weight="600" fill="#7c5cbf">：第3節自己寫的</tspan></text>
+<rect x="286" y="20" width="240" height="254" rx="14" fill="#fffbea" stroke="#e6b800" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="298" y="42" font-size="13" font-weight="800" fill="#6b5000">工具<tspan font-weight="600" font-family="SFMono-Regular, Menlo, monospace" font-size="12">：update-codegen.sh</tspan></text>
+<rect x="576" y="20" width="308" height="254" rx="14" fill="#e9f7f1" stroke="#7cc9a9" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="588" y="42" font-size="13" font-weight="800" fill="#13664c">輸出<tspan font-weight="600" fill="#1f9d76">：產生的程式碼</tspan></text>
+
+<!-- lines -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#cg-a)">
+<path d="M224 91 H 298"/>
+<path d="M224 200 H 298"/>
+<path d="M512 91 H 588"/>
+<path d="M512 192 C 550 192, 550 159, 588 159"/>
+<path d="M512 212 C 550 212, 550 203, 588 203"/>
+<path d="M512 232 C 550 232, 550 247, 588 247"/>
+<path d="M731 274 V 294"/>
+</g>
+
+<!-- input boxes -->
+<rect x="28" y="52" width="196" height="78" rx="10" fill="#6d4fc2"/>
+<text x="42" y="76" font-size="14" font-weight="800" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">doc.go</text>
+<g font-size="10.5" font-weight="600" fill="#e9e3f8" font-family="SFMono-Regular, Menlo, monospace">
+<text x="42" y="98">+k8s:deepcopy-gen=package</text>
+<text x="42" y="116">+groupName=example.com</text>
+</g>
+<rect x="28" y="142" width="196" height="120" rx="10" fill="#6d4fc2"/>
+<text x="42" y="166" font-size="14" font-weight="800" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">types.go</text>
+<g font-size="10.5" font-weight="600" fill="#e9e3f8" font-family="SFMono-Regular, Menlo, monospace">
+<text x="42" y="188">+genclient</text>
+<text x="42" y="206">+genclient:noStatus</text>
+<text x="42" y="224">+k8s:deepcopy-gen:interfaces</text>
+<text x="42" y="248" fill="#ffffff" font-weight="700">Network、NetworkList</text>
+</g>
+
+<!-- tool boxes -->
+<rect x="300" y="52" width="212" height="78" rx="10" fill="#ffd23f"/>
+<text x="314" y="80" font-size="14" font-weight="800" fill="#4a3600" font-family="SFMono-Regular, Menlo, monospace">gen_helpers</text>
+<text x="314" y="104" font-size="11.5" font-weight="700" fill="#6b5000">內部跑<tspan font-family="SFMono-Regular, Menlo, monospace">deepcopy-gen</tspan></text>
+<rect x="300" y="142" width="212" height="120" rx="10" fill="#ffd23f"/>
+<text x="314" y="168" font-size="14" font-weight="800" fill="#4a3600" font-family="SFMono-Regular, Menlo, monospace">gen_client</text>
+<g font-size="11.5" font-weight="700" fill="#6b5000" font-family="SFMono-Regular, Menlo, monospace">
+<text x="314" y="196">client-gen</text>
+<text x="314" y="216">informer-gen</text>
+<text x="314" y="236">lister-gen</text>
+</g>
+
+<!-- output boxes -->
+<g font-weight="800" fill="#ffffff">
+<rect x="590" y="69" width="282" height="44" rx="10" fill="#1f9d76"/>
+<text x="604" y="87" font-size="13" font-family="SFMono-Regular, Menlo, monospace">zz_generated.deepcopy.go</text>
+<rect x="590" y="140" width="282" height="38" rx="10" fill="#1f9d76"/>
+<text x="604" y="156" font-size="13" font-family="SFMono-Regular, Menlo, monospace">clientset</text>
+<rect x="590" y="184" width="282" height="38" rx="10" fill="#1f9d76"/>
+<text x="604" y="200" font-size="13" font-family="SFMono-Regular, Menlo, monospace">informers</text>
+<rect x="590" y="228" width="282" height="38" rx="10" fill="#1f9d76"/>
+<text x="604" y="244" font-size="13" font-family="SFMono-Regular, Menlo, monospace">listers</text>
+</g>
+<g font-size="11" font-weight="600" fill="#e3f7ef">
+<text x="604" y="104">DeepCopy()：複製Network，放在types.go旁邊</text>
+<text x="604" y="171">對API Server讀寫Network</text>
+<text x="604" y="215">watch Network的變化，維護local cache</text>
+<text x="604" y="259">從local cache讀Network</text>
+</g>
+
+<!-- labels on lines -->
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">
+<text x="261" y="84">讀tag</text>
+<text x="261" y="193">讀tag</text>
+</g>
+
+<!-- consumer -->
+<rect x="590" y="296" width="282" height="34" rx="10" fill="#d6457f"/>
+<text x="731" y="318" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">第5節自己寫的controller用它們</text>
+</svg>

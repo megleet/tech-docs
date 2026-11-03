@@ -29,7 +29,7 @@ icon: lucide/book-open
 
 ## 簡寫對照
 
-K8S Deep Dive的技術名詞統一用簡寫，複數加s（libs、deps、pkgs、vars）：
+全站（Tutorials和K8S Deep Dive）的技術名詞統一用簡寫，複數加s（libs、deps、pkgs、vars）。程式碼、命令參數和專有名詞不改：
 
 | 全寫 | system call | memory | library | dependency | package | variable | environment variable |
 | --- | --- | --- | --- | --- | --- | --- | --- |

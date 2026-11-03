@@ -82,10 +82,10 @@ kubectl apply -f nginx.yaml
 - **建立和更新都是同一個指令**：不用管object存不存在，`apply`只負責把YAML裡寫的***期望狀態***交給API Server。
 - **只描述「要什麼」，不描述「怎麼做」**：YAML寫的是「image要是`nginx:1.28`」，要建立還是更新、怎麼把Pod換成新版本，交給API Server和controller決定。
 
-| 做法             | 指令                                                                                                      | 你告訴Kubernetes的是                            |
-| ---------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| 做法             | 指令                                                                                                      | 你告訴Kubernetes的是                           |
+| ---------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | **命令式** | `kubectl create deployment`、`kubectl set image`、<br />`kubectl create -f`、`kubectl replace -f` | ***動作***<br />參數在命令列或 -f YAML |
-| **聲明式** | `kubectl apply -f`                                                                                      | ***期望狀態***                          |
+| **聲明式** | `kubectl apply -f`                                                                                      | ***期望狀態***                         |
 
 ### 🔀 4. replace和apply的差別：PUT和PATCH
 
@@ -346,8 +346,8 @@ Kubernetes裡所有元件都透過API Server讀寫object：不管是你用**kube
 
 | 步驟                              | 做什麼                                         | 例子                                                                             |
 | --------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
-| **① Authentication**       | 確認request是誰send的                            | client certificate、ServiceAccount的token                                        |
-| **② Authorization**        | 確認這個身分能不能對這個resource做這個動作     | [RBAC](#rbac)：Role / RoleBinding                                                         |
+| **① Authentication**       | 確認request是誰send的                          | client certificate、ServiceAccount的token                                        |
+| **② Authorization**        | 確認這個身分能不能對這個resource做這個動作     | [RBAC](#rbac)：Role / RoleBinding                                                 |
 | **③ Mutating admission**   | ***修改***object                       | `ServiceAccount` admission controller替Pod加上token volume；Istio inject Envoy |
 | **④ Schema validation**    | 檢查欄位型別、必填欄位                         | `replicas`寫成字串就失敗                                                       |
 | **⑤ Validating admission** | ***只檢查、不修改***，不符合規定就拒絕 | `PodSecurity`拒絕高權限的Pod；`ResourceQuota`拒絕超過配額的request           |
@@ -596,7 +596,7 @@ kind: CronJob
 
 | version                        | 格式                                                                 | 是什麼                                                                                               |
 | ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **request<br />version** | JSON<br /><span style="white-space: nowrap">（HTTP body）</span>     | client send來的，例如`batch/v1`。kubectl會把YAML轉成JSON再send出去                                        |
+| **request<br />version** | JSON<br /><span style="white-space: nowrap">（HTTP body）</span>     | client send來的，例如`batch/v1`。kubectl會把YAML轉成JSON再send出去                                 |
 | **internal version**     | Go struct                                                            | 只存在API Server的mem裡。不管request是哪個version，decode後都先轉成它，admission和validation都對它做 |
 | **storage version**      | protobuf<br /><span style="white-space: nowrap">（CRD用JSON）</span> | 實際存進etcd的version，***只有一個***。client之後用其他version讀，再由API Server當場轉換     |
 
@@ -627,13 +627,13 @@ kubectl get job pi -v=6                                     # 印出kubectl實�
 >
 > `-v`是kubectl的log等級（verbosity），數字越大，印出來的除錯資訊越多：
 >
-> | 等級 | 會多印出什麼 |
-> | --- | --- |
-> | `0`（default） | 只有結果，不印log |
-> | `6` | 每個HTTP request的method、URL、status、花了多久 |
-> | `7` | 再加上request header |
-> | `8` | 再加上response body（太長會截斷） |
-> | `9` | 完整的response body |
+> | 等級             | 會多印出什麼                                    |
+> | ---------------- | ----------------------------------------------- |
+> | `0`（default） | 只有結果，不印log                               |
+> | `6`            | 每個HTTP request的method、URL、status、花了多久 |
+> | `7`            | 再加上request header                            |
+> | `8`            | 再加上response body（太長會截斷）               |
+> | `9`            | 完整的response body                             |
 >
 > kubectl的每個命令，其實都是send一個HTTP request給API Server。例如`kubectl get job pi`就是send `GET /apis/batch/v1/namespaces/default/jobs/pi`；加上`-v=6`，就能看到kubectl實際send了哪個URL。
 
@@ -646,13 +646,11 @@ kubectl get job pi -v=6                                     # 印出kubectl實�
 
 *誰能對哪個object做什麼？*
 
-[request流程](#api-server怎麼處理request)的② Authorization，在Kubernetes裡就是**RBAC**（Role-Based Access Control）。所有對API object的操作都要經過API Server，原因之一就是要由它來做授權。
+[request流程](#api-server怎麼處理request)的② Authorization，在Kubernetes裡通常由 **RBAC** （Role-Based Access Control）負責。Kubernetes的架構設計規定：***所有對API object的操作都要經過API Server***，其中一個原因就是希望它統一做**檢查權限。**
 
 ### 🧩 1. 三個核心概念
 
-- **Role**：一組規則，定義能對哪些API object做哪些動作。
-- **Subject**：被授權的對象，可以是User、Group或ServiceAccount。
-- **RoleBinding**：把Subject和Role綁在一起。
+<img src="images/ch06/rbac-three-concepts.svg" alt="RBAC的三個核心概念，都在namespace mynamespace裡：Subject是被授權的對象，User、Group、ServiceAccount三種之一，例如example-user；Role是一組規則，定義能對哪些API object做哪些動作，例如example-role：resources: pods、verbs: get, watch, list；RoleBinding（例如example-rolebinding）把Subject和Role綁在一起，subjects指定綁給誰，roleRef指定綁哪個Role" width="100%">
 
 ### 📜 2. Role和RoleBinding
 
@@ -690,22 +688,65 @@ roleRef:                            # 綁哪個Role
   apiGroup: rbac.authorization.k8s.io
 ```
 
-- **User不是API object**：Kubernetes裡沒有User這種object，也不用建立。user的名字來自① Authentication，例如client certificate裡的CN、OIDC token裡的使用者。RBAC只看request帶來的這個名字。
 - **Role和RoleBinding都是namespaced object**：只在自己的namespace裡有效。
 
-### 🌐 3. ClusterRole和ClusterRoleBinding
+### 👥 3. Subject：User、Group、ServiceAccount
 
-不屬於任何namespace的object（例如Node），或是要對所有namespace生效時，就用ClusterRole和ClusterRoleBinding。寫法一樣，只是沒有`namespace`欄位。
+*權限要綁給誰？*
 
-| 組合 | 權限範圍 |
-| --- | --- |
-| **Role + RoleBinding** | 一個namespace |
-| **ClusterRole + ClusterRoleBinding** | 整個cluster，包括所有namespace和Node這類object |
-| **ClusterRole + RoleBinding** | 只在RoleBinding所在的namespace。***常用來重複使用同一份ClusterRole***，例如把`view`綁給某個namespace |
+#### 🪪 3.a 三種Subject
 
-### 🤖 4. ServiceAccount：最常用的Subject
+RoleBinding的`subjects`可以寫三種`kind`：
 
-實務上很少直接用User，大多用**ServiceAccount**，也就是Kubernetes自己管理的身分。Pod怎麼拿到它的token、用curl存取API Server，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+| kind               | 代表誰                   | 名字從哪來                                                                         | API object？ |
+| ------------------ | ------------------------ | ---------------------------------------------------------------------------------- | ------------ |
+| **User**           | 一個人或cluster外的程式  | ① Authentication：client certificate的CN、OIDC token的username claim              | 不是         |
+| **Group**          | 一群User或ServiceAccount | client certificate的O、OIDC token的groups claim，或Kubernetes內建的`system:`group | 不是         |
+| **ServiceAccount** | cluster裡的程式（Pod）   | Kubernetes自己建立和管理                                                           | 是，namespaced |
+
+```yaml
+subjects:
+- kind: User
+  name: alice                       # 名字來自authentication
+  apiGroup: rbac.authorization.k8s.io
+- kind: Group
+  name: dev-team
+  apiGroup: rbac.authorization.k8s.io
+- kind: ServiceAccount
+  name: example-sa
+  namespace: mynamespace            # ServiceAccount一定要寫namespace，不寫apiGroup
+```
+
+- **User和Group都不用建立**：Kubernetes裡沒有User或Group這種object。RBAC只比對request在① Authentication之後帶來的名字，名字對上了權限就生效。
+- **查自己是誰**：`kubectl auth whoami`列出目前的username和groups。
+
+```bash
+kubectl auth whoami
+# → ATTRIBUTE                                           VALUE
+#   Username                                            kubernetes-admin
+#   Groups                                              [kubeadm:cluster-admins system:authenticated]
+#   Extra: authentication.kubernetes.io/credential-id   [X509SHA256=65c2...]
+```
+
+#### ⭐ 3.b 哪一種最常用
+
+1. **ServiceAccount**：***最常用***。controller、Operator、CI pipeline這些在cluster裡跑的程式，都用ServiceAccount存取API Server。
+2. **Group**：要給人權限時，通常綁Group，不綁User。例如公司用OIDC登入時，把`dev-team`這個group綁到`edit`；有人加入或離開team，只要改OIDC那邊的成員，RBAC完全不用動。
+3. **User**：最少用。只有個別帳號、臨時要給權限時才會直接綁User。
+
+內建的`system:`group：
+
+| Group                    | 包含誰                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| `system:authenticated`   | 所有通過authentication的身分                                                    |
+| `system:unauthenticated` | 沒有通過authentication的request（匿名）                                         |
+| `system:masters`         | ***直接略過RBAC，擁有全部權限，而且不能用RBAC收回***。不要把任何人加進這個group |
+| `system:nodes`           | 所有Node的kubelet，由Node authorizer授權                                        |
+| `system:serviceaccounts` | 所有ServiceAccount，見[ServiceAccount](#-3c-serviceaccount)                    |
+
+#### 🤖 3.c ServiceAccount
+
+**ServiceAccount**是Kubernetes自己管理的身分。Pod怎麼拿到它的token、用curl存取API Server，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 
 ```yaml
 subjects:
@@ -716,11 +757,11 @@ subjects:
 
 ServiceAccount在RBAC裡對應的名字，一定要記住：
 
-| | 名字 |
-| --- | --- |
-| **user** | `system:serviceaccount:<namespace>:<name>` |
-| **group**：某個namespace的所有ServiceAccount | `system:serviceaccounts:<namespace>` |
-| **group**：整個cluster的所有ServiceAccount | `system:serviceaccounts` |
+|                                                    | 名字                                         |
+| -------------------------------------------------- | -------------------------------------------- |
+| **user**                                     | `system:serviceaccount:<namespace>:<name>` |
+| **group**：某個namespace的所有ServiceAccount | `system:serviceaccounts:<namespace>`       |
+| **group**：整個cluster的所有ServiceAccount   | `system:serviceaccounts`                   |
 
 每個namespace都有一個`default` ServiceAccount，***default沒有任何權限***。需要存取API Server時，只給最小權限。
 
@@ -732,6 +773,16 @@ kubectl auth can-i list pods -n mynamespace \
 # → yes
 ```
 
+### 🌐 4. ClusterRole和ClusterRoleBinding
+
+不屬於任何namespace的object（例如Node），或是要對所有namespace生效時，就用ClusterRole和ClusterRoleBinding。寫法一樣，只是沒有`namespace`欄位。
+
+| 組合                                       | 權限範圍                                                                                                       |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| **Role + RoleBinding**               | 一個namespace                                                                                                  |
+| **ClusterRole + ClusterRoleBinding** | 整個cluster，包括所有namespace和Node這類object                                                                 |
+| **ClusterRole + RoleBinding**        | 只在RoleBinding所在的namespace。***常用來重複使用同一份ClusterRole***，例如把`view`綁給某個namespace |
+
 ### 🏷️ 5. 內建的ClusterRole
 
 `kubectl get clusterroles`會看到很多內建的ClusterRole：
@@ -739,12 +790,12 @@ kubectl auth can-i list pods -n mynamespace \
 - **`system:`開頭**：給Kubernetes元件用。例如`system:kube-scheduler`，綁給kube-scheduler用的身分，只包含scheduler需要的權限。
 - **給使用者用的四個**：
 
-| ClusterRole | 權限 |
-| --- | --- |
+| ClusterRole       | 權限                                                       |
+| ----------------- | ---------------------------------------------------------- |
 | `cluster-admin` | 全部，`verbs: ["*"]`。***最高權限，要謹慎使用*** |
-| `admin` | 一個namespace裡幾乎全部，包括管理RBAC |
-| `edit` | 讀寫大部分object，但不能改RBAC |
-| `view` | 唯讀，看不到Secret |
+| `admin`         | 一個namespace裡幾乎全部，包括管理RBAC                      |
+| `edit`          | 讀寫大部分object，但不能改RBAC                             |
+| `view`          | 唯讀，看不到Secret                                         |
 
 ### 🧪 6. 練習：讓一個namespace的所有ServiceAccount都能唯讀
 

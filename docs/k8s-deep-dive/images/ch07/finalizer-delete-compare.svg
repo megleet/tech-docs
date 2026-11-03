@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 10 820 456" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="fz-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="0" y="0" width="900" height="600" fill="#ffffff"/>
+<rect x="40" y="76" width="380" height="378" rx="14" fill="#fdf0f0" stroke="#e8a1a1" stroke-width="2" stroke-dasharray="6 6"/>
+<rect x="460" y="76" width="380" height="378" rx="14" fill="#eef9f4" stroke="#8fd1b5" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="230" y="102" font-size="14" font-weight="800" fill="#b03a3a" text-anchor="middle">沒有finalizer</text>
+<text x="650" y="102" font-size="14" font-weight="800" fill="#13664c" text-anchor="middle">有finalizer</text>
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fz-a)">
+<path d="M400 52 C 400 64, 230 58, 230 74"/>
+<path d="M480 52 C 480 64, 650 58, 650 74"/>
+<path d="M230 160 V 172"/>
+<path d="M650 160 V 172"/>
+<path d="M230 216 V 228"/>
+<path d="M650 216 V 228"/>
+<path d="M230 272 V 284"/>
+<path d="M650 272 V 284"/>
+<path d="M230 328 V 340"/>
+<path d="M650 328 V 340"/>
+<path d="M230 384 V 396"/>
+<path d="M650 384 V 396"/>
+</g>
+<rect x="340" y="14" width="200" height="38" rx="10" fill="#1a3f78"/>
+<text x="440" y="38" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">kubectl delete my-net</text>
+<rect x="54" y="118" width="352" height="42" rx="9" fill="#64748b"/>
+<text x="230.0" y="136" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">API Server馬上刪掉my-net</text>
+<text x="230.0" y="152" font-size="11" font-weight="600" fill="#e2e8f0" text-anchor="middle">從etcd消失</text>
+<rect x="474" y="118" width="352" height="42" rx="9" fill="#6d4fc2"/>
+<text x="650.0" y="136" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">API Server看到finalizer，先不刪</text>
+<text x="650.0" y="152" font-size="11" font-weight="600" fill="#e9e3f8" text-anchor="middle">只寫上deletionTimestamp（刪除中）</text>
+<rect x="54" y="174" width="352" height="42" rx="9" fill="#64748b"/>
+<text x="230.0" y="192" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">Informer收到DELETED event</text>
+<text x="230.0" y="208" font-size="11" font-weight="600" fill="#e2e8f0" text-anchor="middle">cache裡的my-net也沒了</text>
+<rect x="474" y="174" width="352" height="42" rx="9" fill="#6d4fc2"/>
+<text x="650.0" y="192" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">my-net還在etcd、還在cache裡</text>
+<text x="650.0" y="208" font-size="11" font-weight="600" fill="#e9e3f8" text-anchor="middle">內容完整</text>
+<rect x="54" y="230" width="352" height="42" rx="9" fill="#64748b"/>
+<text x="230.0" y="248" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">DeleteFunc把key放進workqueue</text>
+<text x="230.0" y="264" font-size="11" font-weight="600" fill="#e2e8f0" text-anchor="middle">default/my-net</text>
+<rect x="474" y="230" width="352" height="42" rx="9" fill="#6d4fc2"/>
+<text x="650.0" y="248" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">syncHandler讀到my-net</text>
+<text x="650.0" y="264" font-size="11" font-weight="600" fill="#e9e3f8" text-anchor="middle">看到deletionTimestamp</text>
+<rect x="54" y="286" width="352" height="42" rx="9" fill="#64748b"/>
+<text x="230.0" y="304" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">syncHandler用key去cache讀my-net</text>
+<text x="230.0" y="320" font-size="11" font-weight="600" fill="#e2e8f0" text-anchor="middle">找不到</text>
+<rect x="474" y="286" width="352" height="42" rx="9" fill="#d6457f"/>
+<text x="650.0" y="304" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">vpc.Delete()</text>
+<text x="650.0" y="320" font-size="11" font-weight="600" fill="#fde2ee" text-anchor="middle">刪掉cloud上的subnet</text>
+<rect x="54" y="342" width="352" height="42" rx="9" fill="#64748b"/>
+<text x="230.0" y="360" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">controller不知道原本的cidr</text>
+<text x="230.0" y="376" font-size="11" font-weight="600" fill="#e2e8f0" text-anchor="middle">也不知道cloud上有沒有subnet</text>
+<rect x="474" y="342" width="352" height="42" rx="9" fill="#6d4fc2"/>
+<text x="650.0" y="360" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">removeFinalizer()</text>
+<text x="650.0" y="376" font-size="11" font-weight="600" fill="#e9e3f8" text-anchor="middle">拿掉finalizer</text>
+<rect x="54" y="398" width="352" height="42" rx="9" fill="#c0392b"/>
+<text x="230.0" y="424" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">cloud上的subnet沒人刪，一直留著 ❌</text>
+<rect x="474" y="398" width="352" height="42" rx="9" fill="#1f9d76"/>
+<text x="650.0" y="424" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">API Server這時才真的刪掉my-net ✅</text>
+<rect x="372" y="106" width="136" height="22" rx="11" fill="#ffd23f" stroke="#e6a800"/>
+<text x="440" y="121" font-size="11.5" font-weight="800" fill="#4a3600" text-anchor="middle">差別從這一步開始</text>
+</svg>

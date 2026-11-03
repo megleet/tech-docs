@@ -210,6 +210,40 @@ kubectl get nodes
 kind delete cluster --name demo                   # 用完刪掉
 ```
 
+<a id="kind-kubeconfig"></a>`kind create cluster`建好cluster後，會自動在`~/.kube/config`加上***怎麼連到這個cluster的API Server***的資料，並設成目前使用的cluster，所以馬上就能用`kubectl`。`kind delete cluster`會把這些資料一起拿掉。
+
+> [!NOTE]
+> 📄 **kind在`~/.kube/config`寫了什麼**
+>
+> 這個檔案就是[kubeconfig](#kubeconfig)。用`kubectl config view`可以看內容，憑證會自動隱藏成`DATA+OMITTED`：
+>
+> ```yaml
+> apiVersion: v1
+> kind: Config
+> clusters:                                   # ① API Server在哪裡、怎麼確認是它
+> - name: kind-demo
+>   cluster:
+>     server: https://127.0.0.1:64595         # API Server的位址，port是kind隨機選的
+>     certificate-authority-data: DATA+OMITTED   # cluster的CA憑證，用來確認API Server
+> users:                                      # ② 我是誰
+> - name: kind-demo
+>   user:
+>     client-certificate-data: DATA+OMITTED   # 我的client certificate
+>     client-key-data: DATA+OMITTED           # 對應的private key
+> contexts:                                   # ③ 把cluster和user配成一組
+> - name: kind-demo
+>   context:
+>     cluster: kind-demo
+>     user: kind-demo
+> current-context: kind-demo                  # kubectl現在用哪一組
+> ```
+>
+> - **`clusters`**：API Server在哪裡。kind把API Server的port對應到你電腦的`127.0.0.1`。
+> - **`users`**：我是誰。API Server用client certificate決定你的權限，kind給的是admin。
+> - **`contexts`**：把cluster和user配成一組。有好幾個cluster時，用`kubectl config use-context <名字>`切換。
+>
+> 任何在cluster外連API Server的程式都讀這個檔案，例如`kubectl`，以及[Chap-7在你電腦上跑的controller](chap-7-crd-operator.md#-6-run-it)。
+
 要多個節點的話，寫一個config，例如`kind-4nodes.yaml`：
 
 ```yaml
@@ -443,7 +477,7 @@ kubeadm怎麼把各元件run起來：透過systemd啟動kubelet，kubelet再依S
 
 各certificate的完整清單見[PKI certificates and requirements](https://kubernetes.io/docs/setup/best-practices/certificates/)。如果你已經有自己的CA，事先把`ca.crt`和`ca.key`放進`/etc/kubernetes/pki/`，kubeadm就會跳過產生CA這一步，直接用你的CA簽發其他certificate。
 
-**③ Generate各元件call API Server所需要用的kubeconfig**：
+**③ Generate各元件call API Server所需要用的kubeconfig**：<a id="kubeconfig"></a>
 
 ```bash
 ls /etc/kubernetes/

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 14 900 196" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="rb-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="0" y="0" width="940" height="240" fill="#ffffff"/>
+
+<!-- namespace frame -->
+<rect x="16" y="20" width="888" height="184" rx="14" fill="#f5f8fc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="30" y="42" font-size="12.5" font-weight="800" fill="#334155">namespace: <tspan font-family="SFMono-Regular, Menlo, monospace">mynamespace</tspan></text>
+
+<!-- lines -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#rb-a)">
+<path d="M360 128 H 278"/>
+<path d="M560 128 H 642"/>
+</g>
+
+<!-- Subject -->
+<rect x="32" y="54" width="244" height="136" rx="12" fill="#6d4fc2"/>
+<text x="48" y="80" font-size="18" font-weight="900" fill="#ffffff">Subject</text>
+<text x="48" y="100" font-size="12" font-weight="800" fill="#ffe08a">被授權的對象</text>
+<g font-size="11.5" font-weight="800" fill="#5b3fa0" text-anchor="middle">
+<rect x="48" y="114" width="52" height="24" rx="12" fill="#ffffff"/><text x="74" y="130">User</text>
+<rect x="106" y="114" width="58" height="24" rx="12" fill="#ffffff"/><text x="135" y="130">Group</text>
+<rect x="170" y="114" width="98" height="24" rx="12" fill="#ffffff"/><text x="219" y="130">ServiceAccount</text>
+</g>
+<text x="48" y="166" font-size="11" font-weight="600" fill="#e9e3f8">三種之一，例如<tspan font-family="SFMono-Regular, Menlo, monospace" fill="#ffffff">example-user</tspan></text>
+
+<!-- RoleBinding -->
+<rect x="360" y="54" width="200" height="136" rx="12" fill="#d6457f"/>
+<text x="460" y="80" font-size="18" font-weight="900" fill="#ffffff" text-anchor="middle">RoleBinding</text>
+<text x="460" y="100" font-size="12" font-weight="800" fill="#ffe08a" text-anchor="middle">把Subject和Role綁在一起</text>
+<text x="460" y="166" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">example-rolebinding</text>
+
+<!-- Role -->
+<rect x="644" y="54" width="250" height="136" rx="12" fill="#1f9d76"/>
+<text x="660" y="80" font-size="18" font-weight="900" fill="#ffffff">Role</text>
+<text x="660" y="100" font-size="12" font-weight="800" fill="#ffe08a">一組規則：能對哪些object做哪些動作</text>
+<g font-size="11" font-weight="600" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">
+<text x="660" y="128">resources: pods</text>
+<text x="660" y="146">verbs: get, watch, list</text>
+</g>
+<text x="660" y="166" font-size="11" font-weight="600" fill="#e3f7ef">例如<tspan font-family="SFMono-Regular, Menlo, monospace" fill="#ffffff">example-role</tspan></text>
+
+<!-- labels on lines -->
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="800" text-anchor="middle">
+<text x="318" y="120" fill="#475569" font-family="SFMono-Regular, Menlo, monospace">subjects</text>
+<text x="318" y="146" fill="#475569">綁給誰</text>
+<text x="601" y="120" fill="#475569" font-family="SFMono-Regular, Menlo, monospace">roleRef</text>
+<text x="601" y="146" fill="#475569">綁哪個Role</text>
+</g>
+</svg>
