@@ -388,9 +388,14 @@ spec:
 我們在Chap-5已經看過PVC和PV的基本用法：
 
 - **PVC是開發者寫的**：***PVC 是 Pod 所希望使用的持久化volume的属性描述***。只寫要多大、怎麼存取（`accessModes`），Pod的`volumes`用`claimName`引用它，見[Chap-5的PVC](chap-5-container-orchestration-controller.md#pvc開發者只要兩步)。
-- **PV是管理cluster的人提供的**：***PV是持久化volume實現***。寫清楚storage怎麼做到，例如用哪個CSI driver、哪個pool。CSI（Container Storage Interface）是Kubernetes和storage系統之間的**標準介面**，每種storage各自implement一個**CSI driver**，見[Chap-5的PV](chap-5-container-orchestration-controller.md#pv管理cluster的人提供implementation)。
-- **兩者像interface和implementation**：**PVC說「要什麼」，PV說「怎麼做到」**，由Kubernetes把兩個綁在一起；開發者不用知道storage的細節。
-- **PV也可以自動建立**：Kubernetes依PVC和StorageClass自動建PV（dynamic provisioning），實務上大多這樣用。大多數cluster安裝時就帶一個default StorageClass（例如kind的`standard`），PVC沒寫`storageClassName`就用它，見[StorageClass](#-3-storageclass自動建立pv)。
+- **PV是管理cluster的人提供的**：***PV是持久化volume實現***。寫清楚storage怎麼做到，例如用哪個CSI driver、哪個pool、Volume 的类型、挂载目录、远程存储服务器地址等。其中**CSI（Container Storage Interface）**是Kubernetes和storage系統之間的**標準介面**，每種storage各自implement一個**CSI driver**，見[Chap-5的PV](chap-5-container-orchestration-controller.md#pv管理cluster的人提供implementation)。
+
+  > [!NOTE]
+  > **PVC和PV像interface和implementation**：**PVC說「需要什麼」，PV說「怎麼做到」**，由Kubernetes把兩個綁在一起；開發者不用知道storage的細節。
+  >
+- **StorageClass是管理cluster的人建的**：***StorageClass是建PV的template***。PVC和PV靠同一個`storageClassName`配對；Kubernetes還能依PVC和StorageClass自動建PV（dynamic provisioning），實務上大多這樣用。大多數cluster安裝時就帶一個default StorageClass（例如kind的`standard`），PVC沒寫`storageClassName`就用它，見[StorageClass](#-3-如何使用storageclass自動建立pv)。
+
+  <img src="images/ch08/storageclass-steps.svg" alt="dynamic provisioning的三個步驟，依序進行。① 裝CSI driver（管理cluster的人，cloud可能已裝好，每個cluster裝一次）：controller plugin Pod（Deployment）裡有external-provisioner和CSI driver，node plugin Pod（DaemonSet）裡有node-driver-registrar和CSI driver，driver名字是pd.csi.storage.gke.io。② 建StorageClass（管理cluster的人，每個cluster建一次）：StorageClass block-service的provisioner填driver的名字pd.csi.storage.gke.io，之後由這個driver建PV；用kubectl apply -f sc.yaml建立。③ 開發者建PVC（每次需要storage時）：PVC寫storageClassName: block-service，external-provisioner自動建disk（type: pd-ssd）和PV（pvc-<uid>），PV自動和PVC綁定" width="90%">
 
 這一節接著看三件事：***PV和PVC怎麼綁定、PV怎麼變成host上的目錄、PV怎麼自動建立***。
 
@@ -409,8 +414,8 @@ kube-controller-manager裡有一個***PersistentVolumeController***，專門撮�
   - ② **`storageClassName`一致**：PV和PVC的`storageClassName`要一樣，見[Chap-5的NOTE](chap-5-container-orchestration-controller.md#pv管理cluster的人提供implementation)。
 
   > [!NOTE]
-  > 圖裡兩邊都寫`manual`，因為這是手動建的PV。***`manual`不是default，是自己取的名字***：它只是PV和PVC上的同一個字串，cluster裡不需要真的有叫`manual`的StorageClass。PVC要是沒寫`storageClassName`，會被補上cluster的default（例如kind的`standard`），反而綁不到這個PV，見[StorageClass](#-3-storageclass自動建立pv)。
-
+  > 圖裡兩邊都寫`manual`，因為這是手動建的PV。***`manual`不是default，是自己取的名字***：它只是PV和PVC上的同一個字串，cluster裡不需要真的有叫`manual`的StorageClass。PVC要是沒寫`storageClassName`，會被補上cluster的default（例如kind的`standard`），反而綁不到這個PV，見[StorageClass](#-3-如何使用storageclass自動建立pv)。
+  >
 - **「綁定」是什麼**：不是什麼特別的連線，只是PersistentVolumeController在兩個object上***各寫一個欄位，互相指向對方***：
 
   <!-- hl: 3 7 8 -->
@@ -426,7 +431,6 @@ kube-controller-manager裡有一個***PersistentVolumeController***，專門撮�
       name: pv-claim
       namespace: default
   ```
-
 - **為什麼要寫`volumeName`和`claimRef`**：Pod只寫了PVC的名字（`claimName: pv-claim`）。kubelet要mount時，順著Pod → PVC的`volumeName` → PV，就知道storage實際在哪裡。PV這邊的`claimRef`則讓這個PV不會再被別的PVC綁走。
 
 ### 📂 2. 從PV到container裡的目錄：CSI plugin的Attach和Mount
@@ -435,28 +439,37 @@ kube-controller-manager裡有一個***PersistentVolumeController***，專門撮�
 
 [emptyDir和hostPath](chap-4-container-orchestration-pod.md#emptydir跟著pod生跟著pod死)做不到：它們可能被kubelet清掉，也不能搬到別的Node。所以持久化volume通常靠**remote storage**：**remote file storage**（例如NFS），或**remote block storage**（例如cloud的disk、Ceph RBD）。
 
+**🔌 把remote storage變成Node上的目錄**
+
 kubelet替Pod準備的volume目錄在：
 
 ```
 /var/lib/kubelet/pods/<Pod的UID>/volumes/kubernetes.io~<volume類型>/<volume名字>
 ```
 
-**🔌 把remote storage變成Node上的目錄**
+要把remote storage變成持久化目錄，需要一個元件：**CSI plugin**。它分成兩個部分：[controller plugin和node plugin](#-2-csi-driver和sidecar)，也就是CSI driver deploy成的兩種Pod，下一節詳細介紹。
 
-把remote storage變成這個持久化目錄，分兩個階段。***Kubernetes的元件只決定要不要做，實際動手的是CSI plugin***：CSI driver會deploy成兩種Pod，[controller plugin和node plugin](#-2-csi-driver和sidecar)，下一節詳細介紹。
+> [!NOTE]
+> **CSI plugin和PV、PVC、StorageClass的安裝順序**：***CSI plugin要最先裝好***。StorageClass的`provisioner`要填CSI driver的名字，PVC建好之後，也是CSI driver的external-provisioner建disk和PV：
+>
+> <img src="images/ch08/storageclass-steps.svg" alt="dynamic provisioning的三個步驟，依序進行。① 裝CSI driver（管理cluster的人，cloud可能已裝好，每個cluster裝一次）：controller plugin Pod（Deployment）裡有external-provisioner和CSI driver，node plugin Pod（DaemonSet）裡有node-driver-registrar和CSI driver，driver名字是pd.csi.storage.gke.io。② 建StorageClass（管理cluster的人，每個cluster建一次）：StorageClass block-service的provisioner填driver的名字pd.csi.storage.gke.io，之後由這個driver建PV；用kubectl apply -f sc.yaml建立。③ 開發者建PVC（每次需要storage時）：PVC寫storageClassName: block-service，external-provisioner自動建disk（type: pd-ssd）和PV（pvc-<uid>），PV自動和PVC綁定" width="100%">
+>
+> 圖中的3 steps做完，只是有了一個綁好的PV，disk還沒接到任何Node；***Attach和Mount要等Pod排程到Node之後才做***，因為要先知道是哪台Node。
 
-| 階段 | 做什麼 | 誰決定 | 誰執行 | 需要的參數 |
-| --- | --- | --- | --- | --- |
-| **① Attach** | 把remote disk接到Pod所在的Node，像替VM加一顆disk | ***AttachDetachController*** | ***controller plugin*** | Node名稱，例如：<br>`nodeName: nodeA`{ .nowrap } |
-| **② Format + Mount** | 沒有file system就先format，再mount到volume目錄 | kubelet的***VolumeManager*** | ***node plugin*** | volume目錄，例如：<br>`target_path:`<br>`/var/lib/kubelet/pods/`{ .nowrap }<br>`<Pod的UID>/volumes/`{ .nowrap }<br>`kubernetes.io~csi/`{ .nowrap }<br>`<PV名字>/mount`{ .nowrap } |
+CSI plugin接下來要做**Attach**和**Mount**兩個步驟，才能把remote storage真正變成container能用的持久化目錄。***Kubernetes的元件只決定要不要做，實際動手的是CSI plugin***：
+
+| 階段                        | 做什麼                                           | 誰決定                               | 誰執行                          | 需要的參數                                                                                                                                                          |
+| --------------------------- | ------------------------------------------------ | ------------------------------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **① Attach**         | 把remote disk接到Pod所在的Node，像替VM加一顆disk | ***AttachDetachController*** | ***controller plugin*** | Node名稱，例如：`nodeName: nodeA`{ .nowrap }                                                                                                                      |
+| **② Format + Mount** | 沒有file system就先format，再mount到volume目錄   | kubelet的***VolumeManager*** | ***node plugin***       | volume目錄，例如：`target_path:/var/lib/kubelet/pods/`{ .nowrap }`<Pod的UID>/volumes/`{ .nowrap }`kubernetes.io~csi/`{ .nowrap }`<PV名字>/mount`{ .nowrap } |
 
 <img src="images/ch08/attach-mount.svg" alt="把remote disk變成container裡的目錄。Master node（control plane）上，kube-controller-manager裡的AttachDetachController決定要不要attach，透過API Server建立VolumeAttachment，寫上nodeName: nodeA，attached從false變成true。某一台Node（通常是worker node）上的CSI controller plugin Pod（Deployment）裡，external-attacher（sidecar container）watch VolumeAttachment，用gRPC呼叫CSI driver的Controller service；CSI driver呼叫storage API，① Attach：把Storage系統裡的remote disk（例如cloud的disk、Ceph RBD）接到nodeA，完成後external-attacher寫回attached: true。Worker node nodeA（Pod所在的Node）上，nodeA多了一顆disk /dev/sdb，像替VM加一顆disk；kubelet的VolumeManager（獨立的goroutine）用gRPC呼叫node plugin Pod（DaemonSet）裡CSI driver的Node service，② format + mount到volume目錄 /var/lib/kubelet/pods/<UID>/volumes/…/<volume名字>；③ 建立container，④ bind mount到container裡的mountPath" width="90%">
 
 1. **Attach：control plane決定，controller plugin執行**：kube-controller-manager裡的AttachDetachController決定disk要接到哪台Node後，會透過API Server建立一個VolumeAttachment（寫明`nodeName`）。***VolumeAttachment是一個API object，像一張工作單，記錄「哪個PV要接到哪台Node」***，和其他object一樣存在etcd裡。[CSI driver的controller plugin](#-2-csi-driver和sidecar)（一個Deployment，負責建立和attach disk）Pod裡的external-attacher看到它，呼叫CSI driver（`ControllerPublishVolume`），由driver呼叫storage API把remote disk接到Node上，完成後把VolumeAttachment標成`attached: true`。credentials只放在CSI controller Pod裡，不用每台Node都有；Node掛掉時也有人能detach。
 2. **Format + Mount：kubelet決定，node plugin執行**：`mount`只能在Node上做，所以由kubelet負責觸發，但不在kubelet的主控制循環（SyncLoop，負責依Pod的變化建立、刪除container）裡做。mount remote disk可能要好幾秒，如果在主循環裡等，***其他Pod也會跟著卡住***。所以交給**VolumeManager**：它在kubelet裡跑在***獨立的goroutine***，用自己的循環，透過gRPC呼叫這台Node上node plugin的CSI driver，分兩步完成：
 
-  - **`NodeStageVolume`**：format，再mount到這台Node共用的staging目錄（`/var/lib/kubelet/plugins/kubernetes.io/csi/<driver名字>/<hash>/globalmount`），同一顆disk在一台Node上只mount一次；
-  - **`NodePublishVolume`**：從staging目錄bind mount到Pod的volume目錄，也就是表格裡的`target_path`。
+- **`NodeStageVolume`**：format，再mount到這台Node共用的staging目錄（`/var/lib/kubelet/plugins/kubernetes.io/csi/<driver名字>/<hash>/globalmount`），同一顆disk在一台Node上只mount一次；
+- **`NodePublishVolume`**：從staging目錄bind mount到Pod的volume目錄，也就是表格裡的`target_path`。
 
 **📦 把這個目錄掛進container**
 
@@ -472,11 +485,16 @@ kubelet替Pod準備的volume目錄在：
 
 刪除時反過來：先**Unmount**，再**Detach**。
 
-### 🏭 3. StorageClass：自動建立PV
+### 🏭 3. 如何使用StorageClass自動建立PV
 
 PV靠人手動建立屬於**static provisioning**，在大cluster裡做不到：可能有上千個PVC，每個都要先有一個符合的PV。所以Kubernetes提供**dynamic provisioning**：***StorageClass，就是建立PV的template***，它會義兩件事：
 
 - **用哪個provisioner**：填***CSI driver的名字***，每種storage各有一個。例如GKE的Persistent Disk填`pd.csi.storage.gke.io`，AWS的EBS填`ebs.csi.aws.com`，[Chap-3用Rook裝的Ceph](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)（RBD block storage）填`rook-ceph.rbd.csi.ceph.com`。
+
+  CSI driver通常有兩種來源：
+
+  - **cloud provider預先裝好**：例如GKE的`pd.csi.storage.gke.io`，建好cluster就有。
+  - **管理cluster的人自己裝**：例如[Chap-3的Rook-Ceph](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)，或NFS的csi-driver-nfs。
 - **PV的參數**：寫在`parameters`裡，key由各家driver決定。例如GKE的***disk類型***`type: pd-ssd`；Longhorn（一種開源的block storage）的***replica數***`numberOfReplicas: "3"`。
 
 ```yaml
@@ -491,22 +509,20 @@ parameters:
 
 管理cluster的人用`kubectl apply -f sc.yaml`建立這個StorageClass，***每個cluster只要建一次***，之後所有PVC都能用。
 
-開發者在PVC裡寫`storageClassName: block-service`。建立PVC之後，這個CSI driver的[external-provisioner](#-1-整體架構)（和driver一起deploy的sidecar，負責watch PVC）會看到這個PVC，呼叫driver建出一塊SSD disk，再自動建立對應的PV並綁上。自動建立的PV名字是`pvc-<uid>`，`storageClassName`和PVC一樣，`Reclaim Policy` default是`Delete`：PVC刪掉，disk也會一起刪除。
+**CSI driver和StorageClass都準備好之後**，就輪到開發者：在PVC裡寫`storageClassName: block-service`。建立PVC之後，這個CSI driver的[external-provisioner](#-1-整體架構)（和driver一起deploy的sidecar，負責watch PVC）會看到這個PVC，呼叫driver建出一塊SSD disk，再自動建立對應的PV並綁上。自動建立的PV名字是`pvc-<uid>`，`storageClassName`和PVC一樣，`Reclaim Policy` default是`Delete`：PVC刪掉，disk也會一起刪除。
 
-- **在自己的cluster上**：[Chap-3用Rook-Ceph建立的StorageClass](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)，就是同樣的機制。
-- **不在清單上的storage**：例如NFS，裝對應的CSI driver就好（例如csi-driver-nfs），它會帶著external-provisioner一起deploy。
-
-**🔀 PVC的`storageClassName`四種寫法**
-
-| PVC的寫法                          | 結果                                                                                                                       |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **沒寫，cluster有default**   | 建立時，`DefaultStorageClass`這個admission plugin自動補上default StorageClass，走dynamic provisioning                    |
-| **沒寫，cluster沒有default** | 欄位維持沒有值，只能綁沒有StorageClass的PV。之後cluster新增了default，PersistentVolumeController會回頭補上                 |
-| **寫`""`**                 | 明確表示不要StorageClass，永遠不會被補上，只綁沒有StorageClass的PV                                                         |
-| **寫一個名字**               | 照寫的用。手動建PV時，PV和PVC都寫同一個名字（例如`manual`）就能配對，***cluster裡不需要真的有這個StorageClass*** |
-
-- **default StorageClass**：StorageClass上有`storageclass.kubernetes.io/is-default-class: "true"` annotation的，就是default。
-- **「沒寫」和「`""`」意思不同**：沒寫是「用default就好」；`""`是「我不要dynamic provisioning」，手動配對PV時用它，避免PVC被補上default、跑去建新的PV。
+> [!TIP]
+> **🔀 PVC的`storageClassName`四種寫法**
+>
+> | PVC的寫法                          | 結果                                                                                                                       |
+> | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+> | **沒寫，cluster有default**   | 建立時，`DefaultStorageClass`這個admission plugin自動補上default StorageClass，走dynamic provisioning                    |
+> | **沒寫，cluster沒有default** | 欄位維持沒有值，只能綁沒有StorageClass的PV。之後cluster新增了default，PersistentVolumeController會回頭補上                 |
+> | **寫`""`**                 | 明確表示不要StorageClass，永遠不會被補上，只綁沒有StorageClass的PV                                                         |
+> | **寫一個名字**               | 照寫的用。手動建PV時，PV和PVC都寫同一個名字（例如`manual`）就能配對，***cluster裡不需要真的有這個StorageClass*** |
+>
+> - **default StorageClass**：StorageClass上有`storageclass.kubernetes.io/is-default-class: "true"` annotation的，就是default。
+> - **「沒寫」和「`""`」意思不同**：沒寫是「用default就好」；`""`是「我不要dynamic provisioning」，手動配對PV時用它，避免PVC被補上default、跑去建新的PV。
 
 ### 🤔 4. 會不會過度設計？
 
@@ -533,7 +549,7 @@ PV、PVC、StorageClass三層看起來很多，但實際上***開發者通常只
 
 - **sidecar**：Kubernetes社群（SIG Storage）維護的container，和CSI driver放在**同一個Pod**裡。sidecar透過**unix socket**呼叫CSI driver：
 
-  - **external-provisioner**：watch PVC，***只處理StorageClass的`provisioner`是自己driver名字的PVC***，呼叫CSI driver建立disk（`CreateVolume`），再建立對應的PV，見[dynamic provisioning](#-3-storageclass自動建立pv)；
+  - **external-provisioner**：watch PVC，***只處理StorageClass的`provisioner`是自己driver名字的PVC***，呼叫CSI driver建立disk（`CreateVolume`），再建立對應的PV，見[dynamic provisioning](#-3-如何使用storageclass自動建立pv)；
 
     > [!NOTE]
     > 例如GKE上同時裝了Persistent Disk和Filestore兩個CSI driver，就有兩個external-provisioner。PVC寫`storageClassName: block-service`，這個StorageClass的`provisioner`是`pd.csi.storage.gke.io`，所以只有Persistent Disk的external-provisioner接手，Filestore的那個會略過。

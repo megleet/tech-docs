@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 860 294" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="ss-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="8" y="8" width="860" height="294" fill="#ffffff"/>
+
+<!-- step frames -->
+<g fill="#f5f8fc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6">
+<rect x="12" y="12" width="284" height="286" rx="14"/>
+<rect x="328" y="12" width="220" height="286" rx="14"/>
+<rect x="580" y="12" width="284" height="286" rx="14"/>
+</g>
+
+<!-- step headers -->
+<g fill="#334155"><circle cx="34" cy="34" r="11"/><circle cx="350" cy="34" r="11"/><circle cx="602" cy="34" r="11"/></g>
+<g font-size="13" font-weight="900" fill="#ffffff" text-anchor="middle"><text x="34" y="39">1</text><text x="350" y="39">2</text><text x="602" y="39">3</text></g>
+<g font-size="14.5" font-weight="900" fill="#334155"><text x="52" y="39">裝CSI driver</text><text x="368" y="39">建StorageClass</text><text x="620" y="39">開發者建PVC</text></g>
+<g font-size="11" font-weight="700" fill="#64748b"><text x="24" y="60">管理cluster的人（cloud可能已裝好）</text><text x="340" y="60">管理cluster的人</text><text x="592" y="60">開發者</text></g>
+
+<!-- order arrows -->
+<g fill="none" stroke="#475569" stroke-width="2.5" marker-end="url(#ss-a)">
+<path d="M299 155 H 324"/>
+<path d="M551 155 H 576"/>
+</g>
+
+<!-- 1: Pods -->
+<g fill="#fdf3e7" stroke="#c2410c" stroke-width="1.5" stroke-dasharray="6 5">
+<rect x="24" y="72" width="260" height="88" rx="12"/>
+<rect x="24" y="172" width="260" height="88" rx="12"/>
+</g>
+<g font-size="12" font-weight="800" fill="#9a3412"><text x="36" y="91">controller plugin Pod（Deployment）</text><text x="36" y="191">node plugin Pod（DaemonSet）</text></g>
+<g fill="#2f855a"><rect x="36" y="100" width="88" height="48" rx="9"/><rect x="36" y="200" width="88" height="48" rx="9"/></g>
+<g font-size="11" font-weight="900" fill="#ffffff">
+<text x="46" y="120">external-</text><text x="46" y="136">provisioner</text>
+<text x="46" y="220">node-driver-</text><text x="46" y="236">registrar</text>
+</g>
+<g fill="#d53f73"><rect x="132" y="100" width="140" height="48" rx="9"/><rect x="132" y="200" width="140" height="48" rx="9"/></g>
+<g font-size="12.5" font-weight="900" fill="#ffffff"><text x="144" y="120">CSI driver</text><text x="144" y="220">CSI driver</text></g>
+<g font-size="9.5" font-weight="800" font-family="SFMono-Regular, Menlo, monospace" fill="#ffe08a"><text x="144" y="138">pd.csi.storage.gke.io</text><text x="144" y="238">pd.csi.storage.gke.io</text></g>
+
+<!-- 2: StorageClass -->
+<rect x="340" y="72" width="196" height="88" rx="12" fill="#2f6fd1"/>
+<text x="354" y="94" font-size="13" font-weight="900" fill="#ffffff">StorageClass</text>
+<g font-size="10.5" font-family="SFMono-Regular, Menlo, monospace" fill="#dbe7fb">
+<text x="354" y="112">name: block-service</text>
+<text x="354" y="132">provisioner:</text>
+<text x="354" y="148" font-weight="800" fill="#ffe08a">pd.csi.storage.gke.io</text>
+</g>
+<g font-size="11" font-weight="700" fill="#475569"><text x="340" y="186">provisioner填driver的名字，</text><text x="340" y="204">之後由這個driver建PV</text></g>
+<rect x="340" y="226" width="196" height="30" rx="8" fill="#1e293b"/>
+<text x="352" y="245" font-size="10.5" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0"><tspan fill="#94a3b8">$ </tspan>kubectl apply -f sc.yaml</text>
+
+<!-- 3: PVC → disk + PV -->
+<rect x="592" y="72" width="260" height="52" rx="12" fill="#334155"/>
+<text x="606" y="93" font-size="13" font-weight="900" fill="#ffffff">PVC</text>
+<text x="606" y="112" font-size="10.5" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0">storageClassName: block-service</text>
+<path d="M722 124 V 176" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#ss-a)"/>
+<text x="722" y="154" text-anchor="middle" paint-order="stroke" stroke="#f5f8fc" stroke-width="5" stroke-linejoin="round" font-size="11" font-weight="800" fill="#475569">external-provisioner自動建</text>
+<rect x="592" y="180" width="124" height="52" rx="10" fill="#475569"/>
+<text x="606" y="202" font-size="13" font-weight="900" fill="#ffffff">disk</text>
+<text x="606" y="220" font-size="10" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0">type: pd-ssd</text>
+<rect x="728" y="180" width="124" height="52" rx="10" fill="#0f766e"/>
+<text x="742" y="202" font-size="13" font-weight="900" fill="#ffffff">PV</text>
+<text x="742" y="220" font-size="10" font-family="SFMono-Regular, Menlo, monospace" fill="#ccfbf1">pvc-&lt;uid&gt;</text>
+<text x="592" y="252" font-size="11" font-weight="700" fill="#475569">PV自動和PVC綁定</text>
+
+<!-- frequency -->
+<g font-size="11" font-weight="800" fill="#64748b"><text x="24" y="286">每個cluster裝一次</text><text x="340" y="286">每個cluster建一次</text><text x="592" y="286">每次需要storage時</text></g>
+</svg>
