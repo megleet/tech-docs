@@ -646,13 +646,101 @@ kubectl get job pi -v=6                                     # 印出kubectl實�
 
 *誰能對哪個object做什麼？*
 
-[request流程](#api-server怎麼處理request)的② Authorization，在Kubernetes裡通常由 **RBAC** （Role-Based Access Control）負責。Kubernetes的架構設計規定：***所有對API object的操作都要經過API Server***，其中一個原因就是希望它統一做**檢查權限。**
+在 Kubernetes 项目中，负责完成**授权**（[request流程](#api-server怎麼處理request)的② Authorization）**工作的机制，主要是 RBAC**（Role-Based Access Control）。Kubernetes的架構設計規定：***所有對API object的操作都要經過API Server***，其中一個原因就是希望它統一做**權限檢查。**
 
 ### 🧩 1. 三個核心概念
 
 <img src="images/ch06/rbac-three-concepts.svg" alt="RBAC的三個核心概念，都在namespace mynamespace裡：Subject是被授權的對象，User、Group、ServiceAccount三種之一，例如example-user；Role是一組規則，定義能對哪些API object做哪些動作，例如example-role：resources: pods、verbs: get, watch, list；RoleBinding（例如example-rolebinding）把Subject和Role綁在一起，subjects指定綁給誰，roleRef指定綁哪個Role" width="100%">
 
-### 📜 2. Role和RoleBinding
+Subject有哪幾種、哪一種最常用，見[Subject](#-2-subjectusergroupserviceaccount)。
+
+### 👥 2. Subject：User、Group、ServiceAccount
+
+*權限要綁給誰？*
+
+#### 🪪 2.a 三種Subject
+
+RoleBinding的`subjects`可以寫三種`kind`：
+
+| kind                     | 代表誰                   | 名字從哪來                                                                                          | API object？   |
+| ------------------------ | ------------------------ | --------------------------------------------------------------------------------------------------- | -------------- |
+| **User**           | 一個人或cluster外的程式  | ① Authentication：client certificate的CN（Common Name）、OIDC token的username claim                | 不是           |
+| **ServiceAccount** | cluster裡的程式（Pod）   | Kubernetes自己建立和管理                                                                            | 是，namespaced |
+| **Group**          | 一群User或ServiceAccount | client certificate的O（Organization）、OIDC token的groups claim，或Kubernetes內建的`system:`group | 不是           |
+
+**⭐ 哪一種最常用**
+
+1. **ServiceAccount**：***最常用***。controller、Operator、CI pipeline這些在cluster裡跑的程式，都用ServiceAccount存取API Server。
+2. **Group**：要給人權限時，通常綁Group，不綁User。例如公司用OIDC登入時，把`dev-team`這個group綁到`edit`；有人加入或離開team，只要改OIDC那邊的成員，RBAC完全不用動。自訂的group只能裝User；ServiceAccount只會屬於Kubernetes內建的`system:serviceaccounts`系列group，見[ServiceAccount](#-2d-serviceaccount)。
+3. **User**：最少用。只有個別帳號、臨時要給權限時才會直接綁User。
+
+<img src="images/ch06/rbac-subject-usage.svg" alt="三種Subject畫成四列（Group有兩個例子），每一列都用RoleBinding綁到Role或ClusterRole：ServiceAccount最常用，給在cluster裡跑的程式用，例如controller、Operator、CI pipeline，每個程式用自己的ServiceAccount，綁到只給最小權限的Role；User最少用，例如carol，名字來自authentication、不是API object，臨時給個別帳號權限，用虛線表示；Group一次給一群身分，分成兩種：Group system:serviceaccounts:mynamespace的成員是這個namespace的所有ServiceAccount（例如example-sa、default），由Kubernetes自動加入，綁到ClusterRole view；Group dev-team的成員是User（alice、bob），由OIDC管理，綁到ClusterRole edit" width="100%">
+
+**📝 在RoleBinding裡怎麼寫**
+
+下面是RoleBinding的`subjects`欄位，不是在建立User或Group。`subjects`只用名字***引用***要綁給誰，API Server不會檢查這些名字存不存在；等request進來時，RBAC才拿① Authentication得到的名字去比對。
+
+```yaml
+subjects:
+- kind: User
+  name: alice                       # 名字來自authentication
+  apiGroup: rbac.authorization.k8s.io
+- kind: Group
+  name: dev-team
+  apiGroup: rbac.authorization.k8s.io
+- kind: ServiceAccount
+  name: example-sa
+  namespace: mynamespace            # ServiceAccount一定要寫namespace，不寫apiGroup
+```
+
+#### 🔍 2.b User和Group的名字從哪來
+
+- **User和Group都不用建立**：Kubernetes裡沒有User或Group這種object。RBAC只比對request在① Authentication之後帶來的名字，名字對上了權限就生效。
+- **由authentication決定**：① Authentication決定名字，Kubernetes只認結果。常見的方式有：
+  - **client certificate**：CN當username，O當group。kubeadm和kind的`kubernetes-admin`就是這種，細節見下一條。
+  - **OIDC token**：公司裡讓人登入cluster的主流做法。API Server信任一個OIDC provider（例如Keycloak、Dex），從token的claim讀出username和groups。
+  - **Webhook token**：API Server把token交給外部服務驗證，由外部服務回傳是誰。cloud provider的IAM（例如EKS）、OpenStack的Keystone都用這種方式接進來。
+  - **ServiceAccount token**：給cluster裡的程式用，見[ServiceAccount](#-2d-serviceaccount)。
+- **CN和O**：X.509 certificate的subject裡的兩個欄位。用client certificate登入時，CN當username，O當group；一張certificate可以有好幾個O，代表屬於好幾個group。例如kubeconfig裡`kubernetes-admin`的certificate，subject是`O=kubeadm:cluster-admins, CN=kubernetes-admin`。
+- **查自己是誰**：`kubectl auth whoami`列出目前的username和groups。
+
+```bash
+kubectl auth whoami
+# → ATTRIBUTE   VALUE
+#   Username    kubernetes-admin
+#   Groups      [kubeadm:cluster-admins system:authenticated]
+#   （省略Extra那一行）
+```
+
+#### 🔖 2.c 內建的`system:` group
+
+| Group                      | 包含誰                                                                                  |
+| -------------------------- | --------------------------------------------------------------------------------------- |
+| `system:authenticated`   | 所有通過authentication的身分                                                            |
+| `system:unauthenticated` | 沒有通過authentication的request（匿名）                                                 |
+| `system:masters`         | ***直接略過RBAC，擁有全部權限，而且不能用RBAC收回***。不要把任何人加進這個group |
+| `system:nodes`           | 所有Node的kubelet，由Node authorizer授權                                                |
+| `system:serviceaccounts` | 所有ServiceAccount，見[ServiceAccount](#-2d-serviceaccount)                              |
+
+#### 🤖 2.d ServiceAccount
+
+**ServiceAccount**是Kubernetes自己管理的身分。Pod怎麼拿到它的token、用curl存取API Server，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+
+和User不一樣，ServiceAccount是真的API object，要先建立，YAML見[把Role綁給一個ServiceAccount](#-4a-把role綁給一個serviceaccount)。Pod在`spec.serviceAccountName: example-sa`指定用哪個ServiceAccount；沒寫就用namespace裡的`default`。
+
+Pod用ServiceAccount的token存取API Server時，① Authentication會給這個request一個user名字和兩個ServiceAccount專用的group名字（另外還有所有身分都有的`system:authenticated`）。RBAC裡可以綁其中任何一個，一定要記住：
+
+| 種類                                               | 名字                                         |
+| -------------------------------------------------- | -------------------------------------------- |
+| **user**：這一個ServiceAccount               | `system:serviceaccount:<namespace>:<name>` |
+| **group**：某個namespace的所有ServiceAccount | `system:serviceaccounts:<namespace>`       |
+| **group**：整個cluster的所有ServiceAccount   | `system:serviceaccounts`                   |
+
+每個namespace都有一個`default` ServiceAccount，***default沒有任何權限***。需要存取API Server時，只給最小權限。
+
+### 📜 3. Role和ClusterRole
+
+#### 📄 3.a Role和RoleBinding
 
 ```yaml
 kind: Role
@@ -669,7 +757,18 @@ rules:
 這條規則的意思是：被授權的對象，可以對`mynamespace`裡的Pod做`get`、`watch`、`list`。`apiGroups`、`resources`就是[Group、Version、Resource](#-1-groupversionresource)裡的group和resource。
 
 - **namespace只是分組**：它把object分開管理，本身不會隔離network或資源。要隔離，得再搭配RBAC、NetworkPolicy、ResourceQuota。
-- **可以細到單一object**：加上`resourceNames: ["my-config"]`，就只對名叫`my-config`的object有效。
+- **可以細到單一object**：加上`resourceNames: ["my-config"]`，就只對名叫`my-config`的object有效。下面這條規則只能`get`名叫`my-config`的ConfigMap，其他ConfigMap都不行：
+
+  ```yaml
+  rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["my-config"]    # 只限這一個object
+    verbs: ["get"]
+  ```
+
+  適合`get`、`update`、`patch`、`delete`這類指定名字的動作；`create`時object還沒有名字，所以不能用`resourceNames`限制。
+
 - **verbs**：`get`、`list`、`watch`、`create`、`update`、`patch`、`delete`、`deletecollection`；`*`代表全部。
 
 ```yaml
@@ -690,92 +789,11 @@ roleRef:                            # 綁哪個Role
 
 - **Role和RoleBinding都是namespaced object**：只在自己的namespace裡有效。
 
-### 👥 3. Subject：User、Group、ServiceAccount
-
-*權限要綁給誰？*
-
-#### 🪪 3.a 三種Subject
-
-RoleBinding的`subjects`可以寫三種`kind`：
-
-| kind               | 代表誰                   | 名字從哪來                                                                         | API object？ |
-| ------------------ | ------------------------ | ---------------------------------------------------------------------------------- | ------------ |
-| **User**           | 一個人或cluster外的程式  | ① Authentication：client certificate的CN、OIDC token的username claim              | 不是         |
-| **Group**          | 一群User或ServiceAccount | client certificate的O、OIDC token的groups claim，或Kubernetes內建的`system:`group | 不是         |
-| **ServiceAccount** | cluster裡的程式（Pod）   | Kubernetes自己建立和管理                                                           | 是，namespaced |
-
-```yaml
-subjects:
-- kind: User
-  name: alice                       # 名字來自authentication
-  apiGroup: rbac.authorization.k8s.io
-- kind: Group
-  name: dev-team
-  apiGroup: rbac.authorization.k8s.io
-- kind: ServiceAccount
-  name: example-sa
-  namespace: mynamespace            # ServiceAccount一定要寫namespace，不寫apiGroup
-```
-
-- **User和Group都不用建立**：Kubernetes裡沒有User或Group這種object。RBAC只比對request在① Authentication之後帶來的名字，名字對上了權限就生效。
-- **查自己是誰**：`kubectl auth whoami`列出目前的username和groups。
-
-```bash
-kubectl auth whoami
-# → ATTRIBUTE                                           VALUE
-#   Username                                            kubernetes-admin
-#   Groups                                              [kubeadm:cluster-admins system:authenticated]
-#   Extra: authentication.kubernetes.io/credential-id   [X509SHA256=65c2...]
-```
-
-#### ⭐ 3.b 哪一種最常用
-
-1. **ServiceAccount**：***最常用***。controller、Operator、CI pipeline這些在cluster裡跑的程式，都用ServiceAccount存取API Server。
-2. **Group**：要給人權限時，通常綁Group，不綁User。例如公司用OIDC登入時，把`dev-team`這個group綁到`edit`；有人加入或離開team，只要改OIDC那邊的成員，RBAC完全不用動。
-3. **User**：最少用。只有個別帳號、臨時要給權限時才會直接綁User。
-
-內建的`system:`group：
-
-| Group                    | 包含誰                                                                          |
-| ------------------------ | ------------------------------------------------------------------------------- |
-| `system:authenticated`   | 所有通過authentication的身分                                                    |
-| `system:unauthenticated` | 沒有通過authentication的request（匿名）                                         |
-| `system:masters`         | ***直接略過RBAC，擁有全部權限，而且不能用RBAC收回***。不要把任何人加進這個group |
-| `system:nodes`           | 所有Node的kubelet，由Node authorizer授權                                        |
-| `system:serviceaccounts` | 所有ServiceAccount，見[ServiceAccount](#-3c-serviceaccount)                    |
-
-#### 🤖 3.c ServiceAccount
-
-**ServiceAccount**是Kubernetes自己管理的身分。Pod怎麼拿到它的token、用curl存取API Server，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
-
-```yaml
-subjects:
-- kind: ServiceAccount
-  name: example-sa
-  namespace: mynamespace
-```
-
-ServiceAccount在RBAC裡對應的名字，一定要記住：
-
-|                                                    | 名字                                         |
-| -------------------------------------------------- | -------------------------------------------- |
-| **user**                                     | `system:serviceaccount:<namespace>:<name>` |
-| **group**：某個namespace的所有ServiceAccount | `system:serviceaccounts:<namespace>`       |
-| **group**：整個cluster的所有ServiceAccount   | `system:serviceaccounts`                   |
-
-每個namespace都有一個`default` ServiceAccount，***default沒有任何權限***。需要存取API Server時，只給最小權限。
-
-檢查某個身分有沒有權限：
-
-```bash
-kubectl auth can-i list pods -n mynamespace \
-  --as=system:serviceaccount:mynamespace:example-sa
-# → yes
-```
-
-### 🌐 4. ClusterRole和ClusterRoleBinding
+#### 🌐 3.b ClusterRole和ClusterRoleBinding
 
 不屬於任何namespace的object（例如Node），或是要對所有namespace生效時，就用ClusterRole和ClusterRoleBinding。寫法一樣，只是沒有`namespace`欄位。
+
+**🧮 常用的Role和Binding組合**
 
 | 組合                                       | 權限範圍                                                                                                       |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -783,25 +801,84 @@ kubectl auth can-i list pods -n mynamespace \
 | **ClusterRole + ClusterRoleBinding** | 整個cluster，包括所有namespace和Node這類object                                                                 |
 | **ClusterRole + RoleBinding**        | 只在RoleBinding所在的namespace。***常用來重複使用同一份ClusterRole***，例如把`view`綁給某個namespace |
 
-### 🏷️ 5. 內建的ClusterRole
+**🏷️ 內建的ClusterRole**
 
-`kubectl get clusterroles`會看到很多內建的ClusterRole：
+`kubectl get clusterroles`會看到很多內建的ClusterRole，分成兩種：
 
-- **`system:`開頭**：給Kubernetes元件用。例如`system:kube-scheduler`，綁給kube-scheduler用的身分，只包含scheduler需要的權限。
-- **給使用者用的四個**：
+1. **第一種：`system:`開頭**：給Kubernetes元件用。例如`system:kube-scheduler`，綁給kube-scheduler用的身分，只包含scheduler需要的權限。
+2. **第二種：4個user-facing roles**：預先準備好、讓cluster管理者綁給人或ServiceAccount用的：
 
 | ClusterRole       | 權限                                                       |
 | ----------------- | ---------------------------------------------------------- |
 | `cluster-admin` | 全部，`verbs: ["*"]`。***最高權限，要謹慎使用*** |
 | `admin`         | 一個namespace裡幾乎全部，包括管理RBAC                      |
 | `edit`          | 讀寫大部分object，但不能改RBAC                             |
-| `view`          | 唯讀，看不到Secret                                         |
+| `view`          | read-only，看不到Secret                                    |
 
-### 🧪 6. 練習：讓一個namespace的所有ServiceAccount都能唯讀
+### 🧪 4. 練習：替ServiceAccount綁權限，用auth can-i驗證
+
+兩個例子分別用[ServiceAccount](#-2d-serviceaccount)表格的第1列和第2列：4.a把`example-role`綁給一個ServiceAccount（user名字），4.b把`view`綁給一個namespace的所有ServiceAccount（group名字）。
+
+#### 🎯 4.a 把Role綁給一個ServiceAccount
+
+把[Role和RoleBinding](#-3a-role和rolebinding)裡的`example-role`綁給`example-sa`：
+
+```yaml
+# rbac-demo.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: mynamespace
+  name: example-sa
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: mynamespace
+  name: example-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: mynamespace
+  name: example-rolebinding
+subjects:
+- kind: ServiceAccount              # 綁給ServiceAccount，不是User
+  name: example-sa
+  namespace: mynamespace
+roleRef:
+  kind: Role
+  name: example-role
+  apiGroup: rbac.authorization.k8s.io
+```
+
+在local用`kubectl`建立，再用`kubectl auth can-i`檢查這個ServiceAccount有沒有權限：
+
+```bash
+kubectl create namespace mynamespace
+kubectl apply -f rbac-demo.yaml
+
+# 格式：kubectl auth can-i <verb> <resource> -n <要檢查的namespace> --as=<user>
+#   user：system:serviceaccount:<ServiceAccount所在的namespace>:<ServiceAccount名字>
+#   這裡兩個namespace剛好都是mynamespace，但意思不同
+kubectl auth can-i list pods -n mynamespace \
+  --as=system:serviceaccount:mynamespace:example-sa
+# → yes
+kubectl auth can-i delete pods -n mynamespace \
+  --as=system:serviceaccount:mynamespace:example-sa
+# → no（example-role沒有delete）
+```
+
+#### 👥 4.b 把ClusterRole view綁給一個namespace的所有ServiceAccount
 
 用RoleBinding把內建的`view`，綁給`mynamespace`裡的所有ServiceAccount：
 
 ```yaml
+# rbac-view.yaml
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -816,6 +893,25 @@ roleRef:
   name: view
   apiGroup: rbac.authorization.k8s.io
 ```
+
+接著4.a，建一個新的ServiceAccount，它沒有綁任何Role，但屬於`mynamespace`，所以也拿到`view`的權限：
+
+```bash
+kubectl apply -f rbac-view.yaml
+kubectl create serviceaccount other-sa -n mynamespace
+
+kubectl auth can-i list pods -n mynamespace \
+  --as=system:serviceaccount:mynamespace:other-sa
+# → yes（view可以讀）
+kubectl auth can-i get secrets -n mynamespace \
+  --as=system:serviceaccount:mynamespace:other-sa
+# → no（view看不到Secret）
+kubectl auth can-i list pods -n default \
+  --as=system:serviceaccount:mynamespace:other-sa
+# → no（RoleBinding只在mynamespace生效）
+```
+
+Pod在`spec.serviceAccountName: example-sa`指定這個ServiceAccount之後，Pod裡的程式就用它的token存取API Server，權限也只有`get`、`watch`、`list`。token怎麼mount進container、怎麼在Pod裡用curl試，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 
 > [!TIP]
 > 💡 **一句話總結**

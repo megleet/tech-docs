@@ -209,6 +209,11 @@
   white-space: nowrap;
 }
 
+/* Keep one inline code from breaking anywhere: `nodeName: nodeA`{ .nowrap } */
+.md-typeset code.nowrap {
+  white-space: nowrap;
+}
+
 /* Tables wrapped in <div class="row-header-table" markdown>: the first column
    is a row header (same background as th), and code never breaks mid-word */
 .md-typeset .row-header-table table:not([class]) td:first-child {
@@ -228,6 +233,11 @@
 /* Table header row: light gray background */
 .md-typeset table:not([class]) th {
   background-color: var(--doc-th-bg);
+}
+
+/* An image right after a table: pull it up so the gap matches a paragraph */
+.md-typeset .md-typeset__scrollwrap + p:has(> img:only-child) {
+  margin-top: -0.6em;
 }
 
 /* Page icon in front of the h1 (moved there by extra.js) */
@@ -257,14 +267,10 @@
   fill: currentColor;
 }
 
-/* Right-side TOC depth. Default: h2 and h3 (two levels), with the h3 lists
-   collapsible (see extra.js). A page can show h4 too with `toc_depth: 4`. */
-.md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item > .md-nav {
+/* Right-side TOC depth: h2, h3 and h4 (three levels); h5 and below are hidden.
+   The h3 and h4 lists are collapsible (see extra.js). */
+.md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item > .md-nav {
   display: none;
-}
-
-body:has([data-toc-depth="4"]) .md-nav--secondary [data-md-component="toc"] > .md-nav__item > .md-nav > .md-nav__list > .md-nav__item > .md-nav {
-  display: block;
 }
 
 /* Collapsible TOC: an item marked collapsed hides its sub-list */

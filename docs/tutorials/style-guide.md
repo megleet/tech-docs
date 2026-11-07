@@ -80,6 +80,7 @@ icon: lucide/palette
 | 事件 | event（例如WATCH push一個event過來） |
 | 解耦、解開 | decouple |
 | 預設、預設值 | default、default value |
+| 唯讀、只讀 | read-only |
 | 流量規則 | traffic rule（例如VirtualService、DestinationRule） |
 | 本地 | local |
 | 遠端 | remote |
@@ -156,6 +157,7 @@ icon: lucide/palette
 - 可以用 ✅ / ❌ 表示可以 / 不行。
 - **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和cloud一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Chap-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
 - **彩色標籤**：表格裡重複出現的分類值（平台、類型、誰管理），寫成`<span class="doc-tag doc-tag-linux">Linux</span>`這種小標籤，***相同的值用相同的顏色***，不要用行內`code`。目前有的顏色：`linux`、`macos`、`windows`、`cloud`、`self`（self-managed）、`managed`、`official`、`local`、`light`（輕量）；新增的值要在`extra.css`加一組淺色、深色模式的顏色。Chap-3的「各種工具的比較」就用了這個寫法。
+- **不想斷行的行內`code`**：窄欄裡的範例（例如`nodeName: nodeA`）會被拆成兩行，在後面加`{ .nowrap }`：`` `nodeName: nodeA`{ .nowrap } ``。樣式在`extra.css`的`code.nowrap`。
 - 表格裡的程式碼如果含有`|`，不能寫`\|`（反斜線會原樣顯示），要改寫成HTML：`<code>MS_REC &#124; MS_PRIVATE</code>`。
 
 ### 圖片
@@ -189,7 +191,6 @@ icon: lucide/palette
 ```markdown
 ---
 icon: lucide/container      # 必填，每篇用不同的圖示
-toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（default到h3）
 ---
 
 # 文章標題
@@ -213,7 +214,7 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（def
     *容器靠namespace做隔離，為什麼說這種隔離「不徹底」？業界又是怎麼補強的？*
     ```
 - **錨點**：保留中文。規則是轉小寫、去掉標點、空白換成`-`，例如`## mount常用命令總結` → `#mount常用命令總結`。不確定時建置後到HTML裡查`<h2 id="…">`。
-- **右側目錄**：全站default顯示兩層（h2和h3），h3可以折疊：一開始全部收起，只看到h2，點`>`展開、再點收起（不會隨捲動自動展開）。要顯示到h4，在front matter加`toc_depth: 4`。implementation在`extra.js`和`extra.css`。
+- **右側目錄**：全站顯示三層（h2、h3、h4），h5以下不顯示。h3和h4都可以折疊：一開始全部收起，只看到h2，點`>`展開下一層、再點收起（不會隨捲動自動展開）。implementation在`extra.js`和`extra.css`。
 - **導覽列**：新文章要加到`zensical.toml`的`nav`裡對應的分類。
 - **h2改名時**：記得同步更新開頭目錄的文字和錨點。
 
@@ -245,7 +246,7 @@ toc_depth: 4                # 選填，右側目錄要顯示到h4時才加（def
 | `zensical.toml` | 網站config、`nav`、Markdown擴充、`extra_css` / `extra_javascript`、`custom_dir`、中文錨點（`toc.slugify`）、GitHub alert（`github-callouts`） |
 | `docs/stylesheets/extra.css` | 所有顏色和間距。顏色都是檔案開頭的CSS var，淺色 / 深色模式各一組 |
 | `docs/javascripts/extra.js` | 把頁面圖示移到h1前、首頁連結加圖示、程式碼語言標籤、shell指令上色、C語法補強（函式呼叫 / 參數 / #define）、目錄樹上色、標記青綠色小標題 、長程式碼折疊 、右側目錄折疊、左側導覽列Tutorials折疊（default收起，記住展開狀態） |
-| `overrides/main.html` | 覆寫主題樣板：輸出頁面圖示、首頁標記、`toc_depth`標記 |
+| `overrides/main.html` | 覆寫主題樣板：輸出頁面圖示、首頁標記 |
 | `.github/workflows/docs.yml` | GitHub Actions：安裝`zensical`和`markdown-callouts`，建置並發佈到Pages |
 
 ### 目前的顏色（淺色模式）

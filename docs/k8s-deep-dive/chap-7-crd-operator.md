@@ -1,6 +1,5 @@
 ---
 icon: lucide/puzzle
-toc_depth: 4
 ---
 # Chap-7 CRD & Operator
 
@@ -182,6 +181,7 @@ spec:
 
   - **`served: true`**：client可以用這個version（`name`寫的那個，例如`v1`）讀寫，例如`/apis/example.com/v1/...`和`/apis/example.com/v2/...`都能用，***所以可以有好幾個***。
   - **`storage: true`**：etcd裡實際存成哪個version。一筆資料在etcd裡只存一份，***所以只能有一個***，也就是[storage version](chap-6-declarative-api.md#multi-version)。client用其他version讀寫時，API Server會把資料轉換成client要的version。
+
 - **`schema`**：API Server在[④ Schema validation](chap-6-declarative-api.md#api-server怎麼處理request)用它檢查欄位。例如少了`cidr`，或型別不對，request會直接被擋下來。
 - **`required: [cidr, gateway]`**：建立Network時，`spec`裡***一定要有***`cidr`和`gateway`，少一個都不行。`[cidr, gateway]`是YAML清單的簡寫，等於分兩行寫`- cidr`、`- gateway`。沒寫`required`的話，這兩個欄位都是選填，controller就要自己處理欄位是空的情況。
 
@@ -807,7 +807,7 @@ metadata:
 | -------------------------------------------------------------------- | ------------------------------------------------ | ----------------------------------- |
 | **cluster外的資源**（cloud subnet、load balancer、DNS record） | 只有controller自己知道要清                       | ✅ 需要，否則會留下沒人管的外部資源 |
 | **cluster裡的object**（Pod、StatefulSet、Service）             | 設好`ownerReferences`，garbage collector自動刪 | ❌ 通常不需要                       |
-| **只讀、不建立任何東西**                                       | 沒有東西要清                                     | ❌ 不需要                           |
+| **read-only、不建立任何東西**                                       | 沒有東西要清                                     | ❌ 不需要                           |
 
 這一章的controller管的是cloud上的subnet，所以需要finalizer。
 
@@ -1247,8 +1247,10 @@ etcd --name infra0 \
   --initial-cluster-state new
 ```
 
+- **`--name`**：這個member的名字，要和`--initial-cluster`裡的名字對得上。
+- **`--initial-advertise-peer-urls`**：***告訴其他member「用這個位址找我」***，要和`--initial-cluster`裡自己那一項（`infra0=http://10.0.1.10:2380`）一樣。
+- **`--listen-peer-urls`**：***自己在哪個位址等其他member連進來***。member之間用2380 port溝通。listen是自己開門的位址，advertise是告訴別人的位址，兩個可以不同：例如listen寫`http://0.0.0.0:2380`（所有網卡都接受連線），但advertise不能寫`0.0.0.0`，一定要寫別人連得到的位址`http://10.0.1.10:2380`。
 - **`--initial-cluster`**：這個member啟動時，cluster裡有哪些member，格式是`<名字>=<peer URL>`。
-- **`--listen-peer-urls`**：member之間用2380 port溝通。
 - **`--initial-cluster-token`**：這個cluster獨一無二的名字。
 - **`--initial-cluster-state`**：`new`代表建立新cluster，`existing`代表加入已有的cluster。
 
@@ -1286,7 +1288,7 @@ couldn't find local name "etcd-3" in the initial cluster configuration
 - **減一個member**：先用`etcdctl member remove`把它從cluster移除，再刪掉Pod。
 - **learner**：剛加入、還在同步資料的member，不參與投票。資料追上之前不算進quorum，避免新member拖慢cluster。
 
-***Operator要做的，就是用程式照這個順序執行。使用者只要說「我要幾個member」。***
+上面這些規則，例如加member要先登記、新member先當learner、減member要先移除再刪Pod，就是***維運etcd的知識***。沒有Operator時，只能靠人看文件、一步一步手動執行，或是在StatefulSet的YAML裡塞一大段shell script（例如Pod啟動時先呼叫`etcdctl member add`），也就是[開頭](#operator)說的「在YAML file裡寫程式」。***把這些維運知識寫進controller，再用CRD讓使用者只描述想要的結果***，就是開頭說的[Operator](#crdcontroller和operator)。所以Operator要做的，就是用程式照這個順序執行，使用者只要說「我要幾個member」。
 
 ### 📝 2. 使用者只寫一個EtcdCluster
 
@@ -1299,6 +1301,8 @@ kubectl get crd | grep etcd
 ```
 
 使用者只寫一個EtcdCluster，存成`etcd-cluster.yaml`：
+
+<!-- hl: 6 -->
 
 ```yaml
 apiVersion: operator.etcd.io/v1alpha1
@@ -1333,7 +1337,7 @@ kubectl patch etcdcluster etcd --type=merge -p '{"spec":{"size":3}}'   # 5 → 3
 
 ### 🔁 3. Operator的控制循環
 
-etcd-operator是用[kubebuilder](#auto用kubebuilder產生)寫的，和Auto一節一樣只寫`Reconcile()`。它的特點是：***每一輪只往目標前進一步，做完就requeue，下一輪再看***。
+etcd-operator是用[kubebuilder](#auto用kubebuilder產生)寫的，和Auto一節一樣只寫`Reconcile()`。它***每次`Reconcile()`只做一步，例如只加一個member，然後過幾秒再呼叫一次`Reconcile()`***（這叫requeue），重新看實際狀態，再做下一步。因為etcd的每一步都要等上一步生效，例如新member要先追上資料，才能promote。
 
 1. **建立基本的object**：EtcdCluster第一次出現時，建一個headless Service，和一個`replicas: 0`的StatefulSet。
 2. **bootstrap**：把replicas改成1，`etcd-0`用`--initial-cluster-state new`啟動，cluster裡只有它自己。

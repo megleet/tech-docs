@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 12 754 564" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="csi-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect width="770" height="620" fill="#ffffff"/>
+
+<!-- side labels -->
+<text x="482" y="26" font-size="11.5" font-weight="800" fill="#a3360a" text-anchor="end">Kubernetes社群維護 ←</text>
+<text x="500" y="27" font-size="13" font-weight="900" fill="#a3360a" text-anchor="middle">CSI</text>
+<text x="518" y="26" font-size="11.5" font-weight="800" fill="#a3360a">→ storage提供者寫</text>
+
+<!-- frames: nodes (gray) -->
+<rect x="10" y="36" width="226" height="262" rx="14" fill="#f5f8fc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="20" y="54" font-size="12" font-weight="800" fill="#334155">Master node（control plane）</text>
+<rect x="244" y="36" width="502" height="262" rx="14" fill="#f5f8fc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="256" y="54" font-size="12.5" font-weight="800" fill="#334155">某一台Node（通常是worker node）</text>
+<rect x="10" y="310" width="736" height="182" rx="14" fill="#f5f8fc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="20" y="328" font-size="12.5" font-weight="800" fill="#334155">每台Node</text>
+
+<!-- frames: CSI pods (orange) -->
+<rect x="254" y="62" width="482" height="226" rx="12" fill="#fcefe2" stroke="#a3360a" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="266" y="80" font-size="12.5" font-weight="800" fill="#a3360a">controller plugin Pod（Deployment）</text>
+<rect x="250" y="318" width="486" height="164" rx="12" fill="#fcefe2" stroke="#a3360a" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="262" y="336" font-size="12.5" font-weight="800" fill="#a3360a">node plugin Pod（DaemonSet）</text>
+
+<!-- CSI line -->
+<line x1="500" y1="33" x2="500" y2="486" stroke="#a3360a" stroke-width="2.5" stroke-dasharray="12 4 3 4"/>
+
+<!-- lines -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#csi-a)">
+<path d="M264 104 H 220"/>
+<path d="M264 132 H 220"/>
+<path d="M264 182 H 220"/>
+<path d="M120 218 V 204"/>
+<path d="M470 117 H 526"/>
+<path d="M470 182 H 526"/>
+<path d="M262 370 H 234"/>
+<path d="M125 410 V 450 H 526"/>
+<path d="M628 472 V 516"/>
+<path d="M726 169 H 752 V 546 H 730"/>
+</g>
+
+<!-- API Server -->
+<rect x="20" y="62" width="206" height="138" rx="12" fill="#475569"/>
+<text x="32" y="83" font-size="15" font-weight="900" fill="#ffffff">API Server</text>
+<rect x="30" y="92" width="186" height="24" rx="6" fill="#fff3c4"/>
+<text x="38" y="108" font-size="11.5" font-weight="700" font-family="SFMono-Regular, Menlo, monospace" fill="#5b3a00">PVC</text>
+<rect x="30" y="120" width="186" height="24" rx="6" fill="#fff3c4"/>
+<text x="38" y="136" font-size="11.5" font-weight="700" font-family="SFMono-Regular, Menlo, monospace" fill="#5b3a00">PV</text>
+<rect x="30" y="170" width="186" height="24" rx="6" fill="#fff3c4"/>
+<text x="38" y="186" font-size="11.5" font-weight="700" font-family="SFMono-Regular, Menlo, monospace" fill="#5b3a00">VolumeAttachment</text>
+
+<!-- kube-controller-manager -->
+<rect x="20" y="220" width="206" height="68" rx="12" fill="#334155"/>
+<text x="32" y="238" font-size="14" font-weight="900" fill="#ffffff">kube-controller-manager</text>
+<g font-size="10" font-weight="700">
+<text x="32" y="254"><tspan fill="#e2e8f0">PV controller：</tspan><tspan fill="#ffe08a">綁定PV和PVC</tspan></text>
+<text x="32" y="268" fill="#e2e8f0">AttachDetachController：</text>
+<text x="32" y="281" fill="#ffe08a">建立VolumeAttachment</text>
+</g>
+
+<!-- sidecars (controller) -->
+<rect x="266" y="88" width="204" height="58" rx="12" fill="#2f855a"/>
+<text x="280" y="110" font-size="13.5" font-weight="900" fill="#ffffff">external-provisioner</text>
+<text x="280" y="130" font-size="10.5" font-weight="600" fill="#ffe08a">watch PVC → 建立disk和PV</text>
+<rect x="266" y="154" width="204" height="58" rx="12" fill="#2f855a"/>
+<text x="280" y="175" font-size="13.5" font-weight="900" fill="#ffffff">external-attacher</text>
+<text x="280" y="191" font-size="10.5" font-weight="600" fill="#ffe08a">watch VolumeAttachment →</text>
+<text x="280" y="205" font-size="10.5" font-weight="600" fill="#ffe08a">把disk接到Node</text>
+<rect x="266" y="222" width="204" height="56" rx="12" fill="#e3f4ea" stroke="#2f855a" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="280" y="245" font-size="13.5" font-weight="900" fill="#276749">其他external-…</text>
+<text x="280" y="264" font-size="10.5" font-weight="600" fill="#3f7a55">例如resizer、snapshotter</text>
+
+<!-- CSI driver (controller) -->
+<rect x="530" y="88" width="196" height="138" rx="12" fill="#d6336c"/>
+<text x="546" y="112" font-size="15" font-weight="900" fill="#ffffff">CSI driver</text>
+<rect x="540" y="122" width="176" height="26" rx="6" fill="#fde2ec"/>
+<text x="550" y="140" font-size="12" font-weight="800" fill="#831843">Identity</text>
+<rect x="540" y="156" width="176" height="26" rx="6" fill="#fff3c4"/>
+<text x="550" y="174" font-size="12" font-weight="800" fill="#7c4a03">Controller</text>
+<rect x="540" y="190" width="176" height="26" rx="6" fill="none" stroke="#f6b3c9" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="550" y="208" font-size="12" font-weight="700" fill="#f6b3c9">Node<tspan font-size="10.5">（不開）</tspan></text>
+
+<!-- kubelet -->
+<rect x="20" y="344" width="210" height="66" rx="12" fill="#3d5a80"/>
+<text x="34" y="365" font-size="15" font-weight="900" fill="#ffffff">kubelet</text>
+<text x="34" y="383" font-size="11" font-weight="700" fill="#e2e8f0">VolumeManager：</text>
+<text x="34" y="399" font-size="10.5" font-weight="600" fill="#ffe08a">mount時直接呼叫node plugin</text>
+
+<!-- node-driver-registrar -->
+<rect x="264" y="344" width="206" height="52" rx="12" fill="#2f855a"/>
+<text x="278" y="365" font-size="13.5" font-weight="900" fill="#ffffff">node-driver-registrar</text>
+<text x="278" y="384" font-size="10.5" font-weight="600" fill="#ffe08a">向kubelet登記這個CSI driver</text>
+
+<!-- CSI driver (node) -->
+<rect x="530" y="344" width="196" height="128" rx="12" fill="#d6336c"/>
+<text x="546" y="368" font-size="15" font-weight="900" fill="#ffffff">CSI driver</text>
+<rect x="540" y="378" width="176" height="24" rx="6" fill="#fde2ec"/>
+<text x="550" y="395" font-size="12" font-weight="800" fill="#831843">Identity</text>
+<rect x="540" y="408" width="176" height="24" rx="6" fill="none" stroke="#f6b3c9" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="550" y="425" font-size="12" font-weight="700" fill="#f6b3c9">Controller<tspan font-size="10.5">（不開）</tspan></text>
+<rect x="540" y="438" width="176" height="24" rx="6" fill="#ece6fb"/>
+<text x="550" y="455" font-size="12" font-weight="800" fill="#4c2f91">Node</text>
+
+<!-- storage -->
+<rect x="530" y="520" width="196" height="52" rx="12" fill="#2f6fd1"/>
+<text x="546" y="542" font-size="15" font-weight="900" fill="#ffffff">Remote storage</text>
+<text x="546" y="560" font-size="10.5" font-weight="600" fill="#ffe08a">cloud的disk、Ceph、NFS…</text>
+
+<!-- note -->
+<g font-size="11.5" font-weight="800" fill="#64748b">
+<text x="20" y="524"><tspan fill="#a3360a">橘色虛線框</tspan>是Pod：一個CSI driver deploy成這兩個Pod；灰色虛線框是Node。</text>
+<text x="20" y="542">框裡每個box是一個container：<tspan fill="#d6336c">粉色</tspan>是main container（CSI driver），</text>
+<text x="20" y="560"><tspan fill="#2f855a">綠色</tspan>是sidecar container，兩者透過unix socket溝通</text>
+</g>
+
+<!-- labels on lines -->
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="800" fill="#475569">
+<g transform="rotate(90 752 330)"><text x="646" y="330" dominant-baseline="central">呼叫storage API：建disk、</text></g>
+</g>
+<g paint-order="stroke" stroke="#f5f8fc" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="800" fill="#475569">
+<text x="242" y="98" text-anchor="middle">watch</text>
+<text x="242" y="126" text-anchor="middle">建立</text>
+<text x="242" y="176" text-anchor="middle">watch</text>
+<text x="130" y="214">建立</text>
+<text x="248" y="363" text-anchor="middle">登記</text>
+</g>
+<g paint-order="stroke" stroke="#fcefe2" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="800" fill="#475569">
+<text x="500" y="110" text-anchor="middle">gRPC</text>
+<text x="500" y="175" text-anchor="middle">gRPC</text>
+<text x="380" y="446" text-anchor="middle">gRPC：format+mount</text>
+</g>
+<!-- attach / mount badges -->
+<g transform="rotate(90 752 330)"><rect x="798" y="322" width="54" height="16" rx="8" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><text x="805" y="330" dominant-baseline="central" font-size="11.5" font-weight="800" fill="#ffffff">attach</text></g>
+<rect x="572" y="497" width="50" height="16" rx="8" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><text x="579" y="505" dominant-baseline="central" font-size="11.5" font-weight="800" fill="#ffffff">mount</text>
+</svg>

@@ -58,8 +58,9 @@ C="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
   - 開頭加只列h2的`**目錄**`；
   - 加到`zensical.toml`的`nav`；
   - 加到首頁`index.md`的清單；
-  - 更新「網站排版風格」裡的圖示表。
-- **右側目錄**：全站default顯示h2和h3，h3一開始收起、點`>`展開或收起（`extra.js`），不會隨捲動自動展開。不用再在front matter加`toc_depth: 3`；要顯示h4才加`toc_depth: 4`。
+  - 更新「網站排版風格」裡的圖示表；
+  - K8S Deep Dive的新章節：檢查[Reference的進階主題](../k8s-deep-dive/reference.md#進階主題)表格，把對應主題的「本站相關」改連到新章節（例如scheduler、網路、Node上的資源管理），必要時更新「難在哪裡」。
+- **右側目錄**：全站顯示h2、h3、h4三層，h3和h4一開始收起、點`>`展開或收起（`extra.js`），不會隨捲動自動展開。不用在front matter加`toc_depth`。
 - **改了規則或配色**：同步更新「網站排版風格」頁，下一個對話才會照新規則寫。
 - **git**：
   - commit可以在local做；**push一定要等使用者說「push」**；

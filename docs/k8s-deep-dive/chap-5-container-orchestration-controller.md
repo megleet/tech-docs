@@ -549,7 +549,7 @@ spec:
 
 #### PV：管理cluster的人提供implementation
 
-符合PVC條件的volume，來自管理cluster的人建立的***PV***（PersistentVolume）。例如一個透過Ceph CSI driver使用RBD的PV：
+符合PVC條件的volume，來自管理cluster的人建立的***PV***（PersistentVolume）。例如一個透過Ceph CSI driver使用RBD的PV。CSI（Container Storage Interface）是Kubernetes和storage系統之間的標準介面，每種storage各自implement一個CSI driver：
 
 <!-- hl: 4 -->
 
@@ -590,6 +590,8 @@ spec:
 
 > [!NOTE]
 > 手動建立的PV要和PVC配對成功，兩邊的`storageClassName`要一樣。cluster有default StorageClass時，沒寫`storageClassName`的PVC會被自動補上default，改走dynamic provisioning，就不會綁到這個手動建的PV。所以手動配對時，兩邊都寫同一個`storageClassName`（例如`manual`），或都寫`""`。
+>
+> 手動PV上的`storageClassName`只是配對用的名字，cluster裡不需要真的有這個StorageClass；而且default StorageClass只會補給PVC，不會補給PV。
 
 #### volumeClaimTemplates：每個Pod一個固定的PVC
 
@@ -713,7 +715,7 @@ spec:
 | --- | --- | --- |
 | **直接管的object** | ReplicaSet | ***Pod和PVC***，中間沒有ReplicaSet，見[5. 為什麼不需要ReplicaSet](#-5-為什麼不需要replicaset) |
 | **有handler的Informer** | Deployment、ReplicaSet、Pod | StatefulSet、Pod |
-| **只讀、沒有handler的Informer** | 無 | PVC、ControllerRevision |
+| **read-only、沒有handler的Informer** | 無 | PVC、ControllerRevision |
 | **syncHandler做什麼** | scale ReplicaSet | 照編號`web-0`、`web-1`……依序建立Pod和它的PVC，前一個Ready才建下一個 |
 
 - **PVC為什麼沒有handler**：PVC是controller自己照`volumeClaimTemplates`建立的，建好之後就一直留著，不需要因為PVC變了而重新檢查；syncStatefulSet要用時，用lister從cache讀就好。
