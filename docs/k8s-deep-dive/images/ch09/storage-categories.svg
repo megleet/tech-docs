@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 782 368" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="sc-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="8" y="8" width="782" height="368" fill="#ffffff"/>
+
+<!-- lifetime axis -->
+<text x="14" y="31" font-size="12.5" font-weight="800" fill="#334155">資料活多久</text>
+<text x="96" y="31" font-size="12" font-weight="800" fill="#475569">短</text>
+<path d="M114 26 H 762" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#sc-a)"/>
+<text x="770" y="31" font-size="12" font-weight="800" fill="#475569">長</text>
+
+<!-- ① ephemeral -->
+<rect x="12" y="44" width="250" height="328" rx="14" fill="#f7f4fb" stroke="#d8cbe8" stroke-width="1.5"/>
+<text x="24" y="66" font-size="13.5" font-weight="900" fill="#5b3a7a">① 跟著Pod（ephemeral）</text>
+<text x="24" y="84" font-size="11" font-weight="600" fill="#6f6380">Pod刪掉，volume也跟著刪掉</text>
+
+<rect x="24" y="96" width="226" height="46" rx="10" fill="#5b3a7a"/>
+<text x="36" y="115" font-size="12.5" font-weight="900" fill="#ffffff">空目錄</text>
+<text x="36" y="133" font-size="11" font-weight="600" fill="#e6dbf2">emptyDir（disk或mem）</text>
+
+<rect x="24" y="152" width="226" height="78" rx="10" fill="#5b3a7a"/>
+<text x="36" y="171" font-size="12.5" font-weight="900" fill="#ffffff">從API object投射</text>
+<text x="36" y="189" font-size="11" font-weight="600" fill="#e6dbf2">Secret、ConfigMap、</text>
+<text x="36" y="204" font-size="11" font-weight="600" fill="#e6dbf2">Downward API、ServiceAccountToken</text>
+<text x="36" y="221" font-size="10" font-weight="600" fill="#c7b3de">projected volume把它們合在一個目錄</text>
+
+<rect x="24" y="240" width="226" height="62" rx="10" fill="#5b3a7a"/>
+<text x="36" y="259" font-size="12.5" font-weight="900" fill="#ffffff">向storage系統借</text>
+<text x="36" y="277" font-size="11" font-weight="600" fill="#e6dbf2">generic ephemeral volume</text>
+<text x="36" y="293" font-size="11" font-weight="600" fill="#e6dbf2">CSI ephemeral inline volume</text>
+
+<rect x="24" y="312" width="226" height="46" rx="10" fill="#5b3a7a"/>
+<text x="36" y="331" font-size="12.5" font-weight="900" fill="#ffffff">從image來</text>
+<text x="36" y="349" font-size="11" font-weight="600" fill="#e6dbf2">image volume</text>
+
+<!-- ② node-bound -->
+<rect x="274" y="44" width="250" height="186" rx="14" fill="#ecf8f6" stroke="#a7d8d0" stroke-width="1.5"/>
+<text x="286" y="66" font-size="13.5" font-weight="900" fill="#115e59">② 綁在一台Node</text>
+<text x="286" y="84" font-size="11" font-weight="600" fill="#4b6b67">Pod刪掉資料還在，但換Node就看不到</text>
+
+<rect x="286" y="96" width="226" height="46" rx="10" fill="#0f766e"/>
+<text x="298" y="115" font-size="12.5" font-weight="900" fill="#ffffff">hostPath</text>
+<text x="298" y="133" font-size="11" font-weight="600" fill="#d7f3ee">直接mount Node上的目錄</text>
+
+<rect x="286" y="152" width="226" height="62" rx="10" fill="#0f766e"/>
+<text x="298" y="171" font-size="12.5" font-weight="900" fill="#ffffff">local PV</text>
+<text x="298" y="189" font-size="11" font-weight="600" fill="#d7f3ee">Node上的disk包成PV</text>
+<text x="298" y="205" font-size="11" font-weight="600" fill="#d7f3ee">scheduler把Pod排到那台Node</text>
+
+<!-- ③ persistent -->
+<rect x="536" y="44" width="250" height="246" rx="14" fill="#eef4fc" stroke="#b5cdef" stroke-width="1.5"/>
+<text x="548" y="66" font-size="13.5" font-weight="900" fill="#1e4f9c">③ 持久化（PV / PVC）</text>
+<text x="548" y="84" font-size="11" font-weight="600" fill="#4a5f80">Pod刪掉、換Node，資料都還在</text>
+
+<rect x="548" y="96" width="226" height="62" rx="10" fill="#2f6fd1"/>
+<text x="560" y="115" font-size="12.5" font-weight="900" fill="#ffffff">建PV的方式</text>
+<text x="560" y="133" font-size="11" font-weight="600" fill="#dbe7fb">static：手動建PV</text>
+<text x="560" y="149" font-size="11" font-weight="600" fill="#dbe7fb">dynamic：StorageClass自動建</text>
+
+<rect x="548" y="168" width="226" height="46" rx="10" fill="#2f6fd1"/>
+<text x="560" y="187" font-size="12.5" font-weight="900" fill="#ffffff">一次建很多PVC</text>
+<text x="560" y="205" font-size="11" font-weight="600" fill="#dbe7fb">StatefulSet的volumeClaimTemplates</text>
+
+<rect x="548" y="224" width="226" height="46" rx="10" fill="#2f6fd1"/>
+<text x="560" y="243" font-size="12.5" font-weight="900" fill="#ffffff">對PV的操作</text>
+<text x="560" y="261" font-size="11" font-weight="600" fill="#dbe7fb">snapshot、擴容、clone</text>
+</svg>

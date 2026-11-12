@@ -353,7 +353,7 @@ Kubernetes裡所有元件都透過API Server讀寫object：不管是你用**kube
 | **⑤ Validating admission** | ***只檢查、不修改***，不符合規定就拒絕 | `PodSecurity`拒絕高權限的Pod；`ResourceQuota`拒絕超過配額的request           |
 | **⑥ Write**                | 存進etcd                                       |                                                                                  |
 
-- **① AuthN ② AuthZ**：[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)用curl實際跑過一次：token負責① AuthN，RBAC負責② AuthZ。
+- **① AuthN ② AuthZ**：[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)用curl實際跑過一次：token負責① AuthN，RBAC負責② AuthZ。
 - **③ mutating在 ⑤ validating之前**：③ mutating可以看成***input/pre hook***：拿到send進來的原始object，可以修改它；⑤ validating 可以看成***output/post hook***：檢查改完之後、準備write進etcd的最終object，只能放行或拒絕。
 - **讀取的request**（`get`、`list`、`watch`）只經過① AuthN ② AuthZ，不經過admission。
 
@@ -724,7 +724,7 @@ kubectl auth whoami
 
 #### 🤖 2.d ServiceAccount
 
-**ServiceAccount**是Kubernetes自己管理的身分。Pod怎麼拿到它的token、用curl存取API Server，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+**ServiceAccount**是Kubernetes自己管理的身分。Pod怎麼拿到它的token、用curl存取API Server，見[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 
 和User不一樣，ServiceAccount是真的API object，要先建立，YAML見[把Role綁給一個ServiceAccount](#-4a-把role綁給一個serviceaccount)。Pod在`spec.serviceAccountName: example-sa`指定用哪個ServiceAccount；沒寫就用namespace裡的`default`。
 
@@ -911,7 +911,7 @@ kubectl auth can-i list pods -n default \
 # → no（RoleBinding只在mynamespace生效）
 ```
 
-Pod在`spec.serviceAccountName: example-sa`指定這個ServiceAccount之後，Pod裡的程式就用它的token存取API Server，權限也只有`get`、`watch`、`list`。token怎麼mount進container、怎麼在Pod裡用curl試，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+Pod在`spec.serviceAccountName: example-sa`指定這個ServiceAccount之後，Pod裡的程式就用它的token存取API Server，權限也只有`get`、`watch`、`list`。token怎麼mount進container、怎麼在Pod裡用curl試，見[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 
 > [!TIP]
 > 💡 **一句話總結**

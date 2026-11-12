@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 4 734 204" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect x="8" y="4" width="734" height="204" fill="#ffffff"/>
+
+<text x="14" y="56" font-size="12.5" font-weight="900" fill="#334155">limits.cpu: 500m</text>
+<text x="14" y="74" font-size="11" font-weight="700" font-family="SFMono-Regular, Menlo, monospace" fill="#6d4fc2">cpu.max</text>
+<text x="14" y="88" font-size="11" font-weight="700" font-family="SFMono-Regular, Menlo, monospace" fill="#334155">50000 100000</text>
+<text x="14" y="112" font-size="12.5" font-weight="900" fill="#334155">limits.cpu: 2</text>
+<text x="14" y="130" font-size="11" font-weight="700" font-family="SFMono-Regular, Menlo, monospace" fill="#6d4fc2">cpu.max</text>
+<text x="14" y="144" font-size="11" font-weight="700" font-family="SFMono-Regular, Menlo, monospace" fill="#334155">200000 100000</text>
+
+<g transform="translate(-34 0)">
+
+<!-- period boundaries -->
+<g stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4">
+<path d="M170 34 V 172"/><path d="M360 34 V 172"/><path d="M550 34 V 172"/><path d="M740 34 V 172"/>
+</g>
+
+<!-- period bracket -->
+<path d="M172 22 V 28 H 358 V 22" fill="none" stroke="#6d4fc2" stroke-width="1.5"/>
+<text x="265" y="18" text-anchor="middle" font-size="11.5" font-weight="800" fill="#6d4fc2">週期：100ms</text>
+
+<!-- Row A: 500m -->
+<g>
+<rect x="172" y="44" width="93" height="34" rx="6" fill="#1f9d76"/>
+<rect x="267" y="44" width="91" height="34" rx="6" fill="#94a3b8"/>
+<rect x="362" y="44" width="93" height="34" rx="6" fill="#1f9d76"/>
+<rect x="457" y="44" width="91" height="34" rx="6" fill="#94a3b8"/>
+<rect x="552" y="44" width="93" height="34" rx="6" fill="#1f9d76"/>
+<rect x="647" y="44" width="91" height="34" rx="6" fill="#94a3b8"/>
+</g>
+<g font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">
+<text x="218" y="58">配額50ms</text><text x="218" y="72" font-weight="600" fill="#d9f2e8">可以跑</text>
+<text x="312" y="58">throttled</text><text x="312" y="72" font-weight="600" fill="#eef2f7">等下一個週期</text>
+<text x="408" y="65">50ms</text><text x="502" y="65">throttled</text>
+<text x="598" y="65">50ms</text><text x="692" y="65">throttled</text>
+</g>
+
+<!-- Row B: 2 -->
+<g fill="#1f9d76">
+<rect x="172" y="100" width="186" height="22" rx="6"/><rect x="362" y="100" width="186" height="22" rx="6"/><rect x="552" y="100" width="186" height="22" rx="6"/>
+<rect x="172" y="126" width="186" height="22" rx="6"/><rect x="362" y="126" width="186" height="22" rx="6"/><rect x="552" y="126" width="186" height="22" rx="6"/>
+</g>
+<g font-size="10.5" font-weight="800" fill="#ffffff" text-anchor="middle">
+<text x="265" y="115">CPU 1：100ms</text><text x="265" y="141">CPU 2：100ms</text>
+<text x="455" y="115">CPU 1</text><text x="455" y="141">CPU 2</text>
+<text x="645" y="115">CPU 1</text><text x="645" y="141">CPU 2</text>
+</g>
+<text x="172" y="164" font-size="11" font-weight="700" fill="#475569" paint-order="stroke" stroke="#ffffff" stroke-width="5" stroke-linejoin="round">每個週期：2個CPU × 100ms = 配額200ms，可以一直跑</text>
+
+<!-- time axis -->
+<path d="M170 180 H 740" fill="none" stroke="#475569" stroke-width="1.5"/>
+<g font-size="10.5" font-weight="700" fill="#475569" text-anchor="middle">
+<text x="170" y="196">0</text><text x="360" y="196">100ms</text><text x="550" y="196">200ms</text><text x="740" y="196">300ms</text>
+</g>
+</g>
+</svg>

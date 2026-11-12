@@ -37,6 +37,7 @@ icon: lucide/palette
 
 - ***只有條列（`-`、`1.`）開頭的才上色***：一般段落開頭的`**不適合用CRD的場景**：`是黑色粗體。
 - 小標題前面可以有emoji，例如`- ✅ **包含了**：`，仍然算小標題。
+- 小標題本身是連結時（例如`- **[init container](…)**：`），連結***跟著小標題的顏色***，底線和一般連結一樣粗，不用藍色。樣式在`extra.css`的`strong.doc-label a`。
 - 句子中間碰巧接冒號的粗體**不算**小標題，維持黑色。
 - 表格裡的粗體一律是黑色粗體，**不另外上色**。
 
@@ -60,6 +61,7 @@ icon: lucide/palette
 | 叢集、集群 | cluster（「節點」可以保留） |
 | 專案 | project |
 | 實作、實現 | implement（動詞）、implementation（名詞） |
+| 篩選、篩掉、打分、分數 | filter、score（例如filter掉放不下的Node、score最高的Node） |
 | 開關、功能開關 | flag、feature flag |
 | 資料庫、數據庫 | DB |
 | 環境變數 | env var |
@@ -128,6 +130,12 @@ icon: lucide/palette
 - **讀者要自己換掉的`<you>`**：程式碼和行內`code`裡的`<you>`（例如`github.com/<you>/network-controller`），`extra.js`會自動標成黃底紅字，讓讀者知道這裡要換成自己的GitHub帳號。要標其他佔位符時，加到`extra.js`的`PLACEHOLDER`。
 - 目錄樹：用` ``` `不標語言，畫成`├──` `└──` `│`的樹狀。只要區塊裡有這些符號就會自動上色：線條和`<-- 註解`、`(括號說明)`是灰色，**以`/`結尾的目錄**是藍色，檔案是一般文字顏色；***寫在目錄後面的註解***是青綠色粗體，比檔案的註解明顯。所以目錄名稱後面一定要加`/`。
 
+### 數學公式
+
+- 用LaTeX寫：行內用`$…$`，獨立一行用`$$`上下包住。網站用KaTeX畫（`zensical.toml`的`extra_javascript`載入KaTeX，`javascripts/katex.js`啟動），GitHub上也能顯示。
+- 獨立一行的公式***靠左、上下間距很小***（`extra.css`的`div.arithmatex`、`.katex-display`）。
+- 放在提示框裡時，`$$`前面要有一行只有`>`的空行，否則會被併進上一段文字，公式不會被畫出來。
+
 ### 提示框
 
 用GitHub的alert寫法，兩邊都能顯示：
@@ -157,7 +165,7 @@ icon: lucide/palette
 - 可以用 ✅ / ❌ 表示可以 / 不行。
 - **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和cloud一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Chap-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
 - **彩色標籤**：表格裡重複出現的分類值（平台、類型、誰管理），寫成`<span class="doc-tag doc-tag-linux">Linux</span>`這種小標籤，***相同的值用相同的顏色***，不要用行內`code`。目前有的顏色：`linux`、`macos`、`windows`、`cloud`、`self`（self-managed）、`managed`、`official`、`local`、`light`（輕量）；新增的值要在`extra.css`加一組淺色、深色模式的顏色。Chap-3的「各種工具的比較」就用了這個寫法。
-- **不想斷行的行內`code`**：窄欄裡的範例（例如`nodeName: nodeA`）會被拆成兩行，在後面加`{ .nowrap }`：`` `nodeName: nodeA`{ .nowrap } ``。樣式在`extra.css`的`code.nowrap`。
+- **不想斷行的行內`code`**：窄欄裡的範例（例如`nodeName: node-a`）會被拆成兩行，在後面加`{ .nowrap }`：`` `nodeName: node-a`{ .nowrap } ``。樣式在`extra.css`的`code.nowrap`。
 - 表格裡的程式碼如果含有`|`，不能寫`\|`（反斜線會原樣顯示），要改寫成HTML：`<code>MS_REC &#124; MS_PRIVATE</code>`。
 
 ### 圖片
@@ -237,7 +245,11 @@ icon: lucide/container      # 必填，每篇用不同的圖示
 | Chap-5 Container Orchestration之Controller篇 | `lucide/refresh-cw` |
 | Chap-6 Declarative API | `lucide/file-code` |
 | Chap-7 CRD & Operator | `lucide/puzzle` |
-| Chap-8 Storage & Volume | `lucide/hard-drive` |
+| Chap-8 Scheduler | `lucide/calendar-clock` |
+| Chap-9 Storage & Volume | `lucide/hard-drive` |
+| Chap-10 Container Runtime | `lucide/cpu` |
+| Chap-11 Network | `lucide/network` |
+| Chap-12 Monitoring & Logging | `lucide/activity` |
 
 ## Implementation位置
 
@@ -298,6 +310,7 @@ git push                          # push上去後GitHub Actions自動發佈
 - **SSH金鑰**：`~/.ssh/config`裡`github.com`用`~/.ssh/id_ed25519_megleet`，對應GitHub帳號megleet。
 - **GitHub網頁上的修改**：push被拒絕時，先`git fetch`看remote改了什麼，再`git rebase origin/main`，**不要force push**。
 - **`zensical build`偶爾出現`cache directory could not be removed`**：預覽伺服器開著時同時建置可能會撞到，等一下重跑一次就好。
+- **條列之間不能靠空行**：Office Viewer存檔時會刪掉條列之間的空行（或改成`>`），下一條bullet就會被吞進上一條的子清單、NOTE或code block裡，變成原樣顯示的`- **…**`。所以：子清單***緊接在上一行後面，不空行***；NOTE、code block、圖片、表格***只能放在清單的最後一條***，或移到清單外面（例如改成`#### 🧩 小標題`）。
 - **巢狀條列縮排2格**：配合VS Code的Office Viewer（它存檔時一律縮2格），`zensical.toml`加了`mdx_truly_sane_lists`（`nested_indent = 2`）。子條列縮2格；縮4格反而會被攤平成同一層。條列下面的code block縮2、3格都可以。
 - **標題裡的`-`會保留在錨點裡**：`## mount --bind技術`的錨點是`#mount---bind技術`（空白變`-`，加上原本的`--`），不是`#mount-bind技術`。
 - **`(c)`會變成©**：`smartsymbols`擴充會把`(c)`轉成版權符號（`(r)`、`(tm)`也一樣）。用`(a)`、`(b)`、`(c)`編號時，要寫成`\(c)`。

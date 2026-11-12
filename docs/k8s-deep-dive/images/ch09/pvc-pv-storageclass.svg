@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 610 302" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="pw-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<marker id="pw-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e08a00"/></marker>
+<marker id="pw-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6d4fc2"/></marker>
+</defs>
+<rect x="8" y="8" width="610" height="302" fill="#ffffff"/>
+
+<!-- client frame -->
+<rect x="12" y="12" width="216" height="168" rx="12" fill="#f2fbfc" stroke="#9fd8de" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="24" y="30" font-size="12" font-weight="800" fill="#0b4f56">client寫的：只有Pod和PVC</text>
+
+<!-- auto frame -->
+<rect x="346" y="12" width="264" height="152" rx="12" fill="#fffaf0" stroke="#e3b46b" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="360" y="31" font-size="12.5" font-weight="900" fill="#8a4b00">方法一：自動（dynamic）</text>
+<text x="360" y="47" font-size="11" font-weight="600" fill="#a0651a">管理cluster的人事先建StorageClass</text>
+
+<!-- manual frame -->
+<rect x="346" y="184" width="264" height="110" rx="12" fill="#f6f3fd" stroke="#c4b5ec" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="360" y="203" font-size="12.5" font-weight="900" fill="#4c2f99">方法二：手動（static）</text>
+
+<!-- left lines -->
+<path d="M120 80 V 112" fill="none" stroke="#475569" stroke-width="2"/>
+<text x="130" y="100" font-size="11.5" font-weight="700" fill="#475569">volumes引用PVC</text>
+<path d="M120 170 V 240" fill="none" stroke="#475569" stroke-width="3"/>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+<text x="130" y="206" font-size="13" font-weight="800" fill="#334155">③ Bind</text>
+<text x="130" y="222" font-size="11" font-weight="600" fill="#64748b">兩者都變成Bound</text>
+</g>
+
+<!-- ① check -->
+<path d="M218 141 C 290 141, 300 78, 360 78" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#pw-a)"/>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+<text x="238" y="48" font-size="12.5" font-weight="800" fill="#334155">① Check</text>
+<text x="238" y="64" font-size="11" font-weight="600" fill="#64748b">先找現有的PV，</text>
+<text x="238" y="79" font-size="11" font-weight="600" fill="#64748b">沒有才查</text>
+<text x="238" y="94" font-size="11" font-weight="600" fill="#64748b">storageClassName</text>
+</g>
+
+<!-- ② provision -->
+<path d="M362 132 C 300 132, 270 250, 222 252" fill="none" stroke="#e08a00" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#pw-o)"/>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+<text x="232" y="180" font-size="12.5" font-weight="800" fill="#b36b00">② 自動Provision</text>
+<text x="232" y="196" font-size="11" font-weight="600" fill="#c08a3e">PVC來了才建PV</text>
+</g>
+
+<!-- manual arrow -->
+<path d="M362 255 L 222 270" fill="none" stroke="#6d4fc2" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#pw-p)"/>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+<text x="228" y="288" font-size="12.5" font-weight="800" fill="#5b3fb0">② 手動Provision</text>
+<text x="228" y="303" font-size="11" font-weight="600" fill="#8a78c8">PVC建立之前就建好</text>
+</g>
+
+<!-- boxes -->
+<rect x="24" y="40" width="192" height="40" rx="10" fill="#2f6bb5"/>
+<text x="120" y="66" font-size="16" font-weight="800" fill="#ffffff" text-anchor="middle">Pod</text>
+
+<rect x="24" y="112" width="192" height="58" rx="10" fill="#d9f4f6" stroke="#0e9aa7" stroke-width="2"/>
+<text x="120" y="133" font-size="16" font-weight="800" fill="#0b4f56" text-anchor="middle">PVC</text>
+<text x="120" y="149" font-size="11" font-weight="600" fill="#0b4f56" text-anchor="middle">開發者寫：大小、存取方式、</text>
+<text x="120" y="164" font-size="11" font-weight="700" fill="#0b4f56" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">storageClassName</text>
+
+<rect x="24" y="240" width="192" height="44" rx="10" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<text x="120" y="261" font-size="16" font-weight="800" fill="#8a4b00" text-anchor="middle">PV</text>
+<text x="120" y="277" font-size="11" font-weight="600" fill="#8a4b00" text-anchor="middle">storage的implementation</text>
+
+<rect x="364" y="56" width="228" height="44" rx="10" fill="#fff4e0" stroke="#e08a00" stroke-width="2"/>
+<text x="478" y="77" font-size="15" font-weight="800" fill="#8a4b00" text-anchor="middle">StorageClass</text>
+<text x="478" y="93" font-size="11" font-weight="600" fill="#8a4b00" text-anchor="middle">用哪個provisioner、什麼參數</text>
+<rect x="364" y="108" width="228" height="44" rx="10" fill="#e08a00"/>
+<text x="478" y="129" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">Provisioner</text>
+<text x="478" y="145" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle">通常是CSI driver</text>
+
+<rect x="364" y="214" width="228" height="64" rx="10" fill="#6d4fc2"/>
+<text x="478" y="240" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">PV的YAML</text>
+<text x="478" y="260" font-size="11" font-weight="600" fill="#e6defa" text-anchor="middle">管理cluster的人直接寫</text>
+</svg>

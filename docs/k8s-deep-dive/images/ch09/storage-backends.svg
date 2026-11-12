@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 782 294" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="sb-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1f6fb2"/></marker>
+<marker id="sb-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#b5541c"/></marker>
+<marker id="sb-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2f855a"/></marker>
+</defs>
+<rect x="8" y="8" width="782" height="294" fill="#ffffff"/>
+
+<!-- File -->
+<rect x="12" y="12" width="250" height="286" rx="14" fill="#eef4fb" stroke="#b5cdef" stroke-width="1.5"/>
+<text x="24" y="34" font-size="13.5" font-weight="900" fill="#1e4f9c">File</text>
+<text x="24" y="52" font-size="11" font-weight="600" fill="#4a5f80">mount一個目錄，多台Node同時讀寫</text>
+<rect x="36" y="66" width="84" height="28" rx="8" fill="#334155"/><text x="78" y="84" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">Node A</text>
+<rect x="154" y="66" width="84" height="28" rx="8" fill="#334155"/><text x="196" y="84" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">Node B</text>
+<path d="M78 95 L 118 120" fill="none" stroke="#1f6fb2" stroke-width="2" marker-end="url(#sb-f)"/>
+<path d="M196 95 L 156 120" fill="none" stroke="#1f6fb2" stroke-width="2" marker-end="url(#sb-f)"/>
+<rect x="77" y="124" width="120" height="32" rx="8" fill="#1f6fb2"/><text x="137" y="145" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">共用的目錄</text>
+<rect x="24" y="168" width="226" height="62" rx="10" fill="#1f6fb2"/>
+<text x="36" y="187" font-size="12.5" font-weight="900" fill="#ffffff">cloud</text>
+<text x="36" y="205" font-size="11" font-weight="600" fill="#dbe7fb">AWS EFS、GCP Filestore、</text>
+<text x="36" y="221" font-size="11" font-weight="600" fill="#dbe7fb">Azure Files</text>
+<rect x="24" y="240" width="226" height="46" rx="10" fill="#1f6fb2"/>
+<text x="36" y="259" font-size="12.5" font-weight="900" fill="#ffffff">self-hosted</text>
+<text x="36" y="277" font-size="11" font-weight="600" fill="#dbe7fb">NFS server、CephFS</text>
+
+<!-- Block -->
+<rect x="274" y="12" width="250" height="286" rx="14" fill="#fdf3ec" stroke="#f0c9ab" stroke-width="1.5"/>
+<text x="286" y="34" font-size="13.5" font-weight="900" fill="#8a3c10">Block</text>
+<text x="286" y="52" font-size="11" font-weight="600" fill="#7a5a46">一顆disk，通常一次只接一台Node</text>
+<rect x="298" y="66" width="84" height="28" rx="8" fill="#334155"/><text x="340" y="84" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">Node A</text>
+<rect x="416" y="66" width="84" height="28" rx="8" fill="#334155"/><text x="458" y="84" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">Node B</text>
+<path d="M340 95 L 380 120" fill="none" stroke="#b5541c" stroke-width="2" marker-end="url(#sb-b)"/>
+<path d="M458 95 L 418 120" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4"/>
+<text x="438" y="113" text-anchor="middle" font-size="14" font-weight="900" fill="#d6457f" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">✕</text>
+<rect x="339" y="124" width="120" height="32" rx="8" fill="#b5541c"/><text x="399" y="145" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">disk</text>
+<rect x="286" y="168" width="226" height="46" rx="10" fill="#b5541c"/>
+<text x="298" y="187" font-size="12.5" font-weight="900" fill="#ffffff">cloud</text>
+<text x="298" y="205" font-size="11" font-weight="600" fill="#fbe3d3">AWS EBS、GCE PD、Azure Disk</text>
+<rect x="286" y="224" width="226" height="62" rx="10" fill="#b5541c"/>
+<text x="298" y="243" font-size="12.5" font-weight="900" fill="#ffffff">self-hosted</text>
+<text x="298" y="261" font-size="11" font-weight="600" fill="#fbe3d3">iSCSI、Fibre Channel、</text>
+<text x="298" y="277" font-size="11" font-weight="600" fill="#fbe3d3">Ceph RBD、Longhorn</text>
+
+<!-- Object -->
+<rect x="536" y="12" width="250" height="286" rx="14" fill="#eef8f2" stroke="#a9d9bd" stroke-width="1.5"/>
+<text x="548" y="34" font-size="13.5" font-weight="900" fill="#22603f">Object</text>
+<text x="548" y="52" font-size="11" font-weight="600" fill="#4b6b5a">用API存取的bucket，CSI driver包成目錄</text>
+<rect x="619" y="66" width="84" height="28" rx="8" fill="#334155"/><text x="661" y="84" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">Node</text>
+<path d="M661 95 V 120" fill="none" stroke="#2f855a" stroke-width="2" marker-end="url(#sb-o)"/>
+<text x="670" y="112" font-size="10.5" font-weight="800" fill="#2f855a">API</text>
+<rect x="601" y="124" width="120" height="32" rx="8" fill="#2f855a"/><text x="661" y="145" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">bucket</text>
+<rect x="548" y="168" width="226" height="46" rx="10" fill="#2f855a"/>
+<text x="560" y="187" font-size="12.5" font-weight="900" fill="#ffffff">cloud</text>
+<text x="560" y="205" font-size="11" font-weight="600" fill="#d8f0e2">AWS S3、GCS、Azure Blob</text>
+<rect x="548" y="224" width="226" height="46" rx="10" fill="#2f855a"/>
+<text x="560" y="243" font-size="12.5" font-weight="900" fill="#ffffff">self-hosted</text>
+<text x="560" y="261" font-size="11" font-weight="600" fill="#d8f0e2">MinIO、Ceph RGW</text>
+</svg>

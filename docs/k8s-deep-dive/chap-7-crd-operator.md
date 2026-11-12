@@ -646,7 +646,7 @@ func main() {
 }
 ```
 
-`main()`做三件事：① 連API Server、② 建立factory並拿到Network Informer、③ 啟動informer和controller，細節寫在程式碼的註解裡。in-cluster config見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)，Reflector見[5.a](#-5a-informercontroller怎麼知道network變了)。
+`main()`做三件事：① 連API Server、② 建立factory並拿到Network Informer、③ 啟動informer和controller，細節寫在程式碼的註解裡。in-cluster config見[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)，Reflector見[5.a](#-5a-informercontroller怎麼知道network變了)。
 
 #### 🔌 5.c NewController：註冊event handler
 
@@ -1392,7 +1392,7 @@ kubectl get configmap etcd-state -o jsonpath='{.data}'
 | -------------------------- | -------------------------- | -------------------------------------------------- |
 | **大量、頻繁寫入**   | metrics、log、event stream | 每次寫入都要經過API Server和etcd                   |
 | **很大的object**     | 大型config、binary資料     | etcd單筆資料有大小上限（default約1.5MB）           |
-| **複雜查詢**         | 排序、join、統計           | API Server只能依label、field篩選，不能像DB一樣查詢 |
+| **複雜查詢**         | 排序、join、統計           | API Server只能依label、field filter，不能像DB一樣查詢 |
 | **不是「期望狀態」** | 一次性的命令、串流資料     | CRD描述的是要維持的狀態，不是要執行一次的動作      |
 
 最後一種需求要自己寫API，或用aggregated API server：自己寫一個API server，掛在Kubernetes的API Server後面，對`kubectl`來說就和內建的API一樣。

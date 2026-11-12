@@ -98,6 +98,12 @@
   color: var(--doc-label2-color);
 }
 
+/* A link inside a label takes the label color, with the same underline as regular links */
+.md-typeset strong.doc-label a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 /* Inline code inside a label follows the label color instead of the pink code style */
 .md-typeset strong.doc-label code {
   color: inherit;
@@ -209,7 +215,7 @@
   white-space: nowrap;
 }
 
-/* Keep one inline code from breaking anywhere: `nodeName: nodeA`{ .nowrap } */
+/* Keep one inline code from breaking anywhere: `nodeName: node-a`{ .nowrap } */
 .md-typeset code.nowrap {
   white-space: nowrap;
 }
@@ -566,4 +572,20 @@
   background-color: var(--doc-placeholder-bg);
   font-weight: 700;
   border-radius: 0.2em;
+}
+
+/* KaTeX display math ($$…$$): left-aligned, small vertical gap */
+.md-typeset div.arithmatex {
+  margin: 0.3em 0;
+}
+.md-typeset div.arithmatex > * {
+  margin-inline: 0 !important;
+  padding-inline: 0;
+}
+.md-typeset .katex-display {
+  margin: 0;
+  text-align: left;
+}
+.md-typeset .katex-display > .katex {
+  text-align: left;
 }

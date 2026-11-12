@@ -164,7 +164,7 @@ volumes:
 | **`hostPath`** | Node上一個指定的路徑，例如`/data`                                                              | 和Node一樣：Pod刪了，資料還在那台Node上                  | 需要讀Node本身的檔案，例如log agent讀`/var/log/pods` |
 | **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph) | ***和Pod無關***，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
 
-另外還有一類volume不存資料，而是把config、password project進container，見[Chap-8的Projected Volume](chap-8-volume.md#projected-volume)。
+另外還有一類volume不存資料，而是把config、password project進container，見[Chap-9的Projected Volume](chap-9-volume.md#projected-volume)。
 
 #### 例子：WAR包和Tomcat
 

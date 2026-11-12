@@ -954,6 +954,6 @@ kubectl create clusterrolebinding headlamp-admin \
 kubectl create token headlamp-admin -n kube-system --duration=24h
 ```
 
-- **token會過期**：default 1小時，`--duration`可以調長。ServiceAccount、RBAC和token的原理，見[Chap-8的ServiceAccountToken](chap-8-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+- **token會過期**：default 1小時，`--duration`可以調長。ServiceAccount、RBAC和token的原理，見[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 - **權限**：`cluster-admin`權限最大，只適合練習環境。另外，Helm chart default也替Headlamp自己的ServiceAccount綁了`cluster-admin`，正式環境可以在安裝時加`--set clusterRoleBinding.create=false`關掉。
 - **從cluster外存取**：不要直接把Service改成`NodePort`或`LoadBalancer`，要透過Ingress，並加上TLS和認證。

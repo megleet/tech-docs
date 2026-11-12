@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 708 82" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="pam-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="8" y="8" width="708" height="82" fill="#ffffff"/>
+
+<rect x="12" y="12" width="200" height="74" rx="12" fill="#e08a00"/>
+<text x="112" y="37" text-anchor="middle" font-size="15" font-weight="900" fill="#ffffff">① Provision</text>
+<text x="112" y="57" text-anchor="middle" font-size="12.5" font-weight="800" fill="#ffffff">建出storage</text>
+<text x="112" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="#fff0d6">storage系統裡多一塊disk</text>
+
+<path d="M214 49 H 258" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#pam-a)"/>
+
+<rect x="262" y="12" width="200" height="74" rx="12" fill="#2f6fd1"/>
+<text x="362" y="37" text-anchor="middle" font-size="15" font-weight="900" fill="#ffffff">② Attach</text>
+<text x="362" y="57" text-anchor="middle" font-size="12.5" font-weight="800" fill="#ffffff">把storage接到Node</text>
+<text x="362" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="#dbe7fb">Node上多一個device</text>
+
+<path d="M464 49 H 508" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#pam-a)"/>
+
+<rect x="512" y="12" width="200" height="74" rx="12" fill="#1f9d76"/>
+<text x="612" y="37" text-anchor="middle" font-size="15" font-weight="900" fill="#ffffff">③ Mount</text>
+<text x="612" y="57" text-anchor="middle" font-size="12.5" font-weight="800" fill="#ffffff">從Node接到container</text>
+<text x="612" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="#d9f2e8">container裡多一個目錄</text>
+</svg>

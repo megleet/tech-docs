@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 754 462" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="lp-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="6" y="6" width="754" height="462" fill="#ffffff"/>
+
+<!-- frames: nodes (gray) -->
+<rect x="10" y="10" width="280" height="204" rx="14" fill="#f5f8fc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="20" y="30" font-size="12.5" font-weight="800" fill="#334155">Master node（control plane）</text>
+<text x="314" y="30" font-size="12.5" font-weight="800" fill="#334155">管理cluster的人（事先準備）</text>
+<rect x="10" y="226" width="736" height="236" rx="14" fill="#f5f8fc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="20" y="246" font-size="12.5" font-weight="800" fill="#334155">Worker node <tspan fill="#c2410c" font-family="SFMono-Regular, Menlo, monospace">node-a</tspan>（Pod所在的Node）</text>
+
+<!-- "not needed" notes -->
+<rect x="302" y="164" width="434" height="40" rx="10" fill="#fdf3e7" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+<text x="314" y="181" font-size="11" font-weight="800" fill="#64748b">✘ 不需要：CSI controller plugin、external-attacher、</text>
+<text x="314" y="197" font-size="11" font-weight="800" fill="#64748b">VolumeAttachment（disk本來就在<tspan font-family="SFMono-Regular, Menlo, monospace">node-a</tspan>上，不用Attach）</text>
+<rect x="302" y="262" width="434" height="44" rx="10" fill="#fdf3e7" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+<text x="314" y="280" font-size="11" font-weight="800" fill="#64748b">✘ 不需要：CSI node plugin</text>
+<text x="314" y="296" font-size="11" font-weight="800" fill="#64748b">kubelet內建的local volume plugin自己做bind mount</text>
+
+<!-- lines -->
+<g fill="none" stroke="#475569" stroke-width="2">
+<path d="M419 108 V 140"/>
+</g>
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#lp-a)">
+<path d="M636 108 V 140 H 284"/>
+<path d="M150 90 V 112"/>
+<path d="M220 268 H 262 V 208"/>
+<path d="M220 300 H 250 V 320 H 385 V 350"/>
+<path d="M220 389 H 286"/>
+<path d="M480 389 H 536"/>
+</g>
+
+<!-- kube-scheduler -->
+<rect x="20" y="38" width="260" height="52" rx="12" fill="#334155"/>
+<text x="32" y="57" font-size="14" font-weight="900" fill="#ffffff">kube-scheduler</text>
+<rect x="30" y="63" width="240" height="20" rx="5" fill="#e2e8f0"/>
+<text x="38" y="77" font-size="11" font-weight="800" fill="#1e293b">照PV的nodeAffinity<tspan font-weight="600" fill="#475569">選Node，再綁定PVC和PV</tspan></text>
+
+<!-- API Server -->
+<rect x="20" y="116" width="260" height="88" rx="12" fill="#475569"/>
+<text x="32" y="137" font-size="15" font-weight="900" fill="#ffffff">API Server</text>
+<rect x="30" y="146" width="240" height="50" rx="6" fill="#fff3c4"/>
+<g font-size="11" font-family="SFMono-Regular, Menlo, monospace" fill="#5b3a00">
+<text x="38" y="161" font-weight="800">PV local-pv-node-a</text>
+<text x="38" y="175" font-weight="700">nodeAffinity: <tspan fill="#c2410c">node-a</tspan></text>
+<text x="38" y="189">PVC ↔ PV: Bound</text>
+</g>
+
+<!-- admin: PV + StorageClass -->
+<rect x="314" y="40" width="210" height="68" rx="12" fill="#0f766e"/>
+<text x="328" y="61" font-size="14" font-weight="900" fill="#ffffff">PV</text>
+<g font-size="10.5" font-family="SFMono-Regular, Menlo, monospace" fill="#ccfbf1">
+<text x="328" y="80">local.path: <tspan font-weight="800" fill="#ffe08a">/mnt/disks/ssd1</tspan></text>
+<text x="328" y="97">nodeAffinity: <tspan font-weight="800" fill="#ffe08a">node-a</tspan></text>
+</g>
+<rect x="536" y="40" width="200" height="68" rx="12" fill="#2f6fd1"/>
+<text x="550" y="61" font-size="14" font-weight="900" fill="#ffffff">StorageClass</text>
+<g font-size="10.5" font-family="SFMono-Regular, Menlo, monospace" fill="#dbe7fb">
+<text x="550" y="80">no-provisioner</text>
+<text x="550" y="97">WaitForFirstConsumer</text>
+</g>
+
+<!-- kubelet -->
+<rect x="20" y="254" width="200" height="70" rx="12" fill="#3d5a80"/>
+<text x="34" y="276" font-size="15" font-weight="900" fill="#ffffff">kubelet</text>
+<text x="34" y="295" font-size="11" font-weight="700" fill="#e2e8f0">VolumeManager：</text>
+<text x="34" y="311" font-size="10.5" font-weight="600" fill="#ffe08a">內建的local volume plugin</text>
+
+<!-- local disk -->
+<rect x="20" y="354" width="200" height="70" rx="12" fill="#e08a00"/>
+<text x="34" y="380" font-size="15" font-weight="900" fill="#ffffff" font-family="SFMono-Regular, Menlo, monospace">/dev/nvme1n1</text>
+<text x="34" y="398" font-size="10.5" font-weight="600" fill="#fff3c4">Node自己的local disk，已mount到</text>
+<text x="34" y="412" font-size="10.5" font-weight="800" fill="#ffe08a" font-family="SFMono-Regular, Menlo, monospace">/mnt/disks/ssd1</text>
+
+<!-- volume dir -->
+<rect x="290" y="354" width="190" height="70" rx="12" fill="#1f9d76"/>
+<text x="304" y="379" font-size="15" font-weight="900" fill="#ffffff">volume目錄</text>
+<g font-size="10" font-family="SFMono-Regular, Menlo, monospace" fill="#e3f7ef">
+<text x="304" y="398">/var/lib/kubelet/pods/</text>
+<text x="304" y="412">&lt;UID&gt;/volumes/…/&lt;PV名字&gt;</text>
+</g>
+
+<!-- container -->
+<rect x="540" y="354" width="196" height="70" rx="12" fill="#334155"/>
+<text x="554" y="375" font-size="15" font-weight="900" fill="#ffffff">container</text>
+<rect x="550" y="382" width="116" height="18" rx="9" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><text x="558" y="395" font-size="11.5" font-weight="800" fill="#ffffff">③ 建立container</text>
+<rect x="550" y="402" width="174" height="18" rx="9" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><text x="558" y="415" font-size="11.5" font-weight="800" fill="#ffffff">④ bind mount到mountPath</text>
+
+<!-- step chips -->
+<rect x="160" y="92" width="104" height="18" rx="9" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><text x="168" y="105" font-size="11.5" font-weight="800" fill="#ffffff">① 排程到<tspan font-family="SFMono-Regular, Menlo, monospace">node-a</tspan></text>
+<rect x="393" y="328" width="92" height="18" rx="9" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><text x="401" y="341" font-size="11.5" font-weight="800" fill="#ffffff">② bind mount</text>
+<rect x="28" y="432" width="240" height="18" rx="9" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><text x="36" y="445" font-size="11.5" font-weight="800" fill="#ffffff">⓪ 管理cluster的人事先mkfs + mount</text>
+
+<!-- labels on lines -->
+<g paint-order="stroke" stroke="#f5f8fc" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="800" fill="#475569">
+<text x="268" y="236">watch</text>
+<text x="253" y="383" text-anchor="middle">local.path</text>
+</g>
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-size="11" font-weight="800" fill="#475569">
+<text x="560" y="134" text-anchor="middle">kubectl apply</text>
+</g>
+</svg>

@@ -67,7 +67,7 @@ image現在的標準格式是OCI（Open Container Initiative）image，Docker bu
 | **可靠性**       | fault tolerance、HA（High Availability） |
 | **維運**         | observability、monitoring、backup        |
 
-這些正是後面每一章要講的內容：Pod見[Chap-4](chap-4-container-orchestration-pod.md)，controller、rolling update見[Chap-5](chap-5-container-orchestration-controller.md)，storage見[Chap-8](chap-8-volume.md)。
+這些正是後面每一章要講的內容：Pod見[Chap-4](chap-4-container-orchestration-pod.md)，controller、rolling update見[Chap-5](chap-5-container-orchestration-controller.md)，storage見[Chap-9](chap-9-volume.md)。
 
 ## Kubernetes的起源和生態
 

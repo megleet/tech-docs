@@ -39,7 +39,7 @@ icon: lucide/book-open
 | **Operator** | 入門容易，難在***領域知識和邊界情況***：reconcile要能重複執行、中途重啟要能接著做、版本升級 | ⭐⭐⭐ | [Chap-7 Operator](chap-7-crd-operator.md#operator) |
 | **Scheduler內部** | scheduling framework的plugin、preemption、topology spread；gang scheduling、Kueue、DRA都建在它上面 | ⭐⭐⭐ | [Chap-3 架構](chap-3-kubernetes-architecture-operations.md#kubernetes的架構) |
 | **Node上的資源管理** | cgroup v2、QoS class、eviction、CPU Manager / Topology Manager / NUMA；GPU要和同一個NUMA的CPU、網卡對齊 | ⭐⭐⭐ | [Chap-1 cgroups](chap-1-container-namespace-cgroups.md#cgroups) |
-| **CSI plugin** | 碰的是***真實的資料***：device、filesystem、mount；Node掛掉時disk還接在上面；寫錯會遺失資料 | ⭐⭐ | [Chap-8 Attach和Mount](chap-8-volume.md#-2-從pv到container裡的目錄csi-plugin的attach和mount) |
+| **CSI plugin** | 碰的是***真實的資料***：device、filesystem、mount；Node掛掉時disk還接在上面；寫錯會遺失資料 | ⭐⭐ | [Chap-9 Attach和Mount](chap-9-volume.md#-2-從pv到container裡的目錄csi-plugin的attach和mount) |
 | **CNI plugin** | 下面是整套Linux networking：network namespace、veth、bridge、routing、iptables / nftables、eBPF、overlay、IPAM；***最難debug*** | ⭐⭐ | [Chap-1 network namespace](chap-1-container-namespace-cgroups.md#-3-加入container的network-namespace) |
 | **大規模的control plane** | etcd的效能和容量、API Server的watch cache、API Priority and Fairness | ⭐⭐ | [Chap-6 API Server](chap-6-declarative-api.md#api-server怎麼處理request) |
 | **Service和網路的實作** | kube-proxy的iptables / IPVS / nftables、eBPF取代kube-proxy、CoreDNS的`ndots`、Gateway API、service mesh | ⭐⭐ | [Chap-5 Service](chap-5-container-orchestration-controller.md#service) |
