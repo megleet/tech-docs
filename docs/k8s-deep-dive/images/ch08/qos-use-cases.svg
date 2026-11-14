@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 776 268" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect x="8" y="8" width="776" height="268" fill="#ffffff"/>
+<rect x="12" y="12" width="248" height="260" rx="14" fill="#eef8f4" stroke="#a9dcc9" stroke-width="1.5"/>
+<rect x="24" y="24" width="224" height="36" rx="10" fill="#1f9d76"/>
+<text x="136" y="48" text-anchor="middle" font-size="15" font-weight="900" fill="#ffffff">Guaranteed</text>
+<text x="24" y="82" font-size="12" font-weight="800" fill="#1f9d76">穩定第一：掛掉代價很大</text>
+<text x="24" y="104" font-size="11" font-weight="700" fill="#64748b">適合的app</text>
+<rect x="24" y="112" width="224" height="28" rx="8" fill="#ffffff" stroke="#a9dcc9" stroke-width="1.2"/>
+<text x="34" y="130" font-size="11.5" font-weight="800" fill="#334155">DB：CockroachDB、PostgreSQL</text>
+<rect x="24" y="146" width="224" height="28" rx="8" fill="#ffffff" stroke="#a9dcc9" stroke-width="1.2"/>
+<text x="34" y="164" font-size="11.5" font-weight="800" fill="#334155">etcd、Kafka</text>
+<rect x="24" y="180" width="224" height="28" rx="8" fill="#ffffff" stroke="#a9dcc9" stroke-width="1.2"/>
+<text x="34" y="198" font-size="11.5" font-weight="800" fill="#334155">對latency敏感的API（例如付款）</text>
+<rect x="24" y="218" width="224" height="40" rx="8" fill="#1e293b"/>
+<text x="32" y="234" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0" xml:space="preserve">requests:  cpu: 2   memory: 8Gi</text>
+<text x="32" y="249" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0" xml:space="preserve">limits:    cpu: 2   memory: 8Gi</text>
+<rect x="272" y="12" width="248" height="260" rx="14" fill="#fcf6e3" stroke="#e8d38f" stroke-width="1.5"/>
+<rect x="284" y="24" width="224" height="36" rx="10" fill="#c99a00"/>
+<text x="396" y="48" text-anchor="middle" font-size="15" font-weight="900" fill="#ffffff">Burstable</text>
+<text x="284" y="82" font-size="12" font-weight="800" fill="#a07a00">平常用一點，偶爾衝高</text>
+<text x="284" y="104" font-size="11" font-weight="700" fill="#64748b">適合的app</text>
+<rect x="284" y="112" width="224" height="28" rx="8" fill="#ffffff" stroke="#e8d38f" stroke-width="1.2"/>
+<text x="294" y="130" font-size="11.5" font-weight="800" fill="#334155">web server</text>
+<rect x="284" y="146" width="224" height="28" rx="8" fill="#ffffff" stroke="#e8d38f" stroke-width="1.2"/>
+<text x="294" y="164" font-size="11.5" font-weight="800" fill="#334155">一般的API</text>
+<rect x="284" y="180" width="224" height="28" rx="8" fill="#ffffff" stroke="#e8d38f" stroke-width="1.2"/>
+<text x="294" y="198" font-size="11.5" font-weight="800" fill="#334155">Java app（啟動時CPU用很多）</text>
+<rect x="284" y="218" width="224" height="40" rx="8" fill="#1e293b"/>
+<text x="292" y="234" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0" xml:space="preserve">requests:  cpu: 250m memory: 512Mi</text>
+<text x="292" y="249" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0" xml:space="preserve">limits:    memory: 512Mi</text>
+<rect x="532" y="12" width="248" height="260" rx="14" fill="#fcf0f5" stroke="#efb8cd" stroke-width="1.5"/>
+<rect x="544" y="24" width="224" height="36" rx="10" fill="#d6457f"/>
+<text x="656" y="48" text-anchor="middle" font-size="15" font-weight="900" fill="#ffffff">BestEffort</text>
+<text x="544" y="82" font-size="12" font-weight="800" fill="#b8336a">可以重跑、不急：隨時能被犧牲</text>
+<text x="544" y="104" font-size="11" font-weight="700" fill="#64748b">適合的app</text>
+<rect x="544" y="112" width="224" height="28" rx="8" fill="#ffffff" stroke="#efb8cd" stroke-width="1.2"/>
+<text x="554" y="130" font-size="11.5" font-weight="800" fill="#334155">batch job（每日報表、清log）</text>
+<rect x="544" y="146" width="224" height="28" rx="8" fill="#ffffff" stroke="#efb8cd" stroke-width="1.2"/>
+<text x="554" y="164" font-size="11.5" font-weight="800" fill="#334155">dev／test環境的Pod</text>
+<rect x="544" y="180" width="224" height="28" rx="8" fill="#ffffff" stroke="#efb8cd" stroke-width="1.2"/>
+<text x="554" y="198" font-size="11.5" font-weight="800" fill="#334155">臨時debug用的Pod</text>
+<rect x="544" y="218" width="224" height="40" rx="8" fill="#1e293b"/>
+<text x="552" y="234" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" fill="#94a3b8" xml:space="preserve"># 沒有resources</text>
+<text x="552" y="249" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" fill="#94a3b8" xml:space="preserve"># production少見：LimitRange會補default</text>
+</svg>

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 794 392" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="fw-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker><marker id="fw-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker></defs>
+<rect x="6" y="6" width="794" height="392" fill="#ffffff"/>
+<rect x="8" y="10" width="146" height="316" rx="14" fill="#f5f8fc" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="18" y="29" font-size="12" font-weight="800" fill="#334155">scheduling queue</text>
+<rect x="168" y="10" width="466" height="316" rx="14" fill="#eef5fd" stroke="#9cc0ee" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="178" y="29" font-size="12" font-weight="800" fill="#1f4f8a">Scheduling cycle：一次一個Pod，依序跑</text>
+<rect x="648" y="10" width="146" height="316" rx="14" fill="#eefaf5" stroke="#7cc4a8" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="658" y="29" font-size="11.5" font-weight="800" fill="#16795a">Binding cycle（async）</text>
+<text x="91.0" y="54" text-anchor="middle" font-size="13" font-weight="900" fill="#475569">排隊</text>
+<rect x="49.0" y="42" width="24" height="12" rx="2" fill="none" stroke="#475569" stroke-width="1.3"/>
+<rect x="51.0" y="44" width="4" height="8" rx="1" fill="#475569"/>
+<rect x="56.5" y="44" width="4" height="8" rx="1" fill="#475569"/>
+<rect x="62.0" y="44" width="4" height="8" rx="1" fill="#475569"/>
+<rect x="67.5" y="44" width="4" height="8" rx="1" fill="#475569"/>
+<polygon points="12,64 134,64 150,90.0 134,116 12,116" fill="#475569" stroke="#475569" stroke-width="3" stroke-linejoin="round"/>
+<text x="22" y="85" font-size="13" font-weight="900" fill="#ffffff">PreEnqueue</text>
+<text x="22" y="104" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">能不能進activeQ</text>
+<path d="M81.0 116 V 131" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<polygon points="12,134 134,134 150,160.0 134,186 12,186" fill="#475569" stroke="#475569" stroke-width="3" stroke-linejoin="round"/>
+<text x="22" y="155" font-size="13" font-weight="900" fill="#ffffff">QueueSort</text>
+<text x="22" y="174" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">決定誰先排</text>
+<text x="16" y="286" font-size="10" font-weight="700" fill="#64748b">內建plugin例子：</text>
+<text x="16" y="302" font-size="10" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">PrioritySort</text>
+<text x="251.0" y="54" text-anchor="middle" font-size="13" font-weight="900" fill="#2f6fd1">過濾</text>
+<path d="M213.0 41 H 231.0 L 224.0 49 V 55 L 220.0 57 V 49 Z" fill="#2f6fd1"/>
+<polygon points="172,64 294,64 310,90.0 294,116 172,116" fill="#2f6fd1" stroke="#2f6fd1" stroke-width="3" stroke-linejoin="round"/>
+<text x="182" y="85" font-size="13" font-weight="900" fill="#ffffff">PreFilter</text>
+<text x="182" y="104" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">先算好、先檢查</text>
+<path d="M241.0 116 V 131" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<polygon points="172,134 294,134 310,160.0 294,186 172,186" fill="#2f6fd1" stroke="#2f6fd1" stroke-width="3" stroke-linejoin="round"/>
+<text x="182" y="155" font-size="13" font-weight="900" fill="#ffffff">Filter</text>
+<text x="182" y="174" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">刪掉放不下的Node</text>
+<polygon points="172,204 294,204 310,230.0 294,256 172,256" fill="#ffffff" stroke="#2f6fd1" stroke-width="1.8" stroke-dasharray="5 4" stroke-linejoin="round"/>
+<text x="182" y="225" font-size="13" font-weight="900" fill="#2f6fd1">PostFilter</text>
+<text x="182" y="244" font-size="10.5" font-weight="700" fill="#475569">沒Node時：preemption</text>
+<text x="176" y="286" font-size="10" font-weight="700" fill="#64748b">內建plugin例子：</text>
+<text x="176" y="302" font-size="10" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">NodeResourcesFit</text>
+<text x="176" y="317" font-size="10" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">TaintToleration</text>
+<text x="411.0" y="54" text-anchor="middle" font-size="13" font-weight="900" fill="#0f766e">打分</text>
+<rect x="374.0" y="49" width="4" height="7" rx="1" fill="#0f766e"/>
+<rect x="380.0" y="43" width="4" height="13" rx="1" fill="#0f766e"/>
+<rect x="386.0" y="46" width="4" height="10" rx="1" fill="#0f766e"/>
+<polygon points="332,64 454,64 470,90.0 454,116 332,116" fill="#0f766e" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+<text x="342" y="85" font-size="13" font-weight="900" fill="#ffffff">PreScore</text>
+<text x="342" y="104" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">先算好打分要用的資料</text>
+<path d="M401.0 116 V 131" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<polygon points="332,134 454,134 470,160.0 454,186 332,186" fill="#0f766e" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+<text x="342" y="155" font-size="13" font-weight="900" fill="#ffffff">Score</text>
+<text x="342" y="174" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">替每台Node打分</text>
+<path d="M401.0 186 V 201" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<polygon points="332,204 454,204 470,230.0 454,256 332,256" fill="#0f766e" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+<text x="342" y="225" font-size="13" font-weight="900" fill="#ffffff">NormalizeScore</text>
+<text x="342" y="244" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">分數縮放到0～100</text>
+<text x="336" y="286" font-size="10" font-weight="700" fill="#64748b">內建plugin例子：</text>
+<text x="336" y="302" font-size="10" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">ImageLocality</text>
+<text x="571.0" y="54" text-anchor="middle" font-size="13" font-weight="900" fill="#c2410c">保留</text>
+<path d="M536.0 41 H 548.0 V 57 L 542.0 52 L 536.0 57 Z" fill="#c2410c"/>
+<polygon points="492,64 614,64 630,90.0 614,116 492,116" fill="#c2410c" stroke="#c2410c" stroke-width="3" stroke-linejoin="round"/>
+<text x="502" y="85" font-size="13" font-weight="900" fill="#ffffff">Reserve</text>
+<text x="502" y="104" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">預留資源（assume）</text>
+<path d="M561.0 116 V 131" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<polygon points="492,134 614,134 630,160.0 614,186 492,186" fill="#c2410c" stroke="#c2410c" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="572,143 580,150 572,157 564,150" fill="none" stroke="#ffffff" stroke-width="1.8"/>
+<text x="502" y="155" font-size="13" font-weight="900" fill="#ffffff">Permit</text>
+<text x="502" y="174" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">放行、拒絕或等待</text>
+<text x="496" y="286" font-size="10" font-weight="700" fill="#64748b">內建plugin例子：</text>
+<text x="496" y="302" font-size="10" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">VolumeBinding</text>
+<text x="731.0" y="54" text-anchor="middle" font-size="13" font-weight="900" fill="#1f9d76">綁定</text>
+<path d="M694.0 44 v 10 a 8 3 0 0 0 16 0 v -10" fill="#1f9d76"/><ellipse cx="702.0" cy="44" rx="8" ry="3" fill="#7cc4a8"/>
+<polygon points="652,64 774,64 790,90.0 774,116 652,116" fill="#1f9d76" stroke="#1f9d76" stroke-width="3" stroke-linejoin="round"/>
+<text x="662" y="85" font-size="13" font-weight="900" fill="#ffffff">PreBind</text>
+<text x="662" y="104" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">Bind前的準備</text>
+<path d="M721.0 116 V 131" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<polygon points="652,134 774,134 790,160.0 774,186 652,186" fill="#1f9d76" stroke="#1f9d76" stroke-width="3" stroke-linejoin="round"/>
+<text x="662" y="152" font-size="13" font-weight="900" fill="#ffffff">Bind</text>
+<text x="662" y="167" font-size="10" font-weight="700" fill="#ffffff" opacity="0.9">把nodeName寫回</text>
+<text x="662" y="180" font-size="10" font-weight="700" fill="#ffffff" opacity="0.9">API server</text>
+<path d="M721.0 186 V 201" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<polygon points="652,204 774,204 790,230.0 774,256 652,256" fill="#1f9d76" stroke="#1f9d76" stroke-width="3" stroke-linejoin="round"/>
+<text x="662" y="225" font-size="13" font-weight="900" fill="#ffffff">PostBind</text>
+<text x="662" y="244" font-size="10.5" font-weight="700" fill="#ffffff" opacity="0.9">成功後的清理</text>
+<text x="656" y="286" font-size="10" font-weight="700" fill="#64748b">內建plugin例子：</text>
+<text x="656" y="302" font-size="10" font-weight="800" fill="#334155" font-family="SFMono-Regular, Menlo, monospace">DefaultBinder</text>
+<path d="M241.0 186 V 201" fill="none" stroke="#2f6fd1" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#fw-b)"/>
+<path d="M150 160 H 158 V 90 H 169" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<path d="M310 160 H 318 V 90 H 329" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<path d="M470 230 H 478 V 90 H 489" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<path d="M630 160 H 638 V 90 H 649" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
+<text x="14" y="352" font-size="11.5" font-weight="800" fill="#334155">plugin怎麼插進去：和scheduler compile成同一個執行檔</text>
+<rect x="14" y="360" width="318" height="30" rx="7" fill="#1e293b"/>
+<text x="24" y="380" font-size="11" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0">app.WithPlugin(myplugin.Name, myplugin.New)</text>
+<g font-size="11" font-weight="700" fill="#64748b">
+<text x="360" y="352">虛線的PostFilter：只在沒有Node放得下時才跑（preemption）</text>
+<text x="360" y="372">Permit：放行、等待或拒絕（拒絕就回queue）</text>
+</g>
+</svg>

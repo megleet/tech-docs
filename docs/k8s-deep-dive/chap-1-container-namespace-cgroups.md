@@ -70,8 +70,8 @@ icon: lucide/container
   - 一個container***不適合***同時跑兩個不同app，除非先用tini、supervisord等作為公共的PID=1。
 - **方案2：container設計模式**
   - 方案1只是workaround，container的設計初衷是讓***container和app同生命週期***。
-  - 更好的做法是用***container設計模式***（如[sidecar](chap-4-container-orchestration-pod.md#-2-sidecar和app一起執行)）拆成多個container。
-  - 同生命週期對orchestration很重要：否則出現「***container正常運行、裡面的app早已掛掉***」時，orchestration系統很難判斷與處理。
+  - 更好的做法是用**container設計模式**（如[sidecar](chap-4-container-orchestration-pod.md#-2-sidecar和app一起執行)）拆成多個container。
+  - 同生命週期對orchestration很重要：否則出現「**container正常運行、裡面的app早已掛掉**」時，orchestration系統很難判斷與處理。
   - Kubernetes也有原生的sidecar container：在`initContainers`裡設`restartPolicy: Always`，它會比app先啟動，一直跑到app結束。
 
 ## 3大pillar + Security
@@ -82,16 +82,16 @@ icon: lucide/container
 
 container由***3大pillar***撐起來，底下再墊一層Security：
 
-- **3大pillar**：***Namespace***（隔離視野）、***cgroups***（限制資源）、***rootfs***（替換根目錄）。
+- **3大pillar**：***Namespace***（隔離視野）、**cgroups**（限制資源）、**rootfs**（替換根目錄）。
 - **兩個視角**：3大pillar可以「一分為二」地看待：
-  - **Dynamic view：Container Runtime**：第1、2根pillar ***Namespace + cgroups***。它們是process執行時才存在的isolation環境，決定container***run起來的樣子***：能看見什麼、能用多少。
-  - **Static view：Container Image**：第3根pillar ***rootfs***。它是一組用OverlayFS聯合mount的目錄，位置在`/run/containerd/io.containerd.runtime.v2.task/k8s.io/<id>/rootfs`。這是container***本身的內容***，也就是app和它的deps，container不跑的時候也存在。見[UnionFS與Docker的Layered rootfs](chap-2-container-fs-security.md#unionfs與docker的layered-rootfs)。
-- **Security**：不算pillar，是墊在pillar底下的hardening層，由***capabilities、seccomp、LSM***（AppArmor / SELinux）和user namespace組成。它限制container process能對shared kernel做什麼，見[Chap-2的Security](chap-2-container-fs-security.md#security)。
+  - **Dynamic view：Container Runtime**：第1、2根pillar **Namespace + cgroups**。它們是process執行時才存在的isolation環境，決定container**run起來的樣子**：能看見什麼、能用多少。
+  - **Static view：Container Image**：第3根pillar **rootfs**。它是一組用OverlayFS聯合mount的目錄，位置在`/run/containerd/io.containerd.runtime.v2.task/k8s.io/<id>/rootfs`。這是container**本身的內容**，也就是app和它的deps，container不跑的時候也存在。見[UnionFS與Docker的Layered rootfs](chap-2-container-fs-security.md#unionfs與docker的layered-rootfs)。
+- **Security**：不算pillar，是墊在pillar底下的hardening層，由**capabilities、seccomp、LSM**（AppArmor / SELinux）和user namespace組成。它限制container process能對shared kernel做什麼，見[Chap-2的Security](chap-2-container-fs-security.md#security)。
 
 | 概念 | 解決的問題 | 核心含義 | 比喻 |
 | --- | --- | --- | --- |
 | **Namespace**<br />視野隔離 | **Visibility**<br />看見什麼 | 只能看到自己namespace裡的process、network、mount等資源 | 房間的牆壁和窗戶（看不到隔壁） |
-| **cgroups**<br />資源限制 | **Quantity**<br />能用多少 | 限制process / container***最多能使用多少CPU、mem等資源*** | 水電表和限額（用量上限） |
+| **cgroups**<br />資源限制 | **Quantity**<br />能用多少 | 限制process / container**最多能使用多少CPU、mem等資源** | 水電表和限額（用量上限） |
 | **rootfs**<br />可見檔案 | **Filesystem**<br />配套檔案 | container擁有獨立的根目錄`/`（自己的`/bin`、`/lib`、`/etc`），看不到host的檔案 | 房間裡的家具與裝潢 |
 | **Security**<br />權限切分 | **Privilege**<br />能做什麼 | 把root的全能權限細分，process只保留essential的部分 | 住戶手上的鑰匙串（只給需要的那幾把） |
 
@@ -186,8 +186,8 @@ ls -l /proc/25686/ns/
 
 |                            | symlink                      | hard link                                       | bind mount                                         |
 | -------------------------- | ---------------------------- | ----------------------------------------------- | -------------------------------------------------- |
-| **本質**             | 一個存著「目標路徑」的小檔案 | 目錄裡多一個名字，指向***同一個inode*** | mount tree裡多一個節點，把一個dentry接到另一個位置 |
-| **存在哪裡**         | 磁碟上（是一個檔案）         | 磁碟上（目錄項目）                              | ***只在mem***（kernel的mount table）       |
+| **本質**             | 一個存著「目標路徑」的小檔案 | 目錄裡多一個名字，指向**同一個inode** | mount tree裡多一個節點，把一個dentry接到另一個位置 |
+| **存在哪裡**         | 磁碟上（是一個檔案）         | 磁碟上（目錄項目）                              | **只在mem**（kernel的mount table）       |
 | **重開機後**         | 還在                         | 還在                                            | 消失，除非寫進`/etc/fstab`                       |
 | **能指向目錄嗎**     | ✅                           | ❌                                              | ✅                                                 |
 | **能跨filesystem嗎** | ✅                           | ❌                                              | ✅                                                 |
@@ -310,9 +310,9 @@ namespace不能阻止process吃光mem，那是cgroups（Linux Control Group）�
 
 | QoS class | 條件 | cgroup位置 | mem不夠時 |
 | --- | --- | --- | --- |
-| **Guaranteed** | ***每個***container的CPU和mem都設了`requests`和`limits`，而且兩者相等 | 直接放在`kubepods.slice/`底下 | 最後才被趕走或OOM kill |
+| **Guaranteed** | **每個**container的CPU和mem都設了`requests`和`limits`，而且兩者相等 | 直接放在`kubepods.slice/`底下 | 最後才被趕走或OOM kill |
 | **Burstable** | 不符合Guaranteed，但至少一個container設了CPU或mem的`requests`或`limits` | `burstable/`底下 | 用量超過`requests`的先被處理 |
-| **BestEffort** | 所有container都***沒有***設CPU和mem的`requests`、`limits` | `besteffort/`底下 | 最先被趕走或OOM kill |
+| **BestEffort** | 所有container都**沒有**設CPU和mem的`requests`、`limits` | `besteffort/`底下 | 最先被趕走或OOM kill |
 
 - **為什麼要分層**：同一層的Pod共用上一層的額度。kubelet只要設定`burstable/`、`besteffort/`整層的上限，就能保護Guaranteed的Pod不被其他Pod擠掉。
 - **mem不夠時的順序**：kubelet依QoS決定先趕走哪些Pod（eviction）；kernel的OOM killer也會參考它，因為kubelet替不同QoS的process設了不同的`oom_score_adj`。
@@ -353,7 +353,7 @@ echo <pid> > /sys/fs/cgroup/demo/cgroup.procs
 > - **cgroup的限制不會反映在`/proc`、`/sys`**：`free`、`top`讀的是`/proc/meminfo`、`/proc/stat`，`nproc`讀的是CPU數量，看到的都是***host的值***，不是cgroup的限制。
 >   - **解法：LXCFS**：在host上用FUSE動態產生「container視角」的`/proc`檔案，再用bind mount蓋到container的`/proc/meminfo`等路徑上。
 >   - **FUSE**：kernel把filesystem的請求，delegate給user-space的程式處理。
-> - **不要和cgroup namespace混淆**：[cgroup namespace](#namespace)只是讓container看到的`/proc/self/cgroup`路徑變短，***不負責限制***。限制是cgroups本身做的。
+> - **不要和cgroup namespace混淆**：[cgroup namespace](#namespace)只是讓container看到的`/proc/self/cgroup`路徑變短，**不負責限制**。限制是cgroups本身做的。
 
 ## 延伸：Pod、container與process
 

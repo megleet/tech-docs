@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 760 410" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="ev-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="8" y="8" width="760" height="410" fill="#ffffff"/>
+<text x="12" y="27" font-size="12.5" font-weight="800" fill="#334155">Node上的5個Pod（只看mem）</text>
+<rect x="560" y="18" width="26" height="10" rx="2" fill="#94a3b8"/><text x="592" y="27" font-size="11" font-weight="700" fill="#64748b">用量</text>
+<rect x="640" y="15" width="3" height="16" fill="#1e293b"/><text x="650" y="27" font-size="11" font-weight="700" fill="#64748b">requests的位置</text>
+<rect x="12" y="36" width="144" height="128" rx="12" fill="#fcf0f5" stroke="#efb8cd" stroke-width="1.5"/>
+<rect x="20" y="44" width="128" height="24" rx="7" fill="#d6457f"/>
+<text x="28" y="61" font-size="13" font-weight="900" fill="#ffffff">Pod A</text>
+<text x="140" y="61" text-anchor="end" font-size="10.5" font-weight="800" fill="#ffffff">BestEffort</text>
+<text x="20" y="86" font-size="11" font-weight="700" fill="#334155">requests：<tspan font-family="SFMono-Regular, Menlo, monospace">0（沒寫）</tspan></text>
+<rect x="20" y="94" width="128" height="10" rx="3" fill="#e2e8f0"/>
+<rect x="20" y="94" width="50" height="10" rx="3" fill="#d6457f" opacity="0.75"/>
+<rect x="20" y="90" width="3" height="18" fill="#1e293b"/>
+<text x="20" y="124" font-size="11" font-weight="700" fill="#334155">用量：<tspan font-family="SFMono-Regular, Menlo, monospace">400Mi</tspan></text>
+<text x="20" y="140" font-size="11" font-weight="800" fill="#b8336a">超過 +400Mi</text>
+<text x="20" y="156" font-size="11" font-weight="700" fill="#334155">priority：<tspan font-family="SFMono-Regular, Menlo, monospace">0</tspan></text>
+<rect x="164" y="36" width="144" height="128" rx="12" fill="#fcf6e3" stroke="#e8d38f" stroke-width="1.5"/>
+<rect x="172" y="44" width="128" height="24" rx="7" fill="#c99a00"/>
+<text x="180" y="61" font-size="13" font-weight="900" fill="#ffffff">Pod B</text>
+<text x="292" y="61" text-anchor="end" font-size="10.5" font-weight="800" fill="#ffffff">Burstable</text>
+<text x="172" y="86" font-size="11" font-weight="700" fill="#334155">requests：<tspan font-family="SFMono-Regular, Menlo, monospace">256Mi</tspan></text>
+<rect x="172" y="94" width="128" height="10" rx="3" fill="#e2e8f0"/>
+<rect x="172" y="94" width="64" height="10" rx="3" fill="#c99a00" opacity="0.75"/>
+<rect x="204" y="90" width="3" height="18" fill="#1e293b"/>
+<text x="172" y="124" font-size="11" font-weight="700" fill="#334155">用量：<tspan font-family="SFMono-Regular, Menlo, monospace">512Mi</tspan></text>
+<text x="172" y="140" font-size="11" font-weight="800" fill="#b8336a">超過 +256Mi</text>
+<text x="172" y="156" font-size="11" font-weight="700" fill="#334155">priority：<tspan font-family="SFMono-Regular, Menlo, monospace">0</tspan></text>
+<rect x="316" y="36" width="144" height="128" rx="12" fill="#fcf6e3" stroke="#e8d38f" stroke-width="1.5"/>
+<rect x="324" y="44" width="128" height="24" rx="7" fill="#c99a00"/>
+<text x="332" y="61" font-size="13" font-weight="900" fill="#ffffff">Pod C</text>
+<text x="444" y="61" text-anchor="end" font-size="10.5" font-weight="800" fill="#ffffff">Burstable</text>
+<text x="324" y="86" font-size="11" font-weight="700" fill="#334155">requests：<tspan font-family="SFMono-Regular, Menlo, monospace">256Mi</tspan></text>
+<rect x="324" y="94" width="128" height="10" rx="3" fill="#e2e8f0"/>
+<rect x="324" y="94" width="50" height="10" rx="3" fill="#c99a00" opacity="0.75"/>
+<rect x="356" y="90" width="3" height="18" fill="#1e293b"/>
+<text x="324" y="124" font-size="11" font-weight="700" fill="#334155">用量：<tspan font-family="SFMono-Regular, Menlo, monospace">400Mi</tspan></text>
+<text x="324" y="140" font-size="11" font-weight="800" fill="#b8336a">超過 +144Mi</text>
+<text x="324" y="156" font-size="11" font-weight="700" fill="#334155">priority：<tspan font-family="SFMono-Regular, Menlo, monospace">1000</tspan></text>
+<rect x="468" y="36" width="144" height="128" rx="12" fill="#fcf6e3" stroke="#e8d38f" stroke-width="1.5"/>
+<rect x="476" y="44" width="128" height="24" rx="7" fill="#c99a00"/>
+<text x="484" y="61" font-size="13" font-weight="900" fill="#ffffff">Pod D</text>
+<text x="596" y="61" text-anchor="end" font-size="10.5" font-weight="800" fill="#ffffff">Burstable</text>
+<text x="476" y="86" font-size="11" font-weight="700" fill="#334155">requests：<tspan font-family="SFMono-Regular, Menlo, monospace">512Mi</tspan></text>
+<rect x="476" y="94" width="128" height="10" rx="3" fill="#e2e8f0"/>
+<rect x="476" y="94" width="38" height="10" rx="3" fill="#c99a00" opacity="0.75"/>
+<rect x="540" y="90" width="3" height="18" fill="#1e293b"/>
+<text x="476" y="124" font-size="11" font-weight="700" fill="#334155">用量：<tspan font-family="SFMono-Regular, Menlo, monospace">300Mi</tspan></text>
+<text x="476" y="140" font-size="11" font-weight="800" fill="#1f9d76">沒超過</text>
+<text x="476" y="156" font-size="11" font-weight="700" fill="#334155">priority：<tspan font-family="SFMono-Regular, Menlo, monospace">0</tspan></text>
+<rect x="620" y="36" width="144" height="128" rx="12" fill="#eef8f4" stroke="#a9dcc9" stroke-width="1.5"/>
+<rect x="628" y="44" width="128" height="24" rx="7" fill="#1f9d76"/>
+<text x="636" y="61" font-size="13" font-weight="900" fill="#ffffff">Pod E</text>
+<text x="748" y="61" text-anchor="end" font-size="10.5" font-weight="800" fill="#ffffff">Guaranteed</text>
+<text x="628" y="86" font-size="11" font-weight="700" fill="#334155">requests：<tspan font-family="SFMono-Regular, Menlo, monospace">1Gi</tspan></text>
+<rect x="628" y="94" width="128" height="10" rx="3" fill="#e2e8f0"/>
+<rect x="628" y="94" width="100" height="10" rx="3" fill="#1f9d76" opacity="0.75"/>
+<rect x="753" y="90" width="3" height="18" fill="#1e293b"/>
+<text x="628" y="124" font-size="11" font-weight="700" fill="#334155">用量：<tspan font-family="SFMono-Regular, Menlo, monospace">800Mi</tspan></text>
+<text x="628" y="140" font-size="11" font-weight="800" fill="#1f9d76">沒超過</text>
+<text x="628" y="156" font-size="11" font-weight="700" fill="#334155">priority：<tspan font-family="SFMono-Regular, Menlo, monospace">1000</tspan></text>
+<text x="12" y="192" font-size="12.5" font-weight="800" fill="#334155">① 先看用量有沒有超過requests：超過的先被evict</text>
+<rect x="12" y="200" width="448" height="38" rx="10" fill="#ffffff" stroke="#efb8cd" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="468" y="200" width="296" height="38" rx="10" fill="#ffffff" stroke="#a9dcc9" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="20" y="207" width="56" height="24" rx="12" fill="#d6457f"/>
+<text x="48" y="224" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod A</text>
+<text x="82" y="224" font-size="11" font-weight="800" fill="#b8336a">+400Mi</text>
+<rect x="172" y="207" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="200" y="224" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod B</text>
+<text x="234" y="224" font-size="11" font-weight="800" fill="#b8336a">+256Mi</text>
+<rect x="324" y="207" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="352" y="224" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod C</text>
+<text x="386" y="224" font-size="11" font-weight="800" fill="#b8336a">+144Mi</text>
+<rect x="476" y="207" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="504" y="224" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod D</text>
+<text x="538" y="224" font-size="11" font-weight="800" fill="#1f9d76">沒超過</text>
+<rect x="628" y="207" width="56" height="24" rx="12" fill="#1f9d76"/>
+<text x="656" y="224" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod E</text>
+<text x="690" y="224" font-size="11" font-weight="800" fill="#1f9d76">沒超過</text>
+<text x="12" y="262" font-size="12.5" font-weight="800" fill="#334155">② 再看Priority：同一組裡，priority低的先被evict</text>
+<rect x="12" y="270" width="296" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="316" y="270" width="144" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="468" y="270" width="144" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="620" y="270" width="144" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="20" y="277" width="56" height="24" rx="12" fill="#d6457f"/>
+<text x="48" y="294" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod A</text>
+<text x="82" y="294" font-size="11" font-weight="800" fill="#475569">priority 0</text>
+<rect x="172" y="277" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="200" y="294" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod B</text>
+<text x="234" y="294" font-size="11" font-weight="800" fill="#475569">priority 0</text>
+<rect x="324" y="277" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="352" y="294" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod C</text>
+<text x="386" y="294" font-size="11" font-weight="800" fill="#475569">priority 1000</text>
+<rect x="476" y="277" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="504" y="294" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod D</text>
+<text x="538" y="294" font-size="11" font-weight="800" fill="#475569">priority 0</text>
+<rect x="628" y="277" width="56" height="24" rx="12" fill="#1f9d76"/>
+<text x="656" y="294" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod E</text>
+<text x="690" y="294" font-size="11" font-weight="800" fill="#475569">priority 1000</text>
+<text x="12" y="332" font-size="12.5" font-weight="800" fill="#334155">③ 最後看超過requests多少：超過越多越先被evict</text>
+<rect x="12" y="340" width="144" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="164" y="340" width="144" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="316" y="340" width="144" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="468" y="340" width="144" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="620" y="340" width="144" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="20" y="347" width="56" height="24" rx="12" fill="#d6457f"/>
+<text x="48" y="364" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod A</text>
+<text x="82" y="364" font-size="11" font-weight="800" fill="#334155">第1個</text>
+<rect x="172" y="347" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="200" y="364" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod B</text>
+<text x="234" y="364" font-size="11" font-weight="800" fill="#334155">第2個</text>
+<rect x="324" y="347" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="352" y="364" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod C</text>
+<text x="386" y="364" font-size="11" font-weight="800" fill="#334155">第3個</text>
+<rect x="476" y="347" width="56" height="24" rx="12" fill="#c99a00"/>
+<text x="504" y="364" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod D</text>
+<text x="538" y="364" font-size="11" font-weight="800" fill="#334155">第4個</text>
+<rect x="628" y="347" width="56" height="24" rx="12" fill="#1f9d76"/>
+<text x="656" y="364" text-anchor="middle" font-size="12" font-weight="900" fill="#ffffff">Pod E</text>
+<text x="690" y="364" font-size="11" font-weight="800" fill="#334155">第5個</text>
+<text x="12" y="409" font-size="12" font-weight="800" fill="#d6457f">最先被evict</text>
+<path d="M92 404 H 676" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#ev-a)"/>
+<text x="684" y="409" font-size="12" font-weight="800" fill="#1f9d76">最後被evict</text>
+<rect x="250" y="395" width="276" height="18" fill="#ffffff"/>
+<text x="388" y="408" text-anchor="middle" font-size="11" font-weight="700" fill="#64748b">結果：大致是BestEffort → Burstable → Guaranteed</text>
+</svg>

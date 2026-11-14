@@ -84,8 +84,8 @@ kubectl apply -f nginx.yaml
 
 | 做法             | 指令                                                                                                      | 你告訴Kubernetes的是                           |
 | ---------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| **命令式** | `kubectl create deployment`、`kubectl set image`、<br />`kubectl create -f`、`kubectl replace -f` | ***動作***<br />參數在命令列或 -f YAML |
-| **聲明式** | `kubectl apply -f`                                                                                      | ***期望狀態***                         |
+| **命令式** | `kubectl create deployment`、`kubectl set image`、<br />`kubectl create -f`、`kubectl replace -f` | **動作**<br />參數在命令列或 -f YAML |
+| **聲明式** | `kubectl apply -f`                                                                                      | **期望狀態**                         |
 
 ### 🔀 4. replace和apply的差別：PUT和PATCH
 
@@ -94,7 +94,7 @@ kubectl apply -f nginx.yaml
 |                          | `kubectl replace`                                      | `kubectl apply`                                                        |
 | ------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------ |
 | **HTTP**           | `PUT`                                                  | `PATCH`                                                                |
-| **做什麼**         | 用YAML裡的object<br />***整個換掉***原本的object | 只改YAML裡***有寫的欄位***<br />和原本的object***合併*** |
+| **做什麼**         | 用YAML裡的object<br />**整個換掉**原本的object | 只改YAML裡**有寫的欄位**<br />和原本的object**合併** |
 | **別人改過的欄位** | 不在YAML裡就被蓋掉                                       | 保留                                                                     |
 | **多人同時修改**   | ❌ 會互相覆蓋<br />YAML帶著舊版本時回`409 Conflict`    | ✅ 各改各的欄位、自動合併                                                |
 
@@ -103,16 +103,16 @@ kubectl apply -f nginx.yaml
 `kubectl set image`、`kubectl edit`、`kubectl scale`也是send `PATCH` request，只改指定的欄位，**PATCH不會動到別人改過的其他欄位**。但***用`PATCH`不代表就是聲明式***：這些指令是當下下的一個[動作](#-1-命令式命令參數寫在命令列)（「把image改成1.28」「把`replicas`改成5」），**改完沒有留下描述期望狀態的YAML。之後有人用舊的YAML再`apply`，這些修改就會被改回去**。
 
 > [!TIP]
-> 用HPA的Deployment，YAML裡***不要寫`replicas`***。否則每次`apply`都會把HPA調好的數量改回YAML裡的值。
+> 用HPA的Deployment，YAML裡**不要寫`replicas`**。否則每次`apply`都會把HPA調好的數量改回YAML裡的值。
 
 > [!TIP]
 > 💡 **聲明式API的三個特點**
 >
 > 1. **提交的是期望狀態**：只要提交一個定義好的API object，「聲明」想要的狀態，不描述怎麼做。
-> 2. **允許多個writer**：使用者、HPA、各種controller都可以用`PATCH`修改同一個object，**不需要知道別人local的YAML長什麼樣子**，各改各的欄位，由API Server合併。這讓HPA、Istio、各種Operator這些**互不認識的controller**，可以同時修改同一個object而不會互相覆蓋，是Kubernetes能一直***疊加***新功能的前提。
+> 2. **允許多個writer**：使用者、HPA、各種controller都可以用`PATCH`修改同一個object，**不需要知道別人local的YAML長什麼樣子**，各改各的欄位，由API Server合併。這讓HPA、Istio、各種Operator這些**互不認識的controller**，可以同時修改同一個object而不會互相覆蓋，是Kubernetes能一直**疊加**新功能的前提。
 > 3. **controller能自動reconcile**：有了前兩點，controller只要對API object做增、刪、改、查，就能在**不需要外界介入**的情況下，持續把實際狀態調整成期望狀態，見[控制循環](chap-5-container-orchestration-controller.md#-2-控制循環)。
 >
-> 所以，***聲明式API是Kubernetes編排能力的核心***。
+> 所以，**聲明式API是Kubernetes編排能力的核心**。
 
 ### 🧑‍💻 5. Kubernetes編程範式
 
@@ -149,7 +149,7 @@ Istio是一個***Service Mesh***：不用改app的程式，就能替cluster裡�
 > [!NOTE]
 > Istio的核心是***一層由proxy組成的網格***：app之間的流量都經過proxy，由istiod統一push config給它們。sidecar mode下，proxy是每個Pod裡的Envoy sidecar；ambient mode下，proxy是每個Node上的ztunnel，需要L7功能時再經過waypoint。
 >
-> 這就是Service Mesh的意思：***把服務之間的通訊，例如路由、mTLS、retry、metrics，從app裡拿出來，交給這層proxy處理***，app的程式不用改。
+> 這就是Service Mesh的意思：**把服務之間的通訊，例如路由、mTLS、retry、metrics，從app裡拿出來，交給這層proxy處理**，app的程式不用改。
 
 Istio有兩種模式：
 
@@ -161,13 +161,13 @@ Istio有兩種模式：
 
 |                              | ambient mode                                                                                                    | sidecar mode                                                             |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **proxy放在哪**        | ***每個Node***上一個ztunnel<br />（[DaemonSet](chap-5-container-orchestration-controller.md#daemonset)） | ***每個Pod***裡一個Envoy<br /> (sidecar)                         |
+| **proxy放在哪**        | **每個Node**上一個ztunnel<br />（[DaemonSet](chap-5-container-orchestration-controller.md#daemonset)） | **每個Pod**裡一個Envoy<br /> (sidecar)                         |
 | **100個Pod、10個Node** | 10個ztunnel                                                                                                     | 100個Envoy                                                               |
 | **app的Pod數量**       | 只有app一個container<br />（READY`1/1`）                                                                      | 多inject一個Envoy sidecar container<br />共兩個container（READY`2/2`） |
 | **L7功能（例如分流）** | 需要時才部署waypoint proxy<br />（一個跑Envoy的Deployment）                                                     | 每個Envoy都能做                                                          |
 
 > [!TIP]
-> `1/1`、`2/2`是`kubectl get pods`輸出裡READY欄的值：***ready的container數 / Pod裡container的總數***。例如`1/1`是Pod裡有1個container，1個ready；`2/2`是app加上Envoy共2個container，2個都ready。
+> `1/1`、`2/2`是`kubectl get pods`輸出裡READY欄的值：**ready的container數 / Pod裡container的總數**。例如`1/1`是Pod裡有1個container，1個ready；`2/2`是app加上Envoy共2個container，2個都ready。
 
 **ambient mode**的架構如下，Pod裡沒有sidecar：
 
@@ -190,10 +190,10 @@ Pod裡的container***共用同一個network namespace***（見[Chap-4](chap-4-co
 
 - **規則做什麼**：app的outbound流量，轉到Envoy的port 15001；inbound流量，轉到port 15006；Envoy自己的outbound流量（UID 1337）不轉，避免繞圈。
 - **誰設定iptables**：不是Envoy，也不是使用者。***sidecar mode下***有兩種方式：
-  - ***init container `istio-init`***：和Envoy一起，由[sidecar injection](#-3-sidecar怎麼自動加進pod)自動加進Pod。它在app啟動前執行`istio-iptables`程式寫好規則，然後結束。改iptables需要`NET_ADMIN`（Linux改網路設定的capability）權限，所以每個Pod裡都多了一個高權限的container。很多cluster用Pod Security Admission限制Pod的權限，`baseline`以上的等級不允許`NET_ADMIN`，這種Pod會直接被拒絕。
-  - ***Istio CNI plugin***：安裝Istio時部署的DaemonSet，在每個Node上加一個CNI plugin。建立Pod網路時就把規則寫好，Pod裡不需要高權限的init container，官方建議用這種。
+  - **init container `istio-init`**：和Envoy一起，由[sidecar injection](#-3-sidecar怎麼自動加進pod)自動加進Pod。它在app啟動前執行`istio-iptables`程式寫好規則，然後結束。改iptables需要`NET_ADMIN`（Linux改網路設定的capability）權限，所以每個Pod裡都多了一個高權限的container。很多cluster用Pod Security Admission限制Pod的權限，`baseline`以上的等級不允許`NET_ADMIN`，這種Pod會直接被拒絕。
+  - **Istio CNI plugin**：安裝Istio時部署的DaemonSet，在每個Node上加一個CNI plugin。建立Pod網路時就把規則寫好，Pod裡不需要高權限的init container，官方建議用這種。
 
-要注意，這裡的兩種方式，和[第1節](#-1-istio是什麼)的兩種模式是***不同層次***的選擇：
+要注意，這裡的兩種方式，和[第1節](#-1-istio是什麼)的兩種模式是**不同層次**的選擇：
 
 | 層次                                             | 選項                              | 決定什麼                                                                                                      |
 | ------------------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -201,7 +201,7 @@ Pod裡的container***共用同一個network namespace***（見[Chap-4](chap-4-co
 | **第二層：sidecar mode下，誰設定iptables** | `istio-init` / Istio CNI plugin | 把流量導到Envoy的iptables規則:<br />由**Pod裡的init container**寫，還是由**Node上的CNI plugin**寫 |
 
 > [!NOTE]
-> Istio CNI和ambient mode的ztunnel都是每個Node一個的DaemonSet，但角色不同：Istio CNI只在建立Pod網路時***設定iptables規則***，不處理流量；ztunnel是***真正處理流量***的proxy。ambient mode也需要Istio CNI，用它把Pod的流量導到ztunnel。
+> Istio CNI和ambient mode的ztunnel都是每個Node一個的DaemonSet，但角色不同：Istio CNI只在建立Pod網路時**設定iptables規則**，不處理流量；ztunnel是**真正處理流量**的proxy。ambient mode也需要Istio CNI，用它把Pod的流量導到ztunnel。
 
 例如app要呼叫另一個叫`reviews`的服務（Service名稱是`reviews`，port 9080），程式裡照樣連`reviews:9080`，完全不知道Envoy的存在；但outbound流量已經先被iptables導到Envoy，由Envoy決定route到哪個Pod，並加上mTLS。這就是[Chap-4的sidecar](chap-4-container-orchestration-pod.md#-2-sidecar和app一起執行)設計思路。
 
@@ -236,7 +236,7 @@ kubectl get pod reviews-v1-6b8f9c7d4-x2kqp -o jsonpath='{.spec.containers[*].nam
    ```
 4. **Write**：通過validation後，把修改後的Pod寫進etcd。
 
-這正是[聲明式API的特點](#-4-replace和apply的差別put和patch)：***你聲明的object，可以被另一個writer合併修改***。Deployment的YAML裡還是只有一個container，只有實際建立的Pod多了Envoy；你之後再`apply`，也不會把Envoy蓋掉。
+這正是[聲明式API的特點](#-4-replace和apply的差別put和patch)：**你聲明的object，可以被另一個writer合併修改**。Deployment的YAML裡還是只有一個container，只有實際建立的Pod多了Envoy；你之後再`apply`，也不會把Envoy蓋掉。
 
 ### 🎯 4. 用聲明式API控制流量
 
@@ -301,7 +301,7 @@ spec:
         version: v2
 ```
 
-再用***VirtualService***，**規定每組分到多少流量：**
+再用**VirtualService**，**規定每組分到多少流量：**
 
 <!-- hl: 13 17 -->
 
@@ -325,7 +325,7 @@ spec:
           weight: 10          # 10%給v2
 ```
 
-- **istiod是controller**：watch到***DestinationRule***和***VirtualService***這兩個object，轉成config push給每個Envoy。
+- **istiod是controller**：watch到**DestinationRule**和**VirtualService**這兩個object，轉成config push給每個Envoy。
 - **比例和Pod數量無關**：只用Kubernetes的Service的話，流量平均分給所有Pod，比例只能靠Pod數量去湊。
 - **要逐步切換到新版**：只要改`weight`，再`kubectl apply`。
 
@@ -348,9 +348,9 @@ Kubernetes裡所有元件都透過API Server讀寫object：不管是你用**kube
 | --------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
 | **① Authentication**       | 確認request是誰send的                          | client certificate、ServiceAccount的token                                        |
 | **② Authorization**        | 確認這個身分能不能對這個resource做這個動作     | [RBAC](#rbac)：Role / RoleBinding                                                 |
-| **③ Mutating admission**   | ***修改***object                       | `ServiceAccount` admission controller替Pod加上token volume；Istio inject Envoy |
+| **③ Mutating admission**   | **修改**object                       | `ServiceAccount` admission controller替Pod加上token volume；Istio inject Envoy |
 | **④ Schema validation**    | 檢查欄位型別、必填欄位                         | `replicas`寫成字串就失敗                                                       |
-| **⑤ Validating admission** | ***只檢查、不修改***，不符合規定就拒絕 | `PodSecurity`拒絕高權限的Pod；`ResourceQuota`拒絕超過配額的request           |
+| **⑤ Validating admission** | **只檢查、不修改**，不符合規定就拒絕 | `PodSecurity`拒絕高權限的Pod；`ResourceQuota`拒絕超過配額的request           |
 | **⑥ Write**                | 存進etcd                                       |                                                                                  |
 
 - **① AuthN ② AuthZ**：[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)用curl實際跑過一次：token負責① AuthN，RBAC負責② AuthZ。
@@ -365,12 +365,12 @@ Kubernetes裡所有元件都透過API Server讀寫object：不管是你用**kube
 | ------------------ | ----------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **例子**     | `LimitRanger`、`ServiceAccount`、`PodSecurity`、`ResourceQuota` | Istio的sidecar injector、cert-manager、Kyverno這類policy engine |
 | **程式在哪** | 編譯在API Server裡面                                                    | 外部的webhook server，或寫在API object裡的CEL規則               |
-| **怎麼開啟** | API Server的參數`--enable-admission-plugins`，改了要重啟API Server    | ***建立一個API object***就註冊好了，不用重啟            |
+| **怎麼開啟** | API Server的參數`--enable-admission-plugins`，改了要重啟API Server    | **建立一個API object**就註冊好了，不用重啟            |
 
 > [!NOTE]
 > 表裡的***Kyverno***是CNCF的**policy engine**：用YAML寫規則（`ClusterPolicy`這個CRD），例如「image不能用`latest` tag」「Pod一定要設`resources.limits`」，再由它的admission webhook在③、⑤檢查或修改object。
 
-「Dynamic」指的就是第二種： ***不改API Server、不重啟，用API object動態註冊***自己的admission邏輯。註冊這件事本身也是聲明式的。
+「Dynamic」指的就是第二種： **不改API Server、不重啟，用API object動態註冊**自己的admission邏輯。註冊這件事本身也是聲明式的。
 
 Dynamic Admission Control有兩類：
 
@@ -380,7 +380,7 @@ Dynamic Admission Control有兩類：
 | **Admission policy**：在API object裡用CEL寫規則，由API Server自己執行 | MutatingAdmissionPolicy  | ValidatingAdmissionPolicy  |
 
 > [!NOTE]
-> ***CEL***（Common Expression Language）是Google設計的運算式語言，只能寫判斷式、不能寫迴圈，所以執行快、不會卡住API Server，適合直接在API Server裡執行。例如`object.spec.replicas <= 5`，見[ValidatingAdmissionPolicy](#-4-validatingadmissionpolicy不用架webhook)。Kubernetes其他地方也用它，例如CRD的欄位驗證規則。
+> **CEL**（Common Expression Language）是Google設計的運算式語言，只能寫判斷式、不能寫迴圈，所以執行快、不會卡住API Server，適合直接在API Server裡執行。例如`object.spec.replicas <= 5`，見[ValidatingAdmissionPolicy](#-4-validatingadmissionpolicy不用架webhook)。Kubernetes其他地方也用它，例如CRD的欄位驗證規則。
 
 ### 🪝 3. Admission webhook：以Istio為例
 
@@ -447,9 +447,9 @@ Validating webhook也一樣，只是response裡不帶`patch`，用`allowed: fals
 
 - 一個request只經過一次admission。⑥ write是同一個request的最後一步，不是新的request。
 - `rules`只處理`CREATE`。Pod之後的更新，例如kubelet回報status，都是`UPDATE`，不會再呼叫。
-- 有多個mutating webhook時，API Server可能把前面的webhook再呼叫一次。原因是mutating webhook的***執行順序沒有保證***，後面的webhook可能新加了東西，例如一個container，而前面的webhook執行時還看不到它。所以webhook必須***idempotent***：Istio會先檢查Pod裡是不是已經有`istio-proxy`，有的話就不改。
+- 有多個mutating webhook時，API Server可能把前面的webhook再呼叫一次。原因是mutating webhook的***執行順序沒有保證***，後面的webhook可能新加了東西，例如一個container，而前面的webhook執行時還看不到它。所以webhook必須**idempotent**：Istio會先檢查Pod裡是不是已經有`istio-proxy`，有的話就不改。
 
-webhook的處理邏輯大致如下（虛擬碼）。和controller不同，webhook***沒有控制循環***：API Server收到request時才呼叫它，它return patch後就結束了。
+webhook的處理邏輯大致如下（虛擬碼）。和controller不同，webhook**沒有控制循環**：API Server收到request時才呼叫它，它return patch後就結束了。
 
 <!-- hl: 4 5 -->
 
@@ -532,13 +532,13 @@ API Server用三個部分定位一種API object：
 YAML開頭的`apiVersion: apps/v1`就是***Group/Version***，`kind: Deployment`對應的***Resource***是`deployments`。
 
 > [!TIP]
-> ***Kind和Resource不一樣***：Kind是object的型別，寫在YAML的`kind`裡，單數、大寫開頭，例如`Deployment`；Resource是URL裡的名字，複數小寫，例如`deployments`。
+> **Kind和Resource不一樣**：Kind是object的型別，寫在YAML的`kind`裡，單數、大寫開頭，例如`Deployment`；Resource是URL裡的名字，複數小寫，例如`deployments`。
 
 所有API object按這三層組織成一棵樹：
 
 <img src="images/ch06/api-object-tree.svg" alt="API object的樹狀結構：根目錄/下有/livez、/readyz、/metrics（健康檢查、metrics），以及/api和/apis。/api是core group，沒有group名稱，/api/v1下有pods、services、nodes；/apis下依Group分成/apis/apps、/apis/batch、/apis/example.com（CRD），再依Version分成/apis/apps/v1（deployments、statefulsets）、/apis/batch/v1（jobs、cronjobs）、/apis/example.com/v1（networks）。每個version下面標出YAML裡對應的apiVersion：v1、apps/v1、batch/v1、example.com/v1。標出的路徑/apis/batch/v1/cronjobs，分別是Group、Version、Resource" width="90%">
 
-從這棵樹可以看出，API object的組織方式是***一層一層往下分***的：先分group，再分version，最後才是resource。
+從這棵樹可以看出，API object的組織方式是**一層一層往下分**的：先分group，再分version，最後才是resource。
 
 | Group                              | URL路徑                  | apiVersion         | object                                                                                  |
 | ---------------------------------- | ------------------------ | ------------------ | --------------------------------------------------------------------------------------- |
@@ -598,7 +598,7 @@ kind: CronJob
 | ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | **request<br />version** | JSON<br /><span style="white-space: nowrap">（HTTP body）</span>     | client send來的，例如`batch/v1`。kubectl會把YAML轉成JSON再send出去                                 |
 | **internal version**     | Go struct                                                            | 只存在API Server的mem裡。不管request是哪個version，decode後都先轉成它，admission和validation都對它做 |
-| **storage version**      | protobuf<br /><span style="white-space: nowrap">（CRD用JSON）</span> | 實際存進etcd的version，***只有一個***。client之後用其他version讀，再由API Server當場轉換     |
+| **storage version**      | protobuf<br /><span style="white-space: nowrap">（CRD用JSON）</span> | 實際存進etcd的version，**只有一個**。client之後用其他version讀，再由API Server當場轉換     |
 
 這樣升級version時，舊的client照樣能用舊version send request，達到向後相容。
 
@@ -718,7 +718,7 @@ kubectl auth whoami
 | -------------------------- | --------------------------------------------------------------------------------------- |
 | `system:authenticated`   | 所有通過authentication的身分                                                            |
 | `system:unauthenticated` | 沒有通過authentication的request（匿名）                                                 |
-| `system:masters`         | ***直接略過RBAC，擁有全部權限，而且不能用RBAC收回***。不要把任何人加進這個group |
+| `system:masters`         | **直接略過RBAC，擁有全部權限，而且不能用RBAC收回**。不要把任何人加進這個group |
 | `system:nodes`           | 所有Node的kubelet，由Node authorizer授權                                                |
 | `system:serviceaccounts` | 所有ServiceAccount，見[ServiceAccount](#-2d-serviceaccount)                              |
 
@@ -799,7 +799,7 @@ roleRef:                            # 綁哪個Role
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
 | **Role + RoleBinding**               | 一個namespace                                                                                                  |
 | **ClusterRole + ClusterRoleBinding** | 整個cluster，包括所有namespace和Node這類object                                                                 |
-| **ClusterRole + RoleBinding**        | 只在RoleBinding所在的namespace。***常用來重複使用同一份ClusterRole***，例如把`view`綁給某個namespace |
+| **ClusterRole + RoleBinding**        | 只在RoleBinding所在的namespace。**常用來重複使用同一份ClusterRole**，例如把`view`綁給某個namespace |
 
 **🏷️ 內建的ClusterRole**
 
@@ -810,7 +810,7 @@ roleRef:                            # 綁哪個Role
 
 | ClusterRole       | 權限                                                       |
 | ----------------- | ---------------------------------------------------------- |
-| `cluster-admin` | 全部，`verbs: ["*"]`。***最高權限，要謹慎使用*** |
+| `cluster-admin` | 全部，`verbs: ["*"]`。**最高權限，要謹慎使用** |
 | `admin`         | 一個namespace裡幾乎全部，包括管理RBAC                      |
 | `edit`          | 讀寫大部分object，但不能改RBAC                             |
 | `view`          | read-only，看不到Secret                                    |
@@ -916,4 +916,4 @@ Pod在`spec.serviceAccountName: example-sa`指定這個ServiceAccount之後，Po
 > [!TIP]
 > 💡 **一句話總結**
 >
-> ***Role是一組權限規則，RoleBinding把它綁給Subject***；Cluster版本的作用範圍是整個cluster。Subject最常用的是ServiceAccount，所以***Role + RoleBinding + ServiceAccount***是最需要掌握的組合。
+> ***Role是一組權限規則，RoleBinding把它綁給Subject***；Cluster版本的作用範圍是整個cluster。Subject最常用的是ServiceAccount，所以**Role + RoleBinding + ServiceAccount**是最需要掌握的組合。

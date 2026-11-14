@@ -10,6 +10,17 @@ document$.subscribe(() => {
     h1.prepend(icon);
   }
 
+  // Analogy: turn a leading "比喻：" in <span class="analogy"> into a small tag.
+  document.querySelectorAll(".md-typeset .analogy").forEach((el) => {
+    const first = el.firstChild;
+    if (!first || first.nodeType !== Node.TEXT_NODE || !first.data.startsWith("比喻：")) return;
+    first.data = first.data.slice(3);
+    const tag = document.createElement("span");
+    tag.className = "analogy-tag";
+    tag.textContent = "比喻";
+    el.prepend(tag);
+  });
+
   // On the home page, give each link to a site page that page's nav icon.
   if (document.querySelector(".md-content [data-link-icons]")) {
     const iconByPath = new Map();
@@ -191,6 +202,14 @@ document$.subscribe(() => {
     let before = "";
     for (let n = el.previousSibling; n; n = n.previousSibling) before = n.textContent + before;
     if (onlyEmojiOrSpace.test(before)) el.classList.add("doc-label");
+  });
+
+  // *Italic with **bold** inside*: the em also has its own text, so it is a small
+  // reminder (italic + yellow underline), not ***bold italic***
+  document.querySelectorAll(".md-typeset em").forEach((el) => {
+    if (!el.querySelector(":scope > strong")) return;
+    const ownText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+    if (ownText) el.classList.add("doc-em-mixed");
   });
 
   // Step names: bold at the start of a paragraph that begins with a circled number, like "**① Preflight Checks**"

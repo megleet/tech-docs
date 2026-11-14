@@ -22,6 +22,7 @@
   --doc-code-block-bg: #f6f7f8;
   --doc-code-block-bg-solid: #f6f7f8;
   --doc-subtitle-bg: #f3f4f6;
+  --doc-em-line: #e0a800;      /* *italic*: small reminder, yellow dashed underline */
   /* Tags in tables: <span class="doc-tag doc-tag-linux">Linux</span> */
   --doc-tag-linux: #8a5a00;   --doc-tag-linux-bg: #fff3d6;
   --doc-tag-macos: #374151;   --doc-tag-macos-bg: #eceef1;
@@ -33,6 +34,8 @@
   --doc-placeholder: #b00020;   --doc-placeholder-bg: #ffe08a;
   --doc-tag-local: #b4530a;    --doc-tag-local-bg: #ffeddc;
   --doc-tag-light: #9d2a8a;    --doc-tag-light-bg: #f8e6f4;
+  /* Analogy after a point: <span class="analogy">…</span> */
+  --doc-analogy: #7a8394;      --doc-analogy-bg: #eceff3;
 }
 
 /* Dark scheme */
@@ -41,6 +44,8 @@
   --md-typeset-a-color: #8ab4ff; /* links in content: light blue */
   --doc-ext-link-color: #6c9cf2; /* external links: deeper light blue */
   --doc-label-color: #8fbfb8;
+  --doc-analogy: #9aa3b2;
+  --doc-analogy-bg: rgba(255, 255, 255, 0.08);
   --doc-label2-color: #d9a6cc;
   --doc-code-color: #ff8fb1;
   --doc-code-bg: rgba(255, 255, 255, 0.08);
@@ -59,6 +64,7 @@
   --doc-code-block-bg: rgba(255, 255, 255, 0.03);
   --doc-code-block-bg-solid: #1e2129;
   --doc-subtitle-bg: rgba(255, 255, 255, 0.06);
+  --doc-em-line: #ffd54f;
   --doc-tag-linux: #f2c46b;   --doc-tag-linux-bg: rgba(242, 196, 107, 0.14);
   --doc-tag-macos: #cbd2dc;   --doc-tag-macos-bg: rgba(203, 210, 220, 0.12);
   --doc-tag-windows: #8ab4ff; --doc-tag-windows-bg: rgba(138, 180, 255, 0.14);
@@ -86,6 +92,27 @@
 .md-typeset strong > em {
   color: var(--doc-strong-color);
   font-style: normal;
+}
+
+/* *Italic* alone: a small reminder, italic with a yellow dashed underline */
+.md-typeset em:not(:has(> strong)):not(strong > em) {
+  font-style: italic;
+  text-decoration: underline dashed var(--doc-em-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+}
+
+/* *Italic with **bold** inside* (tagged by extra.js): italic + underline;
+   the bold part keeps its brown color */
+.md-typeset em.doc-em-mixed {
+  font-style: italic;
+  text-decoration: underline dashed var(--doc-em-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+}
+
+.md-typeset em.doc-em-mixed > strong {
+  font-style: italic;
 }
 
 /* Bold labels like "**原因**：" (tagged by extra.js) use a separate color */
@@ -344,6 +371,7 @@
 .md-typeset h2 + p > em:only-child {
   font-style: normal;
   font-weight: 700;
+  text-decoration: none;
 }
 
 /* Section headings: soft tinted band with an accent bar on the left */
@@ -588,4 +616,89 @@
 }
 .md-typeset .katex-display > .katex {
   text-align: left;
+}
+
+/* Analogy: gray text; extra.js turns a leading "比喻：" into a small pill */
+.md-typeset .analogy {
+  color: var(--doc-analogy);
+  font-size: 0.92em;
+}
+.md-typeset .analogy-tag {
+  display: inline-block;
+  margin: 0 0.4em 0 0.35em;
+  padding: 0 0.5em;
+  border-radius: 0.7em;
+  font-size: 0.82em;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--doc-analogy);
+  background-color: var(--doc-analogy-bg);
+  vertical-align: 0.06em;
+}
+
+/* Foldable 思考題 (`1. ??? question "…"`): tighter gap between items */
+.md-typeset li > details:first-child {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.md-typeset li:has(> details:first-child) {
+  margin-bottom: 0.3em;
+}
+
+.md-typeset li > details:first-child > summary {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0.4em;
+  padding-bottom: 0.4em;
+}
+
+.md-typeset li > details:first-child > summary::before,
+.md-typeset li > details:first-child > summary::after {
+  top: 0.35em;
+}
+
+/* Foldable 思考題: very light purple instead of the built-in green */
+.md-typeset li > details.question:first-child {
+  border-color: #e6dcf5;
+  background-color: #f8f5fd;
+}
+
+.md-typeset li > details.question:first-child > summary {
+  background-color: transparent;
+}
+
+.md-typeset li > details.question:first-child > summary::before,
+.md-typeset li > details.question:first-child > summary::after {
+  background-color: #8b6bbf;
+  color: #8b6bbf;
+}
+
+[data-md-color-scheme="slate"] .md-typeset li > details.question:first-child {
+  border-color: rgba(201, 167, 242, 0.25);
+  background-color: rgba(201, 167, 242, 0.08);
+}
+
+[data-md-color-scheme="slate"] .md-typeset li > details.question:first-child > summary::before,
+[data-md-color-scheme="slate"] .md-typeset li > details.question:first-child > summary::after {
+  background-color: #c9a7f2;
+  color: #c9a7f2;
+}
+
+/* Foldable 思考題: even questions light gray, odd ones light purple */
+.md-typeset li:nth-child(even) > details.question:first-child {
+  border-color: #d5d8dd;
+  background-color: #f2f3f5;
+}
+
+[data-md-color-scheme="slate"] .md-typeset li:nth-child(even) > details.question:first-child {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.md-typeset li:nth-child(even) > details.question:first-child > summary {
+  background-color: #f2f3f5;
+}
+
+[data-md-color-scheme="slate"] .md-typeset li:nth-child(even) > details.question:first-child > summary {
+  background-color: rgba(255, 255, 255, 0.06);
 }

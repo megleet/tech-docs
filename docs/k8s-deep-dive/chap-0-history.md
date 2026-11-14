@@ -119,7 +119,7 @@ Kubernetes兩種都有：使用者看到的是orchestration（交給Kubernetes�
 
 IaC是用code描述infrastructure，例如用Terraform、OpenTofu、Pulumi建立VM、network、Load Balancer。它和Kubernetes的[聲明式API](chap-6-declarative-api.md#命令式和聲明式)是同一個想法：***寫下desired state，交給工具去達成***。
 
-兩者管的是不同層：***IaC負責建出Infrastructure***，例如VM、VPC、Load Balancer、disk；***Kubernetes跑在這些機器上，在runtime管理上面的app***，負責schedule、scale、self-healing。
+兩者管的是不同層：***IaC負責建出Infrastructure***，例如VM、VPC、Load Balancer、disk；**Kubernetes跑在這些機器上，在runtime管理上面的app**，負責schedule、scale、self-healing。
 
 <img src="images/ch00/iac-vs-orchestration-layers.svg" alt="由上到下四層：Application（Pod / container）、Orchestration（Kubernetes）、Infrastructure（VM、VPC、LB、Disk）、IaC（Terraform、OpenTofu）。右邊兩個箭頭：Kubernetes在runtime管理上面的Application，負責schedule、scale、self-healing；IaC負責provision，建出Infrastructure這一層" width="75%">
 

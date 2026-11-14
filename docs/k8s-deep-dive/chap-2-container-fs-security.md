@@ -25,7 +25,7 @@ icon: lucide/layers
 
 如果Container只是Linux Kernel上的「**資源限制（`cgroups`）**」與「**障眼法（`Namespace`）**」，為什麼我們能把在local開發好的container，完全seamless地搬到remote的AWS、GCP或任何一台server上直接執行，且保證「***在我的電腦能跑，在remote就能跑***」？
 
-答案在於：Container的真正威力，是「***隔離機制***」搭配了「***打包標準與UnionFS（RootFS + Image）***」。
+答案在於：Container的真正威力，是「***隔離機制***」搭配了「**打包標準與UnionFS（RootFS + Image）**」。
 
 ### 1. 關鍵核心：它打包了完整的「RootFS」
 
@@ -50,7 +50,7 @@ icon: lucide/layers
 
 **Linux的sys call**（如`open`、`read`、`socket`）**interface非常穩定**。只要remote server的Linux Kernel版本沒有old到不支援container所需的sys call（例如kernel≥**3.10**），container內部的user space程式碼就能毫無障礙地透過sys call與remote kernel對話。
 
-但這個保證***有邊界，不是100% seamless***。image只帶user space，所有用到kernel的地方，仍然取決於host：
+但這個保證**有邊界，不是100% seamless**。image只帶user space，所有用到kernel的地方，仍然取決於host：
 
 - **較新的kernel功能**：程式用到`io_uring`、較新的eBPF功能這類sys call或kernel功能時，host的kernel太舊就會失敗。
 - **kernel module**：需要特定kernel module的程式（例如某些network、storage driver），host沒有載入就不能用；container也不能自己帶一個。
@@ -174,7 +174,7 @@ seccomp用一份filter，***限制process能呼叫哪些sys call***，縮小kern
 
 | | AppArmor | SELinux |
 | --- | --- | --- |
-| **怎麼描述規則** | 依***路徑***，例如「可以讀`/etc/nginx/**`」 | 依***label***，file和process都帶一個label，policy規定哪些label之間可以互動 |
+| **怎麼描述規則** | 依**路徑**，例如「可以讀`/etc/nginx/**`」 | 依**label**，file和process都帶一個label，policy規定哪些label之間可以互動 |
 | **常見的distro** | Ubuntu、Debian | RHEL、Fedora |
 | **Kubernetes的設定** | `securityContext.appArmorProfile` | `securityContext.seLinuxOptions` |
 
@@ -379,7 +379,7 @@ umount /mnt/demo && ls /mnt/demo          # 拆掉第1層 → 看到orig.txt
 > 🧠 **一句話記憶**
 >
 > - **普通mount**：把「裝置 / 虛擬來源」的filesystem拼進目錄樹
-> - `/dev`是來源，`/mnt`是暫放的目標，***`fstab`讓掛載持久化***
+> - `/dev`是來源，`/mnt`是暫放的目標，**`fstab`讓掛載持久化**
 
 ## mount --bind技術
 
@@ -427,7 +427,7 @@ findmnt /new_root                          # 之後：多出一筆
 ```
 
 > [!TIP]
-> self bind不改內容，只是***把普通目錄變成mount point***，讓`pivot_root`、remount、修改propagation這些「只能對mount point做」的操作可以進行。
+> self bind不改內容，只是**把普通目錄變成mount point**，讓`pivot_root`、remount、修改propagation這些「只能對mount point做」的操作可以進行。
 
 ### 🧬 Bind mount機制
 
@@ -563,7 +563,7 @@ Dir_C/
 > [!TIP]
 > 💡 **一句話總結**
 >
-> dir tree存內容，mount tree記接法，***unified tree照著mount tree把dir tree縫起來的結果***（Virtual File System呈現給user的view）。(比喻，dir tree是小島，mount tree是小島之間連結的橋，unified tree是兩者和)
+> dir tree存內容，mount tree記接法，***unified tree照著mount tree把dir tree縫起來的結果***（Virtual File System呈現給user的view）。<span class="analogy">比喻：dir tree是小島，mount tree是小島之間的橋，unified tree是島和橋連起來的整片陸地</span>。
 
 ### 🔢 Q3. 有幾棵mount tree？節點只有mount point，還是也包含普通目錄？
 
@@ -696,7 +696,7 @@ ls /mnt           # 最底下原本的目錄內容
   └─ 新根露出來，成為唯一的/
 ```
 
-這也是***不umount就沒有隔離***的原因：被遮住的舊根仍然存在於mount tree裡。
+這也是**不umount就沒有隔離**的原因：被遮住的舊根仍然存在於mount tree裡。
 
 > [!WARNING]
 > 不要和overlayfs混淆：
@@ -1279,7 +1279,7 @@ nproc                     # → 2
 - **PID隔離有效**：只看得到`/bin/sh`（PID 1）和`top`自己，***host上的process一個都看不到***。`/bin/sh`是這個PID namespace裡的第一個process，所以是PID 1。
 - **PID是3不是2**：PID 2被之前執行過的指令用掉了，PID只會往上遞增。
 - **USER顯示0**：rootfs裡沒有`/etc/passwd`，`top`查不到UID 0對應的名字，就直接顯示數字。
-- **mem和CPU數字是host的**：`Mem`加起來約2G、`nproc`回答`2`，都是整台VM的數字。這個最小container***沒有用[cgroup](chap-1-container-namespace-cgroups.md#cgroups)限制資源***，而`/proc/meminfo`、`/proc/stat`這類資訊本來就反映整台機器，不會因為namespace而改變。
+- **mem和CPU數字是host的**：`Mem`加起來約2G、`nproc`回答`2`，都是整台VM的數字。這個最小container**沒有用[cgroup](chap-1-container-namespace-cgroups.md#cgroups)限制資源**，而`/proc/meminfo`、`/proc/stat`這類資訊本來就反映整台機器，不會因為namespace而改變。
 - **Docker也一樣**：在一般的Docker container裡跑`top`或`free`，看到的同樣是host的總量；要讓container「看到」自己的配額，需要額外的工具，例如lxcfs。
 
 ### 🚧 刻意省略的功能
@@ -1288,7 +1288,7 @@ nproc                     # → 2
 
 ## UnionFS與Docker的Layered rootfs
 
-先分清三個常一起出現的詞。比喻：rootfs是***成品蛋糕***，UnionFS是***疊層蛋糕的做法***，OverlayFS是***其中一種具體的食譜***。
+先分清三個常一起出現的詞。<span class="analogy">比喻：rootfs是成品蛋糕，UnionFS是疊層蛋糕的做法，OverlayFS是其中一種具體的食譜</span>。
 
 |  | 是什麼 | 層級 |
 | --- | --- | --- |
@@ -1421,7 +1421,7 @@ container在merged裡做的每個檔案操作，OverlayFS都照下面的規則�
 
 | 操作                        | OverlayFS做什麼                                             | 結果                                                                           |
 | --------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| **讀檔**              | 從upper開始往下逐層找，用第一個找到的                       | ***不複製***，多個container讀的是lower裡同一份檔案，連page cache也共用 |
+| **讀檔**              | 從upper開始往下逐層找，用第一個找到的                       | **不複製**，多個container讀的是lower裡同一份檔案，連page cache也共用 |
 | **修改lower裡的檔案** | 先**copy-up**，把整個檔案複製到upper，再在upper裡修改 | 之後都讀upper那一份，lower不變                                                 |
 | **新增檔案**          | 直接寫到upper                                               | lower完全不知道                                                                |
 | **刪除lower裡的檔案** | 在upper建立whiteout                                         | lower的檔案被遮住，看起來像被刪掉                                              |

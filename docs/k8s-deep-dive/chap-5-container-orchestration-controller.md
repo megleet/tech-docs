@@ -33,7 +33,7 @@ Kubernetes把要跑的工作（workload）分成兩大類，每一類都有自�
 
 *Deployment、StatefulSet、DaemonSet這些不同的object，Kubernetes怎麼用同一套方法管理它們？*
 
-Kubernetes用一種叫***控制器模式***（controller pattern）的設計，***用一種object管理另一種object***，統一處理各種object的編排：Deployment、StatefulSet、DaemonSet、Job……每一種背後都有一個controller，而且都照同一個流程工作：***控制循環***（control/reconcile loop）。
+Kubernetes用一種叫***控制器模式***（controller pattern）的設計，***用一種object管理另一種object***，統一處理各種object的編排：Deployment、StatefulSet、DaemonSet、Job……每一種背後都有一個controller，而且都照同一個流程工作：**控制循環**（control/reconcile loop）。
 
 ### 🏭 1. 誰在執行：kube-controller-manager
 
@@ -81,7 +81,7 @@ for {
 
 主要的編排邏輯都在第3步。這個比較、調整的動作叫***reconcile***，整個循環也叫reconcile loop或sync loop。文件裡看到這幾個詞，指的都是同一件事：***控制循環***。
 
-reconcile的結果，通常是對被控制object的write：建立Pod、刪除Pod，或更新Pod的某個欄位。***使用者只寫期望狀態，「怎麼做到」交給controller***，這就是[聲明式API](chap-3-kubernetes-architecture-operations.md#聲明式api)能運作的原因。
+reconcile的結果，通常是對被控制object的write：建立Pod、刪除Pod，或更新Pod的某個欄位。**使用者只寫期望狀態，「怎麼做到」交給controller**，這就是[聲明式API](chap-3-kubernetes-architecture-operations.md#聲明式api)能運作的原因。
 
 ### 🧩 3. 控制器的兩半：定義和模板
 
@@ -213,7 +213,7 @@ spec:
 
 - **`maxSurge`**：可以寫數字或百分比，百分比***無條件進位***。`replicas: 3`時，25%是0.75，進位成1，所以更新時最多有4個Pod。
 - **`maxUnavailable`**：百分比***無條件捨去***。`replicas: 3`時，25%捨去成0，所以更新時至少要有3個Pod可用。
-- **兩個default value合起來**：先多建1個新Pod，等它Ready，再刪掉1個舊Pod，重複3次。***服務不會少於3個Pod***，代價是多佔1個Pod的資源。
+- **兩個default value合起來**：先多建1個新Pod，等它Ready，再刪掉1個舊Pod，重複3次。**服務不會少於3個Pod**，代價是多佔1個Pod的資源。
 - **怎麼調**：要更新得快，就把`maxSurge`調大，一次多建幾個新的；資源不夠多建，就調大`maxUnavailable`，允許先刪舊的。兩個不能同時是0，否則更新無法前進。
 
 ### 📈 3. Scale out / scale in
@@ -298,7 +298,7 @@ kubectl rollout undo deployment/nginx-deployment --to-revision=2
 | 零件 | 做什麼 | Deployment controller裡 |
 | --- | --- | --- |
 | **Informer** | 用LIST + WATCH和API Server保持連線，把object存進local cache；它watch的object（例如某個Deployment）一被新增、修改或刪除，就呼叫controller註冊的event handler | 3個：Deployment、ReplicaSet、Pod |
-| **event handler** | 有三種，依變化的種類呼叫：`AddFunc`（新增）、`UpdateFunc`（修改）、`DeleteFunc`（刪除）；三種都只把「要處理哪一個」的key放進workqueue | Deployment `web`變了 → 把它的key `default/web`放進workqueue；ReplicaSet變了 → 用[`ownerReferences`](#-4-ownerreferences記錄誰擁有誰)找到它的Deployment，放***那個Deployment的key*** |
+| **event handler** | 有三種，依變化的種類呼叫：`AddFunc`（新增）、`UpdateFunc`（修改）、`DeleteFunc`（刪除）；三種都只把「要處理哪一個」的key放進workqueue | Deployment `web`變了 → 把它的key `default/web`放進workqueue；ReplicaSet變了 → 用[`ownerReferences`](#-4-ownerreferences記錄誰擁有誰)找到它的Deployment，放**那個Deployment的key** |
 | **workqueue** | 排隊、去重、失敗重試；裡面放的是key：`<namespace>/<name>`這個字串 | 例如`default/web`：`default` namespace裡、名叫`web`的Deployment |
 | **worker** | 從workqueue取key，呼叫syncHandler | default 5個（`--concurrent-deployment-syncs`） |
 | **syncHandler** | 就是`for`循環的內容：讀期望狀態、讀實際狀態、比較、調整 | `syncDeployment()`：讀Deployment（期望）和它的ReplicaSet（實際），需要時建立新的ReplicaSet，照`maxSurge` / `maxUnavailable`一邊scale up新的、一邊scale down舊的，最後寫回Deployment的`status` |
@@ -383,7 +383,7 @@ Deployment對app做了一個簡化的假設：***一個app的所有Pod都一模�
 - **instance之間有依賴關係**：尤其是分散式app，例如主從（primary / replica）、主備（active / standby）。誰先啟動、誰是primary，都有講究。
 - **每個instance有自己的資料**：DB這類storage app，每個instance通常在local disk上存著自己的一份資料。instance被刪掉後，就算重建出來，***instance和資料之間的對應關係也已經不見了***，app就會出錯。
 
-這種***instance之間不對等***、或***instance依賴外部資料***的app，叫做***stateful app***；反過來，所有instance都一樣、可以隨意替換的，叫stateless app。
+這種**instance之間不對等**、或**instance依賴外部資料**的app，叫做**stateful app**；反過來，所有instance都一樣、可以隨意替換的，叫stateless app。
 
 |                        | stateless app                | stateful app                                 |
 | ---------------------- | ---------------------------- | -------------------------------------------- |
@@ -488,7 +488,7 @@ StatefulSet web（serviceName: nginx）
 - **每個Pod有自己的DNS名稱**：`Pod名稱.Service名稱.namespace.svc.cluster.local`，直接解析成那個Pod的IP。
 - **重建後身分不變**：`web-0`被刪掉，重建出來的還是叫`web-0`，DNS名稱也一樣，只有IP可能不同。client用DNS名稱連，就不受影響。
 
-這樣，***StatefulSet就保證了Pod network identity的穩定性***：Pod怎麼重建，名稱、DNS名稱和建立順序都不變。
+這樣，**StatefulSet就保證了Pod network identity的穩定性**：Pod怎麼重建，名稱、DNS名稱和建立順序都不變。
 
 ### 💾 4. Storage state：volumeClaimTemplates和固定的PVC
 
@@ -656,7 +656,7 @@ kubectl exec web-0 -- cat /usr/share/nginx/html/index.html
 | **建立、刪除順序** | 同時建立；scale in時隨便挑一個刪                | `web-0` Ready才建`web-1`；scale in從編號最大的開始刪 |
 | **Pod和PVC的對應** | 沒有，Pod之間沒差別                             | `web-0`永遠掛`www-web-0`                             |
 
-所以Deployment管理ReplicaSet、ReplicaSet再管理Pod；***StatefulSet的controller則自己直接管理每一個Pod***：
+所以Deployment管理ReplicaSet、ReplicaSet再管理Pod；**StatefulSet的controller則自己直接管理每一個Pod**：
 
 <img src="images/ch05/deployment-vs-statefulset.svg" alt="Deployment和StatefulSet的對比：左邊Deployment nginx-deployment底下是ReplicaSet，ReplicaSet再管理3個名稱亂數、可以互相替換的Pod；右邊StatefulSet web中間沒有ReplicaSet，直接管理web-0和web-1兩個Pod，各自綁著PVC www-web-0和www-web-1" width="75%">
 
@@ -702,7 +702,7 @@ spec:
 >
 > - ***StatefulSet的controller直接管理Pod***：中間沒有ReplicaSet，靠Pod名稱裡的編號（`web-0`、`web-1`）區分每個instance。
 > - ***每個Pod透過`serviceName`指定的headless Service，得到帶同樣編號的固定DNS名稱***：例如`web-0.nginx.default.svc.cluster.local`，由CoreDNS解析成這個Pod目前的IP。
-> - ***StatefulSet依`volumeClaimTemplates`，替每個Pod建立同樣編號的PVC***：例如`www-web-0`，Pod重建後掛回同一個PVC，讀到同一份資料。
+> - **StatefulSet依`volumeClaimTemplates`，替每個Pod建立同樣編號的PVC**：例如`www-web-0`，Pod重建後掛回同一個PVC，讀到同一份資料。
 
 
 ### ⚙️ 7. StatefulSet controller實際怎麼跑
@@ -713,7 +713,7 @@ spec:
 
 | | Deployment controller | StatefulSet controller |
 | --- | --- | --- |
-| **直接管的object** | ReplicaSet | ***Pod和PVC***，中間沒有ReplicaSet，見[5. 為什麼不需要ReplicaSet](#-5-為什麼不需要replicaset) |
+| **直接管的object** | ReplicaSet | **Pod和PVC**，中間沒有ReplicaSet，見[5. 為什麼不需要ReplicaSet](#-5-為什麼不需要replicaset) |
 | **有handler的Informer** | Deployment、ReplicaSet、Pod | StatefulSet、Pod |
 | **read-only、沒有handler的Informer** | 無 | PVC、ControllerRevision |
 | **syncHandler做什麼** | scale ReplicaSet | 照編號`web-0`、`web-1`……依序建立Pod和它的PVC，前一個Ready才建下一個 |
@@ -741,7 +741,7 @@ spec:
 - **topology state**：`mysql-0`一定是primary，必須最先啟動；replica要等primary準備好，才能開始同步。
 - **storage state**：每個Pod有自己的資料，重建後要接回原本那一份，不能從頭來過。
 
-下面用MySQL 8.0的***GTID***（Global Transaction ID）做replication：replica只要連上primary，就會自動從缺的地方開始同步，不需要先手動備份、複製資料。
+下面用MySQL 8.0的**GTID**（Global Transaction ID）做replication：replica只要連上primary，就會自動從缺的地方開始同步，不需要先手動備份、複製資料。
 
 步驟：
 
@@ -1023,10 +1023,10 @@ kubectl describe node worker1 | grep -A1 Taints
 
 | Term                | 是什麼                                                       | 例子                                                     | 用途                                    |
 | ------------------- | ------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------- |
-| **condition** | Node的***健康狀態***，kubelet定期回報                | `Ready=False`，`kubectl get nodes`顯示成`NotReady` | 描述Node「怎麼了」                      |
-| **label**     | 貼在Node上的***分類標籤***，寫成`key=value`        | `disktype=ssd`                                         | 讓Pod「挑選」Node，例如`nodeSelector` |
-| **taint**     | 貼在Node上的***排斥標記***，寫成`key=value:effect` | `node.kubernetes.io/not-ready:NoSchedule`              | 讓Pod「別過來」或「離開」               |
-| **key**       | label和taint的***名稱***，等號或冒號前面那一段       | `disktypenode.kubernetes.io/not-ready`                 | 指定要比對哪個label或taint              |
+| **condition** | Node的**健康狀態**，kubelet定期回報                | `Ready=False`，`kubectl get nodes`顯示成`NotReady` | 描述Node「怎麼了」                      |
+| **label**     | 貼在Node上的**分類標籤**，寫成`key=value`        | `disktype=ssd`                                         | 讓Pod「挑選」Node，例如`nodeSelector` |
+| **taint**     | 貼在Node上的**排斥標記**，寫成`key=value:effect` | `node.kubernetes.io/not-ready:NoSchedule`              | 讓Pod「別過來」或「離開」               |
+| **key**       | label和taint的**名稱**，等號或冒號前面那一段       | `disktypenode.kubernetes.io/not-ready`                 | 指定要比對哪個label或taint              |
 
 taint和label的key寫法一樣，但存在Node的不同欄位，各管各的。例如kubeadm替master同時加上label `node-role.kubernetes.io/control-plane`（用來標示角色，`kubectl get nodes`的ROLES欄就是讀它）和同名的taint（用來排斥一般的Pod）。
 
@@ -1096,8 +1096,8 @@ spec:
 | toleration的寫法                                                                      | 容忍哪些taint                           |
 | ------------------------------------------------------------------------------------- | --------------------------------------- |
 | `key: dedicated`、`operator: Equal`、`value: gpu`、`effect: NoSchedule`       | 只有`dedicated=gpu:NoSchedule`        |
-| `key: node.kubernetes.io/not-ready`、`operator: Exists`，***不寫effect*** | `not-ready`的***所有***effect |
-| ***不寫key***、`operator: Exists`、`effect: NoSchedule`                   | ***所有key***的NoSchedule taint |
+| `key: node.kubernetes.io/not-ready`、`operator: Exists`，**不寫effect** | `not-ready`的**所有**effect |
+| **不寫key**、`operator: Exists`、`effect: NoSchedule`                   | **所有key**的NoSchedule taint |
 | 不寫key、不寫effect、`operator: Exists`                                             | 全部的taint                             |
 
 - **`Equal`和`Exists`**：`Equal`要key和value都對上；`Exists`只看key，不用寫value。
@@ -1216,9 +1216,9 @@ spec:
 
 不過，***很多toleration其實不用自己寫***：DaemonSet controller建立Pod時，會自動加上`not-ready`、`unreachable`的`NoExecute` toleration，以及`disk-pressure`、`memory-pressure`、`pid-pressure`、`unschedulable`的`NoSchedule` toleration（Pod用`hostNetwork: true`時，再加上`network-unavailable`）；master的`control-plane`則不會自動加，要像[fluent-bit的例子](#-1-yaml例子每個node一個log-agent)自己寫。
 
-注意：`not-ready`、`unreachable`其實各有`NoSchedule`和`NoExecute`兩個taint（見[三種effect](#-1-taintnode上的排斥標記)），DaemonSet***只自動容忍`NoExecute`***的那一個。所以Node變成NotReady時，已經在上面的daemon不會被趕走；但新的daemon Pod排不上NotReady的Node。network plugin要排到還沒有網路的Node上，才必須自己寫上面YAML裡的`operator: Exists`、`effect: NoSchedule`：不寫key，`not-ready:NoSchedule`也一起容忍了。
+注意：`not-ready`、`unreachable`其實各有`NoSchedule`和`NoExecute`兩個taint（見[三種effect](#-1-taintnode上的排斥標記)），DaemonSet**只自動容忍`NoExecute`**的那一個。所以Node變成NotReady時，已經在上面的daemon不會被趕走；但新的daemon Pod排不上NotReady的Node。network plugin要排到還沒有網路的Node上，才必須自己寫上面YAML裡的`operator: Exists`、`effect: NoSchedule`：不寫key，`not-ready:NoSchedule`也一起容忍了。
 
-所以DaemonSet的Pod，就算Node不健康、被`kubectl drain`標成unschedulable，也還是排得上去、不會被趕走。這正是daemon該有的行為：***只要Node還在，它就要在***。
+所以DaemonSet的Pod，就算Node不健康、被`kubectl drain`標成unschedulable，也還是排得上去、不會被趕走。這正是daemon該有的行為：**只要Node還在，它就要在**。
 
 
 ### ⚙️ 4. DaemonSet controller實際怎麼跑
@@ -1231,10 +1231,10 @@ spec:
 
 | | Deployment controller | DaemonSet controller |
 | --- | --- | --- |
-| **watch哪些object** | Deployment、ReplicaSet、Pod | DaemonSet、ControllerRevision、Pod、***Node*** |
-| **workqueue** | 1個 | ***2個***：Workqueue放DaemonSet的key；`nodeUpdateQueue`放Node名稱 |
-| **實際狀態** | 它的ReplicaSet | ***每個Node上***有沒有它的Pod |
-| **直接管的object** | ReplicaSet（Pod交給ReplicaSet controller） | ***直接建立、刪除Pod***，中間沒有ReplicaSet |
+| **watch哪些object** | Deployment、ReplicaSet、Pod | DaemonSet、ControllerRevision、Pod、**Node** |
+| **workqueue** | 1個 | **2個**：Workqueue放DaemonSet的key；`nodeUpdateQueue`放Node名稱 |
+| **實際狀態** | 它的ReplicaSet | **每個Node上**有沒有它的Pod |
+| **直接管的object** | ReplicaSet（Pod交給ReplicaSet controller） | **直接建立、刪除Pod**，中間沒有ReplicaSet |
 | **版本紀錄** | 舊的ReplicaSet | ControllerRevision，rolling update和rollback用 |
 
 - **為什麼要watch Node**：DaemonSet的期望狀態是「每個符合條件的Node一個Pod」，所以Node本身也是實際狀態的一部分。新的Node加入cluster時，Node Informer收到event，DaemonSet controller就在那個Node上建立Pod，這就是[2. 怎麼保證每個Node剛好一個](#-2-怎麼保證每個node剛好一個)背後的機制。
@@ -1245,7 +1245,7 @@ spec:
 
 *只要執行一次、做完就結束的工作，Kubernetes怎麼管理？*
 
-前面的Deployment、StatefulSet、DaemonSet管的都是[online job](#workload的兩大類)：Pod停了就再建立。但有些工作***做完就該結束***，例如資料處理、跑一次migration、計算一個結果。這種batch job由***Job***管理：它的期望狀態不是「維持幾個Pod」，而是「***成功完成幾次***」。
+前面的Deployment、StatefulSet、DaemonSet管的都是[online job](#workload的兩大類)：Pod停了就再建立。但有些工作***做完就該結束***，例如資料處理、跑一次migration、計算一個結果。這種batch job由***Job***管理：它的期望狀態不是「維持幾個Pod」，而是「**成功完成幾次**」。
 
 ### 📄 1. YAML例子：計算圓周率
 
@@ -1362,8 +1362,8 @@ Pod名稱裡也帶著編號（`process-3-…`），編號另外也記在annotati
 |                      | 一般Job                | Indexed Job                          |
 | -------------------- | ---------------------- | ------------------------------------ |
 | **Pod之間**    | 一模一樣，可以互相替換 | 各有編號0到4                         |
-| **怎麼算完成** | 任意5個Pod成功         | 0到4***每個編號都成功一次*** |
-| **Pod失敗時**  | 補一個新的Pod就好      | 補的Pod***沿用同一個編號***  |
+| **怎麼算完成** | 任意5個Pod成功         | 0到4**每個編號都成功一次** |
+| **Pod失敗時**  | 補一個新的Pod就好      | 補的Pod**沿用同一個編號**  |
 
 這有點像[StatefulSet](#statefulset)：Pod有固定的編號、各自負責自己那一份，只是Indexed Job做完就結束。
 
@@ -1391,21 +1391,21 @@ Pod失敗時，依`restartPolicy`有兩種處理方式：
 | 用法 | `completions` | `parallelism` | 怎麼分配工作 | 適合 |
 | --- | --- | --- | --- | --- |
 | **[Indexed Job](#-3-indexed-job每個pod處理不同的部分)** | N | 自訂 | 每個Pod讀`JOB_COMPLETION_INDEX` | 工作項事先知道，例如切成N份的資料 |
-| **固定數量 + queue** | N | 自訂 | 每個Pod從queue拿***一個***工作項 | 總數知道，但內容由別的程式放進queue |
-| **不固定數量 + queue** | 不設 | N | 每個Pod一直拿，***queue空了就退出*** | 總數不知道 |
+| **固定數量 + queue** | N | 自訂 | 每個Pod從queue拿**一個**工作項 | 總數知道，但內容由別的程式放進queue |
+| **不固定數量 + queue** | 不設 | N | 每個Pod一直拿，**queue空了就退出** | 總數不知道 |
 | **每個工作項一個Job** | 1 | 1 | 外部工具照模板產生多個Job | 每個工作項的參數差很多 |
 
 
 ### ⚙️ 6. Job controller實際怎麼跑
 
-零件和[Deployment controller](#-5-deployment-controller實際怎麼跑)一樣，差別在它的期望狀態是***「成功完成幾次」***，不是「維持幾個Pod」：
+零件和[Deployment controller](#-5-deployment-controller實際怎麼跑)一樣，差別在它的期望狀態是「***成功完成幾次***」，不是「維持幾個Pod」：
 
 <img src="images/ch05/job-controller-internals.svg" alt="Job controller的內部：2個Informer（Job是期望狀態，Pod是實際狀態）。Job的handler把它的key（例如default/pi）放進Workqueue；Pod的handler用ownerReferences找到它的Job，放Job的key。5個worker取出key，呼叫syncJob()：數成功、失敗的Pod，不夠就再建，夠了就停，寫回Job的status；也會拿掉Pod上的finalizer" width="100%">
 
 | | Deployment controller | Job controller |
 | --- | --- | --- |
 | **watch哪些object** | Deployment、ReplicaSet、Pod | Job、Pod |
-| **直接管的object** | ReplicaSet | ***直接建立Pod***，中間沒有ReplicaSet |
+| **直接管的object** | ReplicaSet | **直接建立Pod**，中間沒有ReplicaSet |
 | **syncHandler做什麼** | 維持Pod的數量 | 數成功、失敗的Pod：還沒達到`completions`就再建（同時最多`parallelism`個），失敗超過`backoffLimit`就停 |
 
 - **Pod上的finalizer**：Job controller建立Pod時，會在Pod上加finalizer `batch.kubernetes.io/job-tracking`。Pod跑完被刪掉之前，controller要先把它算進成功或失敗的次數，再拿掉finalizer，Pod才真的消失。這就是[Chap-7的finalizer](chap-7-crd-operator.md#finalizer)，只是這次擋住的是Pod的刪除，不是自己的CR。
@@ -1497,8 +1497,8 @@ kubectl create job hello-manual --from=cronjob/hello
 | | Deployment controller | CronJob controller |
 | --- | --- | --- |
 | **watch哪些object** | Deployment、ReplicaSet、Pod | CronJob、Job |
-| **直接管的object** | ReplicaSet | ***Job***（Pod交給Job controller） |
-| **什麼時候跑syncHandler** | 有event時 | 有event時，***加上排程時間到時*** |
+| **直接管的object** | ReplicaSet | **Job**（Pod交給Job controller） |
+| **什麼時候跑syncHandler** | 有event時 | 有event時，**加上排程時間到時** |
 
 - **為什麼需要AddAfter**：「每分鐘一次」的時間到了，API Server不會有任何event，因為什麼都沒變。所以`sync()`處理完一個CronJob，會算出下一次排程時間，用`AddAfter`告訴workqueue「這個key，等這麼久之後再放回來」。時間一到，key自己回到queue，worker取出來，就建立新的Job。
 - **一層管一層**：CronJob controller只建立Job；Job controller再建立Pod，和Deployment → ReplicaSet → Pod是同一個模式。

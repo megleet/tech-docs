@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 644 304" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="sp-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<marker id="sp-b" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker>
+</defs>
+<rect x="8" y="8" width="644" height="304" fill="#ffffff"/>
+
+<!-- frames -->
+<rect x="12" y="66" width="616" height="78" rx="12" fill="#eef5fd" stroke="#9cc3ea" stroke-width="1.5" stroke-dasharray="6 5"/>
+<rect x="22" y="92" width="122" height="26" rx="13" fill="#b8336f"/>
+<text x="83" y="110" font-size="15" font-weight="900" fill="#ffffff" text-anchor="middle">Informer Path</text>
+<rect x="12" y="226" width="616" height="82" rx="12" fill="#eefaf5" stroke="#97d3bb" stroke-width="1.5" stroke-dasharray="6 5"/>
+<rect x="220" y="232" width="314" height="70" rx="9" fill="#ffffff" fill-opacity="0.7" stroke="#1f9d76" stroke-width="1.6" stroke-dasharray="5 3"/>
+<rect x="226" y="282" width="176" height="17" rx="8.5" fill="#c47400"/>
+<text x="234" y="294.5" font-size="11" font-weight="900" fill="#ffffff">Scheduling cycle</text>
+<text x="330" y="294.5" font-size="10" font-weight="700" fill="#ffe7c2">一次排一個Pod</text>
+<rect x="540" y="232" width="84" height="70" rx="9" fill="#ffffff" fill-opacity="0.7" stroke="#1f9d76" stroke-width="1.6" stroke-dasharray="5 3"/>
+<rect x="545" y="282" width="74" height="17" rx="8.5" fill="#c47400"/>
+<text x="582" y="294.5" font-size="10.5" font-weight="900" fill="#ffffff" text-anchor="middle">Binding cycle</text>
+<rect x="22" y="254" width="140" height="26" rx="13" fill="#b8336f"/>
+<text x="92" y="272" font-size="15" font-weight="900" fill="#ffffff" text-anchor="middle">Scheduling Path</text>
+
+<!-- lines -->
+<path d="M468 33 C 400 33, 352 40, 342 58 L 336 70" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#sp-a)"/>
+<path d="M292 120 C 250 140, 205 132, 202 142 L 202 156" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#sp-a)"/>
+<path d="M348 120 C 390 140, 428 132, 430 142 L 430 156" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#sp-a)"/>
+<path d="M252 175 C 268 175, 270 200, 270 222 L 270 238" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#sp-a)"/>
+<path d="M390 192 C 390 214, 300 204, 300 222 L 300 238" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#sp-a)"/>
+<path d="M313 252 H 325 V 245 L 339 258 L 325 271 V 264 H 313 Z" fill="#7cc4a8"/>
+<path d="M425 252 H 437 V 245 L 451 258 L 437 271 V 264 H 425 Z" fill="#7cc4a8"/>
+<path d="M529 252 H 541 V 245 L 555 258 L 541 271 V 264 H 529 Z" fill="#7cc4a8"/>
+<path d="M490 238 L 490 194" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#sp-a)"/>
+<path d="M602 258 C 645 250, 645 120, 592 68 L 580 56" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#sp-a)"/>
+
+<!-- labels -->
+<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+<text x="412" y="28" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">watch</text>
+<text x="252" y="117" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">Enqueue</text>
+<text x="252" y="130" font-size="11" font-weight="600" fill="#64748b" text-anchor="end">還沒有Node的Pod</text>
+<text x="388" y="117" font-size="12.5" font-weight="800" fill="#334155">Update cache</text>
+<text x="388" y="130" font-size="11" font-weight="600" fill="#64748b">Node、已排好的Pod</text>
+<text x="262" y="214" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">Pop</text>
+<text x="340" y="204" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">Node資訊</text>
+<text x="482" y="220" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">先記進cache</text>
+<text x="618" y="92" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">Bind（async）</text>
+<text x="618" y="106" font-size="11" font-weight="600" fill="#64748b" text-anchor="end">在背景寫回nodeName</text>
+<text x="618" y="119" font-size="11" font-weight="600" fill="#64748b" text-anchor="end">同時排下一個Pod</text>
+</g>
+
+<!-- API server + etcd -->
+<rect x="470" y="14" width="120" height="38" rx="10" fill="#334155"/>
+<text x="530" y="38" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">API server</text>
+<path d="M590 33 H 602" stroke="#475569" stroke-width="2"/>
+<path d="M602 18 V 48 A 20 6 0 0 0 642 48 V 18" fill="#64748b"/>
+<ellipse cx="622" cy="18" rx="20" ry="6" fill="#94a3b8"/>
+<text x="622" y="42" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle">etcd</text>
+
+<!-- Informer loop -->
+<circle cx="320" cy="105" r="24" fill="#2f6fd1"/>
+<text x="320" y="109" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">Informer</text>
+<path d="M335.5 78.2 A 31 31 0 1 1 314.6 74.5" fill="none" stroke="#2f6fd1" stroke-width="3" marker-end="url(#sp-b)"/>
+
+<!-- queue -->
+<rect x="150" y="160" width="100" height="30" rx="3" fill="#2f6fd1"/>
+<path d="M170 160 V 190 M190 160 V 190 M210 160 V 190 M230 160 V 190" stroke="#ffffff" stroke-width="2"/>
+<text x="140" y="168" font-size="13" font-weight="800" fill="#1f4f8a" text-anchor="end">scheduling queue</text>
+<text x="140" y="182" font-size="10.5" font-weight="600" fill="#64748b" text-anchor="end">activeQ・backoffQ</text>
+<text x="140" y="195" font-size="10.5" font-weight="600" fill="#64748b" text-anchor="end">unschedulable</text>
+
+<!-- cache -->
+<rect x="370" y="160" width="140" height="32" rx="6" fill="#2f6fd1"/>
+<text x="440" y="181" font-size="13.5" font-weight="800" fill="#ffffff" text-anchor="middle">Scheduler Cache</text>
+
+<!-- scheduling -->
+<rect x="230" y="240" width="80" height="36" rx="10" fill="#1f9d76"/>
+<text x="270" y="263" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">Filter</text>
+<rect x="342" y="240" width="80" height="36" rx="10" fill="#1f9d76"/>
+<text x="382" y="263" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">Score</text>
+<rect x="454" y="240" width="72" height="36" rx="10" fill="#1f9d76"/>
+<text x="490" y="263" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">assume</text>
+<circle cx="580" cy="258" r="22" fill="#1f9d76"/>
+<text x="580" y="263" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">Bind</text>
+</svg>

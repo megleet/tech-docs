@@ -17,16 +17,16 @@ icon: lucide/puzzle
 
 <img src="images/ch07/operator-equals-crd-controller.svg" alt="Operator = CRD + Controller：CRD是自訂API object，描述「要什麼」；Controller做watch + reconcile，負責「怎麼做到」；兩個加起來就是Operator，把維運知識寫進controller，例如DB的備份、failover" width="80%">
 
-- **CRD**：讓API Server***認識一種新的object型別***，例如`Network`。它只負責「存」：之後建立的Network CR，只是etcd裡的一筆資料，見[建立Network](#-2-建立network)。**就像在餐廳的點餐系統上新增一道菜：之後客人就能點這道菜，但點了只是「下了單」，廚房還沒開始做**。
-- **Controller**：watch這種object的變化，把實際狀態調整成`spec`寫的樣子，也就是[控制器模式](chap-5-container-orchestration-controller.md#控制器模式)。**它就是看單做菜的廚師：一直盯著新進來的單，把菜做成單上寫的樣子**。
-- **Operator**：Operator = CRD+controller，而且controller裡寫的是***維運一個複雜app的知識***。例如DB的Operator，使用者只寫一個描述DB cluster的YAML，Operator就負責建立cluster、備份、failover、升級，見[Operator](#operator)。**它像一位主廚：研發新菜品（CRD），再把備料、做法、出問題時的補救方法教會廚師（controller）**。
+- **CRD**：讓API Server***認識一種新的object型別***，例如`Network`。它只負責「存」：之後建立的Network CR，只是etcd裡的一筆資料，見[建立Network](#-2-建立network)。<span class="analogy">比喻：就像在餐廳的點餐系統上新增一道菜：之後客人就能點這道菜，但點了只是「下了單」，廚房還沒開始做</span>。
+- **Controller**：watch這種object的變化，把實際狀態調整成`spec`寫的樣子，也就是[控制器模式](chap-5-container-orchestration-controller.md#控制器模式)。<span class="analogy">比喻：它就是看單做菜的廚師：一直盯著新進來的單，把菜做成單上寫的樣子</span>。
+- **Operator**：Operator = CRD+controller，而且controller裡寫的是***維運一個複雜app的知識***。例如DB的Operator，使用者只寫一個描述DB cluster的YAML，Operator就負責建立cluster、備份、failover、升級，見[Operator](#operator)。<span class="analogy">比喻：它像一位主廚：研發新菜品（CRD），再把備料、做法、出問題時的補救方法教會廚師（controller）</span>。
 
 所以[Manual：CRD和controller](#manualcrd和controller)裡的Network controller，其實就是一個最簡單的Operator；Operator和一般controller的差別，只在controller裡寫了多少維運知識。
 
 > [!TIP]
 > 💡 **一句話總結**
 >
-> ***CRD描述「要什麼」***；***controller負責「怎麼做到」***；**CRD+寫入了維運知識的Controller==Operator。**
+> ***CRD描述「要什麼」***；**controller負責「怎麼做到」**；**CRD+寫入了維運知識的Controller==Operator。**
 
 ## Goal：自定義Network CRD和Controller
 
@@ -39,7 +39,7 @@ icon: lucide/puzzle
 |                              | [Manual：手寫](#manualcrd和controller)       | [Auto：kubebuilder](#auto用kubebuilder產生)                 |
 | ---------------------------- | ------------------------------------------- | ---------------------------------------------------------- |
 | **controller怎麼寫**   | 自己寫informer、workqueue、syncHandler      | kubebuilder產生，只寫`Reconcile()`                       |
-| **controller跑在哪裡** | 你的電腦上（cluster外），用`go run .`執行 | ***cluster裡的Pod***（一個Deployment），業界的做法 |
+| **controller跑在哪裡** | 你的電腦上（cluster外），用`go run .`執行 | **cluster裡的Pod**（一個Deployment），業界的做法 |
 | **怎麼連API Server**   | kubeconfig                                  | Pod的ServiceAccount，權限由RBAC決定                        |
 | **適合**               | 看懂controller的每個零件                    | 正式環境                                                   |
 
@@ -64,8 +64,8 @@ icon: lucide/puzzle
 >
 > | 面向               | 業界常見做法                                                                                                                     | 例子                                                                                                                        |
 > | ------------------ | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-> | **形式**     | 一個Deployment，放在***專用的namespace***，和app分開                                                                     | kubebuilder產生的namespace是`<project>-system`，例如`network-operator-system`                                           |
-> | **副本數**   | 2個以上，開***leader election***                                                                                         | 同一時間只有一個Pod真的在處理，另一個待命；leader掛了，另一個馬上接手                                                       |
+> | **形式**     | 一個Deployment，放在**專用的namespace**，和app分開                                                                     | kubebuilder產生的namespace是`<project>-system`，例如`network-operator-system`                                           |
+> | **副本數**   | 2個以上，開**leader election**                                                                                         | 同一時間只有一個Pod真的在處理，另一個待命；leader掛了，另一個馬上接手                                                       |
 > | **權限**     | 專用的ServiceAccount，[RBAC](chap-6-declarative-api.md#rbac)只給需要的權限                                                        | 只能讀寫自己的CR，以及要建立的Pod、Service等                                                                                |
 > | **安裝方式** | 把controller的CRD、RBAC、Deployment打包成一份YAML或Helm chart，使用者一個命令就裝好；也可以交給OLM（Operator Lifecycle Manager） | kubebuilder的`make build-installer`產生`dist/install.yaml`，使用者`kubectl apply -f install.yaml`就裝好整個controller |
 > | **維運**     | 設定resource requests / limits、health probe，暴露metrics                                                                        | kubebuilder產生的project default就有`/healthz`、`/metrics`                                                              |
@@ -246,7 +246,7 @@ kubectl get net my-net -v=6           # 看實際send的URL
 
 它在etcd裡的key是`/registry/example.com/networks/default/my-net`，和[etcd裡的key](chap-6-declarative-api.md#-4-etcd裡的key和url不一樣)說的一樣：CRD的key帶group。
 
-但現在的`my-net`***只是一筆存在etcd裡的資料***：沒有人去真的建立網路。CRD只負責「讓API Server認識這種object型別」，***要讓它真的做事，還需要一個controller***，見[Informer](#-5a-informercontroller怎麼知道network變了)。
+但現在的`my-net`**只是一筆存在etcd裡的資料**：沒有人去真的建立網路。CRD只負責「讓API Server認識這種object型別」，**要讓它真的做事，還需要一個controller**，見[Informer](#-5a-informercontroller怎麼知道network變了)。
 
 ### 🐹 3. 用Go定義Network型別
 
@@ -343,7 +343,7 @@ type NetworkList struct {
 > [!TIP]
 > **🏷️ 看懂`// +…`這種tag**
 >
-> - **寫在註解裡**：Go compiler會略過`//`開頭的註解，所以這些tag完全不影響程式執行，***只有code-generator會讀***。
+> - **寫在註解裡**：Go compiler會略過`//`開頭的註解，所以這些tag完全不影響程式執行，**只有code-generator會讀**。
 > - **`+`開頭**：表示這是給工具看的tag，不是寫給人看的說明。
 > - **`:`是分層，`=`是給value**：見下表。
 >
@@ -511,24 +511,24 @@ controller要怎麼知道Network什麼時候被新增、修改、刪除？最直
 
 這套零件和Chap-5的[Deployment controller](chap-5-container-orchestration-controller.md#-5-deployment-controller實際怎麼跑)完全一樣，只是這次watch的是自己定義的Network。
 
-**Informer**就是一個***①自帶local cache和index、②可以從controller註冊event handler的③API Server client***，每一種object都有自己的Informer。整個流程如下圖，藍色是client-go提供的，橘色是自己寫的：
+**Informer**就是一個**①自帶local cache和index、②可以從controller註冊event handler的③API Server client**，每一種object都有自己的Informer。整個流程如下圖，藍色是client-go提供的，橘色是自己寫的：
 
 <img src="images/ch07/custom-controller-informer.svg" alt="自訂controller分成三塊：Informer（client-go提供）、Workqueue（client-go提供）、Control Loop（自己寫）；自己寫的部分（event handler和⑤ Control Loop）用橘色標出。API Server的資料存在etcd，Informer透過networkClient的LIST + WATCH收到Network的變化：① Reflector做ListAndWatch；② 每個event的type連同object叫delta，依序放進RealFIFO；③ Indexer取出delta，更新local Store（{key: value}），同時呼叫controller自己寫、在5.c註冊的event handler（AddFunc、UpdateFunc、DeleteFunc）。④ event handler只把namespace/name放進Workqueue，同一個key只會有一筆。⑤ Control Loop裡的Worker一直重複：queue.Get()取出key，透過lister從local cache讀最新的Network，交給syncHandler()比較期望狀態和實際狀態，再對cloud的VPC API做Create / Update / Delete；失敗時AddRateLimited放回Workqueue重試" width="100%">
 
 **1）Reflector：ListAndWatch機制**：Reflector負責和API Server溝通，用的方法叫`ListAndWatch()`，做兩件事：先拿到目前所有的Network，再接收之後的變化。
 
-- **先拿到所有的Network**：Reflector對`/apis/example.com/v1/namespaces/default/networks`開一條WATCH連線，帶上`?watch=true&sendInitialEvents=true`。API Server先把***目前已經存在的每個Network***都當成一個`ADDED` event送過來，送完再送一個bookmark event，表示「初始資料送完了」。這些event都放進②RealFIFO。這種做法叫WatchList。
+- **先拿到所有的Network**：Reflector對`/apis/example.com/v1/namespaces/default/networks`開一條WATCH連線，帶上`?watch=true&sendInitialEvents=true`。API Server先把**目前已經存在的每個Network**都當成一個`ADDED` event送過來，送完再送一個bookmark event，表示「初始資料送完了」。這些event都放進②RealFIFO。這種做法叫WatchList。
 - **再接收之後的變化**：同一條連線不斷開，之後Network每次被新增、修改、刪除，API Server就push一個event過來。
 
-**2）RealFIFO**：WATCH收到的每個event，都帶著event type（`ADDED`、`MODIFIED`、`DELETED`）和變化後的object。Reflector把「**event type + object**」包成一個***delta***，依序放進RealFIFO這個queue，先進先出。
+**2）RealFIFO**：WATCH收到的每個event，都帶著event type（`ADDED`、`MODIFIED`、`DELETED`）和變化後的object。Reflector把「**event type + object**」包成一個**delta**，依序放進RealFIFO這個queue，先進先出。
 
-**3）Indexer**：***local store + index + event handler***。local cache/store是一個`{key: value}`的map，key是`namespace/name`，value是Network object。Informer不斷從RealFIFO取出（Pop）delta，更新local cache：Informer每拿到一個delta，就先查local cache裡有沒有這個object：
+**3）Indexer**：**local store + index + event handler**。local cache/store是一個`{key: value}`的map，key是`namespace/name`，value是Network object。Informer不斷從RealFIFO取出（Pop）delta，更新local cache：Informer每拿到一個delta，就先查local cache裡有沒有這個object：
 
 - **cache裡沒有**：把object加進cache，再呼叫`AddFunc`；
 - **cache裡已經有**：用新的object更新cache，再呼叫`UpdateFunc`；
 - **delta的type是`Deleted`**：把object從cache刪掉，再呼叫`DeleteFunc`。
 
-***這3個handler（`AddFunc`、`UpdateFunc`、`DeleteFunc`）是自己寫的，在[5.c](#-5c-newcontroller註冊event-handler)由controller註冊給Informer***。它們只做一件事：**把object的key**（例如`default/my-net`）**放進workqueue**。
+**這3個handler（`AddFunc`、`UpdateFunc`、`DeleteFunc`）是自己寫的，在[5.c](#-5c-newcontroller註冊event-handler)由controller註冊給Informer**。它們只做一件事：**把object的key**（例如`default/my-net`）**放進workqueue**。
 
 Indexer還會建立index。controller要讀Network時，用lister從這份cache讀，不用再向API Server索要。
 
@@ -545,14 +545,14 @@ Indexer還會建立index。controller要讀Network時，用lister從這份cache�
 >
 > 在這個controller裡，三個handler都只做一件事：`c.enqueue(obj)`，把key放進workqueue。要建立、更新還是刪除，留給syncHandler讀最新的Network再判斷。
 
-**4）Workqueue**：event handler只做一件事：把object的`namespace/name`放進workqueue，例如`my-net`就是`default/my-net`。這個字串叫做***key***，只放key、不放整個object的原因，見下面的note。
+**4）Workqueue**：event handler只做一件事：把object的`namespace/name`放進workqueue，例如`my-net`就是`default/my-net`。這個字串叫做**key**，只放key、不放整個object的原因，見下面的note。
 
 **5）Controller worker**：controller的worker從workqueue取出`namespace/name`，用lister到cache讀出最新的Network，開始調整。
 
 > [!NOTE]
 > **🤝 為什麼workqueue和lister要一起用**
 >
-> ***workqueue告訴controller「檢查哪一個」，lister用這個key從local cache查出「它現在的期望狀態」，syncHandler再拿它和cloud的實際狀態比較，不一樣就調整cloud。***
+> **workqueue告訴controller「檢查哪一個」，lister用這個key從local cache查出「它現在的期望狀態」，syncHandler再拿它和cloud的實際狀態比較，不一樣就調整cloud。**
 >
 > ```
 > ① workqueue.Get()                            → default/my-net（檢查哪一個）
@@ -568,9 +568,9 @@ Indexer還會建立index。controller要讀Network時，用lister從這份cache�
 > - **失敗可以重試**：處理失敗時用`AddRateLimited()`放回queue，等待時間會一次比一次長。
 > - **同一個key不會同時處理**：開好幾個worker，workqueue也保證同一個`namespace/name`同時只會被一個worker處理。
 
-**resync**：Informer每隔一段時間（[5.b](#-5b-main啟動controller)設定的30秒），會對cache裡所有object再trigger一次`UpdateFunc`，即使object完全沒變；這時傳進去的`old`和`new`是cache裡同一份object。`UpdateFunc`會把key放進workqueue，worker取出key後就會呼叫syncHandler（③ → ④ → ⑤），***等於定期強迫controller再檢查一次：Network寫的期望狀態，和cloud上subnet的實際狀態是不是一樣***。如果沒有變化，就什麼都不做；如果有變化，就更新實際的CR進行reconcile.
+**resync**：Informer每隔一段時間（[5.b](#-5b-main啟動controller)設定的30秒），會對cache裡所有object再trigger一次`UpdateFunc`，即使object完全沒變；這時傳進去的`old`和`new`是cache裡同一份object。`UpdateFunc`會把key放進workqueue，worker取出key後就會呼叫syncHandler（③ → ④ → ⑤），**等於定期強迫controller再檢查一次：Network寫的期望狀態，和cloud上subnet的實際狀態是不是一樣**。如果沒有變化，就什麼都不做；如果有變化，就更新實際的CR進行reconcile.
 
-為什麼需要：實際狀態可能在Kubernetes以外被改了，例如有人在cloud的console上手動刪掉subnet。這時Kubernetes裡的`my-net`（存在etcd裡的那個object）完全沒被修改，API Server也就沒有event可以push。resync本身不會去查cloud，它只是把cache裡的Network再trigger一次，讓syncHandler再跑一次；***是syncHandler裡的`vpc.Get()`去cloud查***，發現subnet不見了就重新建立。
+為什麼需要：實際狀態可能在Kubernetes以外被改了，例如有人在cloud的console上手動刪掉subnet。這時Kubernetes裡的`my-net`（存在etcd裡的那個object）完全沒被修改，API Server也就沒有event可以push。resync本身不會去查cloud，它只是把cache裡的Network再trigger一次，讓syncHandler再跑一次；**是syncHandler裡的`vpc.Get()`去cloud查**，發現subnet不見了就重新建立。
 
 > [!TIP]
 > **💡 k8s cluster內部的東西需要resync嗎？基本上不需要**
@@ -586,7 +586,7 @@ Indexer還會建立index。controller要讀Network時，用lister從這份cache�
 > | 情況                                              | `old`                                             | `new`                                               |
 > | ------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------- |
 > | **平常，真的被修改**，例如`kubectl patch` | local cache裡現在那一份（還沒更新，所以是修改前的） | WATCH收到的`MODIFIED` event帶來的object（修改後的） |
-> | **resync**                                  | local cache裡那一份                                 | ***同一份***，沒有新的event                   |
+> | **resync**                                  | local cache裡那一份                                 | **同一份**，沒有新的event                   |
 >
 > 平常被修改時，Informer先取出cache裡的舊版當`old`，把event帶來的新版存進cache，再呼叫`UpdateFunc(old, new)`；呼叫完，cache裡只剩新版。需要知道「改了什麼」的controller，可以比較`old`和`new`，例如只在`cidr`變了才處理。
 
@@ -801,7 +801,7 @@ metadata:
 
 ***finalizer讓`my-net`在被刪除前，先留在etcd裡等controller清理完cloud。*** 沒有它，`my-net`會在controller清理之前就消失，cloud上的subnet就沒人管了。
 
-**什麼時候需要finalizer**：不是每個controller都需要。判斷方法：***object被刪除時，有沒有Kubernetes自己清不掉的東西要清理***。
+**什麼時候需要finalizer**：不是每個controller都需要。判斷方法：**object被刪除時，有沒有Kubernetes自己清不掉的東西要清理**。
 
 | controller管的東西                                                   | 刪除時誰清理                                     | 需要finalizer嗎                     |
 | -------------------------------------------------------------------- | ------------------------------------------------ | ----------------------------------- |
@@ -811,7 +811,7 @@ metadata:
 
 這一章的controller管的是cloud上的subnet，所以需要finalizer。
 
-**寫syncHandler**：下面的`syncHandler()`是整個controller裡***唯一真正要自己寫的邏輯***，其他程式碼（5.b～5.d）幾乎都是固定的寫法。把它接在`controller.go`最後面：
+**寫syncHandler**：下面的`syncHandler()`是整個controller裡**唯一真正要自己寫的邏輯**，其他程式碼（5.b～5.d）幾乎都是固定的寫法。把它接在`controller.go`最後面：
 
 <!-- hl: 4 16 20 29 -->
 
@@ -879,7 +879,7 @@ func (c *Controller) removeFinalizer(ctx context.Context, network *examplev1.Net
 > 實際狀態要去controller負責管理的那個東西那裡讀：
 >
 > - **管的是其他Kubernetes object**（例如Pod、StatefulSet）：再開一個Informer watch它們，從local cache讀。它們一變，controller馬上收到event。
-> - **管的是cluster外的東西**（cloud資源、DNS、資料庫、app本身）：在syncHandler裡直接呼叫那個系統的API去查。這些東西被改了，Kubernetes不會有任何event，所以要靠[resync](#-5a-informercontroller怎麼知道network變了)讓syncHandler定期再跑一次：resync本身只是把cache裡的Network（來自etcd）再trigger一次，***真正去查cluster外狀態的是syncHandler***。
+> - **管的是cluster外的東西**（cloud資源、DNS、資料庫、app本身）：在syncHandler裡直接呼叫那個系統的API去查。這些東西被改了，Kubernetes不會有任何event，所以要靠[resync](#-5a-informercontroller怎麼知道network變了)讓syncHandler定期再跑一次：resync本身只是把cache裡的Network（來自etcd）再trigger一次，**真正去查cluster外狀態的是syncHandler**。
 >
 > 這一章管的是cloud上的subnet，屬於第二種，所以用`vpc.Get()`直接去cloud查。
 
@@ -1273,7 +1273,7 @@ etcd --name infra0 \
 --initial-cluster etcd-0=http://etcd-0.etcd:2380,etcd-1=http://etcd-1.etcd:2380,etcd-2=http://etcd-2.etcd:2380
 ```
 
-**麻煩在之後member有變動**：StatefulSet只會建立和刪除Pod，***不懂etcd的規則***。例如把replicas從3改成4，StatefulSet建出`etcd-3`，但沒有人先向cluster登記它，`etcd-3`一啟動就失敗：
+**麻煩在之後member有變動**：StatefulSet只會建立和刪除Pod，**不懂etcd的規則**。例如把replicas從3改成4，StatefulSet建出`etcd-3`，但沒有人先向cluster登記它，`etcd-3`一啟動就失敗：
 
 ```
 couldn't find local name "etcd-3" in the initial cluster configuration
@@ -1288,7 +1288,7 @@ couldn't find local name "etcd-3" in the initial cluster configuration
 - **減一個member**：先用`etcdctl member remove`把它從cluster移除，再刪掉Pod。
 - **learner**：剛加入、還在同步資料的member，不參與投票。資料追上之前不算進quorum，避免新member拖慢cluster。
 
-上面這些規則，例如加member要先登記、新member先當learner、減member要先移除再刪Pod，就是***維運etcd的知識***。沒有Operator時，只能靠人看文件、一步一步手動執行，或是在StatefulSet的YAML裡塞一大段shell script（例如Pod啟動時先呼叫`etcdctl member add`），也就是[開頭](#operator)說的「在YAML file裡寫程式」。***把這些維運知識寫進controller，再用CRD讓使用者只描述想要的結果***，就是開頭說的[Operator](#crdcontroller和operator)。所以Operator要做的，就是用程式照這個順序執行，使用者只要說「我要幾個member」。
+上面這些規則，例如加member要先登記、新member先當learner、減member要先移除再刪Pod，就是**維運etcd的知識**。沒有Operator時，只能靠人看文件、一步一步手動執行，或是在StatefulSet的YAML裡塞一大段shell script（例如Pod啟動時先呼叫`etcdctl member add`），也就是[開頭](#operator)說的「在YAML file裡寫程式」。**把這些維運知識寫進controller，再用CRD讓使用者只描述想要的結果**，就是開頭說的[Operator](#crdcontroller和operator)。所以Operator要做的，就是用程式照這個順序執行，使用者只要說「我要幾個member」。
 
 ### 📝 2. 使用者只寫一個EtcdCluster
 

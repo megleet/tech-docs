@@ -10,6 +10,7 @@ icon: lucide/calendar-clock
 - [Scheduler怎麼選Node](#scheduler怎麼選node)
 - [Scheduling framework](#scheduling-framework)
 - [Priority和preemption](#priority和preemption)
+- [思考題](#思考題)
 
 > [!NOTE]
 > 撰寫中：「Scheduler怎麼選Node」只寫了開頭，之後的section還沒寫。
@@ -104,7 +105,7 @@ Kubernetes用`requests`和`limits`管理的資源有三種：**CPU**、**mem**�
 
 | 資源                        | 類型                                 | 用到上限時                                                                                                                                               |
 | --------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **CPU**               | **compressible**（可壓縮）     | kernel限制它能用的CPU時間（**throttling**），container只會***變慢，不會被殺掉***                                                           |
+| **CPU**               | **compressible**（可壓縮）     | kernel限制它能用的CPU時間（**throttling**），container只會**變慢，不會被殺掉**                                                               |
 | **mem**               | **incompressible**（不可壓縮） | kernel的**OOM killer**殺掉container裡的process；kubelet再依`restartPolicy`重啟container，`kubectl get pod`會看到`OOMKilled`和restart次數增加 |
 | **ephemeral-storage** | **incompressible**             | Node的disk空間，例如[emptyDir、log、container的writable layer](chap-9-volume.md#storage的分類)；用量超過limit時，Pod會被**evict**                   |
 
@@ -128,12 +129,18 @@ Kubernetes用`requests`和`limits`管理的資源有三種：**CPU**、**mem**�
 
 這些值最後都變成cgroup v2的檔案，原理見[Chap-1的cgroups](chap-1-container-namespace-cgroups.md#-3-實際建立一個cgroup)：
 
-| 欄位                | cgroup v2的檔案 | 效果                                            |
-| ------------------- | --------------- | ----------------------------------------------- |
-| `requests.cpu`    | `cpu.weight`  | CPU不夠用時，各container依這個比例分配          |
-| `limits.cpu`      | `cpu.max`     | `500m`寫成`50000 100000`：每100ms最多用50ms |
-| `requests.memory` | 不寫進cgroup    | 只給scheduler和eviction用                       |
-| `limits.memory`   | `memory.max`  | `128Mi`寫成`134217728`，超過就OOM kill      |
+| 欄位                                                  | cgroup v2的檔案 | 效果                                                              |
+| ----------------------------------------------------- | --------------- | ----------------------------------------------------------------- |
+| `requests.cpu`                                      | `cpu.weight`  | CPU不夠用時，各container依這個比例分配                            |
+| `limits.cpu`                                        | `cpu.max`     | `500m`寫成`50000 100000`：每100ms最多用50ms                   |
+| `requests.memory`                                   | 不寫進cgroup    | 只給scheduler和eviction用                                         |
+| `limits.memory`                                     | `memory.max`  | `128Mi`寫成`134217728`，超過就OOM kill                        |
+| `requests.cpu`（[Guaranteed](#-1-guaranteed)、整數） | `cpuset.cpus` | static CPU manager policy時才有：只能在這幾個核上跑，不和別人共用 |
+
+> [!TIP]
+> 💡 **共享和綁核**
+>
+> 限制container用CPU有兩種方式：一種是**共享**，container不固定在哪個核，和別人一起用所有的核，CPU不夠時照`cpu.weight`的比例分配；另一種是**綁核**，用cgroup的`cpuset.cpus`指定container***只能在哪幾個核上跑***，這幾個核不和別人共用。在Kubernetes裡，綁核由kubelet的CPU Manager處理，不用自己設`cpuset`。
 
 #### 🧮 實際寫進cgroup的值怎麼算
 
@@ -151,11 +158,11 @@ Kubernetes用`requests`和`limits`管理的資源有三種：**CPU**、**mem**�
 - **`requests.cpu` → `cpu.weight`**：`cpu.weight`是***搶CPU時的分配比例***，只在CPU不夠用時才有作用。
   - **例子**：Node只有1個CPU，A、B兩個container都想用滿。A的`cpu.weight`是100、B是300，就照100：300分配，A拿到25%、B拿到75%；B閒著時，A可以用滿100%。
   - **和`cpu.max`的差別**：`cpu.max`是硬上限，CPU閒著也不能超過；`cpu.weight`平常不限制任何人，只決定搶CPU時誰拿得多。
-  - **為什麼分兩步**：Kubernetes最早是照cgroup v1設計的，v1用`cpu.shares`表示權重，約定***1個CPU = 1024 shares***，所以kubelet到現在還是先算出**shares** = millicpu × 1024 ÷ 1000，例如`250m` → 256；cgroup v2改用`cpu.weight`，範圍變成1～10000、default 100，所以container runtime（例如runc）再把shares換算成`cpu.weight`，過程見下圖。
+  - **為什麼分兩步**：Kubernetes最早是照cgroup v1設計的，v1用`cpu.shares`表示權重，約定**1個CPU = 1024 shares**，所以kubelet到現在還是先算出**shares** = millicpu × 1024 ÷ 1000，例如`250m` → 256；cgroup v2改用`cpu.weight`，範圍變成1～10000、default 100，所以container runtime（例如runc）再把shares換算成`cpu.weight`，過程見下圖。
 
 <img src="images/ch08/cpu-weight-conversion.svg" alt="requests.cpu換算成cpu.weight的過程：寫在Pod YAML的requests.cpu，① kubelet乘以1024再除以1000，得到shares（cgroup v1的約定：1 CPU = 1024）；② runc做非線性換算，得到cgroup v2的cpu.weight（範圍1～10000）。例子：沒寫 → 最小值2 → 1，最低，幾乎搶不到CPU；250m → 256 → 35；500m → 512 → 59，比250m多，但不到2倍；1 → 1024 → 100，等於default，和系統service一樣" width="100%">
 
-換算的目標是讓***`requests.cpu: 1`剛好等於`cpu.weight`的default 100***，和Node上不歸Kubernetes管的process（例如systemd的service）一樣重。換算不是線性的，所以`250m`和`500m`大約是35：59，不是剛好1：2。
+換算的目標是讓**`requests.cpu: 1`剛好等於`cpu.weight`的default 100**，和Node上不歸Kubernetes管的process（例如systemd的service）一樣重。換算不是線性的，所以`250m`和`500m`大約是35：59，不是剛好1：2。
 
 > [!NOTE]
 > runc 1.3.2、crun 1.23以後，換算的非線性公式如下：
@@ -201,6 +208,10 @@ Kubernetes用`requests`和`limits`管理的資源有三種：**CPU**、**mem**�
 
 <img src="images/ch08/qos-classes.svg" alt="三種QoS等級，Node資源不夠時evict、OOM kill的順序由後到先是Guaranteed、Burstable、BestEffort。Guaranteed：每個container的CPU和mem requests = limits，oom_score_adj是-997，保證拿得到，最後才被動到。Burstable：不是Guaranteed，但至少設了一個requests或limits，requests比limits小，可以burst，oom_score_adj是2～999，大多數Pod都在這一級。BestEffort：所有container都沒設requests和limits，requests當成0、沒有上限，oom_score_adj是1000，沒有任何保證，最先被犧牲" width="100%">
 
+三種QoS各適合什麼app：
+
+<img src="images/ch08/qos-use-cases.svg" alt="三種QoS適合的app。Guaranteed（穩定第一：掛掉代價很大）：DB例如CockroachDB、PostgreSQL，etcd、Kafka，對latency敏感的API例如付款；寫法是requests和limits相同，例如cpu: 2、memory: 8Gi。Burstable（平常用一點，偶爾衝高）：web server、一般的API、啟動時CPU用很多的Java app；寫法例如requests cpu: 250m、memory: 512Mi，limits只寫memory: 512Mi。BestEffort（可以重跑、不急：隨時能被犧牲）：batch job例如每日報表、清log，dev／test環境的Pod，臨時debug用的Pod；沒有resources，production少見，因為LimitRange會補上default" width="100%">
+
 ### 🛡️ 1. Guaranteed
 
 **條件**：Pod裡***每一個container***（包括init container）的CPU和mem，都設了`requests`和`limits`，而且**兩者相等**。
@@ -232,7 +243,7 @@ kubectl get pod qos-guaranteed -o jsonpath='{.status.qosClass}'
 
 - **CPU和mem都要符合**：只有mem相等、CPU沒設，就不算Guaranteed。
 - **最後才被evict**：Node的mem不夠時，kubelet***最後才會動Guaranteed的Pod***。
-- **可以獨佔CPU**：kubelet開了static CPU manager policy、而且`requests.cpu`是整數（例如`2`）時，這個container會被綁在固定的CPU核心上，不和別人共用，適合延遲敏感的應用。
+- **可以獨佔CPU**：kubelet開了static CPU manager policy、而且`requests.cpu`是整數（例如`2`）時，這個container會被綁在固定的CPU核心上（kubelet寫進cgroup的[`cpuset.cpus`](#-對應到cgroup的檔案)），不和別人共用，適合延遲敏感的應用。
 - **只寫`limits`也算**：`requests`會自動補成和`limits`一樣，所以下面這樣寫也是Guaranteed：
 
   ```yaml
@@ -262,11 +273,8 @@ spec:
         memory: "100Mi"
 ```
 
-- **為什麼是Burstable**：mem的`requests`（100Mi）比`limits`（200Mi）小，CPU也沒設，所以不是Guaranteed；但至少設了一個值，所以也不是BestEffort。
 - **可以「burst」**：平常保證有100Mi，Node有空閒時可以用到200Mi，這就是[overcommit](#-4-requests和limits)。
-- **大多數Pod都在這一級**：只設`requests`、或`requests`比`limits`小，都屬於Burstable。
-- **最常見的寫法：只寫`requests`**：例如CPU只設`requests: {cpu: "250m"}`、不設`limits`，也是Burstable，這正是[實務上建議](#-4-requests和limits)的CPU設定。
-- **練習：開頭的`frontend`是哪一級**：[`web`和`log-agent`](#-1-資源寫在pod上)的`requests`都比`limits`小，所以是**Burstable**。就算把`web`改成`requests` = `limits`，只要`log-agent`還不相等，整個Pod***仍然是Burstable***：Guaranteed要求的是每一個container。
+- **大多數Pod都在這一級**：只設`requests`、或`requests`比`limits`小，都屬於Burstable。**最常見的寫法：只寫`requests`**：例如CPU只設`requests: {cpu: "250m"}`、不設`limits`，也是Burstable，這正是[實務上建議](#-4-requests和limits)的CPU設定。
 
 ### 🪶 3. BestEffort
 
@@ -285,19 +293,20 @@ spec:
 
 - **沒有任何保證**：scheduler當它的`requests`是0，放到哪台Node都行；CPU的權重是最低值。
 - **最先被犧牲**：Node的資源一緊張，***BestEffort的Pod最先被evict***。
-- **適合**：可以隨時重跑、不在乎被中斷的工作，例如測試用的Pod。
 
 ### 🚨 4. Node資源不夠時：eviction和OOM
 
-Node的mem或disk快用完時，有兩道防線，都會參考QoS等級；同時，Node也會[暫時不接新的Pod](#-node有pressure時新的pod排不上來)。
+Node的mem或disk快用完時，有三道防線：① kubelet主動evict Pod，順序大致照QoS；② mem真的用完、kubelet來不及反應時，kernel的OOM killer直接殺process（只有mem）；③ Node[暫時不接新的Pod](#③-node有pressure時新的pod排不上來)。
 
 #### ① kubelet主動evict Pod
 
-Node的可用mem低於門檻（例如`memory.available<100Mi`）時，kubelet挑Pod刪掉。挑選的順序是：
+Node的available mem低於一定值（例如`memory.available<100Mi`）時，kubelet挑Pod刪掉。挑選的順序是：
 
-- **先看用量有沒有超過`requests`**：超過的先被挑。BestEffort的`requests`是0，一定超過；Guaranteed的用量不可能超過`limits`，也就不會超過`requests`；
+- **先看用量有沒有超過`requests`**：
 - **再看[Priority](#priority和preemption)**：優先度低的先；
 - **最後看超過`requests`多少**：超過越多越先。
+
+<img src="images/ch08/evict-order.svg" alt="kubelet挑Pod evict的順序，以Node上5個Pod的mem為例。Pod A（BestEffort）requests 0、用量400Mi、超過400Mi、priority 0；Pod B（Burstable）requests 256Mi、用量512Mi、超過256Mi、priority 0；Pod C（Burstable）requests 256Mi、用量400Mi、超過144Mi、priority 1000；Pod D（Burstable）requests 512Mi、用量300Mi、沒超過、priority 0；Pod E（Guaranteed）requests 1Gi、用量800Mi、沒超過、priority 1000。① 先看用量有沒有超過requests，超過的先被evict：A、B、C一組，D、E一組。② 同一組裡priority低的先被evict：A、B在C前面，D在E前面。③ 超過requests越多越先被evict：A在B前面。結果是A、B、C、D、E，大致是BestEffort → Burstable → Guaranteed" width="100%">
 
 結果就是***BestEffort最先、Burstable其次、Guaranteed最後***。
 
@@ -335,7 +344,7 @@ qos-besteffort   BestEffort
 
 - **Burstable的988怎麼來的**：1000 − 1000 × `requests.memory` ÷ Node的mem。這台Node有大約7.65Gi，`qos-burstable`的`requests.memory`是100Mi，算出來大約是988。`requests.memory`越大，數字越小，越晚被OOM kill。
 
-#### 🚧 Node有pressure時：新的Pod排不上來
+#### ③ Node有pressure時：新的Pod排不上來
 
 除了evict已經在跑的Pod，kubelet還會讓這台Node***暫時不接新的Pod***：
 
@@ -345,10 +354,10 @@ qos-besteffort   BestEffort
 
 兩種pressure擋下的Pod不一樣：
 
-| Node的condition          | 被擋下的新Pod                                                                                         |
-| ------------------------ | ----------------------------------------------------------------------------------------------------- |
-| **DiskPressure**   | 所有新Pod，除了有toleration的                                                                         |
-| **MemoryPressure** | ***只有BestEffort的Pod***。Guaranteed和Burstable的Pod會被自動加上這個toleration，還是排得上去 |
+| Node的condition          | 被擋下的新Pod                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------- |
+| **DiskPressure**   | 所有新Pod，除了有toleration的                                                                     |
+| **MemoryPressure** | **只有BestEffort的Pod**。Guaranteed和Burstable的Pod會被自動加上這個toleration，還是排得上去 |
 
 **DaemonSet的Pod不受影響**：DaemonSet controller會自動替它的Pod加上`memory-pressure`、`disk-pressure`、`pid-pressure`等toleration，所以每台Node上的agent照樣排得上去。
 
@@ -360,7 +369,7 @@ qos-besteffort   BestEffort
 > - **`requests.memory`設成接近實際用量**：最好等於`limits.memory`，用量就不會超過`requests`；
 > - **設高的PriorityClass**：Node上不可少的agent（例如CNI、log agent）用`system-node-critical`。
 >
-> 不一定要設成Guaranteed：Guaranteed還要求CPU的`requests`等於`limits`，CPU有limit就會被throttle，agent可能因此變慢。CPU和eviction無關，***不用為了eviction限制CPU***。
+> 不一定要設成Guaranteed：Guaranteed還要求CPU的`requests`等於`limits`，CPU有limit就會被throttle，agent可能因此變慢。CPU和eviction無關，**不用為了eviction限制CPU**。
 
 > [!TIP]
 > 💡 **一句話總結**
@@ -379,9 +388,9 @@ qos-besteffort   BestEffort
 
 ### 🔁 2. Scheduler也是一種controller
 
-[Chap-5](chap-5-container-orchestration-controller.md#-2-控制循環)說過，每個controller都是一個控制循環：拿期望狀態和實際狀態比較，不一樣就動手調整。scheduler可以看成一種特殊的controller：用[Informer](chap-5-container-orchestration-controller.md#-5-控制循環實際怎麼跑) watch Pod和Node，在自己的cache裡存一份，***只在有變化時才做事***。和一般controller不同的是，它只做binding，並不會create/delete object。
+**scheduler可以看成一種特殊的controller**：用[Informer](chap-5-container-orchestration-controller.md#-5-控制循環實際怎麼跑) watch Pod和Node，在自己的cache裡存一份，***只在有變化時才做事***。和一般controller不同的是，它只做binding，並不會create/delete object。
 
-**scheduler核心的問題是「SELECT 」**：scheduler要同時考慮資源夠不夠、[taint](#-node有pressure時新的pod排不上來)、affinity、分散到不同zone等條件，**比較很多台Node才選得出一台**。
+**scheduler核心的問題是「SELECT 」**：scheduler要同時考慮資源夠不夠、[taint](#③-node有pressure時新的pod排不上來)、affinity、分散到不同zone等條件，**比較很多台Node才選得出一台**。
 
 - **scheduling queue**：決定先排哪個Pod；
 - **Filter和Score**：先filter掉放不下的Node，再替剩下的Node算score，選score最高的；
@@ -392,6 +401,98 @@ qos-besteffort   BestEffort
 >
 > ***scheduler是一個專門做「Pod配Node」的controller***：watch還沒有Node的Pod，選一台Node寫進`spec.nodeName`，剩下的交給kubelet。
 
+### 🔀 3. Informer Path和Scheduling Path
+
+scheduler裡有***兩個各自獨立的控制循環***：**Informer Path**負責收資料，**Scheduling Path**負責選Node。兩者***不直接呼叫對方***，只透過**scheduling queue**和**Scheduler Cache**交接：I
+
+<img src="images/ch08/scheduler-paths.svg" alt="scheduler的兩條path。Informer Path：Informer watch API server（背後是etcd），Enqueue把還沒有Node的Pod放進scheduling queue（activeQ、backoffQ、unschedulable），Update cache把Node和已排好的Pod更新到Scheduler Cache。Scheduling Path分成兩段：Scheduling cycle一次排一個Pod，從queue Pop一個Pod，用cache裡的Node資訊做Filter、Score，再assume，先把結果記進cache；Binding cycle做Bind（async），在背景把nodeName寫回API server，同時排下一個Pod" width="100%">
+
+- **Informer Path**：**負責「看」**，watch API server，把變化放進兩個地方：
+  - **Enqueue**：還沒有Node的Pod，放進scheduling queue；
+  - **Update cache**：Node和已經排好的Pod，更新到Scheduler Cache。
+- **Scheduling Path**：**負責「決策」**，從queue一次Pop一個Pod，用cache裡的Node資訊做Filter、Score，選好Node之後：
+  - **Filter**：選出所有放得下這個Pod的Node。<span class="analogy">比喻：像餐廳帶位，先排除坐不下的桌子</span>；
+  - **Score**：替這些Node算score，選出score最高的一台。<span class="analogy">比喻：再從坐得下的桌子裡挑最好的，例如靠窗</span>；
+  - **assume**：**先在cache裡記下**「這個Pod已經放在這台Node上」<span class="analogy">比喻：先在訂位表上把這張桌子劃掉，下一組客人就不會被帶到這裡</span>；
+  - **Bind（async）**：在背景把`nodeName`寫回API server，同時開始進入下一個loop，排下一個Pod。 <span class="analogy">比喻：請服務生去擺餐具，帶位的人不等，直接招呼下一組客人</span>。
+
+排一個Pod時，scheduler會用多個goroutine（default 16個，由`parallelism`設定）並行地對Node跑Filter，找出可以放這個Pod的Node。*大cluster裡不一定會檢查所有Node*：找到夠多可以用的Node（由`percentageOfNodesToScore`決定，至少100個）就停下來，接著進入Score。
+
+#### 🗃️ scheduling queue裡的三個queue
+
+| Queue                   | 放什麼                                                                                        | 什麼時候離開                                      |
+| ----------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **activeQ**       | **馬上可以排的Pod**，依priority排序                                                     | scheduler每次從這裡Pop一個Pod                     |
+| **backoffQ**      | **不是Node不夠，而是過程中出錯**的Pod，例如呼叫API server失敗、Bind失敗、plugin內部錯誤 | backoff時間到（1秒起加倍，最多10秒），回到activeQ |
+| **unschedulable** | **Filter之後沒有任何Node放得下**、preemption也救不了的Pod                               | cluster有相關變化時移出；最多待5分鐘              |
+
+只用一個queue的話，排不上的Pod會一直被Pop出來重試，浪費scheduler的時間。分成三個之後，***activeQ只放現在值得排的Pod***。unschedulable的Pod遇到相關變化時也不一定馬上回activeQ：如果還在backoff時間內，會先進backoffQ等一下。
+
+> [!NOTE]
+> ⏩ **為什麼Bind要async**
+>
+> 寫回API server要走網路，比較慢。如果每個Pod都等寫完才排下一個，scheduler大部分時間都在等。
+>
+> 所以選好Node之後，scheduler先**assume**：在自己的cache裡把這個Pod算進那台Node的資源。下一個Pod排的時候看的是cache，***不會把同一份資源重複分出去***。Bind真的失敗的話，scheduler會把assume的記錄從cache拿掉，再把Pod放回queue重排。
+
 ## Scheduling framework
 
+***和[CRI、CNI、CSI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)一樣，scheduler也有定義好的擴充介面***，就是**Scheduling Framework**：scheduler的每一步，從Enqueue、Filter、Score到Bind，都是可以**掛plugin的extension point**。*差別是CRI、CNI、CSI呼叫的是另一個獨立的程式（透過gRPC或執行檔），scheduler的plugin則是用Go寫，**和scheduler compile成同一個執行檔**，所以不走網路、速度快，但新增plugin要重新build scheduler*。
+
+下面是schedule一個Pod的完整流程。每個箭形都是一個extension point（scheduler內建的一些功能本身也都是plugin）：
+
+<img src="images/ch08/scheduling-framework.svg" alt="Scheduling Framework的extension point，每個都是可以插plugin的箭形。scheduling queue（排隊）：PreEnqueue決定Pod能不能進activeQ，QueueSort決定誰先排，內建例子PrioritySort。Scheduling cycle（一次一個Pod，依序跑）：過濾階段PreFilter先算好、先檢查，Filter刪掉放不下的Node，虛線的PostFilter只在沒有Node放得下時才跑（preemption），內建例子NodeResourcesFit、TaintToleration；打分階段PreScore先算好打分要用的資料，Score替每台Node打分，NormalizeScore把分數縮放到0～100，內建例子ImageLocality；保留階段Reserve預留資源（assume），Permit放行、拒絕或等待（拒絕就回queue），內建例子VolumeBinding。Binding cycle（async）：PreBind是Bind前的準備，Bind把nodeName寫回API server，PostBind是成功後的清理，內建例子DefaultBinder。plugin怎麼插進去：用app.WithPlugin(myplugin.Name, myplugin.New)，和scheduler compile成同一個執行檔" width="100%">
+
 ## Priority和preemption
+
+## 思考題
+
+1. ??? question "要怎麼知道container的`requests.cpu`設多少才夠用？"
+
+      答案稍後補上。
+
+2. ??? question "eviction後，是不是scheduler需要繼續look for最合適的node來schedule這個pod？"
+
+      答案稍後補上。
+
+3. ??? question "什麼情況下，要把container綁在固定的CPU核上（`cpuset.cpus`），而不是和別人共享（`cpu.weight`）？在Kubernetes裡要怎麼做到？"
+
+      答案稍後補上。
+
+4. ??? question "scheduler的assume和Bind都沒有加lock。如果兩個scheduler同時把同一個Pod綁到不同的Node，會發生什麼事？"
+
+      答案稍後補上。
+
+5. ??? question "為什麼叫scheduling cycle和binding cycle？為什麼用cycle這個詞？"
+
+      答案稍後補上。
+
+6. ??? question "extension point是不是都有default的plugin？比如Score有沒有default的打分方式？如果user沒有提供自己的plugin，會怎麼樣？"
+
+      答案稍後補上。
+
+7. ??? question "Scheduler Cache只存在scheduler的mem裡。如果scheduler在assume之後、Bind寫回API server之前突然斷電或重啟，cache裡的資料不見了，這個Pod會怎麼樣？會不會被排兩次，或者永遠排不上？"
+
+      答案稍後補上。
+
+8. ??? question "Scheduler Cache裡的Pod，有些已經真的寫回API server，有些只是assume。scheduler分得出哪些是assumed的嗎？如果分得出，它要拿這個資訊做什麼？"
+
+      ***分得出***：cache明確標記哪些Pod是assumed，scheduler知道自己哪些state是樂觀的假設。
+
+      - **`nodes`**：每個Node的NodeInfo（已用資源、Pod清單），Filter和Score讀的就是它的snapshot；
+      - **`podStates`**：Pod key對應的Pod object；
+      - **`assumedPods`**：一個set，放所有目前是assumed的Pod key。Pod在這裡面，就代表「這是scheduler自己的假設，API server還沒確認」。
+
+      | 事件 | cache的動作 |
+      | --- | --- |
+      | 選好Node之後 | **AssumePod**：把Pod加進那台Node的NodeInfo（資源馬上扣掉），放進`assumedPods` |
+      | Bind失敗 | **ForgetPod**：從NodeInfo拿掉、移出`assumedPods`，Pod回到queue |
+      | Informer收到Pod已有`nodeName`的事件 | **AddPod**：確認assume成功，移出`assumedPods`；Node和假設的不同時，以API server為準，從舊Node移到新Node |
+
+      assumed Pod***不會過期***，只會被確認或被forget。
+
+      **為什麼要標記**：
+
+      - **下一個Pod馬上看到資源被占用**：assumed Pod已經算進NodeInfo，不會把同一份資源分出去兩次；
+      - **分清「假設」和「已確認」**：Informer事件來時，用這個標記決定是確認還是新增，避免資源被算兩次；
+      - **失敗時精準rollback**：只有assumed的Pod能被forget，已確認的Pod不會被誤刪。

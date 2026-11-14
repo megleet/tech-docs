@@ -27,7 +27,7 @@ icon: lucide/ship-wheel
 | `.exe`安裝檔 | **container image**          |
 | process        | **container**                |
 | process group  | **Pod**                      |
-| OS             | ***Kubernetes：分散式OS*** |
+| OS             | **Kubernetes：分散式OS** |
 
 Kubernetes做的事，就是把OS裡「***process group***」的概念搬到container上，讓它成為這個分散式OS裡的基本單位。從另一個角度看，Pod也可以想成[一台模擬的VM](chap-3-kubernetes-architecture-operations.md#親密關係pod)。
 
@@ -61,7 +61,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 - **PID 1就是app本身**：container裡的其他process都是它的child。
 - **app只管自己知道的child**：例如nginx master會重啟掛掉的worker。但它不像`systemd`或init那樣，會監控、重啟、回收同一個PID namespace裡被過繼給PID 1的orphan process，這些process結束後就會留成zombie。
 
-所以合理的說法是：「***單app***」-- ***one app per container***：
+所以合理的說法是：「***單app***」-- **one app per container**：
 
 - **單process的app**：例如Go、Java、Node.js，用thread或event loop處理並行，container裡只有一個process。例如Go寫的API server（`{}`表示thread，見[怎麼看懂`pstree`](#pstree-thread)）：
 
@@ -82,11 +82,11 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
         └── nginx worker（PID 31）  ← 數量default等於CPU核數（worker_processes auto）
     ```
 
-兩種都符合one app per container，重點是***一個app***，不是一個process。需要一起工作的不同app，各放一個container，再用Pod組在一起。
+兩種都符合one app per container，重點是**一個app**，不是一個process。需要一起工作的不同app，各放一個container，再用Pod組在一起。
 
 ### 🧲 4. 為什麼排程單位是Pod
 
-***Pod是Kubernetes的原子排程單位***：scheduler是用Pod裡***所有container的資源加總***來找Node的。適合放進同一個Pod的，是具有「***超親密關係***」的container，常見的特徵：
+***Pod是Kubernetes的原子排程單位***：scheduler是用Pod裡***所有container的資源加總***來找Node的。適合放進同一個Pod的，是具有「**超親密關係**」的container，常見的特徵：
 
 - **檔案**：直接交換檔案。
 - **溝通**：① 用`localhost`或socket檔案在本機溝通；② 非常頻繁地互相呼叫。
@@ -109,7 +109,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 | -------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | **屬於哪一層** | Kubernetes API                                                                                 | CRI / container runtime                                                                  |
 | **存在哪裡**   | API Server（etcd）                                                                             | 某一個Node上                                                                             |
-| **是什麼**     | 「***想要***什麼」的object：YAML裡定義的container、volume、`restartPolicy`、排程條件 | 「***實際***建出來的執行環境」：pause container、共用的namespace、Pod cgroup、IP |
+| **是什麼**     | 「**想要**什麼」的object：YAML裡定義的container、volume、`restartPolicy`、排程條件 | 「**實際**建出來的執行環境」：pause container、共用的namespace、Pod cgroup、IP |
 | **誰建立**     | 使用者或controller（`kubectl apply`、Deployment）                                            | kubelet透過CRI呼叫`RunPodSandbox`，runtime建立                                         |
 | **誰管理**     | kubelet、scheduler、controller                                                                 | containerd / CRI-O                                                                       |
 
@@ -162,7 +162,7 @@ volumes:
 | ---------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------ |
 | **`emptyDir`** | 這個Node上，kubelet管理的目錄                                                                    | ***和Pod一樣***                                  | Pod裡的container共用暫存資料                           |
 | **`hostPath`** | Node上一個指定的路徑，例如`/data`                                                              | 和Node一樣：Pod刪了，資料還在那台Node上                  | 需要讀Node本身的檔案，例如log agent讀`/var/log/pods` |
-| **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph) | ***和Pod無關***，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
+| **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph) | **和Pod無關**，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
 
 另外還有一類volume不存資料，而是把config、password project進container，見[Chap-9的Projected Volume](chap-9-volume.md#projected-volume)。
 
@@ -204,7 +204,7 @@ spec:
 ***WAR包和Tomcat decouple了***：更新app只要換`war`的image，升級Tomcat只要換`tomcat`的image，兩邊互不影響。
 
 > [!NOTE]
-> 在Kubernetes的用法，***跑完就結束的叫init container***；***和主container一起長期執行的叫sidecar***，見[Sidecar：和app一起執行](#-2-sidecar和app一起執行)。
+> 在Kubernetes的用法，**跑完就結束的叫init container**；**和主container一起長期執行的叫sidecar**，見[Sidecar：和app一起執行](#-2-sidecar和app一起執行)。
 
 ## Container常見設計思路
 
@@ -214,10 +214,10 @@ spec:
 
 | 位置                         | 什麼時候執行                                | 一份服務誰                      | 典型例子                                                               |
 | ---------------------------- | ------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------- |
-| **① Init container**  | 主container***啟動前***，做完就結束 | 這一個Pod                       | 複製WAR包、等DB可以連線、跑DB migration、先取好secret                  |
-| **② Sidecar**         | 和主container***一起長期執行***     | 這一個Pod                       | Cloud SQL Auth Proxy、`git-sync`、config reload                      |
-| **③ Node agent**      | 一直在Node上執行                            | ***這個Node上所有Pod*** | Fluent Bit收log、node-exporter、CNI plugin、CSI nodeplugin、kube-proxy |
-| **④ Cluster service** | 一直在cluster裡執行                         | ***整個cluster***       | Operator、Ingress / Gateway、cert-manager                              |
+| **① Init container**  | 主container**啟動前**，做完就結束 | 這一個Pod                       | 複製WAR包、等DB可以連線、跑DB migration、先取好secret                  |
+| **② Sidecar**         | 和主container**一起長期執行**     | 這一個Pod                       | Cloud SQL Auth Proxy、`git-sync`、config reload                      |
+| **③ Node agent**      | 一直在Node上執行                            | **這個Node上所有Pod** | Fluent Bit收log、node-exporter、CNI plugin、CSI nodeplugin、kube-proxy |
+| **④ Cluster service** | 一直在cluster裡執行                         | **整個cluster**       | Operator、Ingress / Gateway、cert-manager                              |
 
 ### 🧰 1. Init container：啟動前的準備
 
@@ -312,7 +312,7 @@ service mesh也在往這個方向走：Istio的[ambient mode](https://istio.io/l
 > [!TIP]
 > 💡 **一句話總結**
 >
-> ***能共用就共用***：sidecar的代價是每個Pod都多一個container，所以只有***必須***和app共用network namespace、volume或lifecycle的功能，才放進Pod裡；其他的往Node、cluster層級放。
+> ***能共用就共用***：sidecar的代價是每個Pod都多一個container，所以只有**必須**和app共用network namespace、volume或lifecycle的功能，才放進Pod裡；其他的往Node、cluster層級放。
 
 ## Pod API object使用方法
 
@@ -434,7 +434,7 @@ shell container     PID 1  sh                 PID 4203
 ```
 
 > [!NOTE]
-> shareProcessNamespace一般用在有「***sidecar要對app的process做事***」的需求
+> shareProcessNamespace一般用在有「**sidecar要對app的process做事**」的需求
 
 #### hostNetwork、hostPID、hostIPC：共用host的namespace
 
@@ -489,7 +489,7 @@ Pod直接使用host的namespace，不另外建立。例如[control plane的Stati
 > - **沒設readiness probe**：container一啟動就算Ready，`ContainersReady`立刻變成`True`。
 > - **沒設readiness gate**：`Ready`和`ContainersReady`一致，兩個同一時刻變成`True`。見[Pod readiness gate](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-readiness-gate)。
 
-***`Running`不等於`Ready`***：
+**`Running`不等於`Ready`**：
 
 - **`Running`**：container已經啟動了，但app可能還在載入config、暖cache。
 - **`Ready`**：[readiness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)通過，***真的可以服務了***，Service才會把流量send過來。
@@ -547,9 +547,9 @@ spec:
 - **`preStop`**：container***被要求停止時***，在send `SIGTERM`之前執行，例如刪除Pod、liveness probe失敗。
   - ***同步執行***：`preStop`跑完，kubelet才send `SIGTERM`給container。
   - 時間算在`terminationGracePeriodSeconds`（default 30秒）裡：超過時間還沒結束，就直接`SIGKILL`，見[Pod的termination流程](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
-  - container自己正常結束時***不會***觸發。
+  - container自己正常結束時**不會**觸發。
 
-`preStop`最常見的用途是***graceful shutdown***：讓app先停止接新的request、處理完手上未完成的工作，再結束。例子裡的`nginx -s quit`就是這個作用。
+`preStop`最常見的用途是**graceful shutdown**：讓app先停止接新的request、處理完手上未完成的工作，再結束。例子裡的`nginx -s quit`就是這個作用。
 
 > [!TIP]
 > 💡 **一句話總結**
@@ -559,4 +559,4 @@ spec:
 > [!NOTE]
 > 📚 **延伸閱讀**
 >
-> 讀完這一章，推薦把Pod的原始定義讀一遍：[`kubernetes/api`的`core/v1/types.go`](https://github.com/kubernetes/api/blob/master/core/v1/types.go)裡的`type Pod struct`，***尤其是`PodSpec`***。每個欄位上面都有註解，說明它的用途和default value。目標是下次看到一個Pod的YAML，不用查文件，就能說出常用欄位的作用。
+> 讀完這一章，推薦把Pod的原始定義讀一遍：[`kubernetes/api`的`core/v1/types.go`](https://github.com/kubernetes/api/blob/master/core/v1/types.go)裡的`type Pod struct`，**尤其是`PodSpec`**。每個欄位上面都有註解，說明它的用途和default value。目標是下次看到一個Pod的YAML，不用查文件，就能說出常用欄位的作用。

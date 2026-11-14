@@ -48,7 +48,7 @@ Linux（namespace、cgroups）
 | 項目                 | 說明                                                                                                            |
 | -------------------- | --------------------------------------------------------------------------------------------------------------- |
 | **位置**       | 每個Node各一個。通常以DaemonSet的形式執行，所以每台機器都會有一個kube-proxy Pod                                 |
-| **和誰溝通**   | ***直接和API Server溝通***，用REST watch監看Service和EndpointSlice的變化。它***不經過kubelet*** |
+| **和誰溝通**   | **直接和API Server溝通**，用REST watch監看Service和EndpointSlice的變化。它**不經過kubelet** |
 | **做什麼**     | 把「Service的虛擬IP（ClusterIP）→ 後端Pod IP」的轉發規則，寫進Node的Linux kernel                               |
 | **怎麼寫規則** | default用iptables，也可以用nftables，都是設定kernel的netfilter                                               |
 
@@ -122,8 +122,8 @@ Kubernetes用**Pod**把這些container包在一起：Pod裡的container共用同
 
 | 元件                                             | 負責什麼                              | 通常怎麼執行                                                   |
 | ------------------------------------------------ | ------------------------------------- | -------------------------------------------------------------- |
-| **kubelet**                                | 和API Server溝通，管理這個Node上的Pod | ***systemd service***，直接跑在host上                  |
-| **container runtime**（containerd、CRI-O） | 實際建立和執行container               | ***systemd service***，直接跑在host上                  |
+| **kubelet**                                | 和API Server溝通，管理這個Node上的Pod | **systemd service**，直接跑在host上                  |
+| **container runtime**（containerd、CRI-O） | 實際建立和執行container               | **systemd service**，直接跑在host上                  |
 | **kube-proxy**                             | 把Service的轉發規則寫進kernel         | 通常是DaemonSet的Pod（kubeadm的做法），也可以是systemd service |
 
 之所以叫「system services」，是因為kubelet和container runtime通常是由Linux的systemd啟動和管理的服務：
@@ -419,7 +419,7 @@ bindAddress: 0.0.0.0
 ...
 ```
 
-這幾段config用`---`分隔，放在同一個`kubeadm.yaml`裡。它是你交給kubeadm的***輸入檔***：kubeadm讀完之後，把每一段config***distribute***到各元件真正會讀的地方：
+這幾段config用`---`分隔，放在同一個`kubeadm.yaml`裡。它是你交給kubeadm的***輸入檔***：kubeadm讀完之後，把每一段config**distribute**到各元件真正會讀的地方：
 
 | `kubeadm.yaml`裡的那一段                                                                 | 內容                                                  | kubeadm把它寫到哪裡                                                                   | 最後誰讀取                                                       |
 | ------------------------------------------------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
@@ -429,7 +429,7 @@ bindAddress: 0.0.0.0
 | `KubeletConfiguration`                                                                   | kubelet的config                                         | host上的`/var/lib/kubelet/config.yaml`，另外存一份成ConfigMap `kubelet-config`    | 直接跑在host上的kubelet；之後`join`的Node也從ConfigMap拿同一份 |
 | `KubeProxyConfiguration`                                                                 | kube-proxy的config                                      | ConfigMap `kube-proxy`                                                              | kube-proxy的**DaemonSet** Pod                              |
 
-***`kubeadm.yaml`只在執行`kubeadm init`的那一刻被讀取***，kubeadm也不是常駐的程式。之後元件讀的，都是kubeadm distribute出去的檔案或ConfigMap，不會再回頭讀`kubeadm.yaml`。
+**`kubeadm.yaml`只在執行`kubeadm init`的那一刻被讀取**，kubeadm也不是常駐的程式。之後元件讀的，都是kubeadm distribute出去的檔案或ConfigMap，不會再回頭讀`kubeadm.yaml`。
 
 #### 🗺️ kubeadm流程講解
 
@@ -446,7 +446,7 @@ kubeadm怎麼把各元件run起來：透過systemd啟動kubelet，kubelet再依S
 | 元件                                                                    | 執行方式                              | 誰啟動                                        |
 | ----------------------------------------------------------------------- | ------------------------------------- | --------------------------------------------- |
 | **kube-apiserver、kube-controller-manager、kube-scheduler、etcd** | **Static Pod**                  | kubelet讀`/etc/kubernetes/manifests/`的YAML |
-| **kubelet**                                                       | host上的***binary***，不是Pod | systemd                                       |
+| **kubelet**                                                       | host上的**binary**，不是Pod | systemd                                       |
 | **kube-proxy**                                                    | **DaemonSet**，每個Node一個Pod  | 一般的Kubernetes機制，由API Server管理        |
 | **CoreDNS**                                                       | **Deployment**                  | 一般的Kubernetes機制                          |
 
@@ -484,11 +484,11 @@ ls /etc/kubernetes/
 # → admin.conf  controller-manager.conf  kubelet.conf  manifests  pki  scheduler.conf  super-admin.conf
 ```
 
-kubeadm替**每個需要連到API Server的元件** ，各產生一個config文件（[kubeconfig](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)），告訴它「API Server在哪裡、怎麼確認對方、怎麼證明自己是誰」。也就是說每個kubeconfig檔裡都有API Server的位址、port、cluster的`ca.crt`，以及這個元件***自己的client certificate***。scheduler、kubelet等元件直接載入它，就能和API Server建立安全的連線。
+kubeadm替**每個需要連到API Server的元件** ，各產生一個config文件（[kubeconfig](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)），告訴它「API Server在哪裡、怎麼確認對方、怎麼證明自己是誰」。也就是說每個kubeconfig檔裡都有API Server的位址、port、cluster的`ca.crt`，以及這個元件**自己的client certificate**。scheduler、kubelet等元件直接載入它，就能和API Server建立安全的連線。
 
 **④ Generate Master元件運行需要的Static Pod YAML**：<a id="static-pod"></a>
 
-***Static Pod***是一種特殊的啟動方式：把Pod的YAML放進指定目錄，kubelet啟動時就會自動載入並執行。kubeadm把Master元件的YAML放在`/etc/kubernetes/manifests/`：
+**Static Pod**是一種特殊的啟動方式：把Pod的YAML放進指定目錄，kubelet啟動時就會自動載入並執行。kubeadm把Master元件的YAML放在`/etc/kubernetes/manifests/`：
 
 ```bash
 ls /etc/kubernetes/manifests/
@@ -540,7 +540,7 @@ kubelet一看到這些YAML，就把它們run起來，見[kubelet：每個Node的
 
 **⑥ 產生bootstrap token**：<a id="bootstrap-token"></a>之後任何裝好kubelet和kubeadm的Node，只要持有這個token，就能用`kubeadm join`加入cluster。token會在`kubeadm init`結束時印出來，default 24小時後過期；過期後用`kubeadm token create --print-join-command`重新產生。
 
-***token要等Master的API Server run起來之後，才能真正生效***。原因是bootstrap token不是一個本機檔案，而是***存在cluster裡的一個Secret***：
+**token要等Master的API Server run起來之後，才能真正生效**。原因是bootstrap token不是一個本機檔案，而是**存在cluster裡的一個Secret**：
 
 ```
 ⑤ 等待Master元件就緒（API Server可以用了）
@@ -565,7 +565,7 @@ kubectl get secrets -n kube-system | grep bootstrap-token
 **⑨ 安裝必要的addon**：[kube-proxy](#kube-proxy在哪裡做什麼)和[CoreDNS](https://kubernetes.io/docs/tasks/administer-cluster/coredns/)，分別負責Service轉發和cluster內的DNS。它們也只是兩個container image：kubeadm用Kubernetes client建立kube-proxy的DaemonSet（每個Node一個）和CoreDNS的Deployment就好。
 
 > [!WARNING]
-> ***kubeadm不會安裝CNI plugin***。`kubeadm init`之後，要自己裝一個CNI plugin，例如Flannel、Calico、Cilium，否則Node會一直是`NotReady`，CoreDNS也會卡在`Pending`。做法見[Step 5：Deploy CNI plugin](#-step-5deploy-cni-plugin)。
+> **kubeadm不會安裝CNI plugin**。`kubeadm init`之後，要自己裝一個CNI plugin，例如Flannel、Calico、Cilium，否則Node會一直是`NotReady`，CoreDNS也會卡在`Pending`。做法見[Step 5：Deploy CNI plugin](#-step-5deploy-cni-plugin)。
 
 #### 🖼️ 在Master上執行kubeadm init的完整流程圖
 
@@ -588,8 +588,8 @@ kubectl get secrets -n kube-system | grep bootstrap-token
 >
 > | 做法                   | 改哪裡    | 影響範圍                                  |
 > | ---------------------- | --------- | ----------------------------------------- |
-> | **拿掉taint**    | Node      | ***所有***Pod都可以排到Master上   |
-> | **加toleration** | Pod的YAML | ***只有這個Pod***可以排到Master上 |
+> | **拿掉taint**    | Node      | **所有**Pod都可以排到Master上   |
+> | **加toleration** | Pod的YAML | **只有這個Pod**可以排到Master上 |
 >
 > taint、effect和toleration更完整的說明，見[第5章的Taint和Toleration](chap-5-container-orchestration-controller.md#taint和toleration)。
 
@@ -627,7 +627,7 @@ kubelet用自己的certificate連API Server，Node註冊完成
 > [!NOTE]
 > 「不安全模式」不代表完全不驗證：`cluster-info`裡附有用bootstrap token簽的簽章，kubeadm用token確認內容沒被竄改；`--discovery-token-ca-cert-hash`再確認拿到的`ca.crt`是對的CA。接著kubelet用token向API Server申請自己的client certificate（TLS bootstrap），之後就改用這張certificate連線。
 
-***Worker和Master幾乎一樣***：兩者執行的都是kubelet。唯一的差別是在master上`kubeadm init`時，kubelet啟動後，Master上還會以[Static Pod](#static-pod)執行control plane元件：kube-apiserver、kube-scheduler、kube-controller-manager，以及etcd（kubeadm default把etcd也放在Master上）。
+**Worker和Master幾乎一樣**：兩者執行的都是kubelet。唯一的差別是在master上`kubeadm init`時，kubelet啟動後，Master上還會以[Static Pod](#static-pod)執行control plane元件：kube-apiserver、kube-scheduler、kube-controller-manager，以及etcd（kubeadm default把etcd也放在Master上）。
 
 ### 🕸️ Step 5：Deploy CNI plugin
 
@@ -672,7 +672,7 @@ kubectl get pods -n kube-system
 
 `kube-system`是Kubernetes的***Namespace***，用來劃分不同的工作空間，Kubernetes自己的系統Pod都放在這裡。它和[Linux namespace](chap-1-container-namespace-cgroups.md#-1-建立namespace)是兩回事。
 
-在Kubernetes「***一切皆container***」的設計下，CNI plugin本身也是用Kubernetes object deploy的，只要一行`kubectl apply`。在任一台有kubectl的機器上（通常是Master）執行，以Flannel為例：
+在Kubernetes「**一切皆container**」的設計下，CNI plugin本身也是用Kubernetes object deploy的，只要一行`kubectl apply`。在任一台有kubectl的機器上（通常是Master）執行，以Flannel為例：
 
 ```bash
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
@@ -737,8 +737,8 @@ Ceph本身是分散式storage，主要有3種daemon（mon / mgr / OSD）。最�
 | -------------------------------------- | --------------------------------------------------------------- | ------------------------------------- | ---------------------------------------------------- |
 | **mon**（monitor）               | 保存cluster map，記錄有哪些成員、資料放在哪裡；用多數決維持一致 | 固定奇數個，通常3個                   | **Deployment** 每個mon一個                     |
 | **mgr**（manager）               | 監控、dashboard、提供metrics                                    | 固定1～2個（一個active，一個standby） | **Deployment** 每個mgr一個                     |
-| **OSD**（Object Storage Daemon） | 真正存資料的地方                                                | ***每顆disk一個***            | **Deployment** 一個Node可能有0顆或好幾顆disk  |
-| **CSI nodeplugin**               | kubelet透過它把volume mount進Pod                                | ***每個Node一個***            | **DaemonSet**                                  |
+| **OSD**（Object Storage Daemon） | 真正存資料的地方                                                | **每顆disk一個**            | **Deployment** 一個Node可能有0顆或好幾顆disk  |
+| **CSI nodeplugin**               | kubelet透過它把volume mount進Pod                                | **每個Node一個**            | **DaemonSet**                                  |
 
 所以Rook替每個mon、mgr、OSD各建一個`replicas: 1`的Deployment，例如`rook-ceph-osd-0`，用`nodeSelector`綁在它的Node上，升級時也能一個一個來。
 
