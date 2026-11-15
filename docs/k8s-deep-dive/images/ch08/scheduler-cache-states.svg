@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="10 34 616 144" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
-<defs><marker id="sm-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c47400"/></marker><marker id="sm-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1f9d76"/></marker><marker id="sm-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b8336f"/></marker><marker id="sm-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#64748b"/></marker></defs>
+<defs><marker id="sm-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c47400"/></marker><marker id="sm-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1f9d76"/></marker><marker id="sm-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b8336f"/></marker><marker id="sm-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fb8"/></marker></defs>
 <rect x="10" y="34" width="616" height="144" fill="#ffffff"/>
 <rect x="16" y="40" width="96" height="36" rx="18" fill="#94a3b8"/>
 <text x="64.0" y="56" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">Initial</text>
@@ -22,7 +22,7 @@
 <path d="M277 76 L277 130" fill="none" stroke="#b8336f" stroke-width="2" marker-end="url(#sm-2)"/>
 <text x="285" y="104" font-size="10.5" font-weight="800" fill="#b8336f" text-anchor="start">③ ForgetPod</text>
 <text x="285" y="117" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">Bind失敗</text>
-<path d="M525 76 L525 130" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#sm-3)"/>
-<text x="533" y="104" font-size="10.5" font-weight="800" fill="#64748b" text-anchor="start">④ RemovePod</text>
+<path d="M525 76 L525 130" fill="none" stroke="#2f6fb8" stroke-width="2" marker-end="url(#sm-3)"/>
+<text x="533" y="104" font-size="10.5" font-weight="800" fill="#2f6fb8" text-anchor="start">④ RemovePod</text>
 <text x="533" y="117" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">Delete事件</text>
 </svg>

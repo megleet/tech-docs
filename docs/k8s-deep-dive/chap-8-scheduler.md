@@ -435,15 +435,17 @@ scheduler裡有***兩個各自獨立的控制循環***：**Informer Path**負責
 
 **三個queue**解決同一個問題：***不讓排失敗的Pod馬上重試，浪費scheduler的時間***。
 
+### 🗂️ 3. Scheduler的「cache狀態管理」和「樂觀assume」
+
 #### ⚡ Scheduler為什麼快
 
 scheduler的效能設計有三個，目標都一樣：***讓Scheduling Path保持non-blocking***。
 
-| 設計                 | 解決什麼                                  | 怎麼做                                                                                       |
-| -------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------- |
-| **cache化**    | 不用每次都向API server要資料              | Informer把Node和Pod存進Scheduler Cache，Filter和Score讀cache                                 |
+| 設計                 | 解決什麼                                  | 怎麼做                                                                                              |
+| -------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **cache化**    | 不用每次都向API server要資料              | Informer把Node和Pod存進Scheduler Cache，Filter和Score讀cache                                        |
 | **樂觀assume** | 不用等Bind寫回API server，就能排下一個Pod | 選好Node先記進cache，Bind在另一個goroutine做（見[樂觀assume和async Bind](#-樂觀assume和async-bind)） |
-| **無鎖化**     | 並行計算Filter、Score時，不用等lock       | 每個scheduling cycle開始時，把cache更新到snapshot，goroutine只讀不寫，也不共用會互相搶的資源 |
+| **無鎖化**     | 並行計算Filter、Score時，不用等lock       | 每個scheduling cycle開始時，把cache更新到snapshot，goroutine只讀不寫，也不共用會互相搶的資源        |
 
 無鎖化的原則是***盡量避免設置全局競爭資源***，*就是多個goroutine會同時搶著用的共享資料*。*無鎖化不是完全沒有lock*：存取scheduling queue和Scheduler Cache時還是要加lock，只是這些動作很短，而且不在Filter、Score的計算路徑上。Scheduling Path只有三個地方加lock：
 
@@ -456,9 +458,7 @@ scheduler的效能設計有三個，目標都一樣：***讓Scheduling Path保�
 >
 > **snapshot是Scheduler Cache的一份副本**，整個scheduler只有一份。每個scheduling cycle開始時，*在上一輪的snapshot上，只更新有變化的Node*。Filter、Score讀的都是這份snapshot，計算過程完全不用lock，所以能用多個goroutine並行地檢查很多台Node。
 
-### 🗂️ 3. Scheduler的「cache狀態管理」和「樂觀assume」
-
-前面說scheduler選好Node就先**assume**，不等API server確認。那Scheduler Cache怎麼分得出哪些是假設、哪些已經確認？核心規則是：***assumed只是暫時的，收到API server的真實事件，就以事件為準***。
+樂觀assume帶來一個問題：scheduler選好Node就先**assume**，不等API server確認，那Scheduler Cache怎麼分得出哪些是假設、哪些已經確認？核心規則是：***assumed只是暫時的，收到API server的真實事件，就以事件為準***。
 
 #### 🗄️ Cache裡記了什麼
 
@@ -474,37 +474,39 @@ scheduler的效能設計有三個，目標都一樣：***讓Scheduling Path保�
 
 <img src="images/ch08/scheduler-cache-states.svg" alt="Pod在Scheduler Cache裡的狀態。Initial（cache裡還沒有）經過① AssumePod（選好Node）變成虛線的Assumed（scheduler的假設）；Assumed經過② AddPod（Informer收到Add事件，nodeName不同時改記到實際的Node）變成Added（API server確認了）；Assumed經過③ ForgetPod（Bind失敗）變成Removed；Added經過④ RemovePod（Delete事件）變成Removed，資源還給Node" width="100%">
 
-| 事件 | cache的動作 |
-| --- | --- |
-| **① 選好Node** | **AssumePod**：把Pod加進那台Node的NodeInfo（資源馬上扣掉），放進`assumedPods` |
-| **② Informer收到Add事件** | **AddPod**：確認假設，移出`assumedPods`。`nodeName`和假設的不同時（例如另一個scheduler搶先綁了），以API server為準，改記到實際的Node |
-| **③ Bind失敗** | **ForgetPod**：從NodeInfo拿掉、移出`assumedPods`，Pod回到queue重排 |
-| **④ Pod被刪除** | **RemovePod**：從cache移除，資源還給Node |
+| 事件                             | cache的動作                                                                                                                                                                        |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **① 選好Node**            | **<span style="color: #c47400">AssumePod</span>**：把Pod加進那台Node的NodeInfo（資源馬上扣掉），放進`assumedPods`                                                          |
+| **② Informer收到Add事件** | **<span style="color: #1f9d76">AddPod</span>**：確認假設，移出`assumedPods`。`nodeName`和假設的不同時（例如另一個scheduler搶先綁了），以API server為準，改記到實際的Node |
+| **③ Bind失敗**            | **<span style="color: #b8336f">ForgetPod</span>**：從NodeInfo拿掉、移出`assumedPods`，Pod回到queue重排                                                                     |
+| **④ Pod被刪除**           | **<span style="color: #2f6fb8">RemovePod</span>**：從cache移除，資源還給Node                                                                                                 |
 
 只有Assumed是假設。它***不會過期***，只會被② 確認，或被③ 撤銷。
 
 #### ⏩ 樂觀assume和async Bind
 
-⏩ **Bind相對於主迴圈是async，本身是sync等待**
-
 選好Node之後，scheduler已經先**assume**：在自己的cache裡把這個Pod算進那台Node的資源。接下來，Bind要把`nodeName`寫回API server，**是整個流程裡最慢的一步**。所以***Bind相對於scheduler主迴圈是async，本身是sync等待***：*scheduler替每個Pod開一個goroutine，依序跑WaitOnPermit → PreBind → Bind → PostBind*，Bind在goroutine裡一直等到API server回應。主迴圈***不等這個goroutine***，直接從activeQ Pop下一個Pod。
 
-<img src="images/ch08/binding-goroutine-wait.svg" alt="主迴圈和binding goroutine。左邊scheduling cycle：主迴圈從activeQ Pop一個Pod，跑Filter、Score、assume，再回到Pop，不等Bind回應，一直轉；裡面紫、玫紅、黃3個圈表示轉了3圈。右邊binding cycle：每圈assume完就開一個goroutine，web-1、api-2、db-0各自對API server發POST binding，sync等回應。web-1和db-0成功，等Informer確認；api-2收到409 Conflict失敗，ForgetPod後回backoffQ" width="100%">
+<img src="images/ch08/binding-goroutine-wait.svg" alt="主迴圈和binding goroutine。左邊scheduling cycle：主迴圈從activeQ Pop一個Pod，跑Filter、Score、assume，再回到Pop，不等Bind回應，一直轉；裡面紫、玫紅、黃3個圈表示轉了3圈。右邊binding cycle：每圈assume完就開一個goroutine，web-1、api-2、db-0各自對API server發POST binding，sync等回應。web-1和db-0成功，等Informer確認；api-2收到409 Conflict失敗，ForgetPod後回backoffQ" width="85%">
 
 <img src="images/ch08/binding-goroutine-timeline.svg" alt="同一件事用時間軸看。上排主迴圈，每格是一個scheduling cycle：web-1、api-2、db-0、log-4一格接一格跑Filter、Score、assume，中間沒有空檔，主迴圈不等goroutine。下面每排是一個binding goroutine，跑一個binding cycle：每個Pod assume完就分出一個goroutine，先Bind，再等API server回應，幾個goroutine的等待時間互相重疊。web-1成功，等Informer確認；api-2失敗（409），ForgetPod後回backoffQ；db-0成功" width="100%">
+
+goroutine的第一步**WaitOnPermit**是Bind之前的一道閘門，等[Scheduling framework](#scheduling-framework)圖裡的**Permit** plugin放行。一般Pod直接通過；有些plugin會讓Pod先在這裡等，例如一個訓練任務要4個Pod同時跑，就***等4個都排好才一起放行***，湊不齊就timeout、撤銷。
 
 Bind的結果有兩種：
 
 - **① Bind失敗**：***binding cycle負責收拾***，*撤銷預留（**Unreserve**）、把assume從cache拿掉（**ForgetPod**），再把Pod放回queue（**backoffQ**）*。它不會重試Bind，Pod之後從scheduling cycle重新排，可能選到別的Node。
-- **② Bind成功**：***binding cycle負責收尾***，跑完PostBind就結束。Informer收到這個Pod已經有`nodeName`的事件，cache裡的assume就被確認，變成正式的記錄。
+- **② Bind成功**：***binding cycle負責收尾***，*跑完PostBind就結束*。Informer收到這個Pod已經有`nodeName`的事件，cache裡的assume就被確認，變成正式的記錄。
 
 #### 🏷️ 為什麼要標記assumed Pod
 
-Scheduler Cache用`assumedPods`把assumed的Pod標記出來，***分得出、撤得回***，所以才敢先扣資源：
+Scheduler Cache用`assumedPods`把assumed的Pod標記出來。
 
-- **可以放心先扣資源**：因為之後撤得回，assumed Pod可以馬上算進NodeInfo，下一個Pod就不會拿到同一份資源；
-- **分清「假設」和「已確認」**：Add事件來的時候，用這個標記決定是確認還是新增，避免資源被算兩次；
-- **失敗時精準rollback**：只有assumed的Pod能被forget，已確認的Pod不會被誤刪。
+| 好處                                     | 為什麼                                                                               |
+| ---------------------------------------- | ------------------------------------------------------------------------------------ |
+| **可以放心先扣資源**               | assume可以被rollback，assumed Pod可以馬上算進NodeInfo，下一個Pod就不會拿到同一份資源 |
+| **分清「assumed」和「confirmed」** | Add事件來的時候，用assume標記決定是否是API server新增的Pod                           |
+| **失敗時精準rollback**             | 只有assumed的Pod能被forget，已確認的Pod不會被誤刪                                    |
 
 ### 🧩 4. 多個scheduler：什麼時候不用default
 
@@ -563,15 +565,15 @@ Scheduler Cache用`assumedPods`把assumed的Pod標記出來，***分得出、撤
     每個Pod都要走一輪固定的步驟：
 
     - **Scheduling cycle**：這個Pod走一輪Pop → Filter → Score → assume，選出Node。
-    - **Binding cycle**：同一個Pod再走一輪WaitOnPermit → PreBind → Bind → PostBind，把結果寫回API server。
+    - **Binding cycle**：同一個Pod再走一輪[WaitOnPermit](#-樂觀assume和async-bind) → PreBind → Bind → PostBind，把結果寫回API server。
 
-    <img src="images/ch08/cycle-rings.svg" alt="左邊scheduling cycle（主迴圈，一次排一個Pod）：起點是Pop，從activeQ Pop一個Pod，依序跑Filter、Score、assume，再回到Pop。右邊binding cycle（每個Pod一個goroutine，走完就結束）：assume之後進來，起點是WaitOnPermit，依序跑PreBind、Bind、PostBind" width="75%">
+    
 
     兩輪各走一次就結束，裡面不會繞圈；Bind失敗時，Pod回queue，下次再從新的scheduling cycle開始。
 
     會一直繞圈的是**主迴圈**：它每轉一圈，就是一個Pod的scheduling cycle。
 
-    <img src="images/ch08/cycle-main-loop.svg" alt="主迴圈一直轉，第1圈web-1、第2圈api-2、第3圈db-0，每一圈是一個Pod的scheduling cycle；每圈往下分出同色的binding cycle：PreBind、Bind、PostBind，各走一輪就結束，不繞圈，web-1和db-0成功，api-2失敗" width="80%">
+    
 
 ??? question "6. extension point是不是都有default的plugin？比如Score有沒有default的打分方式？如果user沒有提供自己的plugin，會怎麼樣？"
 

@@ -33,23 +33,23 @@
 <rect x="128" y="168.66666666666669" width="34" height="14" rx="3.5" fill="#fff4e0" stroke="#c47400" stroke-width="1.4" stroke-dasharray="3 2"/>
 <text x="145" y="178.9666666666667" font-size="8.3" font-weight="800" fill="#c47400" text-anchor="middle">web-3</text>
 <text x="28" y="202" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">Filter、Score讀的是這份資料的snapshot</text>
-<rect x="180" y="72" width="214" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
-<text x="186" y="86" font-size="9.5" font-weight="800" fill="#334155" text-anchor="start">default/web-1</text>
-<path d="M262 76 L262 88" stroke="#cbd5e1" stroke-width="1"/>
-<text x="268" y="86" font-size="9.5" font-weight="700" fill="#4b5563" text-anchor="start">Pod{nodeName: node-a}</text>
-<rect x="180" y="96" width="214" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
-<text x="186" y="110" font-size="9.5" font-weight="800" fill="#334155" text-anchor="start">default/db-0</text>
-<path d="M262 100 L262 112" stroke="#cbd5e1" stroke-width="1"/>
-<text x="268" y="110" font-size="9.5" font-weight="700" fill="#4b5563" text-anchor="start">Pod{nodeName: node-a}</text>
+<rect x="180" y="72" width="214" height="20" rx="4" fill="#1f9d76" stroke="#1f9d76" stroke-width="1.2"/>
+<text x="186" y="86" font-size="9.5" font-weight="800" fill="#ffffff" text-anchor="start">default/web-1</text>
+<path d="M262 76 L262 88" stroke="#a7e3cc" stroke-width="1"/>
+<text x="268" y="86" font-size="9.5" font-weight="700" fill="#ffffff" text-anchor="start">Pod{nodeName: node-a}</text>
+<rect x="180" y="96" width="214" height="20" rx="4" fill="#1f9d76" stroke="#1f9d76" stroke-width="1.2"/>
+<text x="186" y="110" font-size="9.5" font-weight="800" fill="#ffffff" text-anchor="start">default/db-0</text>
+<path d="M262 100 L262 112" stroke="#a7e3cc" stroke-width="1"/>
+<text x="268" y="110" font-size="9.5" font-weight="700" fill="#ffffff" text-anchor="start">Pod{nodeName: node-a}</text>
 <rect x="180" y="120" width="214" height="20" rx="4" fill="#fff4e0" stroke="#c47400" stroke-width="1.2" stroke-dasharray="3 2"/>
 <text x="186" y="134" font-size="9.5" font-weight="800" fill="#c47400" text-anchor="start">default/log-4</text>
 <path d="M262 124 L262 136" stroke="#c47400" stroke-width="1"/>
 <text x="268" y="134" font-size="9.5" font-weight="700" fill="#c47400" text-anchor="start">Pod{nodeName: node-a}</text>
 <path d="M394 130.0 L407 130.0" stroke="#c47400" stroke-width="1.4" stroke-dasharray="3 2"/>
-<rect x="180" y="144" width="214" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
-<text x="186" y="158" font-size="9.5" font-weight="800" fill="#334155" text-anchor="start">default/api-2</text>
-<path d="M262 148 L262 160" stroke="#cbd5e1" stroke-width="1"/>
-<text x="268" y="158" font-size="9.5" font-weight="700" fill="#4b5563" text-anchor="start">Pod{nodeName: node-b}</text>
+<rect x="180" y="144" width="214" height="20" rx="4" fill="#1f9d76" stroke="#1f9d76" stroke-width="1.2"/>
+<text x="186" y="158" font-size="9.5" font-weight="800" fill="#ffffff" text-anchor="start">default/api-2</text>
+<path d="M262 148 L262 160" stroke="#a7e3cc" stroke-width="1"/>
+<text x="268" y="158" font-size="9.5" font-weight="700" fill="#ffffff" text-anchor="start">Pod{nodeName: node-b}</text>
 <rect x="180" y="168" width="214" height="20" rx="4" fill="#fff4e0" stroke="#c47400" stroke-width="1.2" stroke-dasharray="3 2"/>
 <text x="186" y="182" font-size="9.5" font-weight="800" fill="#c47400" text-anchor="start">default/web-3</text>
 <path d="M262 172 L262 184" stroke="#c47400" stroke-width="1"/>

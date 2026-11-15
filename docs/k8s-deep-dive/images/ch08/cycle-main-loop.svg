@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 10 461 244" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 10 546 244" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
 <defs><marker id="m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6b3fa0"/></marker><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b8336f"/></marker><marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d9a400"/></marker><marker id="m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker></defs>
-<rect x="4" y="10" width="461" height="244" fill="#ffffff"/>
-<path d="M110 141 L110 165.0 L118 165.0" fill="none" stroke="#6b3fa0" stroke-width="1.6" marker-end="url(#m0)"/>
+<rect x="4" y="10" width="546" height="244" fill="#ffffff"/>
+<path d="M110 141 L110 221.0 L118 221.0" fill="none" stroke="#6b3fa0" stroke-width="1.6" marker-end="url(#m0)"/>
 <path d="M184 141 L184 193.0 L192 193.0" fill="none" stroke="#b8336f" stroke-width="1.6" marker-end="url(#m1)"/>
-<path d="M258 141 L258 221.0 L266 221.0" fill="none" stroke="#d9a400" stroke-width="1.6" marker-end="url(#m2)"/>
+<path d="M258 141 L258 165.0 L266 165.0" fill="none" stroke="#d9a400" stroke-width="1.6" marker-end="url(#m2)"/>
 <rect x="8" y="94" width="11" height="16" rx="2" fill="#2f6fd1"/>
 <rect x="20" y="94" width="11" height="16" rx="2" fill="#2f6fd1"/>
 <rect x="32" y="94" width="11" height="16" rx="2" fill="#2f6fd1"/>
@@ -32,31 +32,45 @@
 <text x="258" y="121" font-size="10" font-weight="800" fill="#d9a400" text-anchor="middle">db-0</text>
 <text x="258" y="58" font-size="10.5" font-weight="800" fill="#d9a400" text-anchor="middle">第3圈</text>
 <text x="302" y="107" font-size="14" font-weight="800" fill="#475569" text-anchor="start">…</text>
-<path d="M122 154 L173.4 154 L180 165.0 L173.4 176 L122 176 L122 165.0 Z" fill="#6b3fa0"/>
-<text x="149.0" y="168.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PreBind</text>
-<path d="M177 154 L228.4 154 L235 165.0 L228.4 176 L177 176 L183.6 165.0 Z" fill="#6b3fa0"/>
-<text x="209.3" y="168.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">Bind</text>
-<path d="M232 154 L283.4 154 L290 165.0 L283.4 176 L232 176 L238.6 165.0 Z" fill="#6b3fa0"/>
-<text x="264.3" y="168.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PostBind</text>
-<circle cx="301" cy="165.0" r="9" fill="#1f9d76"/>
-<text x="301" y="169.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
-<path d="M196 182 L247.4 182 L254 193.0 L247.4 204 L196 204 L196 193.0 Z" fill="#b8336f"/>
-<text x="223.0" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PreBind</text>
-<path d="M251 182 L302.4 182 L309 193.0 L302.4 204 L251 204 L257.6 193.0 Z" fill="#b8336f"/>
-<text x="283.3" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">Bind</text>
-<path d="M306 182 L357.4 182 L364 193.0 L357.4 204 L306 204 L312.6 193.0 Z" fill="#b8336f"/>
-<text x="338.3" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PostBind</text>
-<circle cx="375" cy="193.0" r="9" fill="#dc2626"/>
-<text x="375" y="197.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✕</text>
-<path d="M270 210 L321.4 210 L328 221.0 L321.4 232 L270 232 L270 221.0 Z" fill="#d9a400"/>
-<text x="297.0" y="224.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">PreBind</text>
-<path d="M325 210 L376.4 210 L383 221.0 L376.4 232 L325 232 L331.6 221.0 Z" fill="#d9a400"/>
-<text x="357.3" y="224.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">Bind</text>
-<path d="M380 210 L431.4 210 L438 221.0 L431.4 232 L380 232 L386.6 221.0 Z" fill="#d9a400"/>
-<text x="412.3" y="224.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">PostBind</text>
-<circle cx="449" cy="221.0" r="9" fill="#1f9d76"/>
-<text x="449" y="225.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
+<path d="M122 210 L195.4 210 L202 221.0 L195.4 232 L122 232 L122 221.0 Z" fill="#6b3fa0"/>
+<text x="160.0" y="224.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">WaitOnPermit</text>
+<path d="M199 210 L250.4 210 L257 221.0 L250.4 232 L199 232 L205.6 221.0 Z" fill="#6b3fa0"/>
+<text x="231.3" y="224.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PreBind</text>
+<path d="M254 210 L309.4 210 L316 221.0 L309.4 232 L254 232 L260.6 221.0 Z" fill="#6b3fa0"/>
+<text x="288.3" y="224.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle"></text>
+<path d="M269.6 215.9 L276.4 215.9 L273 221.0 Z M269.6 226.1 L276.4 226.1 L273 221.0 Z" fill="#fff"/>
+<text x="280" y="224.4" font-size="9.5" font-weight="800" fill="#fff" text-anchor="start">Bind</text>
+<path d="M313 210 L368.4 210 L375 221.0 L368.4 232 L313 232 L319.6 221.0 Z" fill="#6b3fa0"/>
+<text x="347.3" y="224.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PostBind</text>
+<circle cx="386" cy="221.0" r="9" fill="#1f9d76"/>
+<text x="386" y="225.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
+<path d="M196 182 L269.4 182 L276 193.0 L269.4 204 L196 204 L196 193.0 Z" fill="#b8336f"/>
+<text x="234.0" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">WaitOnPermit</text>
+<path d="M273 182 L324.4 182 L331 193.0 L324.4 204 L273 204 L279.6 193.0 Z" fill="#b8336f"/>
+<text x="305.3" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PreBind</text>
+<path d="M328 182 L383.4 182 L390 193.0 L383.4 204 L328 204 L334.6 193.0 Z" fill="#b8336f"/>
+<text x="362.3" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle"></text>
+<path d="M343.6 187.9 L350.4 187.9 L347 193.0 Z M343.6 198.1 L350.4 198.1 L347 193.0 Z" fill="#fff"/>
+<text x="354" y="196.4" font-size="9.5" font-weight="800" fill="#fff" text-anchor="start">Bind</text>
+<path d="M387 182 L442.4 182 L449 193.0 L442.4 204 L387 204 L393.6 193.0 Z" fill="#b8336f"/>
+<text x="421.3" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PostBind</text>
+<circle cx="460" cy="193.0" r="9" fill="#dc2626"/>
+<text x="460" y="197.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✕</text>
+<path d="M270 154 L343.4 154 L350 165.0 L343.4 176 L270 176 L270 165.0 Z" fill="#d9a400"/>
+<text x="308.0" y="168.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">WaitOnPermit</text>
+<path d="M347 154 L398.4 154 L405 165.0 L398.4 176 L347 176 L353.6 165.0 Z" fill="#d9a400"/>
+<text x="379.3" y="168.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">PreBind</text>
+<path d="M402 154 L457.4 154 L464 165.0 L457.4 176 L402 176 L408.6 165.0 Z" fill="#d9a400"/>
+<text x="436.3" y="168.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle"></text>
+<path d="M417.6 159.9 L424.4 159.9 L421 165.0 Z M417.6 170.1 L424.4 170.1 L421 165.0 Z" fill="#1f2937"/>
+<text x="428" y="168.4" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="start">Bind</text>
+<path d="M461 154 L516.4 154 L523 165.0 L516.4 176 L461 176 L467.6 165.0 Z" fill="#d9a400"/>
+<text x="495.3" y="168.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">PostBind</text>
+<circle cx="534" cy="165.0" r="9" fill="#1f9d76"/>
+<text x="534" y="169.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
 <text x="8" y="24" font-size="10.5" font-weight="800" fill="#1f9d76" text-anchor="start">主迴圈：一直轉，每一圈是一個Pod的scheduling cycle</text>
 <text x="8" y="38" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">（Pop → Filter → Score → assume）</text>
 <text x="8" y="248" font-size="10.5" font-weight="800" fill="#0f7c8a" text-anchor="start">binding cycle：每個Pod各走一輪就結束，不繞圈</text>
+<path d="M263.0 239.5 L269.0 239.5 L266 244 Z M263.0 248.5 L269.0 248.5 L266 244 Z" fill="#8a94a3"/>
+<text x="272" y="248" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">：Bind在goroutine裡sync等API server回應</text>
 </svg>
