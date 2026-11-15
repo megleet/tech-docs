@@ -498,9 +498,11 @@ Bind的結果有兩種：
 - **① Bind失敗**：***binding cycle負責收拾***，*撤銷預留（**Unreserve**）、把assume從cache拿掉（**ForgetPod**），再把Pod放回queue（**backoffQ**）*。它不會重試Bind，Pod之後從scheduling cycle重新排，可能選到別的Node。
 - **② Bind成功**：***binding cycle負責收尾***，跑完PostBind就結束。Informer收到這個Pod已經有`nodeName`的事件，cache裡的assume就被確認，變成正式的記錄。
 
-#### 🏷️ 為什麼要標記
+#### 🏷️ 為什麼要標記assumed Pod
 
-- **下一個Pod馬上看到資源被占用**：assumed Pod已經算進NodeInfo，同一份資源不會被分出去兩次；
+Scheduler Cache用`assumedPods`把assumed的Pod標記出來，***分得出、撤得回***，所以才敢先扣資源：
+
+- **可以放心先扣資源**：因為之後撤得回，assumed Pod可以馬上算進NodeInfo，下一個Pod就不會拿到同一份資源；
 - **分清「假設」和「已確認」**：Add事件來的時候，用這個標記決定是確認還是新增，避免資源被算兩次；
 - **失敗時精準rollback**：只有assumed的Pod能被forget，已確認的Pod不會被誤刪。
 

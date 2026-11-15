@@ -2,10 +2,13 @@
 // so it can be styled differently from inline emphasis. A label must start its
 // block (only whitespace or emoji before it) and be directly followed by "：" or ":".
 document$.subscribe(() => {
-  // External links: the link's host differs from this site's host. Checked in JS,
-  // because the theme rewrites every href to a full URL at runtime.
+  // External links: not this host, and not the published site either (so a link
+  // to https://megleet.github.io/tech-docs/ stays internal on localhost too).
+  // Checked in JS, because the theme rewrites every href to a full URL at runtime.
+  const siteURL = "https://megleet.github.io/tech-docs/";
   document.querySelectorAll(".md-typeset a[href]").forEach((a) => {
-    a.classList.toggle("doc-ext-link", a.host !== "" && a.host !== location.host);
+    const ext = a.host !== "" && a.host !== location.host && !a.href.startsWith(siteURL);
+    a.classList.toggle("doc-ext-link", ext);
   });
 
   // Move the page icon (rendered hidden by overrides/main.html) in front of the h1.
