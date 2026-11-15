@@ -53,6 +53,11 @@ C="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 ## 工作規則
 
 - **改完就驗證**：每次修改後都要建置；改了樣式或JS，就用無頭Chrome截圖確認效果，不要只憑推測。
+- **localhost和GitHub都要work**：使用者的每個要求，在local預覽（`zensical serve`）和GitHub Pages（<https://megleet.github.io/tech-docs/>）上都必須正確。
+  - 截圖要用***真實頁面***，不要只用自己做的測試HTML。
+  - 主題的JS會在瀏覽器裡改寫HTML，例如把每個連結的href改成完整網址，所以測試頁上對，真實頁面不一定對。
+  - 不要依賴兩邊不同的東西，例如host、網址開頭是不是`/tech-docs/`。真的要分的話，在JS裡同時處理兩種情況，例如`extra.js`判斷external link時，把`https://megleet.github.io/tech-docs/`也當成站內。
+  - push之後，等GitHub Actions部署完，再截圖GitHub上的頁面確認一次。
 - **新文章的清單**：
   - front matter加不重複的`icon`；
   - 開頭加只列h2的`**目錄**`；
