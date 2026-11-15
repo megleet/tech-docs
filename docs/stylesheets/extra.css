@@ -1,8 +1,8 @@
 /* Light scheme */
 [data-md-color-scheme="default"] {
   --doc-strong-color: #74513a;
-  --md-typeset-a-color: #1a4fae; /* links in content: dark blue */
-  --doc-ext-link-color: #0b347a; /* external links: darker blue */
+  --md-typeset-a-color: #4f46e5; /* internal links (this site): indigo, dotted underline, ↘ */
+  --doc-ext-link-color: #7e22ce; /* external links (other sites): purple, italic, solid underline, ↗ */
   --doc-label-color: #3d6b66;
   --doc-label2-color: #8a4f7d; /* labels in nested lists: muted plum */
   --doc-code-color: #c2185b;
@@ -41,8 +41,8 @@
 /* Dark scheme */
 [data-md-color-scheme="slate"] {
   --doc-strong-color: #d4b08c;
-  --md-typeset-a-color: #8ab4ff; /* links in content: light blue */
-  --doc-ext-link-color: #6c9cf2; /* external links: deeper light blue */
+  --md-typeset-a-color: #a5b4fc; /* internal links (this site): light indigo */
+  --doc-ext-link-color: #d8b4fe; /* external links (other sites): light purple */
   --doc-label-color: #8fbfb8;
   --doc-analogy: #9aa3b2;
   --doc-analogy-bg: rgba(255, 255, 255, 0.08);
@@ -128,7 +128,7 @@
 /* A link inside a label takes the label color, with the same underline as regular links */
 .md-typeset strong.doc-label a {
   color: inherit;
-  text-decoration: underline;
+  text-decoration-line: underline;
 }
 
 /* Inline code inside a label follows the label color instead of the pink code style */
@@ -414,21 +414,40 @@
   margin-bottom: 0.2em;
 }
 
-/* External links (to other sites): darker blue, dotted underline, small arrow.
-   Links within this site keep the default blue with a solid underline. */
-.md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"]) {
-  color: var(--doc-ext-link-color);
-  text-decoration-line: underline;
+/* Internal links (this site, including the same page): indigo, upright,
+   dotted underline, small ↘ */
+.md-typeset a {
   text-decoration-style: dotted;
+  text-decoration-thickness: 1.5px;
   text-underline-offset: 0.2em;
 }
 
-.md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"])::after {
+.md-typeset a[href]:not(.doc-ext-link):not(.headerlink):not(.md-button):not(.md-content__button):not(.footnote-ref):not(.footnote-backref):not(:has(> img)):not([data-link-icons] a)::after {
+  content: "↘";
+  display: inline-block;
+  margin-left: 0.1em;
+  font-size: 0.75em;
+  vertical-align: 0.2em;
+  font-style: normal;
+}
+
+/* External links (to other sites): purple, italic, solid underline, small ↗ */
+.md-typeset a.doc-ext-link:not(.md-content__button) {
+  color: var(--doc-ext-link-color);
+  text-decoration-line: underline;
+  font-style: italic;
+  text-decoration-style: solid;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.md-typeset a.doc-ext-link:not(.md-content__button)::after {
   content: "↗";
   display: inline-block;
   margin-left: 0.1em;
   font-size: 0.75em;
   vertical-align: 0.2em;
+  font-style: normal;
 }
 
 /* Collapsed long code blocks: clip after the first lines, fade out the bottom */
@@ -547,11 +566,11 @@
   border-radius: 6px;
 }
 
-.md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"]):has(> img.ref-thumb) {
+.md-typeset a.doc-ext-link:not(.md-content__button):has(> img.ref-thumb) {
   text-decoration: none;
 }
 
-.md-typeset a[href^="http"]:not(.md-content__button):not([href*="/tech-docs/"]):has(> img.ref-thumb)::after {
+.md-typeset a.doc-ext-link:not(.md-content__button):has(> img.ref-thumb)::after {
   content: none;
 }
 
@@ -637,68 +656,77 @@
 }
 
 /* Foldable 思考題 (`1. ??? question "…"`): tighter gap between items */
-.md-typeset li > details:first-child {
+.md-typeset > details.question {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.md-typeset li:has(> details:first-child) {
-  margin-bottom: 0.3em;
+.md-typeset > details.question + details.question {
+  margin-top: 0.3em;
 }
 
-.md-typeset li > details:first-child > summary {
+.md-typeset > details.question > summary {
   margin-top: 0;
   margin-bottom: 0;
   padding-top: 0.4em;
   padding-bottom: 0.4em;
 }
 
-.md-typeset li > details:first-child > summary::before,
-.md-typeset li > details:first-child > summary::after {
+.md-typeset > details.question > summary::before,
+.md-typeset > details.question > summary::after {
   top: 0.35em;
 }
 
 /* Foldable 思考題: very light purple instead of the built-in green */
-.md-typeset li > details.question:first-child {
+.md-typeset > details.question {
   border-color: #e6dcf5;
   background-color: #f8f5fd;
 }
 
-.md-typeset li > details.question:first-child > summary {
+.md-typeset > details.question > summary {
   background-color: transparent;
 }
 
-.md-typeset li > details.question:first-child > summary::before,
-.md-typeset li > details.question:first-child > summary::after {
+.md-typeset > details.question > summary::before,
+.md-typeset > details.question > summary::after {
   background-color: #8b6bbf;
   color: #8b6bbf;
 }
 
-[data-md-color-scheme="slate"] .md-typeset li > details.question:first-child {
+[data-md-color-scheme="slate"] .md-typeset > details.question {
   border-color: rgba(201, 167, 242, 0.25);
   background-color: rgba(201, 167, 242, 0.08);
 }
 
-[data-md-color-scheme="slate"] .md-typeset li > details.question:first-child > summary::before,
-[data-md-color-scheme="slate"] .md-typeset li > details.question:first-child > summary::after {
+[data-md-color-scheme="slate"] .md-typeset > details.question > summary::before,
+[data-md-color-scheme="slate"] .md-typeset > details.question > summary::after {
   background-color: #c9a7f2;
   color: #c9a7f2;
 }
 
 /* Foldable 思考題: even questions light gray, odd ones light purple */
-.md-typeset li:nth-child(even) > details.question:first-child {
+.md-typeset > details.question:nth-of-type(even) {
   border-color: #d5d8dd;
   background-color: #f2f3f5;
 }
 
-[data-md-color-scheme="slate"] .md-typeset li:nth-child(even) > details.question:first-child {
+[data-md-color-scheme="slate"] .md-typeset > details.question:nth-of-type(even) {
   background-color: rgba(255, 255, 255, 0.06);
 }
 
-.md-typeset li:nth-child(even) > details.question:first-child > summary {
+.md-typeset > details.question:nth-of-type(even) > summary {
   background-color: #f2f3f5;
 }
 
-[data-md-color-scheme="slate"] .md-typeset li:nth-child(even) > details.question:first-child > summary {
+[data-md-color-scheme="slate"] .md-typeset > details.question:nth-of-type(even) > summary {
   background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Foldable 思考題: no question-mark icon */
+.md-typeset > details.question > summary::before {
+  display: none;
+}
+
+.md-typeset > details.question > summary {
+  padding-left: 0.8rem;
 }

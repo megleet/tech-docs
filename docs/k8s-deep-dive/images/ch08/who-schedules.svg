@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 27 698 245" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="wh-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#0f9fb5"/></marker>
+<marker id="wh-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#64748b"/></marker>
+</defs>
+<rect x="8" y="27" width="698" height="245" fill="#ffffff"/>
+<polygon points="40.0,33.0 56.4,40.9 60.5,58.7 49.1,72.9 30.9,72.9 19.5,58.7 23.6,40.9" fill="#6b3fa0" stroke="#6b3fa0" stroke-width="3" stroke-linejoin="round"/>
+<path d="M40 45 L49 50 L40 55 L31 50 Z" fill="#ffffff"/>
+<path d="M31 51.5 L39 56.5 L39 64 L31 59 Z" fill="#e6dcf5"/>
+<path d="M49 51.5 L41 56.5 L41 64 L49 59 Z" fill="#c9b3ea"/>
+<text x="40" y="90" font-size="11" font-weight="800" fill="#6b3fa0" text-anchor="middle">新的Pod</text>
+<text x="40" y="102" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle">還沒有Node</text>
+<path d="M64 56 L86 56" fill="none" stroke="#0f9fb5" stroke-width="2" marker-end="url(#wh-b)"/>
+<path d="M90.0 56 L104.0 36.0 L248.0 36.0 L262.0 56 L248.0 76.0 L104.0 76.0 Z" fill="#c47400"/>
+<text x="176" y="53" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">spec.nodeName</text>
+<text x="176" y="68" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">是空的？</text>
+<path d="M176 76 L176 88" fill="none" stroke="#0f9fb5" stroke-width="2" marker-end="url(#wh-b)"/>
+<text x="184" y="86" font-size="9.5" font-weight="800" fill="#0f9fb5" text-anchor="start">YES</text>
+<path d="M90.0 112 L104.0 92.0 L248.0 92.0 L262.0 112 L248.0 132.0 L104.0 132.0 Z" fill="#c47400"/>
+<text x="176" y="109" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">schedulerName是</text>
+<text x="176" y="124" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">空的或default？</text>
+<path d="M176 132 L176 150" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="2.5 2" marker-end="url(#wh-g)"/>
+<text x="184" y="146" font-size="9.5" font-weight="800" fill="#64748b" text-anchor="start">② NO</text>
+<rect x="126" y="154" width="100" height="30" rx="7" fill="#94a3b8"/>
+<text x="176" y="173" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">其他scheduler</text>
+<path d="M262 112 L288 112" fill="none" stroke="#0f9fb5" stroke-width="2" marker-end="url(#wh-b)"/>
+<text x="275" y="104" font-size="9.5" font-weight="800" fill="#0f9fb5" text-anchor="middle">YES</text>
+<circle cx="330" cy="112" r="36" fill="#1f9d76"/>
+<path d="M310 89 A30 30 0 1 1 305 130" fill="none" stroke="#bff0dc" stroke-width="2"/>
+<path d="M299 123 L304 131 L311 125" fill="none" stroke="#bff0dc" stroke-width="2"/>
+<text x="330" y="109" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">default</text>
+<text x="330" y="123" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">scheduler</text>
+<text x="330" y="164" font-size="11" font-weight="700" fill="#1f9d76" text-anchor="middle">選一台Node</text>
+<path d="M366 112 L498 112" fill="none" stroke="#0f9fb5" stroke-width="2" marker-end="url(#wh-b)"/>
+<text x="432" y="104" font-size="10.5" font-weight="800" fill="#0f9fb5" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">binding：寫入</text>
+<text x="436" y="128" font-size="10.5" font-weight="800" fill="#0f9fb5" text-anchor="middle">spec.nodeName＝</text>
+<text x="436" y="142" font-size="10.5" font-weight="800" fill="#0f9fb5" text-anchor="middle">node-a 調度成功</text>
+<path d="M506 91 A42.0 7 0 0 1 590 91 L590 135 A42.0 7 0 0 1 506 135 Z" fill="#475569"/>
+<ellipse cx="548.0" cy="91" rx="42.0" ry="7" fill="#64748b"/>
+<text x="548.0" y="119.0" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">API server</text>
+<text x="548.0" y="133.0" font-size="10" font-weight="700" fill="#cbd5e1" text-anchor="middle">（etcd）</text>
+<path d="M262 56 L548 56 L548 76" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#wh-g)"/>
+<text x="400" y="48" font-size="11" font-weight="700" fill="#64748b" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">① NO：自己寫了spec.nodeName</text>
+<path d="M14 200 L358 200 L370 212 L370 268 L14 268 Z" fill="#fbf7ec" stroke="#e2cf9c" stroke-width="1.2"/>
+<path d="M358 200 L358 212 L370 212" fill="#efe2bd" stroke="#e2cf9c" stroke-width="1.2"/>
+<path d="M22 210 L42 210" stroke="#0f9fb5" stroke-width="2.5"/>
+<text x="48" y="213.5" font-size="9.5" font-weight="800" fill="#0f9fb5" text-anchor="start">實線：經過default scheduler的路徑</text>
+<path d="M22 222 L42 222" stroke="#64748b" stroke-width="2.5" stroke-dasharray="5 3"/>
+<text x="48" y="225.5" font-size="9.5" font-weight="800" fill="#64748b" text-anchor="start">虛線：不經過default scheduler的Pod</text>
+<text x="22" y="239" font-size="9" font-weight="700" fill="#4b5563" text-anchor="start">① 自己寫了spec.nodeName：直接交給那台Node的kubelet</text>
+<text x="22" y="251" font-size="9" font-weight="700" fill="#4b5563" text-anchor="start">② schedulerName填了別的名字：由那個scheduler負責</text>
+<text x="22" y="263" font-size="9" font-weight="700" fill="#4b5563" text-anchor="start">③ static Pod：kubelet直接從Node上的檔案啟動</text>
+<rect x="384" y="160" width="316" height="108" rx="12" fill="#f4f7fa" stroke="#b8c4d2" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M548 142 L548 191" fill="none" stroke="#0f9fb5" stroke-width="2" marker-end="url(#wh-b)"/>
+<text x="556" y="156" font-size="10.5" font-weight="800" fill="#0f9fb5" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">watch</text>
+<rect x="392" y="166" width="64" height="20" rx="10" fill="#334155"/>
+<text x="424" y="180" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">node-a</text>
+<g transform="translate(0,9)">
+<rect x="510" y="188" width="76" height="34" rx="7" fill="#0b6b73"/>
+<text x="548" y="210" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">kubelet</text>
+<path d="M586 205 L636 205" fill="none" stroke="#0f9fb5" stroke-width="2" marker-end="url(#wh-b)"/>
+<text x="609" y="198" font-size="9.5" font-weight="800" fill="#0f9fb5" text-anchor="middle">透過CRI</text>
+<path d="M658 190 L673 198 L658 206 L643 198 Z" fill="#9a77d1"/>
+<path d="M643 200 L657 208 L657 222 L643 214 Z" fill="#6b3fa0"/>
+<path d="M673 200 L659 208 L659 222 L673 214 Z" fill="#53307f"/>
+<text x="658" y="186" font-size="10" font-weight="800" fill="#6b3fa0" text-anchor="middle">container</text>
+<path d="M400 192 L432 192 L442 202 L442 222 L400 222 Z" fill="#94a3b8"/>
+<path d="M432 192 L432 202 L442 202" fill="#cbd5e1"/>
+<text x="421" y="212" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">yaml</text>
+<path d="M442 205 L502 205" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#wh-g)"/>
+<text x="472" y="197" font-size="10" font-weight="800" fill="#64748b" text-anchor="middle">③ static Pod</text>
+<text x="424" y="240" font-size="9.5" font-weight="700" fill="#64748b" text-anchor="middle">Node上的檔案</text>
+<text x="615" y="240" font-size="10.5" font-weight="800" fill="#0b6b73" text-anchor="middle">真正啟動container的是kubelet</text>
+</g>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 10 461 244" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6b3fa0"/></marker><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b8336f"/></marker><marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d9a400"/></marker><marker id="m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker></defs>
+<rect x="4" y="10" width="461" height="244" fill="#ffffff"/>
+<path d="M110 141 L110 165.0 L118 165.0" fill="none" stroke="#6b3fa0" stroke-width="1.6" marker-end="url(#m0)"/>
+<path d="M184 141 L184 193.0 L192 193.0" fill="none" stroke="#b8336f" stroke-width="1.6" marker-end="url(#m1)"/>
+<path d="M258 141 L258 221.0 L266 221.0" fill="none" stroke="#d9a400" stroke-width="1.6" marker-end="url(#m2)"/>
+<rect x="8" y="94" width="11" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="20" y="94" width="11" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="32" y="94" width="11" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="44" y="94" width="11" height="16" rx="2" fill="#2f6fd1"/>
+<text x="31" y="124" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">activeQ</text>
+<path d="M58 102 L69 102" fill="none" stroke="#2f6fd1" stroke-width="1.8" marker-end="url(#m3)"/>
+<path d="M74.5 95.7 A36 36 0 1 1 77.4 117.2" fill="none" stroke="#6b3fa0" stroke-width="3" marker-end="url(#m0)"/>
+<polygon points="110.0,84.0 120.2,88.9 122.7,99.9 115.6,108.7 104.4,108.7 97.3,99.9 99.8,88.9" fill="#6b3fa0" stroke="#6b3fa0" stroke-width="3" stroke-linejoin="round"/>
+<path d="M110 91.54 L115.46 94.543 L110 97.546 L104.54 94.543 Z" fill="#ffffff"/>
+<path d="M104.54 95.74300000000001 L109.2 98.74600000000001 L109.2 103.25999999999999 L104.54 100.25699999999999 Z" fill="#ffffff" fill-opacity="0.75"/>
+<path d="M115.46 95.74300000000001 L110.8 98.74600000000001 L110.8 103.25999999999999 L115.46 100.25699999999999 Z" fill="#ffffff" fill-opacity="0.5"/>
+<text x="110" y="121" font-size="10" font-weight="800" fill="#6b3fa0" text-anchor="middle">web-1</text>
+<text x="110" y="58" font-size="10.5" font-weight="800" fill="#6b3fa0" text-anchor="middle">第1圈</text>
+<path d="M148.5 95.7 A36 36 0 1 1 151.4 117.2" fill="none" stroke="#b8336f" stroke-width="3" marker-end="url(#m1)"/>
+<polygon points="184.0,84.0 194.2,88.9 196.7,99.9 189.6,108.7 178.4,108.7 171.3,99.9 173.8,88.9" fill="#b8336f" stroke="#b8336f" stroke-width="3" stroke-linejoin="round"/>
+<path d="M184 91.54 L189.46 94.543 L184 97.546 L178.54 94.543 Z" fill="#ffffff"/>
+<path d="M178.54 95.74300000000001 L183.2 98.74600000000001 L183.2 103.25999999999999 L178.54 100.25699999999999 Z" fill="#ffffff" fill-opacity="0.75"/>
+<path d="M189.46 95.74300000000001 L184.8 98.74600000000001 L184.8 103.25999999999999 L189.46 100.25699999999999 Z" fill="#ffffff" fill-opacity="0.5"/>
+<text x="184" y="121" font-size="10" font-weight="800" fill="#b8336f" text-anchor="middle">api-2</text>
+<text x="184" y="58" font-size="10.5" font-weight="800" fill="#b8336f" text-anchor="middle">第2圈</text>
+<path d="M222.5 95.7 A36 36 0 1 1 225.4 117.2" fill="none" stroke="#d9a400" stroke-width="3" marker-end="url(#m2)"/>
+<polygon points="258.0,84.0 268.2,88.9 270.7,99.9 263.6,108.7 252.4,108.7 245.3,99.9 247.8,88.9" fill="#d9a400" stroke="#d9a400" stroke-width="3" stroke-linejoin="round"/>
+<path d="M258 91.54 L263.46 94.543 L258 97.546 L252.54 94.543 Z" fill="#ffffff"/>
+<path d="M252.54 95.74300000000001 L257.2 98.74600000000001 L257.2 103.25999999999999 L252.54 100.25699999999999 Z" fill="#ffffff" fill-opacity="0.75"/>
+<path d="M263.46 95.74300000000001 L258.8 98.74600000000001 L258.8 103.25999999999999 L263.46 100.25699999999999 Z" fill="#ffffff" fill-opacity="0.5"/>
+<text x="258" y="121" font-size="10" font-weight="800" fill="#d9a400" text-anchor="middle">db-0</text>
+<text x="258" y="58" font-size="10.5" font-weight="800" fill="#d9a400" text-anchor="middle">第3圈</text>
+<text x="302" y="107" font-size="14" font-weight="800" fill="#475569" text-anchor="start">…</text>
+<path d="M122 154 L173.4 154 L180 165.0 L173.4 176 L122 176 L122 165.0 Z" fill="#6b3fa0"/>
+<text x="149.0" y="168.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PreBind</text>
+<path d="M177 154 L228.4 154 L235 165.0 L228.4 176 L177 176 L183.6 165.0 Z" fill="#6b3fa0"/>
+<text x="209.3" y="168.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">Bind</text>
+<path d="M232 154 L283.4 154 L290 165.0 L283.4 176 L232 176 L238.6 165.0 Z" fill="#6b3fa0"/>
+<text x="264.3" y="168.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PostBind</text>
+<circle cx="301" cy="165.0" r="9" fill="#1f9d76"/>
+<text x="301" y="169.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
+<path d="M196 182 L247.4 182 L254 193.0 L247.4 204 L196 204 L196 193.0 Z" fill="#b8336f"/>
+<text x="223.0" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PreBind</text>
+<path d="M251 182 L302.4 182 L309 193.0 L302.4 204 L251 204 L257.6 193.0 Z" fill="#b8336f"/>
+<text x="283.3" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">Bind</text>
+<path d="M306 182 L357.4 182 L364 193.0 L357.4 204 L306 204 L312.6 193.0 Z" fill="#b8336f"/>
+<text x="338.3" y="196.42" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">PostBind</text>
+<circle cx="375" cy="193.0" r="9" fill="#dc2626"/>
+<text x="375" y="197.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✕</text>
+<path d="M270 210 L321.4 210 L328 221.0 L321.4 232 L270 232 L270 221.0 Z" fill="#d9a400"/>
+<text x="297.0" y="224.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">PreBind</text>
+<path d="M325 210 L376.4 210 L383 221.0 L376.4 232 L325 232 L331.6 221.0 Z" fill="#d9a400"/>
+<text x="357.3" y="224.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">Bind</text>
+<path d="M380 210 L431.4 210 L438 221.0 L431.4 232 L380 232 L386.6 221.0 Z" fill="#d9a400"/>
+<text x="412.3" y="224.42" font-size="9.5" font-weight="800" fill="#1f2937" text-anchor="middle">PostBind</text>
+<circle cx="449" cy="221.0" r="9" fill="#1f9d76"/>
+<text x="449" y="225.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
+<text x="8" y="24" font-size="10.5" font-weight="800" fill="#1f9d76" text-anchor="start">主迴圈：一直轉，每一圈是一個Pod的scheduling cycle</text>
+<text x="8" y="38" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">（Pop → Filter → Score → assume）</text>
+<text x="8" y="248" font-size="10.5" font-weight="800" fill="#0f7c8a" text-anchor="start">binding cycle：每個Pod各走一輪就結束，不繞圈</text>
+</svg>

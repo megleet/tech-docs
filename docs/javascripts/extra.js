@@ -2,6 +2,12 @@
 // so it can be styled differently from inline emphasis. A label must start its
 // block (only whitespace or emoji before it) and be directly followed by "：" or ":".
 document$.subscribe(() => {
+  // External links: the link's host differs from this site's host. Checked in JS,
+  // because the theme rewrites every href to a full URL at runtime.
+  document.querySelectorAll(".md-typeset a[href]").forEach((a) => {
+    a.classList.toggle("doc-ext-link", a.host !== "" && a.host !== location.host);
+  });
+
   // Move the page icon (rendered hidden by overrides/main.html) in front of the h1.
   const icon = document.querySelector(".md-content .doc-page-icon");
   const h1 = document.querySelector(".md-content .md-typeset h1");

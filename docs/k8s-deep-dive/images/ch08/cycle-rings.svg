@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 26 490 206" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1f9d76"/></marker><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker><marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f5fc4"/></marker><marker id="m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c47400"/></marker></defs>
+<rect x="16" y="26" width="490" height="206" fill="#ffffff"/>
+<g transform="translate(0,0)">
+<circle cx="150" cy="132" r="72" fill="#eefaf5"/>
+<path d="M125.4 199.7 A72 72 0 0 1 82.3 156.6" fill="none" stroke="#1f9d76" stroke-width="2.4" marker-end="url(#m0)"/>
+<path d="M82.3 107.4 A72 72 0 0 1 125.4 64.3" fill="none" stroke="#1f9d76" stroke-width="2.4" marker-end="url(#m0)"/>
+<path d="M174.6 64.3 A72 72 0 0 1 217.7 107.4" fill="none" stroke="#1f9d76" stroke-width="2.4" marker-end="url(#m0)"/>
+<path d="M217.7 156.6 A72 72 0 0 1 174.6 199.7" fill="none" stroke="#1f9d76" stroke-width="2.4" marker-end="url(#m0)"/>
+<rect x="129.1" y="192.0" width="41.8" height="24" rx="12" fill="#1f9d76"/>
+<text x="150.0" y="208.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Pop</text>
+<rect x="47.2" y="120.0" width="61.6" height="24" rx="12" fill="#1f9d76"/>
+<text x="78.0" y="136.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Filter</text>
+<rect x="122.5" y="48.0" width="55.0" height="24" rx="12" fill="#1f9d76"/>
+<text x="150.0" y="64.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Score</text>
+<rect x="191.2" y="120.0" width="61.6" height="24" rx="12" fill="#c47400"/>
+<text x="222.0" y="136.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">assume</text>
+<path d="M144.0 190.0 L144.0 168.0" stroke="#1f9d76" stroke-width="1.6"/>
+<path d="M144.0 168.0 L158.0 173.0 L144.0 178.0 Z" fill="#1f9d76"/>
+<text x="161.0" y="186.0" font-size="10" font-weight="800" fill="#1f9d76" text-anchor="start">起點</text>
+<text x="150" y="126" font-size="13" font-weight="800" fill="#1f2937" text-anchor="middle">主迴圈</text>
+<text x="150" y="142" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">一次排一個Pod</text>
+<text x="150" y="38" font-size="11" font-weight="800" fill="#1f9d76" text-anchor="middle">scheduling cycle</text>
+<rect x="26" y="196.0" width="11" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="38" y="196.0" width="11" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="50" y="196.0" width="11" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="62" y="196.0" width="11" height="16" rx="2" fill="#2f6fd1"/>
+<text x="50" y="225.0" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">activeQ</text>
+<path d="M78 204.0 L119.0 204.0" fill="none" stroke="#2f6fd1" stroke-width="2" marker-end="url(#m1)"/>
+</g>
+<g transform="translate(230,0)">
+<circle cx="150" cy="132" r="72" fill="#eef3fc"/>
+<path d="M125.4 199.7 A72 72 0 0 1 82.3 156.6" fill="none" stroke="#2f5fc4" stroke-width="2.4" marker-end="url(#m2)"/>
+<path d="M82.3 107.4 A72 72 0 0 1 125.4 64.3" fill="none" stroke="#2f5fc4" stroke-width="2.4" marker-end="url(#m2)"/>
+<path d="M174.6 64.3 A72 72 0 0 1 217.7 107.4" fill="none" stroke="#2f5fc4" stroke-width="2.4" marker-end="url(#m2)"/>
+<path d="M217.7 156.6 A72 72 0 0 1 174.6 199.7" fill="none" stroke="#2f5fc4" stroke-width="2.4" marker-end="url(#m2)"/>
+<rect x="99.4" y="192.0" width="101.2" height="24" rx="12" fill="#2f5fc4"/>
+<text x="150.0" y="208.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">WaitOnPermit</text>
+<rect x="43.9" y="120.0" width="68.2" height="24" rx="12" fill="#2f5fc4"/>
+<text x="78.0" y="136.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">PreBind</text>
+<rect x="125.8" y="48.0" width="48.4" height="24" rx="12" fill="#2f5fc4"/>
+<text x="150.0" y="64.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Bind</text>
+<rect x="184.6" y="120.0" width="74.8" height="24" rx="12" fill="#2f5fc4"/>
+<text x="222.0" y="136.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">PostBind</text>
+<path d="M144.0 190.0 L144.0 168.0" stroke="#2f5fc4" stroke-width="1.6"/>
+<path d="M144.0 168.0 L158.0 173.0 L144.0 178.0 Z" fill="#2f5fc4"/>
+<text x="161.0" y="186.0" font-size="10" font-weight="800" fill="#2f5fc4" text-anchor="start">起點</text>
+<text x="150" y="126" font-size="13" font-weight="800" fill="#1f2937" text-anchor="middle">goroutine</text>
+<text x="150" y="142" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">每個Pod一個</text>
+<text x="150" y="155" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">走完就結束</text>
+<text x="150" y="38" font-size="11" font-weight="800" fill="#2f5fc4" text-anchor="middle">binding cycle</text>
+<text x="52" y="201.0" font-size="9.5" font-weight="800" fill="#c47400" text-anchor="middle">assume</text>
+<text x="52" y="213.0" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">之後</text>
+<path d="M78 204.0 L100.0 204.0" fill="none" stroke="#c47400" stroke-width="2" marker-end="url(#m3)"/>
+</g>
+</svg>

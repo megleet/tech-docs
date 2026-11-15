@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="12 24 736 172" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="bw-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6b3fa0"/></marker><marker id="bw-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b8336f"/></marker><marker id="bw-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d9a400"/></marker><marker id="bw-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/></marker></defs>
+<rect x="12" y="24" width="736" height="172" fill="#ffffff"/>
+<text x="22" y="49" font-size="12" font-weight="800" fill="#1f2937" text-anchor="start">主迴圈</text>
+<text x="22" y="63" font-size="9" font-weight="700" fill="#8a94a3" text-anchor="start">每格是一個</text>
+<text x="22" y="75" font-size="9.5" font-weight="800" fill="#1f9d76" text-anchor="start">scheduling cycle</text>
+<text x="22" y="112" font-size="11" font-weight="800" fill="#1f2937" text-anchor="start">binding</text>
+<text x="22" y="126" font-size="11" font-weight="800" fill="#1f2937" text-anchor="start">goroutines</text>
+<text x="22" y="140" font-size="9" font-weight="700" fill="#8a94a3" text-anchor="start">每排跑一個</text>
+<text x="22" y="152" font-size="9.5" font-weight="800" fill="#1f9d76" text-anchor="start">binding cycle</text>
+<path d="M210 76 L210 103.0 L216 103.0" fill="none" stroke="#6b3fa0" stroke-width="1.6" marker-end="url(#bw-0)"/>
+<path d="M324 76 L324 133.0 L330 133.0" fill="none" stroke="#b8336f" stroke-width="1.6" marker-end="url(#bw-1)"/>
+<path d="M438 76 L438 163.0 L444 163.0" fill="none" stroke="#d9a400" stroke-width="1.6" marker-end="url(#bw-2)"/>
+<rect x="105" y="44" width="112" height="32" rx="6" fill="#6b3fa0"/>
+<text x="161.0" y="58" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">web-1</text>
+<text x="161.0" y="70" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">Filter → Score → assume</text>
+<rect x="219" y="44" width="112" height="32" rx="6" fill="#b8336f"/>
+<text x="275.0" y="58" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">api-2</text>
+<text x="275.0" y="70" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">Filter → Score → assume</text>
+<rect x="333" y="44" width="112" height="32" rx="6" fill="#d9a400"/>
+<text x="389.0" y="58" font-size="11" font-weight="800" fill="#1f2937" text-anchor="middle">db-0</text>
+<text x="389.0" y="70" font-size="8.5" font-weight="700" fill="#1f2937" text-anchor="middle">Filter → Score → assume</text>
+<rect x="447" y="44" width="112" height="32" rx="6" fill="#475569"/>
+<text x="503.0" y="58" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">log-4</text>
+<text x="503.0" y="70" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">Filter → Score → assume</text>
+<text x="572" y="64" font-size="14" font-weight="800" fill="#475569" text-anchor="start">…</text>
+<text x="105" y="36" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">主迴圈不等goroutine：assume完就Pop下一個Pod</text>
+<rect x="218" y="92" width="36" height="22" rx="4" fill="#6b3fa0"/>
+<text x="236" y="107" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">Bind</text>
+<rect x="256" y="93" width="118" height="20" rx="4" fill="#ffffff" stroke="#6b3fa0" stroke-width="1.4" stroke-dasharray="4 2.5"/>
+<text x="315" y="107" font-size="9.5" font-weight="700" fill="#475569" text-anchor="middle">等API server回應…</text>
+<circle cx="386" cy="103.0" r="8" fill="#1f9d76"/>
+<text x="386" y="107.0" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
+<text x="399" y="107.0" font-size="9.5" font-weight="800" fill="#1f9d76" text-anchor="start">成功：等Informer確認</text>
+<rect x="332" y="122" width="36" height="22" rx="4" fill="#b8336f"/>
+<text x="350" y="137" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">Bind</text>
+<rect x="370" y="123" width="118" height="20" rx="4" fill="#ffffff" stroke="#b8336f" stroke-width="1.4" stroke-dasharray="4 2.5"/>
+<text x="429" y="137" font-size="9.5" font-weight="700" fill="#475569" text-anchor="middle">等API server回應…</text>
+<circle cx="500" cy="133.0" r="8" fill="#dc2626"/>
+<text x="500" y="137.0" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">✕</text>
+<text x="513" y="137.0" font-size="9.5" font-weight="800" fill="#dc2626" text-anchor="start">失敗（409）：ForgetPod → 回backoffQ</text>
+<rect x="446" y="152" width="36" height="22" rx="4" fill="#d9a400"/>
+<text x="464" y="167" font-size="10" font-weight="800" fill="#1f2937" text-anchor="middle">Bind</text>
+<rect x="484" y="153" width="118" height="20" rx="4" fill="#ffffff" stroke="#d9a400" stroke-width="1.4" stroke-dasharray="4 2.5"/>
+<text x="543" y="167" font-size="9.5" font-weight="700" fill="#475569" text-anchor="middle">等API server回應…</text>
+<circle cx="614" cy="163.0" r="8" fill="#1f9d76"/>
+<text x="614" y="167.0" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
+<text x="627" y="167.0" font-size="9.5" font-weight="800" fill="#1f9d76" text-anchor="start">成功：等Informer確認</text>
+<path d="M104 186 L702 186" fill="none" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#bw-3)"/>
+<text x="706" y="190" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">時間</text>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 24 442 168" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="mt-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6b3fa0"/></marker><marker id="mt-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b8336f"/></marker><marker id="mt-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d9a400"/></marker></defs>
+<rect x="10" y="24" width="442" height="168" fill="#ffffff"/>
+<text x="60" y="40" font-size="11.5" font-weight="800" fill="#334155" text-anchor="middle">還沒有Node的Pod</text>
+<text x="371" y="40" font-size="11.5" font-weight="800" fill="#334155" text-anchor="middle">cluster裡的Node</text>
+<polygon points="34.0,51.0 45.7,56.6 48.6,69.3 40.5,79.5 27.5,79.5 19.4,69.3 22.3,56.6" fill="#6b3fa0" stroke="#6b3fa0" stroke-width="2" stroke-linejoin="round"/>
+<path d="M34 59.7 L40.3 63.300000000000004 L34 66.9 L27.7 63.300000000000004 Z" fill="#fff"/>
+<path d="M27.7 64.30000000000001 L33.3 67.9 L33.3 73.0 L27.7 69.4 Z" fill="#ffffff" fill-opacity="0.75"/>
+<path d="M40.3 64.30000000000001 L34.7 67.9 L34.7 73.0 L40.3 69.4 Z" fill="#ffffff" fill-opacity="0.5"/>
+<text x="55" y="70" font-size="11" font-weight="800" fill="#6b3fa0" text-anchor="start">web-1</text>
+<polygon points="34.0,96.0 45.7,101.6 48.6,114.3 40.5,124.5 27.5,124.5 19.4,114.3 22.3,101.6" fill="#b8336f" stroke="#b8336f" stroke-width="2" stroke-linejoin="round"/>
+<path d="M34 104.7 L40.3 108.3 L34 111.9 L27.7 108.3 Z" fill="#fff"/>
+<path d="M27.7 109.3 L33.3 112.9 L33.3 118.0 L27.7 114.4 Z" fill="#ffffff" fill-opacity="0.75"/>
+<path d="M40.3 109.3 L34.7 112.9 L34.7 118.0 L40.3 114.4 Z" fill="#ffffff" fill-opacity="0.5"/>
+<text x="55" y="115" font-size="11" font-weight="800" fill="#b8336f" text-anchor="start">api-2</text>
+<polygon points="34.0,141.0 45.7,146.6 48.6,159.3 40.5,169.5 27.5,169.5 19.4,159.3 22.3,146.6" fill="#d9a400" stroke="#d9a400" stroke-width="2" stroke-linejoin="round"/>
+<path d="M34 149.7 L40.3 153.29999999999998 L34 156.89999999999998 L27.7 153.29999999999998 Z" fill="#fff"/>
+<path d="M27.7 154.29999999999998 L33.3 157.89999999999998 L33.3 163.0 L27.7 159.4 Z" fill="#ffffff" fill-opacity="0.75"/>
+<path d="M40.3 154.29999999999998 L34.7 157.89999999999998 L34.7 163.0 L40.3 159.4 Z" fill="#ffffff" fill-opacity="0.5"/>
+<text x="55" y="160" font-size="11" font-weight="800" fill="#d9a400" text-anchor="start">db-0</text>
+<circle cx="196" cy="111" r="38" fill="#1f9d76"/>
+<path d="M176 82 A32 32 0 1 1 170 130" fill="none" stroke="#bff0dc" stroke-width="2"/>
+<path d="M164 123 L169 131 L176 125" fill="none" stroke="#bff0dc" stroke-width="2"/>
+<text x="196" y="108" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">default</text>
+<text x="196" y="122" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">scheduler</text>
+<text x="196" y="167" font-size="11" font-weight="800" fill="#1f9d76" text-anchor="middle">配對：Pod → Node</text>
+<path d="M92 66 C124 66 130 111 146 111 L152 111" fill="none" stroke="#6b3fa0" stroke-width="2" marker-end="url(#mt-0)"/>
+<path d="M92 111 C124 111 130 111 146 111 L152 111" fill="none" stroke="#b8336f" stroke-width="2" marker-end="url(#mt-1)"/>
+<path d="M92 156 C124 156 130 111 146 111 L152 111" fill="none" stroke="#d9a400" stroke-width="2" marker-end="url(#mt-2)"/>
+<rect x="296" y="46" width="150" height="40" rx="8" fill="#334155"/>
+<text x="306" y="62" font-size="11.5" font-weight="800" fill="#fff" text-anchor="start">node-a</text>
+<rect x="306" y="70" width="60" height="7" rx="3.5" fill="#64748b"/>
+<rect x="306" y="70" width="48" height="7" rx="3.5" fill="#94a3b8"/>
+<rect x="376" y="55" width="62" height="22" rx="6" fill="#b8336f"/>
+<text x="407" y="70" font-size="10.5" font-weight="800" fill="#ffffff" text-anchor="middle">api-2</text>
+<rect x="296" y="91" width="150" height="40" rx="8" fill="#334155"/>
+<text x="306" y="107" font-size="11.5" font-weight="800" fill="#fff" text-anchor="start">node-b</text>
+<rect x="306" y="115" width="60" height="7" rx="3.5" fill="#64748b"/>
+<rect x="306" y="115" width="21" height="7" rx="3.5" fill="#94a3b8"/>
+<rect x="376" y="100" width="62" height="22" rx="6" fill="#6b3fa0"/>
+<text x="407" y="115" font-size="10.5" font-weight="800" fill="#ffffff" text-anchor="middle">web-1</text>
+<rect x="296" y="136" width="150" height="40" rx="8" fill="#334155"/>
+<text x="306" y="152" font-size="11.5" font-weight="800" fill="#fff" text-anchor="start">node-c</text>
+<rect x="306" y="160" width="60" height="7" rx="3.5" fill="#64748b"/>
+<rect x="306" y="160" width="33" height="7" rx="3.5" fill="#94a3b8"/>
+<rect x="376" y="145" width="62" height="22" rx="6" fill="#d9a400"/>
+<text x="407" y="160" font-size="10.5" font-weight="800" fill="#3b2a00" text-anchor="middle">db-0</text>
+<path d="M234 111 C262 111 262 66 280 66 L290 66" fill="none" stroke="#b8336f" stroke-width="2" marker-end="url(#mt-1)"/>
+<path d="M234 111 C262 111 262 111 280 111 L290 111" fill="none" stroke="#6b3fa0" stroke-width="2" marker-end="url(#mt-0)"/>
+<path d="M234 111 C262 111 262 156 280 156 L290 156" fill="none" stroke="#d9a400" stroke-width="2" marker-end="url(#mt-2)"/>
+<text x="196" y="186" font-size="10.5" font-weight="700" fill="#4b5563" text-anchor="middle">寫進每個Pod的spec.nodeName（binding）</text>
+</svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 13 523 203" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect x="14" y="13" width="523" height="203" fill="#ffffff"/>
+<rect x="18" y="17" width="515" height="191" rx="12" fill="#f4f7fa" stroke="#b8c4d2" stroke-width="1.5" stroke-dasharray="6 5"/>
+<rect x="26" y="25" width="250" height="22" rx="11" fill="#334155"/>
+<text x="151" y="40" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Scheduler Cache（只在scheduler的mem裡）</text>
+<text x="28" y="62" font-size="10.5" font-weight="800"><tspan fill="#334155">nodes：</tspan><tspan fill="#7b8797" font-size="9" font-weight="700">每台Node一張NodeInfo</tspan></text>
+<text x="180" y="62" font-size="10.5" font-weight="800"><tspan fill="#334155">podStates：</tspan><tspan fill="#7b8797" font-size="9" font-weight="700">Pod key → Pod object</tspan></text>
+<text x="404" y="62" font-size="10.5" font-weight="800"><tspan fill="#c47400">assumedPods：</tspan><tspan fill="#dba25a" font-size="9" font-weight="700">set</tspan></text>
+<rect x="26" y="72" width="142" height="68" rx="8" fill="#334155"/>
+<text x="36" y="97.5" font-size="11" font-weight="800" fill="#fff" text-anchor="start">node-a</text>
+<text x="36" y="110.5" font-size="8.5" font-weight="700" fill="#cbd5e1" text-anchor="start">cpu</text>
+<rect x="60" y="104.0" width="56" height="7" rx="3.5" fill="#64748b"/>
+<rect x="60" y="104.0" width="39" height="7" rx="3.5" fill="#94a3b8"/>
+<text x="36" y="121.5" font-size="8.5" font-weight="700" fill="#cbd5e1" text-anchor="start">mem</text>
+<rect x="60" y="115.0" width="56" height="7" rx="3.5" fill="#64748b"/>
+<rect x="60" y="115.0" width="28" height="7" rx="3.5" fill="#94a3b8"/>
+<rect x="128" y="78.5" width="34" height="14" rx="3.5" fill="#6b3fa0"/>
+<text x="145" y="88.8" font-size="8.3" font-weight="800" fill="#fff" text-anchor="middle">web-1</text>
+<rect x="128" y="99.0" width="34" height="14" rx="3.5" fill="#6b3fa0"/>
+<text x="145" y="109.3" font-size="8.3" font-weight="800" fill="#fff" text-anchor="middle">db-0</text>
+<rect x="128" y="119.5" width="34" height="14" rx="3.5" fill="#fff4e0" stroke="#c47400" stroke-width="1.4" stroke-dasharray="3 2"/>
+<text x="145" y="129.8" font-size="8.3" font-weight="800" fill="#c47400" text-anchor="middle">log-4</text>
+<rect x="26" y="144" width="142" height="44" rx="8" fill="#334155"/>
+<text x="36" y="157.5" font-size="11" font-weight="800" fill="#fff" text-anchor="start">node-b</text>
+<text x="36" y="170.5" font-size="8.5" font-weight="700" fill="#cbd5e1" text-anchor="start">cpu</text>
+<rect x="60" y="164.0" width="56" height="7" rx="3.5" fill="#64748b"/>
+<rect x="60" y="164.0" width="42" height="7" rx="3.5" fill="#94a3b8"/>
+<text x="36" y="181.5" font-size="8.5" font-weight="700" fill="#cbd5e1" text-anchor="start">mem</text>
+<rect x="60" y="175.0" width="56" height="7" rx="3.5" fill="#64748b"/>
+<rect x="60" y="175.0" width="34" height="7" rx="3.5" fill="#94a3b8"/>
+<rect x="128" y="149.33333333333334" width="34" height="14" rx="3.5" fill="#6b3fa0"/>
+<text x="145" y="159.63333333333335" font-size="8.3" font-weight="800" fill="#fff" text-anchor="middle">api-2</text>
+<rect x="128" y="168.66666666666669" width="34" height="14" rx="3.5" fill="#fff4e0" stroke="#c47400" stroke-width="1.4" stroke-dasharray="3 2"/>
+<text x="145" y="178.9666666666667" font-size="8.3" font-weight="800" fill="#c47400" text-anchor="middle">web-3</text>
+<text x="28" y="202" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="start">Filter、Score讀的是這份資料的snapshot</text>
+<rect x="180" y="72" width="214" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="186" y="86" font-size="9.5" font-weight="800" fill="#334155" text-anchor="start">default/web-1</text>
+<path d="M262 76 L262 88" stroke="#cbd5e1" stroke-width="1"/>
+<text x="268" y="86" font-size="9.5" font-weight="700" fill="#4b5563" text-anchor="start">Pod{nodeName: node-a}</text>
+<rect x="180" y="96" width="214" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="186" y="110" font-size="9.5" font-weight="800" fill="#334155" text-anchor="start">default/db-0</text>
+<path d="M262 100 L262 112" stroke="#cbd5e1" stroke-width="1"/>
+<text x="268" y="110" font-size="9.5" font-weight="700" fill="#4b5563" text-anchor="start">Pod{nodeName: node-a}</text>
+<rect x="180" y="120" width="214" height="20" rx="4" fill="#fff4e0" stroke="#c47400" stroke-width="1.2" stroke-dasharray="3 2"/>
+<text x="186" y="134" font-size="9.5" font-weight="800" fill="#c47400" text-anchor="start">default/log-4</text>
+<path d="M262 124 L262 136" stroke="#c47400" stroke-width="1"/>
+<text x="268" y="134" font-size="9.5" font-weight="700" fill="#c47400" text-anchor="start">Pod{nodeName: node-a}</text>
+<path d="M394 130.0 L407 130.0" stroke="#c47400" stroke-width="1.4" stroke-dasharray="3 2"/>
+<rect x="180" y="144" width="214" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="186" y="158" font-size="9.5" font-weight="800" fill="#334155" text-anchor="start">default/api-2</text>
+<path d="M262 148 L262 160" stroke="#cbd5e1" stroke-width="1"/>
+<text x="268" y="158" font-size="9.5" font-weight="700" fill="#4b5563" text-anchor="start">Pod{nodeName: node-b}</text>
+<rect x="180" y="168" width="214" height="20" rx="4" fill="#fff4e0" stroke="#c47400" stroke-width="1.2" stroke-dasharray="3 2"/>
+<text x="186" y="182" font-size="9.5" font-weight="800" fill="#c47400" text-anchor="start">default/web-3</text>
+<path d="M262 172 L262 184" stroke="#c47400" stroke-width="1"/>
+<text x="268" y="182" font-size="9.5" font-weight="700" fill="#c47400" text-anchor="start">Pod{nodeName: node-b}</text>
+<path d="M394 178.0 L407 178.0" stroke="#c47400" stroke-width="1.4" stroke-dasharray="3 2"/>
+<path d="M422 112 Q414 112 414 120 L414 146.0 Q414 154.0 407 154.0 Q414 154.0 414 162.0 L414 188 Q414 196 422 196" fill="none" stroke="#dba25a" stroke-width="2"/>
+<path d="M510 112 Q518 112 518 120 L518 146.0 Q518 154.0 525 154.0 Q518 154.0 518 162.0 L518 188 Q518 196 510 196" fill="none" stroke="#dba25a" stroke-width="2"/>
+<path d="M421 130 L430 119 L505 119 Q510 119 510 124 L510 136 Q510 141 505 141 L430 141 Z" fill="#c47400"/>
+<circle cx="430" cy="130" r="2.3" fill="#fff"/>
+<text x="472" y="134" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">default/log-4</text>
+<path d="M421 178 L430 167 L505 167 Q510 167 510 172 L510 184 Q510 189 505 189 L430 189 Z" fill="#c47400"/>
+<circle cx="430" cy="178" r="2.3" fill="#fff"/>
+<text x="472" y="182" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">default/web-3</text>
+<text x="466.0" y="84" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">只放「假設」的Pod：</text>
+<text x="466.0" y="98" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">API server還沒確認</text>
+</svg>

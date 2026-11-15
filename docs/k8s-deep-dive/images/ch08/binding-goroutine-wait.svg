@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 16 590.0 264" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="bw-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1f9d76"/></marker><marker id="bw-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6b3fa0"/></marker><marker id="bw-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b8336f"/></marker><marker id="bw-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d9a400"/></marker><marker id="bw-4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker></defs>
+<rect x="14" y="16" width="590.0" height="264" fill="#ffffff"/>
+<circle cx="140" cy="150" r="94" fill="#eefaf5"/>
+<path d="M107.9 238.3 A94 94 0 0 1 51.7 182.1" fill="none" stroke="#1f9d76" stroke-width="2.4" marker-end="url(#bw-0)"/>
+<path d="M51.7 117.9 A94 94 0 0 1 107.9 61.7" fill="none" stroke="#1f9d76" stroke-width="2.4" marker-end="url(#bw-0)"/>
+<path d="M172.1 61.7 A94 94 0 0 1 228.3 117.9" fill="none" stroke="#1f9d76" stroke-width="2.4" marker-end="url(#bw-0)"/>
+<path d="M228.3 182.1 A94 94 0 0 1 172.1 238.3" fill="none" stroke="#1f9d76" stroke-width="2.4" marker-end="url(#bw-0)"/>
+<path d="M212.3 173.5 A76 76 0 1 1 212.3 126.5" fill="none" stroke="#6b3fa0" stroke-width="2" marker-end="url(#bw-1)"/>
+<path d="M203.7 170.7 A67 67 0 1 1 203.7 129.3" fill="none" stroke="#b8336f" stroke-width="2" marker-end="url(#bw-2)"/>
+<path d="M195.2 167.9 A58 58 0 1 1 195.2 132.1" fill="none" stroke="#d9a400" stroke-width="2" marker-end="url(#bw-3)"/>
+<rect x="115.0" y="232.0" width="50" height="24" rx="12" fill="#1f9d76"/>
+<text x="140.0" y="248.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Pop</text>
+<rect x="18.0" y="138.0" width="56" height="24" rx="12" fill="#1f9d76"/>
+<text x="46.0" y="154.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Filter</text>
+<rect x="111.99999999999997" y="44.0" width="56" height="24" rx="12" fill="#1f9d76"/>
+<text x="139.99999999999997" y="60.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Score</text>
+<rect x="202.0" y="138.0" width="64" height="24" rx="12" fill="#c47400"/>
+<text x="234.0" y="154.0" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">assume</text>
+<text x="140" y="142" font-size="13" font-weight="800" fill="#1f2937" text-anchor="middle">主迴圈</text>
+<text x="140" y="158" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">不等Bind回應</text>
+<text x="140" y="171" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">一直轉</text>
+<text x="140" y="34" font-size="11" font-weight="800" fill="#1f9d76" text-anchor="middle">scheduling cycle</text>
+<rect x="22" y="236" width="12" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="35" y="236" width="12" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="48" y="236" width="12" height="16" rx="2" fill="#2f6fd1"/>
+<rect x="61" y="236" width="12" height="16" rx="2" fill="#2f6fd1"/>
+<text x="48" y="265" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">activeQ</text>
+<path d="M76 244 L109.0 244.0" fill="none" stroke="#2f6fd1" stroke-width="2" marker-end="url(#bw-4)"/>
+<path d="M266.0 150.0 L278.0 150.0" fill="none" stroke="#64748b" stroke-width="2"/>
+<path d="M278.0 150.0 C292.0 150.0, 286.0 100, 300.0 100 L308.0 100" fill="none" stroke="#6b3fa0" stroke-width="1.8" marker-end="url(#bw-1)"/>
+<path d="M278.0 150 L308.0 150" fill="none" stroke="#b8336f" stroke-width="1.8" marker-end="url(#bw-2)"/>
+<path d="M278.0 150.0 C292.0 150.0, 286.0 200, 300.0 200 L308.0 200" fill="none" stroke="#d9a400" stroke-width="1.8" marker-end="url(#bw-3)"/>
+<text x="280.0" y="134.0" font-size="10" font-weight="800" fill="#64748b" text-anchor="end">goroutine</text>
+<rect x="314.0" y="85" width="118" height="30" rx="15" fill="#6b3fa0"/>
+<text x="328.0" y="104" font-size="11" font-weight="800" fill="#fff" text-anchor="start">web-1：Bind</text>
+<path d="M405.0 93 H415.0 L410.0 100 L415.0 107 H405.0 L410.0 100 Z" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M407.0 106 H413.0 L410.0 102.5 Z" fill="#fff"/>
+<rect x="314.0" y="135" width="118" height="30" rx="15" fill="#b8336f"/>
+<text x="328.0" y="154" font-size="11" font-weight="800" fill="#fff" text-anchor="start">api-2：Bind</text>
+<path d="M405.0 143 H415.0 L410.0 150 L415.0 157 H405.0 L410.0 150 Z" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M407.0 156 H413.0 L410.0 152.5 Z" fill="#fff"/>
+<rect x="314.0" y="185" width="118" height="30" rx="15" fill="#d9a400"/>
+<text x="328.0" y="204" font-size="11" font-weight="800" fill="#1f2937" text-anchor="start">db-0：Bind</text>
+<path d="M405.0 193 H415.0 L410.0 200 L415.0 207 H405.0 L410.0 200 Z" fill="none" stroke="#1f2937" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M407.0 206 H413.0 L410.0 202.5 Z" fill="#1f2937"/>
+<text x="373.0" y="34" font-size="11" font-weight="800" fill="#1f9d76" text-anchor="middle">binding cycle</text>
+<text x="373.0" y="68" font-size="11" font-weight="800" fill="#334155" text-anchor="middle">binding goroutines</text>
+<text x="373.0" y="81" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="middle">各自sync等回應</text>
+<path d="M532.0 82 V218 A32.0 9 0 0 0 596.0 218 V82" fill="#334155"/>
+<ellipse cx="564.0" cy="82" rx="32.0" ry="9" fill="#475569"/>
+<text x="564.0" y="148" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">API</text>
+<text x="564.0" y="162" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">server</text>
+<path d="M436.0 94 L528.0 94" fill="none" stroke="#6b3fa0" stroke-width="1.8" marker-end="url(#bw-1)"/>
+<path d="M528.0 106 L438.0 106" fill="none" stroke="#6b3fa0" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#bw-1)"/>
+<circle cx="482.0" cy="106" r="7.5" fill="#1f9d76" stroke="#fff" stroke-width="1.5"/>
+<text x="482.0" y="109.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
+<path d="M436.0 144 L528.0 144" fill="none" stroke="#b8336f" stroke-width="1.8" marker-end="url(#bw-2)"/>
+<path d="M528.0 156 L438.0 156" fill="none" stroke="#b8336f" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#bw-2)"/>
+<circle cx="482.0" cy="156" r="7.5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+<text x="482.0" y="159.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">✕</text>
+<path d="M436.0 194 L528.0 194" fill="none" stroke="#d9a400" stroke-width="1.8" marker-end="url(#bw-3)"/>
+<path d="M528.0 206 L438.0 206" fill="none" stroke="#d9a400" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#bw-3)"/>
+<circle cx="482.0" cy="206" r="7.5" fill="#1f9d76" stroke="#fff" stroke-width="1.5"/>
+<text x="482.0" y="209.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">✓</text>
+<text x="482.0" y="88" font-size="9" font-weight="700" fill="#8a94a3" text-anchor="middle">POST binding</text>
+<text x="482.0" y="177" font-size="9" font-weight="800" fill="#dc2626" text-anchor="middle">409 Conflict</text>
+</svg>

@@ -36,15 +36,15 @@
 <g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
 <text x="412" y="28" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">watch</text>
 <text x="252" y="117" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">Enqueue</text>
-<text x="252" y="130" font-size="11" font-weight="600" fill="#64748b" text-anchor="end">還沒有Node的Pod</text>
+<text x="252" y="130" font-size="11" font-weight="600" fill="#8a94a3" text-anchor="end">還沒有Node的Pod</text>
 <text x="388" y="117" font-size="12.5" font-weight="800" fill="#334155">Update cache</text>
-<text x="388" y="130" font-size="11" font-weight="600" fill="#64748b">Node、已排好的Pod</text>
+<text x="388" y="130" font-size="11" font-weight="600" fill="#8a94a3">Node、已排好的Pod</text>
 <text x="262" y="214" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">Pop</text>
 <text x="340" y="204" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">Node資訊</text>
 <text x="482" y="220" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">先記進cache</text>
 <text x="618" y="92" font-size="12.5" font-weight="800" fill="#334155" text-anchor="end">Bind（async）</text>
-<text x="618" y="106" font-size="11" font-weight="600" fill="#64748b" text-anchor="end">在背景寫回nodeName</text>
-<text x="618" y="119" font-size="11" font-weight="600" fill="#64748b" text-anchor="end">同時排下一個Pod</text>
+<text x="618" y="106" font-size="11" font-weight="600" fill="#8a94a3" text-anchor="end">在背景寫回nodeName</text>
+<text x="618" y="119" font-size="11" font-weight="600" fill="#8a94a3" text-anchor="end">同時排下一個Pod</text>
 </g>
 
 <!-- API server + etcd -->
@@ -64,8 +64,8 @@
 <rect x="150" y="160" width="100" height="30" rx="3" fill="#2f6fd1"/>
 <path d="M170 160 V 190 M190 160 V 190 M210 160 V 190 M230 160 V 190" stroke="#ffffff" stroke-width="2"/>
 <text x="140" y="168" font-size="13" font-weight="800" fill="#1f4f8a" text-anchor="end">scheduling queue</text>
-<text x="140" y="182" font-size="10.5" font-weight="600" fill="#64748b" text-anchor="end">activeQ・backoffQ</text>
-<text x="140" y="195" font-size="10.5" font-weight="600" fill="#64748b" text-anchor="end">unschedulable</text>
+<text x="140" y="182" font-size="10.5" font-weight="600" fill="#8a94a3" text-anchor="end">activeQ・backoffQ</text>
+<text x="140" y="195" font-size="10.5" font-weight="600" fill="#8a94a3" text-anchor="end">unschedulable</text>
 
 <!-- cache -->
 <rect x="370" y="160" width="140" height="32" rx="6" fill="#2f6fd1"/>
