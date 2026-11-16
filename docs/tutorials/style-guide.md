@@ -45,7 +45,8 @@ icon: lucide/palette
 ### 中英文之間不留空格
 
 - ***中文和英文、數字之間一律不留空格***：寫`在mount namespace裡`，不要寫`在 mount namespace 裡`。
-- 範圍是**全文**：內文、標題、表格、提示框、行內`code`和粗體的交界、程式碼註解、目錄樹的說明文字，以及`zensical.toml`的`nav`導覽列名稱都一樣。英文詞和英文詞之間的空格照常保留。
+- 範圍是**全文**：內文、標題、表格、提示框、行內`code`和粗體的交界、程式碼註解、目錄樹的說明文字，以及`zensical.toml`的`nav`導覽列名稱都一樣。英文詞和英文詞之間的空格照常保留，粗體、`code`的交界也一樣：寫`**PostBind** default`，不要寫`**PostBind**default`。
+- ***不留空格只適用於同一句裡面***：前一句的結尾和後一句的開頭，一個是中文、一個是英文時，兩句之間要留空格，例如`排完就清掉 PreFilter寫進去`。兩句之間已經有全形句號「。」時，不用再加空格。
 - 不用「遞迴」這個詞，一律寫**recursive**。
 
 ### 技術名詞用英文
@@ -82,6 +83,7 @@ icon: lucide/palette
 | 推、推送（config、certificate） | push（例如istiod用xDS push config給Envoy） |
 | 事件 | event（例如WATCH push一個event過來） |
 | 解耦、解開 | decouple |
+| 擴充介面、擴展介面、擴展接口 | extension interface（Scheduling Framework裡可以掛plugin的位置叫extension point） |
 | 預設、預設值 | default、default value |
 | 唯讀、只讀 | read-only |
 | 流量規則 | traffic rule（例如VirtualService、DestinationRule） |
@@ -93,7 +95,7 @@ icon: lucide/palette
 
 其他技術名詞比照辦理：有通用英文說法的，就用英文。
 
-***只寫現在的做法***：不寫「舊的教材」「早期的寫法」「以前叫做」「舊位址是」這類歷史說明，也不用NOTE比較新舊版本；參考資料過時時，直接改寫成現在的版本。
+***只寫現在的做法***：不寫「舊的教材」「早期的寫法」「以前叫做」「舊位址是」這類歷史說明，也不用NOTE比較新舊版本；參考資料過時時，直接改寫成現在的版本。也不要提到參考資料本身，例如「原文的思考題」「原文說」；讀者只看得到這個site，內容要自己成立。
 
 標題（h1～h4）如果以英文開頭，***第一個字母大寫***，例如`## Container為什麼能seamless deploy`。
 
@@ -172,6 +174,7 @@ icon: lucide/palette
 - ***表格不要放在bullet裡面***（縮排在某個bullet底下）：Office Viewer存檔時會把表格接到bullet那一行後面，或刪掉表格前面的空行，表格就會變成一串`|`。要在bullet後面放表格，先結束bullet（例如寫「見下表。」），空一行，把表格放在最外層（提示框裡就是`> | … |`），再接下一組bullet。
 - 可以用 ✅ / ❌ 表示可以 / 不行。
 - **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和cloud一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Chap-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
+- **分組表格**：第一欄是組名，每組只在第一列寫一個彩色標籤，並加上`doc-group`，例如`<span class="doc-tag doc-tag-cloud doc-group">Volume</span>`，同一組的其他列第一欄留空。`extra.js`會把整組的第一欄填上標籤的淡底色，並拿掉組內的格線，看起來像一個合併的儲存格。不要用HTML的`rowspan`。第二欄的名字（例如plugin名字）自動變成粗體、本組的顏色；標籤下面的短說明寫成`<br><span class="doc-group-note">…</span>`，和標籤一樣大小、淺灰色。表格外面（例如NOTE裡）再提到同一個名字時，寫成`<span class="doc-name doc-name-managed">NodeResourcesFit</span>`，顏色和表格裡那一組一樣。
 - **彩色標籤**：表格裡重複出現的分類值（平台、類型、誰管理），寫成`<span class="doc-tag doc-tag-linux">Linux</span>`這種小標籤，***相同的值用相同的顏色***，不要用行內`code`。目前有的顏色：`linux`、`macos`、`windows`、`cloud`、`self`（self-managed）、`managed`、`official`、`local`、`light`（輕量）；新增的值要在`extra.css`加一組淺色、深色模式的顏色。Chap-3的「各種工具的比較」就用了這個寫法。
 - **不想斷行的行內`code`**：窄欄裡的範例（例如`nodeName: node-a`）會被拆成兩行，在後面加`{ .nowrap }`：`` `nodeName: node-a`{ .nowrap } ``。樣式在`extra.css`的`code.nowrap`。
 - 表格裡的程式碼如果含有`|`，不能寫`\|`（反斜線會原樣顯示），要改寫成HTML：`<code>MS_REC &#124; MS_PRIVATE</code>`。
@@ -234,8 +237,9 @@ icon: lucide/container      # 必填，每篇用不同的圖示
     *容器靠namespace做隔離，為什麼說這種隔離「不徹底」？業界又是怎麼補強的？*
     ```
 - **錨點**：保留中文。規則是轉小寫、去掉標點、空白換成`-`，例如`## mount常用命令總結` → `#mount常用命令總結`。不確定時建置後到HTML裡查`<h2 id="…">`。
-- **右側目錄**：全站顯示三層（h2、h3、h4），h5以下不顯示。h3和h4都可以折疊：一開始全部收起，只看到h2，點`>`展開下一層、再點收起（不會隨捲動自動展開）。implementation在`extra.js`和`extra.css`。
-- **思考題**：每章最後一個h2是`## 思考題`（也列進開頭目錄），放在最後一個section的「一句話總結」後面。題目由使用者自己寫，用編號清單，Claude只建空的h2、不出題；全部文章完成後再統一整理格式和分類。每一題都寫成可折疊的（還沒有答案就先寫「答案稍後補上。」）：***不用編號清單***，寫成`??? question "8. 題目"`（編號寫在題目裡），下一行空一行，答案縮排4格；點題目才展開答案。不要放進`1.`清單：編輯器會把清單裡的縮排改成3格，折疊就壞了。單數題很淡的紫色、雙數題淺灰色，沒有❓icon，右邊的`>`是紫色，間距在`extra.css`最後面。
+- **右側目錄**：全站顯示三層（h2、h3、h4），h5以下不顯示。h5本身是灰色、斜體（用`skewX`斜整行，中文和英文一起斜），大小只比h4小一點，不轉成全大寫，樣式在`extra.css`。h3和h4都可以折疊：一開始全部收起，只看到h2，點`>`展開下一層、再點收起（不會隨捲動自動展開）。implementation在`extra.js`和`extra.css`。
+- **思考題**：每章最後一個h2是`## 思考題`（也列進開頭目錄），放在最後一個section的「一句話總結」後面。題目由使用者自己寫，用編號清單，Claude只建空的h2、不出題；全部文章完成後再統一整理格式和分類。每一題都寫成可折疊的（還沒有答案就先寫「答案稍後補上。」）：***不用編號清單***，寫成`??? question "8. 題目"`（編號寫在題目裡），下一行空一行，答案縮排4格；點題目才展開答案。不要放進`1.`清單：編輯器會把清單裡的縮排改成3格，折疊就壞了。答案裡的圖***用Markdown寫法***`![說明](images/…svg){ width="75%" }`，不要用`<img>`：編輯器會把折疊框裡縮排的HTML刪掉。單數題很淡的紫色、雙數題淺灰色，沒有❓icon，右邊的`>`是紫色，間距在`extra.css`最後面。
+- **待辦不寫在文章裡**：「撰寫中」「這一節還沒寫」這類提醒，***不要放進文章***，記在`docs/k8s-deep-dive/draft/todo.md`。還沒寫的章節只留空的h2。
 - **導覽列**：新文章要加到`zensical.toml`的`nav`裡對應的分類。
 - **h2改名時**：記得同步更新開頭目錄的文字和錨點。
 

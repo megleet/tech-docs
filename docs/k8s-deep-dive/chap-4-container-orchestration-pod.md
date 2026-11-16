@@ -22,12 +22,7 @@ icon: lucide/ship-wheel
 
 把cloud當成一台電腦來看：
 
-| 傳統OS         | Cloud                              |
-| -------------- | ---------------------------------- |
-| `.exe`安裝檔 | **container image**          |
-| process        | **container**                |
-| process group  | **Pod**                      |
-| OS             | **Kubernetes：分散式OS** |
+![傳統OS和Cloud的對應。左邊傳統OS（一台電腦）：.exe安裝檔執行後變成process，幾個process組成process group，都跑在OS裡。右邊Cloud：container image run起來變成container，幾個container組成Pod，都跑在Kubernetes這個分散式OS裡。每一層互相對應：安裝檔≈container image、OS≈Kubernetes、process group≈Pod、process≈container](images/ch04/os-vs-cloud.svg)
 
 Kubernetes做的事，就是把OS裡「***process group***」的概念搬到container上，讓它成為這個分散式OS裡的基本單位。從另一個角度看，Pod也可以想成[一台模擬的VM](chap-3-kubernetes-architecture-operations.md#親密關係pod)。
 
@@ -65,22 +60,22 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 
 - **單process的app**：例如Go、Java、Node.js，用thread或event loop處理並行，container裡只有一個process。例如Go寫的API server（`{}`表示thread，見[怎麼看懂`pstree`](#pstree-thread)）：
 
-    ```
-    Go app container
-    └── my-api（PID 1）           ← 只有這一個process
-        ├── {my-api}（thread）    ← Go runtime的OS thread，數量大約是GOMAXPROCS（default等於CPU核數）
-        ├── {my-api}（thread）
-        └── …                     ← 上萬個goroutine輪流排在這幾個thread上跑
-    ```
+  ```
+  Go app container
+  └── my-api（PID 1）           ← 只有這一個process
+      ├── {my-api}（thread）    ← Go runtime的OS thread，數量大約是GOMAXPROCS（default等於CPU核數）
+      ├── {my-api}（thread）
+      └── …                     ← 上萬個goroutine輪流排在這幾個thread上跑
+  ```
 - **多process的app**：例如nginx、PostgreSQL、gunicorn，由PID 1的master管理自己fork出來的worker：回收、重啟，並轉發signal。例如nginx：
 
-    ```
-    nginx container
-    └── nginx master（PID 1）       ← 讀config、管理worker：掛掉就重新fork一個
-        ├── nginx worker（PID 29）  ← 真正處理request
-        ├── nginx worker（PID 30）
-        └── nginx worker（PID 31）  ← 數量default等於CPU核數（worker_processes auto）
-    ```
+  ```
+  nginx container
+  └── nginx master（PID 1）       ← 讀config、管理worker：掛掉就重新fork一個
+      ├── nginx worker（PID 29）  ← 真正處理request
+      ├── nginx worker（PID 30）
+      └── nginx worker（PID 31）  ← 數量default等於CPU核數（worker_processes auto）
+  ```
 
 兩種都符合one app per container，重點是**一個app**，不是一個process。需要一起工作的不同app，各放一個container，再用Pod組在一起。
 
@@ -103,17 +98,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 - **pause container永遠第一個建立**：其他使用者定義的container，再透過[setns()](chap-1-container-namespace-cgroups.md#setns加入另一個process的namespace)加入pause container的network namespace。
 - **用的是極小的image**：`registry.k8s.io/pause`。它是用C寫的一個小程式，靜態編譯後只有幾百KB，啟動後就一直呼叫`pause()`休眠，幾乎不佔資源。
 
-圖裡的Pod框，在[CRI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)裡叫***sandbox***。Pod和sandbox不是同一個東西：
-
-|                      | Pod                                                                                            | sandbox                                                                                  |
-| -------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| **屬於哪一層** | Kubernetes API                                                                                 | CRI / container runtime                                                                  |
-| **存在哪裡**   | API Server（etcd）                                                                             | 某一個Node上                                                                             |
-| **是什麼**     | 「**想要**什麼」的object：YAML裡定義的container、volume、`restartPolicy`、排程條件 | 「**實際**建出來的執行環境」：pause container、共用的namespace、Pod cgroup、IP |
-| **誰建立**     | 使用者或controller（`kubectl apply`、Deployment）                                            | kubelet透過CRI呼叫`RunPodSandbox`，runtime建立                                         |
-| **誰管理**     | kubelet、scheduler、controller                                                                 | containerd / CRI-O                                                                       |
-
-***Pod是設計圖，sandbox是照設計圖在某個Node上蓋好的房子***。房子倒了可以照同一張圖重蓋，設計圖不變。
+***Pod是設計圖，CRI sandbox是照設計圖在某個Node上蓋好的房子***。房子倒了可以照同一張圖重蓋，設計圖不變。
 
 ### 🔗 1. 共用network namespace的結果
 
@@ -158,10 +143,10 @@ volumes:
 
 和其他常見的volume比較：
 
-| volume                 | 資料放在哪                                                                                       | 活多久                                                   | 適合                                                   |
-| ---------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------ |
-| **`emptyDir`** | 這個Node上，kubelet管理的目錄                                                                    | ***和Pod一樣***                                  | Pod裡的container共用暫存資料                           |
-| **`hostPath`** | Node上一個指定的路徑，例如`/data`                                                              | 和Node一樣：Pod刪了，資料還在那台Node上                  | 需要讀Node本身的檔案，例如log agent讀`/var/log/pods` |
+| volume                 | 資料放在哪                                                                                                    | 活多久                                               | 適合                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------ |
+| **`emptyDir`** | 這個Node上，kubelet管理的目錄                                                                                 | ***和Pod一樣***                              | Pod裡的container共用暫存資料                           |
+| **`hostPath`** | Node上一個指定的路徑，例如`/data`                                                                           | 和Node一樣：Pod刪了，資料還在那台Node上              | 需要讀Node本身的檔案，例如log agent讀`/var/log/pods` |
 | **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph) | **和Pod無關**，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
 
 另外還有一類volume不存資料，而是把config、password project進container，見[Chap-9的Projected Volume](chap-9-volume.md#projected-volume)。
@@ -171,6 +156,7 @@ volumes:
 一個Java web app的WAR包，要放進Tomcat的`webapps`目錄才能執行。有了Pod，就可以把**WAR包**和**Tomcat*****各做成一個image***，再用一個**共用的volume**組合起來：
 
 <!-- hl: 6 13 | hl2: 10 11 16 17 21 22 -->
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -212,12 +198,12 @@ spec:
 
 常聽到的「容器設計模式」，指的是放在Pod裡的兩種：init container和sidecar。但現在很多輔助功能已經移到Node或cluster層級，所以這一節從「***放在哪一層***」來看：
 
-| 位置                         | 什麼時候執行                                | 一份服務誰                      | 典型例子                                                               |
-| ---------------------------- | ------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------- |
-| **① Init container**  | 主container**啟動前**，做完就結束 | 這一個Pod                       | 複製WAR包、等DB可以連線、跑DB migration、先取好secret                  |
-| **② Sidecar**         | 和主container**一起長期執行**     | 這一個Pod                       | Cloud SQL Auth Proxy、`git-sync`、config reload                      |
-| **③ Node agent**      | 一直在Node上執行                            | **這個Node上所有Pod** | Fluent Bit收log、node-exporter、CNI plugin、CSI nodeplugin、kube-proxy |
-| **④ Cluster service** | 一直在cluster裡執行                         | **整個cluster**       | Operator、Ingress / Gateway、cert-manager                              |
+| 位置                         | 什麼時候執行                            | 一份服務誰                  | 典型例子                                                               |
+| ---------------------------- | --------------------------------------- | --------------------------- | ---------------------------------------------------------------------- |
+| **① Init container**  | 主container**啟動前**，做完就結束 | 這一個Pod                   | 複製WAR包、等DB可以連線、跑DB migration、先取好secret                  |
+| **② Sidecar**         | 和主container**一起長期執行**     | 這一個Pod                   | Cloud SQL Auth Proxy、`git-sync`、config reload                      |
+| **③ Node agent**      | 一直在Node上執行                        | **這個Node上所有Pod** | Fluent Bit收log、node-exporter、CNI plugin、CSI nodeplugin、kube-proxy |
+| **④ Cluster service** | 一直在cluster裡執行                     | **整個cluster**       | Operator、Ingress / Gateway、cert-manager                              |
 
 ### 🧰 1. Init container：啟動前的準備
 
@@ -464,9 +450,9 @@ Pod直接使用host的namespace，不另外建立。例如[control plane的Stati
 
 | phase                   | 意思                                                                                                         | 常見原因 / 下一步                                                                                                               |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| **`Pending`**   | Pod已經存進etcd，但還有container沒run起來                                                                     | 還沒排程成功（資源不夠、`nodeSelector`沒有符合的Node）、正在拉image、init container還在跑。用`kubectl describe pod`看Events |
+| **`Pending`**   | Pod已經存進etcd，但還有container沒run起來                                                                    | 還沒排程成功（資源不夠、`nodeSelector`沒有符合的Node）、正在拉image、init container還在跑。用`kubectl describe pod`看Events |
 | **`Running`**   | 已經排程到某個Node，container都建好了，***至少有一個***正在執行、啟動或重啟                          | 正常狀態。能不能接流量要看`Ready`；container一直重啟（`CrashLoopBackOff`）時，phase也還是`Running`                        |
-| **`Succeeded`** | 所有container都***正常結束***（exit code 0），而且不會再重啟                                         | 只有`restartPolicy`是`OnFailure`或`Never`才會出現，例如Job；`Always`（Deployment default）的container結束就會被重啟         |
+| **`Succeeded`** | 所有container都***正常結束***（exit code 0），而且不會再重啟                                         | 只有`restartPolicy`是`OnFailure`或`Never`才會出現，例如Job；`Always`（Deployment default）的container結束就會被重啟     |
 | **`Failed`**    | 所有container都結束了，***至少有一個失敗***（exit code不是0，或被系統kill，例如OOM），而且不會再重啟 | 用`kubectl logs --previous`看上一次的log、`kubectl describe pod`看Events。被Node驅逐（Evicted）的Pod也是`Failed`          |
 | **`Unknown`**   | 拿不到Pod的狀態，kubelet沒辦法把狀態回報給API Server                                                         | 通常是Node和control plane之間斷線，例如Node當機、網路斷了                                                                       |
 
@@ -475,12 +461,12 @@ Pod直接使用host的namespace，不另外建立。例如[control plane的Stati
 
 `status.conditions`再細分***為什麼是這個狀態***（[官方文件](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-conditions)）：
 
-| condition                               | `True`代表                                                                                   |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| **`PodScheduled`**              | 已經排到某個Node。排不上去時是`False`，`reason`是`Unschedulable`                         |
-| **`PodReadyToStartContainers`** | sandbox和網路已經建好                                                                          |
-| **`Initialized`**               | init container全部跑完                                                                         |
-| **`ContainersReady`**           | 所有container都ready                                                                           |
+| condition                               | `True`代表                                                                                              |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **`PodScheduled`**              | 已經排到某個Node。排不上去時是`False`，`reason`是`Unschedulable`                                    |
+| **`PodReadyToStartContainers`** | sandbox和網路已經建好                                                                                     |
+| **`Initialized`**               | init container全部跑完                                                                                    |
+| **`ContainersReady`**           | 所有container都ready                                                                                      |
 | **`Ready`**                     | Pod可以接收流量，會被加進[Service](chap-3-kubernetes-architecture-operations.md#存取關係service)的endpoint |
 
 <img src="images/ch04/pod-phase-conditions.svg" alt="Pod的phase和conditions隨時間的變化：①scheduler選好Node，PodScheduled變True；②sandbox和網路建好，PodReadyToStartContainers變True；③init container跑完，Initialized變True；④container啟動，phase從Pending變Running；⑤readiness probe通過，ContainersReady變True；⑥readiness gate也通過，Ready變True，開始接流量。④到⑥之間是Running但還沒Ready" width="85%" style="margin-top:-14px">

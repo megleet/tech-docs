@@ -19,6 +19,37 @@ document$.subscribe(() => {
     h1.prepend(icon);
   }
 
+  // Grouped tables: a tag with "doc-group" starts a group. Every group-column
+  // cell of that group gets the tag's background color (as a CSS var, so dark
+  // mode still works); cells after the first hide their top line.
+  document.querySelectorAll(".md-typeset table").forEach((table) => {
+    if (!table.querySelector(".doc-group")) return;
+    let bg = null;
+    let fg = null;
+    table.querySelectorAll("tbody tr").forEach((tr) => {
+      const cell = tr.cells[0];
+      if (!cell) return;
+      const tag = cell.querySelector(".doc-group");
+      if (tag) {
+        const color = [...tag.classList].find((c) => c.startsWith("doc-tag-"));
+        bg = color ? `var(--${color}-bg)` : null;
+        fg = color ? `var(--${color})` : null;
+      } else if (bg) {
+        cell.classList.add("doc-group-cont");
+      }
+      if (bg) cell.style.backgroundColor = bg;
+      // The item name in the second column takes the group's color
+      const item = tr.cells[1];
+      if (fg && item && !item.querySelector(".doc-group-item")) {
+        const box = document.createElement("span");
+        box.className = "doc-group-item";
+        box.style.setProperty("--doc-group-fg", fg);
+        box.append(...item.childNodes);
+        item.append(box);
+      }
+    });
+  });
+
   // Analogy: turn a leading "比喻：" in <span class="analogy"> into a small tag.
   document.querySelectorAll(".md-typeset .analogy").forEach((el) => {
     const first = el.firstChild;

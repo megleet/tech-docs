@@ -9,6 +9,7 @@
   --doc-code-bg: #eef0f2;
   --doc-th-bg: #f2f3f5;
   --doc-row-hl-bg: #fbeee8;
+  --doc-group-line: #a8b3c2;
   --doc-h2-bg: #fff8e1;
   --doc-h2-bar: #f2b600;
   --doc-sh-cmd: #1a4fae;
@@ -51,6 +52,7 @@
   --doc-code-bg: rgba(255, 255, 255, 0.08);
   --doc-th-bg: rgba(255, 255, 255, 0.07);
   --doc-row-hl-bg: rgba(255, 170, 120, 0.10);
+  --doc-group-line: rgba(255, 255, 255, 0.22);
   --doc-h2-bg: rgba(255, 213, 79, 0.12);
   --doc-h2-bar: #ffd54f;
   --doc-sh-cmd: #8ab4ff;
@@ -298,6 +300,21 @@
 .md-typeset h1 .doc-page-icon svg:not([fill="none"]),
 .md-typeset a .doc-link-icon svg:not([fill="none"]) {
   fill: currentColor;
+}
+
+/* h5: gray + slanted, sized just under h4, normal case (the theme default is
+   small and UPPERCASE, which reads smaller than body text). Chinese fonts have
+   no italic, so slant the whole heading with skewX instead of font-style:
+   Chinese and English then lean the same way. */
+.md-typeset h5 {
+  font-size: 0.95em;
+  font-weight: 700;
+  font-style: normal;
+  transform: skewX(-10deg);
+  transform-origin: left bottom;
+  color: var(--md-default-fg-color--light);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 /* Right-side TOC depth: h2, h3 and h4 (three levels); h5 and below are hidden.
@@ -556,6 +573,47 @@
 /* Highlight a whole table row: put <span class="row-hl"></span> in any cell of that row */
 .md-typeset table:not([class]) tr:has(.row-hl) > td {
   background-color: var(--doc-row-hl-bg);
+}
+
+/* Grouped tables: add "doc-group" to the tag in the first row of each group
+   (<span class="doc-tag doc-tag-cloud doc-group">Volume</span>). extra.js
+   fills the group column of that group with the tag's background color and
+   hides the lines inside the group, so it reads like one merged cell */
+.md-typeset table:not([class]) td.doc-group-cont {
+  border-top-color: transparent;
+}
+
+/* Grouped tables: a double line between two groups */
+.md-typeset table:not([class]) tr:has(.doc-group) > td {
+  border-top: 2px double var(--doc-group-line);
+}
+
+/* Grouped tables: the item name in the second column is bold, in its
+   group's color (extra.js wraps it in .doc-group-item) */
+.md-typeset .doc-group-item {
+  font-weight: 700;
+  color: var(--doc-group-fg);
+  white-space: nowrap;
+}
+
+/* A name in text that matches a group tag's color, e.g. a plugin name in a NOTE:
+   <span class="doc-name doc-name-managed">NodeResourcesFit</span> */
+.md-typeset .doc-name { font-weight: 700; }
+.md-typeset .doc-name-linux { color: var(--doc-tag-linux); }
+.md-typeset .doc-name-macos { color: var(--doc-tag-macos); }
+.md-typeset .doc-name-windows { color: var(--doc-tag-windows); }
+.md-typeset .doc-name-cloud { color: var(--doc-tag-cloud); }
+.md-typeset .doc-name-self { color: var(--doc-tag-self); }
+.md-typeset .doc-name-managed { color: var(--doc-tag-managed); }
+.md-typeset .doc-name-official { color: var(--doc-tag-official); }
+.md-typeset .doc-name-local { color: var(--doc-tag-local); }
+.md-typeset .doc-name-light { color: var(--doc-tag-light); }
+
+/* A short note under a group tag: <br><span class="doc-group-note">…</span> */
+.md-typeset .doc-group-note {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--doc-analogy);
 }
 
 /* Thumbnails in reference tables: ![](...){ .ref-thumb } wrapped in a link */

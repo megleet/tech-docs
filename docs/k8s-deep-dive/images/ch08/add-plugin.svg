@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 652 150" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="ap-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker><marker id="ap-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker></defs>
+<rect x="6" y="6" width="652" height="150" fill="#ffffff"/>
+
+<!-- ① write plugin -->
+<text x="14" y="24" font-size="12.5" font-weight="800" fill="#c47400">① 寫plugin</text>
+<path d="M14 36 H172 L186 50 V128 H14 Z" fill="#1e293b"/>
+<path d="M172 36 V50 H186" fill="#475569"/>
+<text font-size="10.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="600">
+<tspan x="24" y="110" fill="#f472b6">type</tspan><tspan fill="#7db4f5"> MyPlugin</tspan><tspan fill="#e2e8f0"> struct{}</tspan>
+<tspan x="24" y="62" fill="#f472b6">func</tspan><tspan fill="#94a3b8"> (p)</tspan><tspan fill="#fbbf24"> Filter</tspan><tspan fill="#e2e8f0">(…)</tspan>
+<tspan x="24" y="86" fill="#f472b6">func</tspan><tspan fill="#94a3b8"> (p)</tspan><tspan fill="#6ee7b7"> Score</tspan><tspan fill="#e2e8f0">(…)</tspan>
+</text>
+<text x="100" y="146" font-size="10" font-weight="600" fill="#a3adbb" text-anchor="middle">implement要掛的extension point</text>
+
+<!-- fat arrow 1 -->
+<path d="M193 74 H212 V64 L226 82 L212 100 V90 H193 Z" fill="#7cc4a8"/>
+
+<!-- ② compile together -->
+<text x="232" y="24" font-size="12.5" font-weight="800" fill="#1f9d76">② 和scheduler一起compile</text>
+<rect x="232" y="40" width="102" height="32" rx="7" fill="#475569"/>
+<text x="283" y="60" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">kube-scheduler</text>
+<rect x="232" y="92" width="102" height="32" rx="7" fill="#2f6fd1"/>
+<text x="283" y="112" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">MyPlugin</text>
+<path d="M334 56 L348 56" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#ap-a)"/>
+<path d="M334 108 L348 108" fill="none" stroke="#2f6fd1" stroke-width="2" marker-end="url(#ap-b)"/>
+<rect x="352" y="36" width="82" height="92" rx="9" fill="#334155"/>
+<text x="393" y="56" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">my-scheduler</text>
+<text x="393" y="70" font-size="9.5" font-weight="700" fill="#cbd5e1" text-anchor="middle">一個執行檔</text>
+<rect x="360" y="80" width="66" height="17" rx="4" fill="#1f9d76"/>
+<text x="393" y="92" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">內建plugin</text>
+<rect x="360" y="102" width="66" height="17" rx="4" fill="#2f6fd1"/>
+<text x="393" y="114" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">MyPlugin</text>
+<text x="333" y="146" font-size="10" font-weight="600" fill="#a3adbb" text-anchor="middle">用<tspan font-family="SFMono-Regular, Menlo, monospace" fill="#7fa6e3">app.WithPlugin</tspan>註冊，再go build</text>
+
+<!-- fat arrow 2 -->
+<path d="M441 74 H460 V64 L474 82 L460 100 V90 H441 Z" fill="#7cc4a8"/>
+
+<!-- ③ enable in config -->
+<text x="480" y="24" font-size="12.5" font-weight="800" fill="#b8336f">③ 在config裡打開</text>
+<rect x="480" y="36" width="174" height="92" rx="9" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<rect x="486" y="108" width="162" height="16" rx="3" fill="#dbeafe"/>
+<text font-size="10" font-family="SFMono-Regular, Menlo, monospace" font-weight="600" fill="#334155">
+<tspan x="492" y="52" fill="#b8336f">profiles:</tspan>
+<tspan x="492" y="68">- </tspan><tspan fill="#b8336f">plugins:</tspan>
+<tspan x="516" y="84" fill="#c47400" font-weight="800">filter:</tspan>
+<tspan x="528" y="100" fill="#1f9d76">enabled:</tspan>
+<tspan x="528" y="120" fill="#2f6fd1" font-weight="800">- name: MyPlugin</tspan>
+</text>
+<text x="567" y="146" font-size="10" font-weight="600" fill="#a3adbb" text-anchor="middle">KubeSchedulerConfiguration</text>
+</svg>

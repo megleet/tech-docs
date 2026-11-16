@@ -12,9 +12,6 @@ icon: lucide/calendar-clock
 - [Priority和preemption](#priority和preemption)
 - [思考題](#思考題)
 
-> [!NOTE]
-> 撰寫中：「Scheduler怎麼選Node」只寫了開頭，之後的section還沒寫。
-
 ## 資源模型
 
 *Pod要用多少CPU和mem，怎麼告訴Kubernetes？*
@@ -489,6 +486,8 @@ scheduler的效能設計有三個，目標都一樣：***讓Scheduling Path保�
 
 <img src="images/ch08/binding-goroutine-wait.svg" alt="主迴圈和binding goroutine。左邊scheduling cycle：主迴圈從activeQ Pop一個Pod，跑Filter、Score、assume，再回到Pop，不等Bind回應，一直轉；裡面紫、玫紅、黃3個圈表示轉了3圈。右邊binding cycle：每圈assume完就開一個goroutine，web-1、api-2、db-0各自對API server發POST binding，sync等回應。web-1和db-0成功，等Informer確認；api-2收到409 Conflict失敗，ForgetPod後回backoffQ" width="85%">
 
+換個角度，***按時間順序***看同一件事：主迴圈一格接一格排下去，每個binding goroutine在下面各自等API server回應。
+
 <img src="images/ch08/binding-goroutine-timeline.svg" alt="同一件事用時間軸看。上排主迴圈，每格是一個scheduling cycle：web-1、api-2、db-0、log-4一格接一格跑Filter、Score、assume，中間沒有空檔，主迴圈不等goroutine。下面每排是一個binding goroutine，跑一個binding cycle：每個Pod assume完就分出一個goroutine，先Bind，再等API server回應，幾個goroutine的等待時間互相重疊。web-1成功，等Informer確認；api-2失敗（409），ForgetPod後回backoffQ；db-0成功" width="100%">
 
 goroutine的第一步**WaitOnPermit**是Bind之前的一道閘門，等[Scheduling framework](#scheduling-framework)圖裡的**Permit** plugin放行。一般Pod直接通過；有些plugin會讓Pod先在這裡等，例如一個訓練任務要4個Pod同時跑，就***等4個都排好才一起放行***，湊不齊就timeout、撤銷。
@@ -532,11 +531,143 @@ Scheduler Cache用`assumedPods`把assumed的Pod標記出來。
 
 ## Scheduling framework
 
-***和[CRI、CNI、CSI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)一樣，scheduler也有定義好的擴充介面***，就是**Scheduling Framework**：scheduler的每一步，從Enqueue、Filter、Score到Bind，都是可以**掛plugin的extension point**。*差別是CRI、CNI、CSI呼叫的是另一個獨立的程式（透過gRPC或執行檔），scheduler的plugin則是用Go寫，**和scheduler compile成同一個執行檔**，所以不走網路、速度快，但新增plugin要重新build scheduler*。
+### 🪝 1. Extension point：每一步都能掛plugin
+
+**和[CRI、CNI、CSI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)一樣，scheduler也有可拓展的extension interface**，就是***Scheduling Framework**：scheduler的每一步，從Enqueue、Filter、Score到Bind，都是可以掛plugin的extension point***。差別在plugin怎麼接上去：
+
+- **CRI、CNI、CSI**：***呼叫另一個獨立的程式***，透過gRPC或執行檔。*不一定使用Go語言*。
+- **scheduler的plugin**：***和scheduler compile成同一個執行檔***，所以不走網路、速度快，但新增plugin要重新build scheduler。*需要使用Go語言*。
 
 下面是schedule一個Pod的完整流程。每個箭形都是一個extension point（scheduler內建的一些功能本身也都是plugin）：
 
-<img src="images/ch08/scheduling-framework.svg" alt="Scheduling Framework的extension point，每個都是可以插plugin的箭形。scheduling queue（排隊）：PreEnqueue決定Pod能不能進activeQ，QueueSort決定誰先排，內建例子PrioritySort。Scheduling cycle（一次一個Pod，依序跑）：過濾階段PreFilter先算好、先檢查，Filter刪掉放不下的Node，虛線的PostFilter只在沒有Node放得下時才跑（preemption），內建例子NodeResourcesFit、TaintToleration；打分階段PreScore先算好打分要用的資料，Score替每台Node打分，NormalizeScore把分數縮放到0～100，內建例子ImageLocality；保留階段Reserve預留資源（assume），Permit放行、拒絕或等待（拒絕就回queue），內建例子VolumeBinding。Binding cycle（相對於主迴圈async）：PreBind是Bind前的準備，Bind把nodeName寫回API server，PostBind是成功後的清理，內建例子DefaultBinder。plugin怎麼插進去：用app.WithPlugin(myplugin.Name, myplugin.New)，和scheduler compile成同一個執行檔" width="100%">
+<img src="images/ch08/scheduling-framework.svg" alt="Scheduling Framework的extension point，每個都是可以插plugin的箭形。scheduling queue（排隊）：PreEnqueue決定Pod能不能進activeQ，QueueSort決定誰先排，內建例子PrioritySort。Scheduling cycle（一次一個Pod，依序跑）：過濾階段PreFilter先算好、先檢查，Filter刪掉放不下的Node，虛線的PostFilter只在沒有Node放得下時才跑（preemption），內建例子NodeResourcesFit、TaintToleration；打分階段PreScore先算好打分要用的資料，Score替每台Node打分，NormalizeScore把分數縮放到0～100，內建例子ImageLocality；保留階段Reserve預留資源（assume），Permit放行、拒絕或等待（拒絕就回queue），內建例子VolumeBinding。Binding cycle（相對於主迴圈async）：PreBind是Bind前的準備，Bind把nodeName寫回API server，PostBind是成功後的清理，內建例子DefaultBinder。plugin怎麼插進去：用app.WithPlugin(myplugin.Name, myplugin.New)，和scheduler compile成同一個執行檔。最下面橫跨Scheduling cycle和Binding cycle的是CycleState：這個Pod的暫存區，排完就清掉，PreFilter、PreScore寫進去，Filter、Score讀出來" width="100%">
+
+### 🔌 2. 怎麼加plugin
+
+1. **寫plugin**：用Go寫一個struct，implement要掛的extension point的interface，例如Filter、Score、Reserve，***可以同時掛好幾個***。
+2. **和scheduler一起compile**：用`app.WithPlugin`註冊這個plugin，build出一個新的scheduler執行檔。
+3. **在config裡打開**：在`KubeSchedulerConfiguration`裡，把plugin的名字寫在對應的extension point下面。
+
+<img src="images/ch08/add-plugin.svg" alt="加plugin的三步。① 寫plugin：一個Go struct MyPlugin，implement Filter和Score，也就是要掛的extension point。② 和scheduler一起compile：kube-scheduler和MyPlugin用app.WithPlugin註冊，go build成一個my-scheduler執行檔，裡面有內建plugin和MyPlugin。③ 在config裡打開：KubeSchedulerConfiguration的profiles、plugins、filter、enabled下面寫name: MyPlugin" width="100%">
+
+不想自己compile的話，可以直接用[scheduler-plugins](https://github.com/kubernetes-sigs/scheduler-plugins)社群已經build好的image。
+
+### 🧰 3. default的plugin：Filter和Score
+
+#### 🧪 Filter：哪些Node放得下
+
+default scheduler內建的Filter plugin，可以分成四組：
+
+1. <span class="doc-tag doc-tag-official">Basic filters</span>：最基本的條件，例如資源夠不夠、`nodeSelector`對不對。*kubelet在Pod啟動前也會再檢查一次*；
+2. <span class="doc-tag doc-tag-cloud">Volume filters</span>：和volume相關的Filter plugin，例如PV能不能在這台Node上掛載；
+3. <span class="doc-tag doc-tag-linux">Node filters</span>：和Node本身狀態相關的Filter plugin，例如taint、有沒有被cordon；
+4. <span class="doc-tag doc-tag-self">Pod filters</span>：和Node上其他Pod相關的Filter plugin，例如Pod affinity、Pod分散。
+
+| 組                                                                                                                         | Filter plugin      | 檢查什麼                                            |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------------ | --------------------------------------------------- |
+| <span class="doc-tag doc-tag-official doc-group">Basic filters</span><span class="doc-group-note">kubelet也會再檢查</span> | NodeResourcesFit   | CPU、mem、extended resource夠不夠，只看`requests` |
+|                                                                                                                            | NodeName           | `spec.nodeName`對不對                             |
+|                                                                                                                            | NodePorts          | host port有沒有被占用                               |
+|                                                                                                                            | NodeAffinity       | `nodeSelector`、`nodeAffinity`對不對            |
+| <span class="doc-tag doc-tag-cloud doc-group">Volume filters</span>                                                        | VolumeRestrictions | 同一顆disk能不能同時被多個Pod掛載                   |
+|                                                                                                                            | NodeVolumeLimits   | Node上CSI volume數量有沒有到上限                    |
+|                                                                                                                            | VolumeZone         | volume和Node在不在同一個zone                        |
+|                                                                                                                            | VolumeBinding      | PV的`nodeAffinity`對不對；找不找得到能用的PV      |
+| <span class="doc-tag doc-tag-linux doc-group">Node filters</span>                                                          | TaintToleration    | taint和toleration對不對                             |
+|                                                                                                                            | NodeUnschedulable  | Node有沒有被`kubectl cordon`                      |
+| <span class="doc-tag doc-tag-self doc-group">Pod filters</span>                                                            | InterPodAffinity   | Pod affinity、anti-affinity                         |
+|                                                                                                                            | PodTopologySpread  | 數量差距有沒有超過`maxSkew`                       |
+
+- **怎麼跑**：
+  - 用多個goroutine並行檢查Node，default是16個，由`parallelism`設定；
+  - 每台Node照***固定的順序***跑plugin，***一個plugin不通過就停***，不跑後面的plugin。順序照意義排：排在前面的filter是後面的基礎和前提，前提不成立就不用往下做；
+  - 大cluster裡，找到夠多放得下的Node就停，數量由`percentageOfNodesToScore`決定。
+- **kubelet會再檢查一次**：Pod要在Node上啟動前，kubelet的admission會再檢查一次資源、`nodeName`、port和`nodeAffinity`。不通過的話，Pod會變成`Failed`，原因例如`OutOfcpu`。
+
+#### 🏅 Score：從放得下的Node裡選最好的
+
+每個Score plugin先算出0～100的score，再乘上各自的weight後加總，總分最高的Node勝出。
+
+default scheduler內建的Score plugin，可以分成三組，每組回答一個問題：
+
+1. <span class="doc-tag doc-tag-managed">Resource scores</span>：資源要分散還是集中？
+2. <span class="doc-tag doc-tag-local">Preference scores</span>：Pod「希望」去哪裡？也就是盡量符合`preferred`的規則；
+3. <span class="doc-tag doc-tag-light">Image scores</span>：哪台Node啟動比較快？
+
+| 組                                                                     | Score plugin                    | 怎麼給score                                                                      |
+| ---------------------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------- |
+| <span class="doc-tag doc-tag-managed doc-group">Resource scores</span> | NodeResourcesFit                | 照`scoringStrategy`：`LeastAllocated`剩越多越高，`MostAllocated`用越滿越高 |
+|                                                                        | NodeResourcesBalancedAllocation | CPU和mem的使用比例越接近越高                                                     |
+| <span class="doc-tag doc-tag-local doc-group">Preference scores</span> | NodeAffinity                    | 符合的`preferred`規則越多越高                                                  |
+|                                                                        | TaintToleration                 | `PreferNoSchedule` taint越少越高                                               |
+|                                                                        | InterPodAffinity                | 符合的`preferred` Pod affinity越多越高                                         |
+|                                                                        | PodTopologySpread               | Pod越少的Node越高（`ScheduleAnyway`）                                          |
+| <span class="doc-tag doc-tag-light doc-group">Image scores</span>      | ImageLocality                   | 已經有這個image的Node越高，image越大加分越多                                     |
+
+> [!NOTE]
+> 📐 <span class="doc-tag doc-tag-managed">Resource scores</span>**怎麼算**
+>
+> <span class="doc-name doc-name-managed">NodeResourcesFit</span>（`LeastAllocated`）：選***空閒資源最多***的Node。CPU和mem分別算，再取平均：
+>
+> $$
+> \text{score} = \frac{\text{allocatable} - \text{requested}}{\text{allocatable}} \times 100
+> $$
+>
+> <span class="doc-name doc-name-managed">NodeResourcesBalancedAllocation</span>：選***CPU和mem用得最平均***的Node，避免CPU用光、mem卻還剩一大堆。fraction = requested ÷ allocatable，兩個比例越接近，標準差越小，score越高：
+>
+> $$
+> \text{score} = \left(1 - \text{std}(\text{cpuFraction}, \text{memFraction})\right) \times 100
+> $$
+>
+> *`requested`是Node上已有Pod的requests，加上這個要排的Pod的requests*，也就是「放進來之後」的狀況。`allocatable`是Node扣掉留給system和kubelet之後，真正能分給Pod的資源。
+
+- **Preference scores和Filter同名**：<span class="doc-name doc-name-official">NodeAffinity</span>、<span class="doc-name doc-name-linux">TaintToleration</span>、<span class="doc-name doc-name-self">InterPodAffinity</span>、<span class="doc-name doc-name-self">PodTopologySpread</span>在Filter裡檢查***必須符合***的條件（`required`、`NoSchedule`、`DoNotSchedule`），在Score裡看***盡量符合***的條件。
+- **讓Pod集中到少數Node**：把NodeResourcesFit的`scoringStrategy`改成`MostAllocated`，用得越滿score越高，空出來的Node可以關掉省錢。
+- **讓Pod分散到不同Node**：靠內建的**PodTopologySpread**。
+  - 沒設定時，它也有default的分散規則：按Node和zone分散，用的是`ScheduleAnyway`，***不會擋住Pod，只影響score***；
+  - 要強制分散，就在Pod寫`topologySpreadConstraints`。
+- **ImageLocality也看image有多普及**：**加分 = image size × 有這個image的Node比例**。只有少數Node有這個image時，加分很少，避免Pod因為image都擠到同一台。例如：
+
+  | 500MB的image在 | 算進去的size | score                               |
+  | -------------- | ------------ | ----------------------------------- |
+  | 10台裡1台      | 50MB         | (50 − 23) ÷ (1000 − 23) × 100 ≈ 3   |
+  | 10台都有       | 500MB        | (500 − 23) ÷ (1000 − 23) × 100 ≈ 49 |
+
+#### ⚙️ 複雜的plugin需要precompute
+
+##### 大部分plugin很快，複雜的先算好
+
+前面說過，scheduler裡cluster和Pod的資訊都已經在[cache和snapshot](#-scheduler為什麼快)裡，所以***大部分***plugin跑起來都很快。但***比較複雜的plugin***，例如InterPodAffinity、PodTopologySpread，判斷一台Node前，要先看整個cluster。以anti-affinity「***不要和`app=web`的Pod放在同一個zone***」為例：
+
+- **要先知道**：哪些zone裡已經有`app=web`的Pod。這得把cluster裡的Pod全部看一遍才知道；
+- **每台Node問的都是同一個問題**：如果檢查每台Node時都重看一遍，1000台Node就看1000遍；
+- **所以先算一次**：在Filter之前的**PreFilter**，先列出「***已經有`app=web`的zone***」，存進[CycleState](#算好的結果存在哪裡cyclestate)。Filter檢查每台Node時，只要查這台Node的zone在不在清單裡。
+
+##### 算好的結果存在哪裡：CycleState
+
+[framework大圖](#scheduling-framework)最下面的**CycleState**，是***這個Pod的暫存區，排完就清掉***：PreFilter、PreScore寫進去，Filter、Score讀出來。
+
+CycleState裡存的，是PreFilter或PreScore替這個Pod算好的結果，讓後面的Filter、Score不用每台Node重算。每個plugin存自己的東西，key是plugin的名字。
+
+<img src="images/ch08/cyclestate.svg" alt="CycleState是一個map。左邊PreFilter算1次，Write進CycleState；CycleState是web-4這一輪的暫存區，web-4排完就清掉；key是plugin名字，value是plugin自己的struct：PreFilterNodeResourcesFit對應{CPU: 1, mem: 512Mi}，PreFilterNodePorts對應{hostPorts: [8080]}，PreFilterInterPodAffinity對應{有app=web: zone-a, zone-b}，PreFilterPodTopologySpread對應{zone-a: 3, zone-b: 1, zone-c: 0}。右邊Filter從CycleState Read，每台Node讀1次，1000台就讀1000次" width="100%">
+
+假設要排的Pod是`web-4`，label是`app=web`，有兩個container，各要0.5 CPU，還有一條anti-affinity「不要和`app=web`放在同一個zone」：
+
+| plugin                      | PreFilter算好、存進CycleState的東西                                        | Filter每台Node怎麼用                            |
+| --------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------- |
+| **NodeResourcesFit**  | `web-4`總共要多少資源：CPU `1`、mem `512Mi`（把每個container加起來） | 和這台Node剩下的資源比                          |
+| **NodePorts**         | `web-4`要用哪些host port，例如`8080`                                   | 看這台Node的`8080`有沒有被占用                |
+| **InterPodAffinity**  | 哪些zone已經有`app=web`的Pod：`{zone-a, zone-b}`                       | 看這台Node的zone在不在清單裡                    |
+| **PodTopologySpread** | 每個zone已經有幾個`app=web`：`zone-a: 3`、`zone-b: 1`、`zone-c: 0` | 放進這台Node的zone後，差距有沒有超過`maxSkew` |
+
+- **只跟這個Pod有關**：這些東西***只跟`web-4`有關***，跟要檢查哪台Node無關。所以每台Node算出來都一樣，算一次就好；
+- **算1次，讀很多次**：1000台Node的話，Filter會跑1000次，但這些東西只在PreFilter算1次；
+- **排完就丟**：`web-4`排完，CycleState就丟掉。下一個Pod的資源、label都不一樣，要重算。
+
+> [!TIP]
+> 💡 **一句話總結**
+>
+> ***CycleState存的是「這個Pod自己的答案」***；[Scheduler Cache](#-scheduler為什麼快)存的是「cluster現在的樣子」。
 
 ## Priority和preemption
 
@@ -567,17 +698,31 @@ Scheduler Cache用`assumedPods`把assumed的Pod標記出來。
     - **Scheduling cycle**：這個Pod走一輪Pop → Filter → Score → assume，選出Node。
     - **Binding cycle**：同一個Pod再走一輪[WaitOnPermit](#-樂觀assume和async-bind) → PreBind → Bind → PostBind，把結果寫回API server。
 
-    
+    ![左邊scheduling cycle（主迴圈，一次排一個Pod）：起點是Pop，從activeQ Pop一個Pod，依序跑Filter、Score、assume，再回到Pop。右邊binding cycle（每個Pod一個goroutine，走完就結束）：assume之後進來，起點是WaitOnPermit，依序跑PreBind、Bind、PostBind](images/ch08/cycle-rings.svg){ width="75%" }
 
     兩輪各走一次就結束，裡面不會繞圈；Bind失敗時，Pod回queue，下次再從新的scheduling cycle開始。
 
     會一直繞圈的是**主迴圈**：它每轉一圈，就是一個Pod的scheduling cycle。
 
-    
+    ![主迴圈一直轉，第1圈web-1、第2圈api-2、第3圈db-0，每一圈是一個Pod的scheduling cycle；每圈往下分出同色的binding cycle：PreBind、Bind、PostBind，各走一輪就結束，不繞圈，web-1和db-0成功，api-2失敗](images/ch08/cycle-main-loop.svg){ width="80%" }
 
 ??? question "6. extension point是不是都有default的plugin？比如Score有沒有default的打分方式？如果user沒有提供自己的plugin，會怎麼樣？"
 
-    答案稍後補上。
+    ***大部分extension point都有default plugin，但不是全部。***
+
+    ![每個extension point的規則，排法和Scheduling framework的圖一樣。有default plugin的標紫色「✓ default」：PreEnqueue、QueueSort、PreFilter、Filter、PostFilter、PreScore、Score、Reserve、PreBind、Bind；NormalizeScore跟著Score plugin；Permit和PostBind標黑色「✗ 沒有default」。QueueSort右上角黃色標籤「剛好1個」，Bind右上角「至少1個」；沒有標數量的，plugin可以開0個、1個或很多個](images/ch08/extension-point-defaults.svg){ width="100%" }
+
+    - **有default plugin的**：PreEnqueue、QueueSort、PreFilter、Filter、PostFilter、PreScore、Score、Reserve、PreBind、Bind。例如PreEnqueue的SchedulingGates、QueueSort的PrioritySort、PostFilter的DefaultPreemption、Bind的DefaultBinder；
+    - **沒有default plugin的**：**Permit和PostBind**。default沒有掛plugin，這一步直接通過。
+
+    ***user不寫plugin，scheduler就用default照常運作；自己寫的plugin是加進去一起跑，不是取代。*** 以Score為例：
+
+    - **Score的default**：TaintToleration、NodeAffinity、NodeResourcesFit（`LeastAllocated`）、ImageLocality等，詳見[default的plugin：Filter和Score](#-3-default的pluginfilter和score)；
+    - **停用default plugin**：自己寫的plugin是**加在default後面**；要停用某個default plugin，得在`KubeSchedulerConfiguration`裡寫`disabled`。
+
+    ![Score單獨拿出來：每個plugin替每台Node打分數，乘上weight後加總。綠色的default plugin有TaintToleration、NodeAffinity、NodeResourcesFit等，用加號連起來；灰色刪除線的ImageLocality用disabled關掉；最後是洋紅虛線的＋MyPlugin，用enabled加進來。下面是對應的KubeSchedulerConfiguration：score底下enabled寫name: MyPlugin，disabled寫name: ImageLocality。旁邊說明：default照跑，MyPlugin的分數一起加進總分，不是取代；不要的default寫在disabled下面關掉；同一個MyPlugin也可以掛在Filter等其他extension point](images/ch08/score-add-myplugin.svg){ width="85%" }
+
+    *QueueSort只能開一個，Bind至少要有一個*，所以這兩個不能全部關掉。
 
 ??? question "7. Scheduler Cache只存在scheduler的mem裡。如果scheduler在assume之後、Bind寫回API server之前突然斷電或重啟，cache裡的資料不見了，這個Pod會怎麼樣？會不會被排兩次，或者永遠排不上？"
 

@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 794 392" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
-<defs><marker id="fw-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker><marker id="fw-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker></defs>
-<rect x="6" y="6" width="794" height="392" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 794 438" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="fw-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker><marker id="fw-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker><marker id="fw-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#b8860b"/></marker></defs>
+<rect x="6" y="6" width="794" height="438" fill="#ffffff"/>
 <rect x="8" y="10" width="146" height="316" rx="14" fill="#f5f8fc" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
 <text x="18" y="29" font-size="12" font-weight="800" fill="#334155">scheduling queue</text>
 <rect x="168" y="10" width="466" height="316" rx="14" fill="#eef5fd" stroke="#9cc0ee" stroke-width="1.5" stroke-dasharray="6 5"/>
 <text x="178" y="29" font-size="12" font-weight="800" fill="#1f4f8a">Scheduling cycle：一次一個Pod，依序跑</text>
 <rect x="648" y="10" width="146" height="316" rx="14" fill="#eefaf5" stroke="#7cc4a8" stroke-width="1.5" stroke-dasharray="6 5"/>
-<text x="658" y="29" font-size="11.5" font-weight="800" fill="#16795a">Binding cycle（相對於主迴圈async）</text>
+<text x="658" y="29" font-size="12" font-weight="800" fill="#16795a">Binding cycle（async）</text>
 <text x="91.0" y="54" text-anchor="middle" font-size="13" font-weight="900" fill="#475569">排隊</text>
 <rect x="49.0" y="42" width="24" height="12" rx="2" fill="none" stroke="#475569" stroke-width="1.3"/>
 <rect x="51.0" y="44" width="4" height="8" rx="1" fill="#475569"/>
@@ -87,11 +87,17 @@
 <path d="M310 160 H 318 V 90 H 329" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
 <path d="M470 230 H 478 V 90 H 489" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
 <path d="M630 160 H 638 V 90 H 649" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fw-a)"/>
-<text x="14" y="352" font-size="11.5" font-weight="800" fill="#334155">plugin怎麼插進去：和scheduler compile成同一個執行檔</text>
-<rect x="14" y="360" width="318" height="30" rx="7" fill="#1e293b"/>
-<text x="24" y="380" font-size="11" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0">app.WithPlugin(myplugin.Name, myplugin.New)</text>
+<path d="M302 262 L302 334" fill="none" stroke="#b8860b" stroke-width="2" marker-start="url(#fw-c)" marker-end="url(#fw-c)"/>
+<path d="M462 262 L462 334" fill="none" stroke="#b8860b" stroke-width="2" marker-start="url(#fw-c)" marker-end="url(#fw-c)"/>
+<text x="296" y="300" font-size="10" font-weight="800" fill="#8a6100" text-anchor="end" stroke="#eef5fd" stroke-width="3" paint-order="stroke">讀寫</text>
+<text x="456" y="300" font-size="10" font-weight="800" fill="#8a6100" text-anchor="end" stroke="#eef5fd" stroke-width="3" paint-order="stroke">讀寫</text>
+<rect x="168" y="338" width="626" height="32" rx="10" fill="#fff8e1" stroke="#d9a400" stroke-width="1.5"/>
+<text x="180" y="358" font-size="12" font-weight="900" fill="#8a6100">CycleState<tspan font-size="10.5" font-weight="700">：這個Pod的暫存區，排完就清掉。PreFilter、PreScore寫進去，Filter、Score讀出來</tspan></text>
+<text x="14" y="398" font-size="11.5" font-weight="800" fill="#334155">plugin怎麼插進去：和scheduler compile成同一個執行檔</text>
+<rect x="14" y="406" width="318" height="30" rx="7" fill="#1e293b"/>
+<text x="24" y="426" font-size="11" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0">app.WithPlugin(myplugin.Name, myplugin.New)</text>
 <g font-size="11" font-weight="700" fill="#64748b">
-<text x="360" y="352">虛線的PostFilter：只在沒有Node放得下時才跑（preemption）</text>
-<text x="360" y="372">Permit：放行、等待或拒絕（拒絕就回queue）</text>
+<text x="360" y="398">虛線的PostFilter：只在沒有Node放得下時才跑（preemption）</text>
+<text x="360" y="418">Permit：放行、等待或拒絕（拒絕就回queue）</text>
 </g>
 </svg>

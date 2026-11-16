@@ -11,9 +11,6 @@ icon: lucide/network
 - [Ingress和Gateway API](#ingress和gateway-api)
 - [NetworkPolicy](#networkpolicy)
 
-> [!NOTE]
-> 撰寫中：下面是預計的section。
-
 ## Pod網路和CNI
 
 ## Service和kube-proxy

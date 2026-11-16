@@ -9,9 +9,6 @@ icon: lucide/activity
 - [Custom metrics和HPA](#custom-metrics和hpa)
 - [日誌](#日誌)
 
-> [!NOTE]
-> 撰寫中：下面是預計的section。
-
 ## Metrics
 
 ## Custom metrics和HPA

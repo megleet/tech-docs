@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 6 644 234" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="oc-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+<marker id="oc-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c47400"/></marker>
+</defs>
+<rect x="8" y="6" width="644" height="234" fill="#ffffff"/>
+
+<!-- column headers -->
+<text x="159" y="20" font-size="13" font-weight="900" fill="#334155" text-anchor="middle">傳統OS：一台電腦</text>
+<text x="501" y="20" font-size="13" font-weight="900" fill="#334155" text-anchor="middle">Cloud：Kubernetes是分散式OS</text>
+
+<!-- ===== left ===== -->
+<rect x="14" y="88" width="290" height="146" rx="14" fill="#eef5fd" stroke="#9cc3ea" stroke-width="1.5"/>
+<rect x="22" y="96" width="38" height="20" rx="10" fill="#334155"/>
+<text x="41" y="110" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">OS</text>
+<rect x="34" y="124" width="250" height="100" rx="11" fill="#eefaf5" stroke="#1f9d76" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="44" y="141" font-size="11" font-weight="800" fill="#16795a">process group</text>
+<rect x="52" y="176" width="64" height="36" rx="8" fill="#2f6fd1"/>
+<text x="84" y="198" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">process</text>
+<rect x="127" y="176" width="64" height="36" rx="8" fill="#2f6fd1"/>
+<text x="159" y="198" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">process</text>
+<rect x="202" y="176" width="64" height="36" rx="8" fill="#2f6fd1"/>
+<text x="234" y="198" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">process</text>
+<!-- .exe file -->
+<path d="M111 30 H197 L209 42 V70 H111 Z" fill="#475569"/>
+<path d="M197 30 V42 H209" fill="#94a3b8"/>
+<text x="159" y="55" font-size="11.5" font-weight="800" fill="#fff" text-anchor="middle"><tspan font-family="SFMono-Regular, Menlo, monospace">.exe</tspan>安裝檔</text>
+<path d="M159 70 L159 168" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#oc-a)"/>
+<text x="166" y="160" font-size="10" font-weight="800" fill="#475569" stroke="#eefaf5" stroke-width="3" paint-order="stroke">執行</text>
+
+<!-- ===== right ===== -->
+<rect x="356" y="88" width="290" height="146" rx="14" fill="#eef5fd" stroke="#9cc3ea" stroke-width="1.5"/>
+<rect x="364" y="96" width="82" height="20" rx="10" fill="#334155"/>
+<text x="405" y="110" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Kubernetes</text>
+<rect x="376" y="124" width="250" height="100" rx="11" fill="#eefaf5" stroke="#1f9d76" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="386" y="141" font-size="11" font-weight="800" fill="#16795a">Pod</text>
+<rect x="394" y="176" width="64" height="36" rx="8" fill="#2f6fd1"/>
+<text x="426" y="198" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">container</text>
+<rect x="469" y="176" width="64" height="36" rx="8" fill="#2f6fd1"/>
+<text x="501" y="198" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">container</text>
+<rect x="544" y="176" width="64" height="36" rx="8" fill="#2f6fd1"/>
+<text x="576" y="198" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">container</text>
+<!-- image: layered stack -->
+<rect x="459" y="28" width="104" height="34" rx="6" fill="#f3c27a"/>
+<rect x="455" y="32" width="104" height="34" rx="6" fill="#e09a3a"/>
+<rect x="451" y="36" width="104" height="34" rx="6" fill="#c47400"/>
+<text x="503" y="57" font-size="11.5" font-weight="800" fill="#fff" text-anchor="middle">container image</text>
+<path d="M501 70 L501 168" fill="none" stroke="#c47400" stroke-width="2" marker-end="url(#oc-b)"/>
+<text x="508" y="160" font-size="10" font-weight="800" fill="#c47400" stroke="#eefaf5" stroke-width="3" paint-order="stroke">run</text>
+
+<!-- correspondences -->
+<g font-size="17" font-weight="900" fill="#94a3b8" text-anchor="middle">
+<text x="330" y="56">≈</text>
+<text x="330" y="112">≈</text>
+<text x="330" y="146">≈</text>
+<text x="330" y="200">≈</text>
+</g>
+</svg>

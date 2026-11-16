@@ -16,8 +16,8 @@
 <rect x="60" y="115.0" width="28" height="7" rx="3.5" fill="#94a3b8"/>
 <rect x="128" y="78.5" width="34" height="14" rx="3.5" fill="#6b3fa0"/>
 <text x="145" y="88.8" font-size="8.3" font-weight="800" fill="#fff" text-anchor="middle">web-1</text>
-<rect x="128" y="99.0" width="34" height="14" rx="3.5" fill="#6b3fa0"/>
-<text x="145" y="109.3" font-size="8.3" font-weight="800" fill="#fff" text-anchor="middle">db-0</text>
+<rect x="128" y="99.0" width="34" height="14" rx="3.5" fill="#d9a400"/>
+<text x="145" y="109.3" font-size="8.3" font-weight="800" fill="#1f2937" text-anchor="middle">db-0</text>
 <rect x="128" y="119.5" width="34" height="14" rx="3.5" fill="#fff4e0" stroke="#c47400" stroke-width="1.4" stroke-dasharray="3 2"/>
 <text x="145" y="129.8" font-size="8.3" font-weight="800" fill="#c47400" text-anchor="middle">log-4</text>
 <rect x="26" y="144" width="142" height="44" rx="8" fill="#334155"/>
@@ -28,7 +28,7 @@
 <text x="36" y="181.5" font-size="8.5" font-weight="700" fill="#cbd5e1" text-anchor="start">mem</text>
 <rect x="60" y="175.0" width="56" height="7" rx="3.5" fill="#64748b"/>
 <rect x="60" y="175.0" width="34" height="7" rx="3.5" fill="#94a3b8"/>
-<rect x="128" y="149.33333333333334" width="34" height="14" rx="3.5" fill="#6b3fa0"/>
+<rect x="128" y="149.33333333333334" width="34" height="14" rx="3.5" fill="#b8336f"/>
 <text x="145" y="159.63333333333335" font-size="8.3" font-weight="800" fill="#fff" text-anchor="middle">api-2</text>
 <rect x="128" y="168.66666666666669" width="34" height="14" rx="3.5" fill="#fff4e0" stroke="#c47400" stroke-width="1.4" stroke-dasharray="3 2"/>
 <text x="145" y="178.9666666666667" font-size="8.3" font-weight="800" fill="#c47400" text-anchor="middle">web-3</text>

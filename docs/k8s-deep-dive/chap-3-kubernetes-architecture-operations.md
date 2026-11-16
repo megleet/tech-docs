@@ -433,11 +433,13 @@ bindAddress: 0.0.0.0
 
 #### 🗺️ kubeadm流程講解
 
-kubeadm讀取`kubeadm.yaml`，寫出的4種config file：
+##### kubeadm讀取`kubeadm.yaml`，寫出4種config file
 
 ![kubeadm init讀取kubeadm.yaml的4段config，寫出certificate、kubeconfig、Static Pod YAML和kubelet的運行參數](images/ch03/kubeadm-init-outputs.svg)
 
-kubeadm怎麼把各元件run起來：透過systemd啟動kubelet，kubelet再依Static Pod YAML啟動control plane的4個元件；kube-proxy、CoreDNS則是kubeadm透過API Server建立object，最後同樣由kubelet執行。
+##### kubeadm怎麼把各元件run起來
+
+kubeadm透過systemd啟動kubelet，kubelet再依Static Pod YAML啟動control plane的4個元件；kube-proxy、CoreDNS則是kubeadm透過API Server建立object，最後同樣由kubelet執行。
 
 ![kubeadm透過systemd啟動kubelet，kubelet以Static Pod啟動control plane的4個元件；kubeadm透過API Server建立kube-proxy和CoreDNS，再由kubelet執行它們的Pod](images/ch03/kubeadm-start-components.svg)
 

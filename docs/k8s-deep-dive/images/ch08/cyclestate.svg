@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 6 684 236" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="cs-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker>
+<marker id="cs-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/></marker>
+</defs>
+<rect x="2" y="6" width="684" height="236" fill="#ffffff"/>
+
+<!-- PreFilter -->
+<rect x="4" y="98" width="80" height="48" rx="9" fill="#2f6fd1"/>
+<text x="44" y="119" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">PreFilter</text>
+<text x="44" y="134" font-size="9.5" font-weight="700" fill="#dbe7fb" text-anchor="middle">算1次</text>
+<path d="M84 122 L114 122" fill="none" stroke="#2f6fd1" stroke-width="2" marker-end="url(#cs-a)"/>
+<text x="99" y="114" font-size="9.5" font-weight="800" fill="#2f6fd1" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">Write</text>
+
+<!-- CycleState frame -->
+<rect x="120" y="10" width="404" height="228" rx="12" fill="#f5f8fc" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="128" y="17" width="214" height="22" rx="11" fill="#334155"/>
+<text x="235" y="32" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">CycleState：web-4這一輪的暫存區</text>
+<text x="516" y="32" font-size="9.5" font-weight="700" fill="#8a94a3" text-anchor="end">web-4排完就清掉</text>
+<text x="130" y="58" font-size="9.5" font-weight="800" fill="#64748b">key：plugin名字</text>
+<text x="320" y="58" font-size="9.5" font-weight="800" fill="#64748b">value：plugin自己的struct</text>
+
+<!-- row 1 -->
+<rect x="128" y="66" width="174" height="30" rx="6" fill="#3730a3"/>
+<text x="215" y="85" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="700" fill="#fff" text-anchor="middle">PreFilterNodeResourcesFit</text>
+<path d="M303 81 L314 81" fill="none" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#cs-g)"/>
+<rect x="318" y="66" width="198" height="30" rx="6" fill="#fff" stroke="#3730a3" stroke-width="1.4"/>
+<text x="417" y="85" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="700" fill="#3730a3" text-anchor="middle">{CPU: 1, mem: 512Mi}</text>
+
+<!-- row 2 -->
+<rect x="128" y="108" width="174" height="30" rx="6" fill="#3730a3"/>
+<text x="215" y="127" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="700" fill="#fff" text-anchor="middle">PreFilterNodePorts</text>
+<path d="M303 123 L314 123" fill="none" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#cs-g)"/>
+<rect x="318" y="108" width="198" height="30" rx="6" fill="#fff" stroke="#3730a3" stroke-width="1.4"/>
+<text x="417" y="127" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="700" fill="#3730a3" text-anchor="middle">{hostPorts: [8080]}</text>
+
+<!-- row 3 -->
+<rect x="128" y="150" width="174" height="30" rx="6" fill="#6b3fa0"/>
+<text x="215" y="169" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="700" fill="#fff" text-anchor="middle">PreFilterInterPodAffinity</text>
+<path d="M303 165 L314 165" fill="none" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#cs-g)"/>
+<rect x="318" y="150" width="198" height="30" rx="6" fill="#fff" stroke="#6b3fa0" stroke-width="1.4"/>
+<text x="417" y="169" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="700" fill="#6b3fa0" text-anchor="middle">{有app=web: zone-a, zone-b}</text>
+
+<!-- row 4 -->
+<rect x="128" y="192" width="174" height="30" rx="6" fill="#6b3fa0"/>
+<text x="215" y="211" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="700" fill="#fff" text-anchor="middle">PreFilterPodTopologySpread</text>
+<path d="M303 207 L314 207" fill="none" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#cs-g)"/>
+<rect x="318" y="192" width="198" height="30" rx="6" fill="#fff" stroke="#6b3fa0" stroke-width="1.4"/>
+<text x="417" y="211" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="700" fill="#6b3fa0" text-anchor="middle">{zone-a: 3, zone-b: 1, zone-c: 0}</text>
+
+<!-- Filter -->
+<path d="M524 122 L554 122" fill="none" stroke="#2f6fd1" stroke-width="2" marker-end="url(#cs-a)"/>
+<text x="539" y="114" font-size="9.5" font-weight="800" fill="#2f6fd1" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">Read</text>
+<rect x="558" y="92" width="126" height="60" rx="9" fill="#2f6fd1"/>
+<text x="621" y="114" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">Filter</text>
+<text x="621" y="129" font-size="9.5" font-weight="700" fill="#dbe7fb" text-anchor="middle">每台Node讀1次</text>
+<text x="621" y="143" font-size="9.5" font-weight="700" fill="#dbe7fb" text-anchor="middle">1000台就讀1000次</text>
+</svg>

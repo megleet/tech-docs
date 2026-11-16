@@ -10,9 +10,6 @@ icon: lucide/cpu
 - [OCI](#oci)
 - [RuntimeClass](#runtimeclass)
 
-> [!NOTE]
-> 撰寫中：下面是預計的section。
-
 ## CRI
 
 ## containerd和runc

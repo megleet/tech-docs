@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 6 666 250" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect x="4" y="6" width="666" height="250" fill="#ffffff"/>
+
+<!-- Score frame -->
+<rect x="8" y="10" width="662" height="92" rx="14" fill="#f0fdfa" stroke="#5eead4" stroke-width="1.5" stroke-dasharray="6 5"/>
+<path d="M27 17 L29.06 22.17 L34.61 22.53 L30.33 26.08 L31.70 31.47 L27 28.5 L22.30 31.47 L23.67 26.08 L19.39 22.53 L24.94 22.17 Z" fill="#0f766e"/>
+<text x="42" y="30" font-size="12" font-weight="800" fill="#115e59">Score：每個plugin替每台Node打分數，乘上weight後加總</text>
+
+<g font-size="14" font-weight="900" fill="#64748b" text-anchor="middle">
+<text x="140" y="67">+</text>
+<text x="258" y="67">+</text>
+<text x="399" y="67">+</text>
+<text x="447" y="67">+</text>
+<text x="569" y="67">+</text>
+</g>
+<rect x="16" y="48" width="111" height="28" rx="7" fill="#dcfce7" stroke="#15803d" stroke-width="1.4"/>
+<text x="71.5" y="66.5" font-size="10.5" font-weight="800" fill="#15803d" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">TaintToleration</text>
+<rect x="153" y="48" width="92" height="28" rx="7" fill="#dcfce7" stroke="#15803d" stroke-width="1.4"/>
+<text x="199.0" y="66.5" font-size="10.5" font-weight="800" fill="#15803d" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">NodeAffinity</text>
+<rect x="271" y="48" width="115" height="28" rx="7" fill="#dcfce7" stroke="#15803d" stroke-width="1.4"/>
+<text x="328.5" y="66.5" font-size="10.5" font-weight="800" fill="#15803d" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">NodeResourcesFit</text>
+<text x="423" y="67" font-size="14" font-weight="900" fill="#64748b" text-anchor="middle">…</text>
+<rect x="460" y="48" width="96" height="28" rx="7" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.4"/>
+<text x="508.0" y="66.5" font-size="10.5" font-weight="800" fill="#94a3b8" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace" text-decoration="line-through">ImageLocality</text>
+<rect x="582" y="48" width="73" height="28" rx="7" fill="#ffffff" stroke="#b8336f" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="618.5" y="66.5" font-size="10.5" font-weight="800" fill="#b8336f" text-anchor="middle" font-family="SFMono-Regular, Menlo, monospace">＋MyPlugin</text>
+<text x="201" y="93" font-size="10" font-weight="800" fill="#15803d" text-anchor="middle">default的plugin，各自打分數</text>
+<text x="508" y="93" font-size="10" font-weight="800" fill="#94a3b8" text-anchor="middle">用disabled關掉</text>
+<text x="618.5" y="93" font-size="10" font-weight="800" fill="#b8336f" text-anchor="middle">用enabled加進來</text>
+
+<!-- YAML -->
+<text x="10" y="132" font-size="11" font-weight="800" fill="#334155">KubeSchedulerConfiguration</text>
+<rect x="8" y="140" width="250" height="112" rx="8" fill="#1e293b"/>
+<text font-size="10.5" font-family="SFMono-Regular, Menlo, monospace" fill="#e2e8f0">
+<tspan x="20" y="158">profiles:</tspan>
+<tspan x="20" y="173">- plugins:</tspan>
+<tspan x="45" y="188">score:</tspan>
+<tspan x="57" y="203">enabled:</tspan>
+<tspan x="57" y="218" fill="#f472b6" font-weight="800">- name: MyPlugin</tspan>
+<tspan x="57" y="233">disabled:</tspan>
+<tspan x="57" y="248" fill="#94a3b8" font-weight="800">- name: ImageLocality</tspan>
+</text>
+
+<!-- notes -->
+<g font-size="11.5" font-weight="700" fill="#475569">
+<text x="280" y="164"><tspan fill="#15803d" font-weight="900">default照跑</tspan>：MyPlugin的分數一起加進總分，不是取代</text>
+<text x="280" y="192"><tspan fill="#94a3b8" font-weight="900">不要的default</tspan>：寫在<tspan font-family="SFMono-Regular, Menlo, monospace">disabled</tspan>下面關掉</text>
+<text x="280" y="220"><tspan fill="#b8336f" font-weight="900">其他extension point也一樣</tspan>：同一個MyPlugin也可以掛在Filter等地方</text>
+</g>
+</svg>
