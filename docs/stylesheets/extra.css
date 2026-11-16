@@ -432,14 +432,15 @@
 }
 
 /* Internal links (this site, including the same page): indigo, upright,
-   dotted underline, small ↘ */
+   dotted underline, small ↘. Not inside code blocks: anchor_linenums turns
+   every code line into a link, which would put ↘ on every line. */
 .md-typeset a {
   text-decoration-style: dotted;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 0.2em;
 }
 
-.md-typeset a[href]:not(.doc-ext-link):not(.headerlink):not(.md-button):not(.md-content__button):not(.footnote-ref):not(.footnote-backref):not(:has(> img)):not([data-link-icons] a)::after {
+.md-typeset a[href]:not(.doc-ext-link):not(.headerlink):not(.md-button):not(.md-content__button):not(.footnote-ref):not(.footnote-backref):not(:has(> img)):not([data-link-icons] a):not(.highlight a)::after {
   content: "↘";
   display: inline-block;
   margin-left: 0.1em;
