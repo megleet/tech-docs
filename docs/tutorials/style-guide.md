@@ -99,7 +99,7 @@ icon: lucide/palette
 
 標題（h1～h4）如果以英文開頭，***第一個字母大寫***，例如`## Container為什麼能seamless deploy`。
 
-**頁面標題**（h1，也就是nav和首頁顯示的名稱）裡的英文單字，***每個字的第一個字母都大寫***，例如`# Chap-1 Container基礎：Namespace / Cgroups`；介系詞（in、of等）維持小寫。對應的檔名用***英文小寫***，單字之間用`-`連接，例如`chap-1-container-namespace-cgroups.md`。程式識別字和命令名稱（`pivot_root`、`unshare()`、`mount`、`umount`）維持原樣，***不要大寫***。
+**頁面標題**（h1，也就是nav和首頁顯示的名稱）裡的英文單字，***每個字的第一個字母都大寫***，例如`# Ch-1 Container基礎：NS / Cgroups`；介系詞（in、of等）維持小寫。對應的檔名用***英文小寫***，單字之間用`-`連接，例如`chap-1-container-namespace-cgroups.md`。程式識別字和命令名稱（`pivot_root`、`unshare()`、`mount`、`umount`）維持原樣，***不要大寫***。
 
 ***不要中英文各說一遍***：不寫「中文（English）」或「English（中文）」，只寫英文。例如寫`Copy-on-Write`，不寫`寫時複製（Copy-on-Write）`；寫`mount propagation`，不寫`掛載傳播（propagation）`。括號裡放英文縮寫的全名（例如`OCI（Open Container Initiative）`）、補充說明或舉例，都可以。
 
@@ -123,7 +123,7 @@ icon: lucide/palette
 - 在條列的說明後面加一小段比喻，寫成`<span class="analogy">比喻：先排除坐不下的桌子</span>`，放在句末標點前面，***不要加括號***。
 - ***開頭一定要寫「比喻：」***，這樣看原始Markdown也知道這是比喻。
 - 網站上會顯示成灰色、小一點的字；`extra.js`把開頭的「比喻：」換成灰底的「比喻」小標籤。
-- 同一組條列的比喻接成同一個故事，例如Chap-8的Filter、Score、assume、Bind都用餐廳帶位。
+- 同一組條列的比喻接成同一個故事，例如Ch-8的Filter、Score、assume、Bind都用餐廳帶位。
 
 ### 程式碼區塊
 
@@ -173,9 +173,9 @@ icon: lucide/palette
 - ***表格不要包`<div>`***：`extra.css`有`.row-header-table`樣式（第一欄用表頭底色），但要把表格包在`<div class="row-header-table" markdown>`裡。Office Viewer存檔時會把div裡的表格和`</div>`一起刪掉，只剩開頭那行div，後面的內容也可能被截掉。所以不要用。
 - ***表格不要放在bullet裡面***（縮排在某個bullet底下）：Office Viewer存檔時會把表格接到bullet那一行後面，或刪掉表格前面的空行，表格就會變成一串`|`。要在bullet後面放表格，先結束bullet（例如寫「見下表。」），空一行，把表格放在最外層（提示框裡就是`> | … |`），再接下一組bullet。
 - 可以用 ✅ / ❌ 表示可以 / 不行。
-- **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和cloud一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Chap-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
+- **整列highlight**：在那一列任一格加一個空的`<span class="row-hl"></span>`，例如`| **local和cloud一致**<span class="row-hl"></span> |`，整列會用淡橘色底色（`--doc-row-hl-bg`）。Ch-0的Docker和Cloud Foundry比較表就用了這個寫法，標出決勝的那一列。
 - **分組表格**：第一欄是組名，每組只在第一列寫一個彩色標籤，並加上`doc-group`，例如`<span class="doc-tag doc-tag-cloud doc-group">Volume</span>`，同一組的其他列第一欄留空。`extra.js`會把整組的第一欄填上標籤的淡底色，並拿掉組內的格線，看起來像一個合併的儲存格。不要用HTML的`rowspan`。第二欄的名字（例如plugin名字）自動變成粗體、本組的顏色；標籤下面的短說明寫成`<br><span class="doc-group-note">…</span>`，和標籤一樣大小、淺灰色。表格外面（例如NOTE裡）再提到同一個名字時，寫成`<span class="doc-name doc-name-managed">NodeResourcesFit</span>`，顏色和表格裡那一組一樣。
-- **彩色標籤**：表格裡重複出現的分類值（平台、類型、誰管理），寫成`<span class="doc-tag doc-tag-linux">Linux</span>`這種小標籤，***相同的值用相同的顏色***，不要用行內`code`。目前有的顏色：`linux`、`macos`、`windows`、`cloud`、`self`（self-managed）、`managed`、`official`、`local`、`light`（輕量）；新增的值要在`extra.css`加一組淺色、深色模式的顏色。Chap-3的「各種工具的比較」就用了這個寫法。
+- **彩色標籤**：表格裡重複出現的分類值（平台、類型、誰管理），寫成`<span class="doc-tag doc-tag-linux">Linux</span>`這種小標籤，***相同的值用相同的顏色***，不要用行內`code`。目前有的顏色：`linux`、`macos`、`windows`、`cloud`、`self`（self-managed）、`managed`、`official`、`local`、`light`（輕量）；新增的值要在`extra.css`加一組淺色、深色模式的顏色。Ch-3的「各種工具的比較」就用了這個寫法。
 - **不想斷行的行內`code`**：窄欄裡的範例（例如`nodeName: node-a`）會被拆成兩行，在後面加`{ .nowrap }`：`` `nodeName: node-a`{ .nowrap } ``。樣式在`extra.css`的`code.nowrap`。
 - 表格裡的程式碼如果含有`|`，不能寫`\|`（反斜線會原樣顯示），要改寫成HTML：`<code>MS_REC &#124; MS_PRIVATE</code>`。
 
@@ -186,7 +186,7 @@ icon: lucide/palette
 - **命名**：貼上後如果檔名是數字，改成看得出內容的名字，例如`container-layers.png`。
 - **沒用到的圖要刪掉**：換圖或刪段落後，檢查`images/`裡有沒有文章不再引用的檔案。
 - **大小**：需要調整時用`<img src="…" alt="…" width="…">`；圖片本身的白邊先裁掉，避免和上下文之間空太多。
-- **元件用實心底、淺色字**：圖裡的box、圓圈等元件，用實心的顏色填滿，上面的字用白色或很淺的同色系（例如藍底配`#dbe7f7`、橘底配`#fff4e0`）；不要用淺色底加深色字。外框（把幾個元件框在一起的虛線框）維持淺色背景。配色要有變化，多用粉紅（`#d6457f`）、莓紅（`#b8336a`）、紫色（`#6d4fc2`）、金黃（`#c99a00`）、亮黃（`#ffd23f`，小色塊用），不要每張圖都用橘色；固定的慣例：etcd綠色（`#2f9e6e`）、API Server深藍（`#1a3f78`）。範本是Chap-7的`images/ch07/event-handlers.svg`：紫色（`#6d4fc2`）、粉紅（`#d6457f`）、綠色（`#1f9d76`）、亮黃（`#ffd23f`，亮黃底配深褐色字`#4a3600`），畫新圖時照這個風格。
+- **元件用實心底、淺色字**：圖裡的box、圓圈等元件，用實心的顏色填滿，上面的字用白色或很淺的同色系（例如藍底配`#dbe7f7`、橘底配`#fff4e0`）；不要用淺色底加深色字。外框（把幾個元件框在一起的虛線框）維持淺色背景。配色要有變化，多用粉紅（`#d6457f`）、莓紅（`#b8336a`）、紫色（`#6d4fc2`）、金黃（`#c99a00`）、亮黃（`#ffd23f`，小色塊用），不要每張圖都用橘色；固定的慣例：etcd綠色（`#2f9e6e`）、API Server深藍（`#1a3f78`）。範本是Ch-7的`images/ch07/event-handlers.svg`：紫色（`#6d4fc2`）、粉紅（`#d6457f`）、綠色（`#1f9d76`）、亮黃（`#ffd23f`，亮黃底配深褐色字`#4a3600`），畫新圖時照這個風格。
 - **形狀要符合它是什麼**：不要每樣東西都畫成box。DB、etcd、disk用圓柱；queue用一排格子；informer、controller這種loop用帶環狀箭頭的圓；一連串的步驟用箭形（chevron）；過濾用漏斗；放行／拒絕這種判斷用菱形或閘門；optional或async的部分用虛線。box只留給一般的元件或程序。
 - **箭頭和線同色**：每種顏色的線都要有自己同色的`<marker>`，不要讓彩色的線配灰色的箭頭。箭頭的終點要落在目標元件的外面，不要被元件蓋住。
 - **SVG的文字不能被線蓋住**：文字靠近或壓在線上時，***文字要畫在line圖層上面***（SVG裡寫在line之後），再加一圈白邊：`<g paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">…文字…</g>`。重疊沒關係，不用為了避開線而移動文字。
@@ -247,26 +247,31 @@ icon: lucide/container      # 必填，每篇用不同的圖示
 
 | 頁面 | 圖示 |
 | --- | --- |
-| Index | `lucide/house` |
+| Home | `lucide/house` |
 | Get Started | `lucide/rocket` |
 | Markdown in 5min | `simple/markdown` |
 | GitHub相容寫法 | `simple/github` |
 | 網站排版風格 | `lucide/palette` |
 | Claude Code入口 | `simple/claude` |
 | Reference | `lucide/book-open` |
-| Chap-0 History | `lucide/history` |
-| Chap-1 Container基礎：Namespace / Cgroups | `lucide/container` |
-| Chap-2 Container基礎：FS / Security | `lucide/layers` |
-| Chap-3 Kubernetes Architecture & Operations | `simple/kubernetes` |
-| Chap-4 Container Orchestration之Pod篇 | `lucide/ship-wheel` |
-| Chap-5 Container Orchestration之Controller篇 | `lucide/refresh-cw` |
-| Chap-6 Declarative API | `lucide/file-code` |
-| Chap-7 CRD & Operator | `lucide/puzzle` |
-| Chap-8 Scheduler | `lucide/calendar-clock` |
-| Chap-9 Storage & Volume | `lucide/hard-drive` |
-| Chap-10 Container Runtime | `lucide/cpu` |
-| Chap-11 Network | `lucide/network` |
-| Chap-12 Monitoring & Logging | `lucide/activity` |
+| Ch-0 History | `lucide/history` |
+| Ch-1 Container基礎：NS / Cgroups | `lucide/container` |
+| Ch-2 Container基礎：FS / Security | `lucide/layers` |
+| Ch-3 K8s Architecture & Ops | `simple/kubernetes` |
+| Ch-4 Orchestration之Pod篇 | `lucide/ship-wheel` |
+| Ch-5 Orchestration之Controller篇 | `lucide/refresh-cw` |
+| Ch-6 Declarative API | `lucide/file-code` |
+| Ch-7 CRD & Operator | `lucide/puzzle` |
+| Ch-8 Scheduler | `lucide/calendar-clock` |
+| Ch-9 Storage & Volume | `lucide/hard-drive` |
+| Ch-10 Container Runtime | `lucide/cpu` |
+| Ch-11 Network | `lucide/network` |
+| Ch-12 Monitoring & Logging | `lucide/activity` |
+| Go：Ch-1 Concurrency基礎 | `lucide/split` |
+| Go：Ch-2 Goroutine & Runtime | `lucide/zap` |
+| Go：Ch-3 Channel & Select | `lucide/arrow-right-left` |
+| Go：Ch-4 sync pkg：WaitGroup / Mutex | `lucide/lock` |
+| Go：Ch-5 Concurrency Patterns | `lucide/workflow` |
 
 ## Implementation位置
 
@@ -274,7 +279,7 @@ icon: lucide/container      # 必填，每篇用不同的圖示
 | --- | --- |
 | `zensical.toml` | 網站config、`nav`、Markdown擴充、`extra_css` / `extra_javascript`、`custom_dir`、中文錨點（`toc.slugify`）、GitHub alert（`github-callouts`） |
 | `docs/stylesheets/extra.css` | 所有顏色和間距。顏色都是檔案開頭的CSS var，淺色 / 深色模式各一組 |
-| `docs/javascripts/extra.js` | 把頁面圖示移到h1前、首頁連結加圖示、程式碼語言標籤、shell指令上色、C語法補強（函式呼叫 / 參數 / #define）、目錄樹上色、標記青綠色小標題 、長程式碼折疊 、右側目錄折疊、左側導覽列Tutorials折疊（default收起，記住展開狀態） |
+| `docs/javascripts/extra.js` | 把頁面圖示移到h1前、首頁連結加圖示、程式碼語言標籤、shell指令上色、C語法補強（函式呼叫 / 參數 / #define）、目錄樹上色、標記青綠色小標題 、長程式碼折疊 、右側目錄折疊、左側導覽列每個section都可以折疊（首頁全部收起；只有1個section時展開；2個以上時只展開目前page所在的section。這是第一次載入或refresh時的default；換page時每個section都保持viewer上一頁看到的狀態，refresh之後才回到default；目前page所在的section一定展開） |
 | `overrides/main.html` | 覆寫主題樣板：輸出頁面圖示、首頁標記 |
 | `.github/workflows/docs.yml` | GitHub Actions：安裝`zensical`和`markdown-callouts`，建置並發佈到Pages |
 
@@ -335,4 +340,4 @@ git push                          # push上去後GitHub Actions自動發佈
 - **`(c)`會變成©**：`smartsymbols`擴充會把`(c)`轉成版權符號（`(r)`、`(tm)`也一樣）。用`(a)`、`(b)`、`(c)`編號時，要寫成`\(c)`。
 - **新文章忘了加到首頁**：`nav`會自動出現在左側導覽列，但首頁`index.md`的清單要手動加，兩邊都要更新。
 - **短頁面的左側導覽列被footer擠掉**：頁面內容很短時（例如首頁），footer緊接在內容下面，左側導覽列的高度被壓縮，後面的項目要在導覽列裡捲動才看得到。`extra.css`用`.md-main__inner { min-height: 100vh; }`讓footer一定在第一個畫面之外。新增文章後，用寬而矮的視窗（例如`--window-size=1400,700`）截首頁確認最後一章看得到。
-- **左側導覽列的section標題點不動**：主題對section標題（例如「Tutorials」）設了`pointer-events: none`，JS加的click event不會觸發。要讓它可以點，CSS要改回`pointer-events: auto`。無頭Chrome只能截圖、不能點擊，這類互動要在瀏覽器裡實際點一次確認。
+- **左側導覽列的section標題點不動**：主題對section標題（例如「K8S Deep Dive」）設了`pointer-events: none`，JS加的click event不會觸發。要讓它可以點，CSS要改回`pointer-events: auto`。無頭Chrome只能截圖、不能點擊，這類互動要在瀏覽器裡實際點一次確認。

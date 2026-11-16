@@ -1,7 +1,7 @@
 ---
 icon: lucide/activity
 ---
-# Chap-12 Monitoring & Logging
+# Ch-12 Monitoring & Logging
 
 **目錄**
 

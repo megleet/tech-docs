@@ -1,7 +1,7 @@
 ---
 icon: lucide/history
 ---
-# Chap-0 History
+# Ch-0 History
 
 **目錄**
 
@@ -27,7 +27,7 @@ PaaS（Platform as a Service）project，例如Cloud Foundry，受歡迎的主�
 
 這個轉變的learning curve很陡：**網路、storage、scheduling、OS、分散式系統**，每一塊都要用container的方式重新理解。其中有兩個概念貫穿整個Kubernetes：
 
-- **① Linux的process模型**：container本質上是一個被隔離的process，見[Chap-1](chap-1-container-namespace-cgroups.md)。
+- **① Linux的process模型**：container本質上是一個被隔離的process，見[Ch-1](chap-1-container-namespace-cgroups.md)。
 - **② controller模式**：Kubernetes幾乎所有功能，都是一個個controller在做「**把actual state調整成expected state**」，見[控制器模式](chap-5-container-orchestration-controller.md#控制器模式)。
 
 ## Docker為什麼贏過Cloud Foundry
@@ -67,7 +67,7 @@ image現在的標準格式是OCI（Open Container Initiative）image，Docker bu
 | **可靠性**       | fault tolerance、HA（High Availability） |
 | **維運**         | observability、monitoring、backup        |
 
-這些正是後面每一章要講的內容：Pod見[Chap-4](chap-4-container-orchestration-pod.md)，controller、rolling update見[Chap-5](chap-5-container-orchestration-controller.md)，storage見[Chap-9](chap-9-volume.md)。
+這些正是後面每一章要講的內容：Pod見[Ch-4](chap-4-container-orchestration-pod.md)，controller、rolling update見[Ch-5](chap-5-container-orchestration-controller.md)，storage見[Ch-9](chap-9-volume.md)。
 
 ## Kubernetes的起源和生態
 
@@ -85,13 +85,13 @@ CNCF底下現在有很多project，常見的例如：
 
 <img src="images/ch00/cncf-ecosystem.svg" alt="CNCF生態：最上面是Kubernetes（CNCF第一個project），下面分兩組。Observability（看見cluster裡發生什麼）：Prometheus是container監控的事實標準，也是CNCF第二個project；OpenTelemetry是tracing、metrics、log的標準；Fluentd、Fluent Bit負責收集log。Kubernetes的標準介面（接到Node上執行Pod）：CNI是Pod網路的標準介面；containerd、CRI-O是container runtime" width="85%">
 
-CNI和container runtime怎麼接到Kubernetes上，見[Chap-3的架構](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)；實際裝一個CNI plugin，見[Chap-3的Step 5](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)。
+CNI和container runtime怎麼接到Kubernetes上，見[Ch-3的架構](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)；實際裝一個CNI plugin，見[Ch-3的Step 5](chap-3-kubernetes-architecture-operations.md#-step-5deploy-cni-plugin)。
 
 ### 🧩 3. 開放的擴展機制
 
 Kubernetes能長成整個生態，靠的是它對**開發者開放**：
 
-- **靈活的擴展性**：從API到container runtime，每一層都有***可以擴展的介面***：CRI、CNI、CSI、Device Plugin，見[Chap-3的架構圖](chap-3-kubernetes-architecture-operations.md)。
+- **靈活的擴展性**：從API到container runtime，每一層都有***可以擴展的介面***：CRI、CNI、CSI、Device Plugin，見[Ch-3的架構圖](chap-3-kubernetes-architecture-operations.md)。
 - **用程式碼介入每一個階段**：可以用[CRD](chap-7-crd-operator.md#manualcrd和controller)加入自己的object、用自訂controller讓它做事，也可以用[admission webhook](chap-6-declarative-api.md#api-server怎麼處理request)在object寫進etcd之前檢查或修改它。
 
 ## IaC vs Orchestration vs Choreography

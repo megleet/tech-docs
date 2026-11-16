@@ -1,7 +1,7 @@
 ---
 icon: lucide/file-code
 ---
-# Chap-6 Declarative API
+# Ch-6 Declarative API
 
 **目錄**
 
@@ -15,7 +15,7 @@ icon: lucide/file-code
 
 *同樣是寫YAML，怎樣才算「聲明式API」？*
 
-[Chap-3](chap-3-kubernetes-architecture-operations.md#聲明式api)說過，Kubernetes的API是***聲明式***的：只描述想要的狀態，交給[controller](chap-5-container-orchestration-controller.md#控制器模式)去達成。但用了YAML，不代表就是聲明式。管理同一個Deployment，`kubectl`有三種做法：
+[Ch-3](chap-3-kubernetes-architecture-operations.md#聲明式api)說過，Kubernetes的API是***聲明式***的：只描述想要的狀態，交給[controller](chap-5-container-orchestration-controller.md#控制器模式)去達成。但用了YAML，不代表就是聲明式。管理同一個Deployment，`kubectl`有三種做法：
 
 ### ⌨️ 1. 命令式命令：參數寫在命令列
 
@@ -186,7 +186,7 @@ sidecar mode架構如下。這一節用**sidecar mode說明**，因為它最能�
 
 ### 🔀 2. Envoy怎麼接管Pod的流量
 
-Pod裡的container***共用同一個network namespace***（見[Chap-4](chap-4-container-orchestration-pod.md#-1-共用network-namespace的結果)），所以只要改這個network namespace的iptables規則，就能讓app的流量都先經過Envoy：
+Pod裡的container***共用同一個network namespace***（見[Ch-4](chap-4-container-orchestration-pod.md#-1-共用network-namespace的結果)），所以只要改這個network namespace的iptables規則，就能讓app的流量都先經過Envoy：
 
 - **規則做什麼**：app的outbound流量，轉到Envoy的port 15001；inbound流量，轉到port 15006；Envoy自己的outbound流量（UID 1337）不轉，避免繞圈。
 - **誰設定iptables**：不是Envoy，也不是使用者。***sidecar mode下***有兩種方式：
@@ -203,7 +203,7 @@ Pod裡的container***共用同一個network namespace***（見[Chap-4](chap-4-co
 > [!NOTE]
 > Istio CNI和ambient mode的ztunnel都是每個Node一個的DaemonSet，但角色不同：Istio CNI只在建立Pod網路時**設定iptables規則**，不處理流量；ztunnel是**真正處理流量**的proxy。ambient mode也需要Istio CNI，用它把Pod的流量導到ztunnel。
 
-例如app要呼叫另一個叫`reviews`的服務（Service名稱是`reviews`，port 9080），程式裡照樣連`reviews:9080`，完全不知道Envoy的存在；但outbound流量已經先被iptables導到Envoy，由Envoy決定route到哪個Pod，並加上mTLS。這就是[Chap-4的sidecar](chap-4-container-orchestration-pod.md#-2-sidecar和app一起執行)設計思路。
+例如app要呼叫另一個叫`reviews`的服務（Service名稱是`reviews`，port 9080），程式裡照樣連`reviews:9080`，完全不知道Envoy的存在；但outbound流量已經先被iptables導到Envoy，由Envoy決定route到哪個Pod，並加上mTLS。這就是[Ch-4的sidecar](chap-4-container-orchestration-pod.md#-2-sidecar和app一起執行)設計思路。
 
 ### 💉 3. sidecar怎麼自動加進Pod
 
@@ -263,7 +263,7 @@ spec:
           image: example/reviews:1.0            # 新版用2.0
 ```
 
-Deployment裡不會寫Service；Service是用`selector`找出***身上有對應label的Pod***，見[Chap-5的Service](chap-5-container-orchestration-controller.md#-1-什麼是service一組pod的固定入口)。這裡的Service只寫`app`：
+Deployment裡不會寫Service；Service是用`selector`找出***身上有對應label的Pod***，見[Ch-5的Service](chap-5-container-orchestration-controller.md#-1-什麼是service一組pod的固定入口)。這裡的Service只寫`app`：
 
 <!-- hl: 6 -->
 
@@ -353,7 +353,7 @@ Kubernetes裡所有元件都透過API Server讀寫object：不管是你用**kube
 | **⑤ Validating admission** | **只檢查、不修改**，不符合規定就拒絕 | `PodSecurity`拒絕高權限的Pod；`ResourceQuota`拒絕超過配額的request           |
 | **⑥ Write**                | 存進etcd                                       |                                                                                  |
 
-- **① AuthN ② AuthZ**：[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)用curl實際跑過一次：token負責① AuthN，RBAC負責② AuthZ。
+- **① AuthN ② AuthZ**：[Ch-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)用curl實際跑過一次：token負責① AuthN，RBAC負責② AuthZ。
 - **③ mutating在 ⑤ validating之前**：③ mutating可以看成***input/pre hook***：拿到send進來的原始object，可以修改它；⑤ validating 可以看成***output/post hook***：檢查改完之後、準備write進etcd的最終object，只能放行或拒絕。
 - **讀取的request**（`get`、`list`、`watch`）只經過① AuthN ② AuthZ，不經過admission。
 
@@ -640,7 +640,7 @@ kubectl get job pi -v=6                                     # 印出kubectl實�
 > [!TIP]
 > 💡 **一句話總結**
 >
-> ***API Server用Group、Version、Resource把所有object組織成一棵樹***。內建object的URL和etcd key都照這個規則，自己定義的object也掛在同一棵樹上，見[Chap-7的CRD和controller](chap-7-crd-operator.md#manualcrd和controller)。
+> ***API Server用Group、Version、Resource把所有object組織成一棵樹***。內建object的URL和etcd key都照這個規則，自己定義的object也掛在同一棵樹上，見[Ch-7的CRD和controller](chap-7-crd-operator.md#manualcrd和controller)。
 
 ## RBAC
 
@@ -724,7 +724,7 @@ kubectl auth whoami
 
 #### 🤖 2.d ServiceAccount
 
-**ServiceAccount**是Kubernetes自己管理的身分。Pod怎麼拿到它的token、用curl存取API Server，見[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+**ServiceAccount**是Kubernetes自己管理的身分。Pod怎麼拿到它的token、用curl存取API Server，見[Ch-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 
 和User不一樣，ServiceAccount是真的API object，要先建立，YAML見[把Role綁給一個ServiceAccount](#-4a-把role綁給一個serviceaccount)。Pod在`spec.serviceAccountName: example-sa`指定用哪個ServiceAccount；沒寫就用namespace裡的`default`。
 
@@ -911,7 +911,7 @@ kubectl auth can-i list pods -n default \
 # → no（RoleBinding只在mynamespace生效）
 ```
 
-Pod在`spec.serviceAccountName: example-sa`指定這個ServiceAccount之後，Pod裡的程式就用它的token存取API Server，權限也只有`get`、`watch`、`list`。token怎麼mount進container、怎麼在Pod裡用curl試，見[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+Pod在`spec.serviceAccountName: example-sa`指定這個ServiceAccount之後，Pod裡的程式就用它的token存取API Server，權限也只有`get`、`watch`、`list`。token怎麼mount進container、怎麼在Pod裡用curl試，見[Ch-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 
 > [!TIP]
 > 💡 **一句話總結**

@@ -1,7 +1,7 @@
 ---
 icon: lucide/container
 ---
-# Chap-1 Container基礎：Namespace / Cgroups
+# Ch-1 Container基礎：NS / Cgroups
 
 **目錄**
 
@@ -86,7 +86,7 @@ container由***3大pillar***撐起來，底下再墊一層Security：
 - **兩個視角**：3大pillar可以「一分為二」地看待：
   - **Dynamic view：Container Runtime**：第1、2根pillar **Namespace + cgroups**。它們是process執行時才存在的isolation環境，決定container**run起來的樣子**：能看見什麼、能用多少。
   - **Static view：Container Image**：第3根pillar **rootfs**。它是一組用OverlayFS聯合mount的目錄，位置在`/run/containerd/io.containerd.runtime.v2.task/k8s.io/<id>/rootfs`。這是container**本身的內容**，也就是app和它的deps，container不跑的時候也存在。見[UnionFS與Docker的Layered rootfs](chap-2-container-fs-security.md#unionfs與docker的layered-rootfs)。
-- **Security**：不算pillar，是墊在pillar底下的hardening層，由**capabilities、seccomp、LSM**（AppArmor / SELinux）和user namespace組成。它限制container process能對shared kernel做什麼，見[Chap-2的Security](chap-2-container-fs-security.md#security)。
+- **Security**：不算pillar，是墊在pillar底下的hardening層，由**capabilities、seccomp、LSM**（AppArmor / SELinux）和user namespace組成。它限制container process能對shared kernel做什麼，見[Ch-2的Security](chap-2-container-fs-security.md#security)。
 
 | 概念 | 解決的問題 | 核心含義 | 比喻 |
 | --- | --- | --- | --- |
@@ -115,11 +115,11 @@ int flags = CLONE_NEWPID | CLONE_NEWNS  | CLONE_NEWNET |
 int pid = clone(main_function, stack_top, flags, NULL);
 ```
 
-`CLONE_NEWTIME`不能傳給`clone()`，要用`unshare()`或`clone3()`。完整可執行的例子見[Chap-2的mini_container.c](chap-2-container-fs-security.md#最小container-implementationmini_containerc)。
+`CLONE_NEWTIME`不能傳給`clone()`，要用`unshare()`或`clone3()`。完整可執行的例子見[Ch-2的mini_container.c](chap-2-container-fs-security.md#最小container-implementationmini_containerc)。
 
 `CLONE_NEWNS`的意思是new mount namespace。名字這麼籠統，是因為mount namespace是***第一個***加入Linux的namespace，當時沒預料到之後還會有其他種類。所以8種namespace裡，只有它的flag和`/proc/{pid}/ns/`底下的file名稱（`mnt`）對不上。
 
-***`clone`之後，舊的mount tree（host的整棵mount tree）會被複製到新的mount namespace裡***。從這一刻起，這個process有了一份**複製出來的**mount tree：這時它看到的`/`還是host的根，只是一份copy。之後在新namespace裡的掛載和卸載，只改這份copy；但copy和原本的mount point之間可能還保持著同步關係，所以下一步要設定propagation，見[Chap-2的② 設定propagation](chap-2-container-fs-security.md#-②-設定propagation)。
+***`clone`之後，舊的mount tree（host的整棵mount tree）會被複製到新的mount namespace裡***。從這一刻起，這個process有了一份**複製出來的**mount tree：這時它看到的`/`還是host的根，只是一份copy。之後在新namespace裡的掛載和卸載，只改這份copy；但copy和原本的mount point之間可能還保持著同步關係，所以下一步要設定propagation，見[Ch-2的② 設定propagation](chap-2-container-fs-security.md#-②-設定propagation)。
 
 <img src="images/ch01/clone-newns-mount-table.svg" alt="clone()之前，只有Host / Parent的mount table，裡面有/、/proc、/sys、/var/lib/…/merged。clone(CLONE_NEWNS)之後，Host / Parent的mount table不變，另外多一份Child的mount table（copy），內容一樣，其中/var/lib/…/merged是之後的new_root。兩份之間是否同步由propagation決定：shared時一邊mount，另一邊也看得到；private / slave時切斷同步，或只從host單向傳進來" width="100%">
 

@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 652 150" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 652 212" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
 <defs><marker id="ap-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker><marker id="ap-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fd1"/></marker></defs>
-<rect x="6" y="6" width="652" height="150" fill="#ffffff"/>
+<rect x="6" y="6" width="652" height="212" fill="#ffffff"/>
 
 <!-- ① write plugin -->
 <text x="14" y="24" font-size="12.5" font-weight="800" fill="#c47400">① 寫plugin</text>
@@ -48,4 +48,13 @@
 <tspan x="528" y="120" fill="#2f6fd1" font-weight="800">- name: MyPlugin</tspan>
 </text>
 <text x="567" y="146" font-size="10" font-weight="600" fill="#a3adbb" text-anchor="middle">KubeSchedulerConfiguration</text>
+
+<!-- fat arrow 3 (down) -->
+<path d="M559 152 V164 H550 L567 180 L584 164 H575 V152 Z" fill="#7cc4a8"/>
+
+<!-- ④ start with config -->
+<text x="14" y="178" font-size="12.5" font-weight="800" fill="#7c3aed">④ 啟動時指定config</text>
+<rect x="14" y="186" width="640" height="28" rx="7" fill="#1e293b"/>
+<text x="26" y="204" font-size="11" font-family="SFMono-Regular, Menlo, monospace" font-weight="600"><tspan fill="#94a3b8">$ </tspan><tspan fill="#7db4f5">my-scheduler</tspan><tspan fill="#fbbf24"> --config=</tspan><tspan fill="#e2e8f0">/etc/kubernetes/scheduler-config.yaml</tspan></text>
+<text x="646" y="204" font-size="10" font-weight="600" fill="#94a3b8" text-anchor="end">讀③的檔案</text>
 </svg>

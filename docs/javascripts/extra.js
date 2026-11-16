@@ -1,6 +1,12 @@
 // Mark bold text that acts as a label, e.g. "**原因**：..." or "✅ **包含了**：...",
 // so it can be styled differently from inline emphasis. A label must start its
 // block (only whitespace or emoji before it) and be directly followed by "：" or ":".
+
+// Left nav: the open / collapsed state of each section as the reader last saw it.
+// Kept in mem only, so it survives instant navigation between pages but is gone
+// after a refresh.
+const navChoice = new Map();
+
 document$.subscribe(() => {
   // External links: not this host, and not the published site either (so a link
   // to https://megleet.github.io/tech-docs/ stays internal on localhost too).
@@ -344,29 +350,42 @@ document$.subscribe(() => {
     item.prepend(button);
   });
 
-  // Left nav: the "Tutorials" section is collapsible (collapsed by default,
-  // open when the current page is inside it). The choice is remembered.
+  // Left nav: every section (e.g. "K8S Deep Dive") is collapsible. Default:
+  //   - home page: all collapsed
+  //   - only one section: open
+  //   - several sections: only the one holding the current page is open
+  // These defaults apply only on a fresh load (first visit or refresh). Moving
+  // between pages keeps every section as the reader last saw it (navChoice),
+  // whether it was opened by hand or automatically. The section holding the
+  // current page is always open.
   // Desktop only: on narrow screens the drawer already drills into sections.
   if (window.matchMedia("(min-width: 76.25em)").matches) {
-    document.querySelectorAll(".md-nav--primary .md-nav__item--section").forEach((item) => {
+    const sections = document.querySelectorAll(".md-nav--primary .md-nav__item--section");
+    const isHome = !!document.querySelector(".md-content [data-link-icons]");
+    sections.forEach((item) => {
       const label = item.querySelector(":scope > .md-nav__link");
-      if (!label || item.dataset.navReady || label.textContent.trim() !== "Tutorials") return;
-      item.dataset.navReady = "true";
-      const key = "doc-nav-tutorials";
-      let saved = null;
-      try { saved = localStorage.getItem(key); } catch (e) {}
-      const active = item.querySelector(".md-nav__link--active");
-      item.classList.add("doc-nav-collapsible");
-      if (!active && saved !== "open") item.classList.add("doc-nav-collapsed");
-      const arrow = document.createElement("span");
-      arrow.className = "doc-nav-arrow";
-      arrow.innerHTML = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
-      label.append(arrow);
-      label.addEventListener("click", (e) => {
-        e.preventDefault();
-        const collapsed = item.classList.toggle("doc-nav-collapsed");
-        try { localStorage.setItem(key, collapsed ? "closed" : "open"); } catch (e) {}
-      });
+      if (!label) return;
+      if (!item.dataset.navReady) {
+        item.dataset.navReady = "true";
+        item.classList.add("doc-nav-collapsible");
+        const arrow = document.createElement("span");
+        arrow.className = "doc-nav-arrow";
+        arrow.innerHTML = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+        label.append(arrow);
+        label.addEventListener("click", (e) => {
+          e.preventDefault();
+          const collapsed = item.classList.toggle("doc-nav-collapsed");
+          navChoice.set(label.textContent.trim(), collapsed);
+        });
+      }
+      // Re-applied on every page (also after instant navigation).
+      const active = !!item.querySelector(".md-nav__link--active");
+      const name = label.textContent.trim();
+      let collapsed = isHome || (sections.length > 1 && !active);
+      if (navChoice.has(name)) collapsed = navChoice.get(name);
+      if (active) collapsed = false;
+      item.classList.toggle("doc-nav-collapsed", collapsed);
+      navChoice.set(name, collapsed);
     });
   }
 

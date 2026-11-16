@@ -1,7 +1,7 @@
 ---
 icon: lucide/layers
 ---
-# Chap-2 Container基礎：FS / Security
+# Ch-2 Container基礎：FS / Security
 
 **目錄**
 
@@ -21,7 +21,7 @@ icon: lucide/layers
 
 *Container如果只做了cgroup資源限制和namespace障眼法是不夠的，還需要什麼才可以seamless deploy到remote？*
 
-接續[Chap-1的3大pillar](chap-1-container-namespace-cgroups.md#3大pillar--security)：這一章講static view的rootfs（mount、`pivot_root`、UnionFS），以及墊在pillar底下的Security。
+接續[Ch-1的3大pillar](chap-1-container-namespace-cgroups.md#3大pillar--security)：這一章講static view的rootfs（mount、`pivot_root`、UnionFS），以及墊在pillar底下的Security。
 
 如果Container只是Linux Kernel上的「**資源限制（`cgroups`）**」與「**障眼法（`Namespace`）**」，為什麼我們能把在local開發好的container，完全seamless地搬到remote的AWS、GCP或任何一台server上直接執行，且保證「***在我的電腦能跑，在remote就能跑***」？
 
@@ -141,7 +141,7 @@ kernel像引擎，container像車身：引擎可以不一樣，但***引擎接�
 
 *namespace和cgroups之外，還要限制container process能對kernel做什麼。*
 
-[Chap-1的3大pillar](chap-1-container-namespace-cgroups.md#3大pillar--security)裡，Security是墊在pillar底下的hardening層，由四種機制組成。它們檢查的東西不一樣，可以疊在一起用：
+[Ch-1的3大pillar](chap-1-container-namespace-cgroups.md#3大pillar--security)裡，Security是墊在pillar底下的hardening層，由四種機制組成。它們檢查的東西不一樣，可以疊在一起用：
 
 <img src="images/ch02/security-mechanisms.svg" alt="四種Security機制的對照。Capabilities：檢查這個process有沒有privilege，只有需要privilege的操作才會被檢查，比喻是發給你哪幾把key。seccomp：檢查這個sys call能不能被呼叫，不管需不需要privilege，所有sys call都能filter，比喻是能向kernel提出哪些請求。AppArmor / SELinux：檢查這個process能不能access這項resource（file、network等），依admin制定的policy檢查，root也要遵守，比喻是能進入哪些room。user namespace：決定container裡的root在host上是誰，影響所有用到UID / GID的地方，比喻是在host上換成普通身分" width="100%">
 
@@ -180,7 +180,7 @@ seccomp用一份filter，***限制process能呼叫哪些sys call***，縮小kern
 
 ### 👤 4. user namespace：container的root不是host的root
 
-前三種機制都在限制「root能做什麼」；user namespace則讓container裡的root在host上***根本不是root***：container裡的UID 0，對應到host上一個沒有權限的普通UID。就算process逃出container，在host上也只是普通使用者。Pod裡怎麼開啟，見[Chap-1的Pod中的container共用什麼](chap-1-container-namespace-cgroups.md#-2-pod中的container共用什麼)。
+前三種機制都在限制「root能做什麼」；user namespace則讓container裡的root在host上***根本不是root***：container裡的UID 0，對應到host上一個沒有權限的普通UID。就算process逃出container，在host上也只是普通使用者。Pod裡怎麼開啟，見[Ch-1的Pod中的container共用什麼](chap-1-container-namespace-cgroups.md#-2-pod中的container共用什麼)。
 
 ### 🧩 5. 在Kubernetes裡一起設定
 
@@ -951,7 +951,7 @@ merged/  = 疊起來的結果  <-- 這個目錄就是new_root
 
 ### 🧬 ① 建立namespace
 
-runc用`clone()`產生container的第一個process（`runc init`），同時帶上`CLONE_NEWNS`等flag。新的mount namespace裡有一份***複製出來的host mount tree***，之後的掛載和卸載只改這份copy，見[Chap-1的建立namespace](chap-1-container-namespace-cgroups.md#-1-建立namespace)。
+runc用`clone()`產生container的第一個process（`runc init`），同時帶上`CLONE_NEWNS`等flag。新的mount namespace裡有一份***複製出來的host mount tree***，之後的掛載和卸載只改這份copy，見[Ch-1的建立namespace](chap-1-container-namespace-cgroups.md#-1-建立namespace)。
 
 ### 🔁 ② 設定propagation
 

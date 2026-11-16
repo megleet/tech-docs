@@ -1,7 +1,7 @@
 ---
 icon: lucide/puzzle
 ---
-# Chap-7 CRD & Operator
+# Ch-7 CRD & Operator
 
 **目錄**
 
@@ -76,7 +76,7 @@ icon: lucide/puzzle
 
 *Kubernetes沒有的object型別，怎麼自己加？加了之後，誰來讓它真的做事？*
 
-[Chap-5](chap-5-container-orchestration-controller.md#-5-控制循環實際怎麼跑)看過Kubernetes內建的controller，例如[Deployment controller](chap-5-container-orchestration-controller.md#-5-deployment-controller實際怎麼跑)，怎麼用Informer、event handler、workqueue和syncHandler跑控制循環。這一節用***同一套零件，自己寫一個custom controller***。
+[Ch-5](chap-5-container-orchestration-controller.md#-5-控制循環實際怎麼跑)看過Kubernetes內建的controller，例如[Deployment controller](chap-5-container-orchestration-controller.md#-5-deployment-controller實際怎麼跑)，怎麼用Informer、event handler、workqueue和syncHandler跑控制循環。這一節用***同一套零件，自己寫一個custom controller***。
 
 以一個描述網路的`Network`為例，從零開始手寫。controller在你的電腦上執行，就是[Goal](#goal自定義network-crd和controller)裡Manual那張圖的樣子。整體分成6步，每一步對應目標圖上的①～⑥：
 
@@ -137,7 +137,7 @@ network-controller/
 
 ### 🧩 1. CRD：讓API Server認識新的object型別
 
-[Chap-5](chap-5-container-orchestration-controller.md)看到的Deployment、Job、CronJob，都是Kubernetes**內建的object型別**，API Server的程式碼裡本來就有它們的定義。如果想要一種新的object型別，例如用來描述網路的`Network`，就用**CRD**（CustomResourceDefinition）告訴API Server。
+[Ch-5](chap-5-container-orchestration-controller.md)看到的Deployment、Job、CronJob，都是Kubernetes**內建的object型別**，API Server的程式碼裡本來就有它們的定義。如果想要一種新的object型別，例如用來描述網路的`Network`，就用**CRD**（CustomResourceDefinition）告訴API Server。
 
 <img src="images/ch07/crd-teaches-api-server.svg" alt="CRD讓API Server認識Network：① network-crd.yaml是CRD，也就是Network型別的定義（group: example.com、kind: Network、plural: networks、versions: v1、schema: cidr、gateway），用kubectl apply送給API Server；API Server原本只認得內建的/api/v1/pods、/apis/apps/v1/deployments、/apis/batch/v1/jobs，現在API樹上新長出/apis/example.com/v1/networks，並用schema在建立Network時檢查cidr、gateway；CRD和之後的Network都存進etcd。② my-net.yaml是CR，也就是一個Network（第2節，kind: Network、cidr: 192.168.0.0/16、gateway: 192.168.0.1），API Server認得Network之後，才可以接收這個YAML" width="100%">
 
@@ -242,7 +242,7 @@ kubectl get net my-net -v=6           # 看實際send的URL
 # → "Response" verb="GET" url="https://.../apis/example.com/v1/namespaces/default/networks/my-net" status="200 OK"
 ```
 
-- **`-v=6`**：印出kubectl實際send給API Server的HTTP request，見[Chap-6的用kubectl查詢API的結構](chap-6-declarative-api.md#-5-用kubectl查詢api的結構)。
+- **`-v=6`**：印出kubectl實際send給API Server的HTTP request，見[Ch-6的用kubectl查詢API的結構](chap-6-declarative-api.md#-5-用kubectl查詢api的結構)。
 
 它在etcd裡的key是`/registry/example.com/networks/default/my-net`，和[etcd裡的key](chap-6-declarative-api.md#-4-etcd裡的key和url不一樣)說的一樣：CRD的key帶group。
 
@@ -509,7 +509,7 @@ controller要怎麼知道Network什麼時候被新增、修改、刪除？最直
 
 所以controller改用**informer**：它和API Server保持一條`WATCH`連線，***Network有變化時，API Server會主動push過來***，controller不用一直問。
 
-這套零件和Chap-5的[Deployment controller](chap-5-container-orchestration-controller.md#-5-deployment-controller實際怎麼跑)完全一樣，只是這次watch的是自己定義的Network。
+這套零件和Ch-5的[Deployment controller](chap-5-container-orchestration-controller.md#-5-deployment-controller實際怎麼跑)完全一樣，只是這次watch的是自己定義的Network。
 
 **Informer**就是一個**①自帶local cache和index、②可以從controller註冊event handler的③API Server client**，每一種object都有自己的Informer。整個流程如下圖，藍色是client-go提供的，橘色是自己寫的：
 
@@ -646,7 +646,7 @@ func main() {
 }
 ```
 
-`main()`做三件事：① 連API Server、② 建立factory並拿到Network Informer、③ 啟動informer和controller，細節寫在程式碼的註解裡。in-cluster config見[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)，Reflector見[5.a](#-5a-informercontroller怎麼知道network變了)。
+`main()`做三件事：① 連API Server、② 建立factory並拿到Network Informer、③ 啟動informer和controller，細節寫在程式碼的註解裡。in-cluster config見[Ch-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)，Reflector見[5.a](#-5a-informercontroller怎麼知道network變了)。
 
 #### 🔌 5.c NewController：註冊event handler
 
@@ -1155,7 +1155,7 @@ func (r *NetworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 - **informer、workqueue都看不到了**：`For(&netv1.Network{})`一行，controller-runtime就在背後建立Manual在[5.a](#-5a-informercontroller怎麼知道network變了)～5.d自己接起來的informer、workqueue和worker。
 - **定時重新檢查**：return `ctrl.Result{RequeueAfter: time.Minute}`，一分鐘後這個key會再進workqueue，作用和Manual的resync類似。
-- **RBAC**：`+kubebuilder:rbac`產生的權限是什麼，見[Chap-6的RBAC](chap-6-declarative-api.md#rbac)。
+- **RBAC**：`+kubebuilder:rbac`產生的權限是什麼，見[Ch-6的RBAC](chap-6-declarative-api.md#rbac)。
 
 ### 🧪 4. Run it!
 
@@ -1226,7 +1226,7 @@ make undeploy                                      # 刪掉controller、RBAC、C
 
 *stateful app的維運知識，怎麼寫成程式？*
 
-在Kubernetes裡管理stateful app很麻煩，[Chap-5的StatefulSet](chap-5-container-orchestration-controller.md#statefulset)雖然做得到，但寫Pod template的時候，常常覺得像在YAML file裡寫程式，很不順手。Kubernetes ecosystem裡有另一種更彈性、也更適合用程式碼表達的做法：**Operator**。它***用CRD描述想要的stateful app，在controller裡用程式完成deploy和維運***。
+在Kubernetes裡管理stateful app很麻煩，[Ch-5的StatefulSet](chap-5-container-orchestration-controller.md#statefulset)雖然做得到，但寫Pod template的時候，常常覺得像在YAML file裡寫程式，很不順手。Kubernetes ecosystem裡有另一種更彈性、也更適合用程式碼表達的做法：**Operator**。它***用CRD描述想要的stateful app，在controller裡用程式完成deploy和維運***。
 
 Operator本身就是一個普通的Deployment。它要透過API Server建立Pod、Service、自己的CR，所以deploy前要先給它[RBAC](chap-6-declarative-api.md#rbac)權限。下面用etcd官方的etcd-operator來說明。
 
@@ -1267,7 +1267,7 @@ etcd --name infra0 \
 >
 > 詳見etcd官方的[Clustering Guide](https://etcd.io/docs/latest/op-guide/clustering/)。
 
-**在Kubernetes裡**：用StatefulSet + headless Service，每個Pod有固定的名字和DNS名字，例如`etcd-0.etcd`、`etcd-1.etcd`、`etcd-2.etcd`，Pod建立之前就知道（見[Chap-5的固定的DNS名稱](chap-5-container-orchestration-controller.md#-3-topology-stateservicename和固定的dns名稱)）。所以第一次組cluster時，`--initial-cluster`可以照static的方式，寫DNS名字：
+**在Kubernetes裡**：用StatefulSet + headless Service，每個Pod有固定的名字和DNS名字，例如`etcd-0.etcd`、`etcd-1.etcd`、`etcd-2.etcd`，Pod建立之前就知道（見[Ch-5的固定的DNS名稱](chap-5-container-orchestration-controller.md#-3-topology-stateservicename和固定的dns名稱)）。所以第一次組cluster時，`--initial-cluster`可以照static的方式，寫DNS名字：
 
 ```bash
 --initial-cluster etcd-0=http://etcd-0.etcd:2380,etcd-1=http://etcd-1.etcd:2380,etcd-2=http://etcd-2.etcd:2380
@@ -1370,7 +1370,7 @@ kubectl get configmap etcd-state -o jsonpath='{.data}'
 
 ### ⚖️ 4. 設計上的取捨
 
-和[Chap-5的MySQL StatefulSet](chap-5-container-orchestration-controller.md#statefulset實踐mysql)比較：
+和[Ch-5的MySQL StatefulSet](chap-5-container-orchestration-controller.md#statefulset實踐mysql)比較：
 
 - **固定名字交給StatefulSet**：etcd-operator不自己管Pod，而是管一個StatefulSet，Pod的名字和DNS名字由StatefulSet固定下來。
 - **etcd的規則交給Operator**：`member add`、`promote`、`remove`的順序，StatefulSet做不到，寫在Operator的控制循環裡。

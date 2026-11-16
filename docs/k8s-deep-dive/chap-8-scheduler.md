@@ -1,7 +1,7 @@
 ---
 icon: lucide/calendar-clock
 ---
-# Chap-8 Scheduler
+# Ch-8 Scheduler
 
 **目錄**
 
@@ -124,7 +124,7 @@ Kubernetes用`requests`和`limits`管理的資源有三種：**CPU**、**mem**�
 
 #### 🗂️ 對應到cgroup的檔案
 
-這些值最後都變成cgroup v2的檔案，原理見[Chap-1的cgroups](chap-1-container-namespace-cgroups.md#-3-實際建立一個cgroup)：
+這些值最後都變成cgroup v2的檔案，原理見[Ch-1的cgroups](chap-1-container-namespace-cgroups.md#-3-實際建立一個cgroup)：
 
 | 欄位                                                  | cgroup v2的檔案 | 效果                                                              |
 | ----------------------------------------------------- | --------------- | ----------------------------------------------------------------- |
@@ -383,7 +383,7 @@ qos-besteffort   BestEffort
 
 - **哪些Pod要排**：Pod的`spec.nodeName`是空的，而且`spec.schedulerName`沒寫，或者填了`default-scheduler`。
 - **什麼是binding**：scheduler把Pod的`spec.nodeName`填上選好的Node，就算**調度成功**。***注意：真正啟動container的是那台Node上的kubelet。***
-- **哪些Pod不需要scheduler**：自己寫了`spec.nodeName`的Pod（見[Chap-4](chap-4-container-orchestration-pod.md#-2-排程nodeselector和nodenamepod-level)），以及kubelet從Node上的檔案直接啟動的**static Pod**。
+- **哪些Pod不需要scheduler**：自己寫了`spec.nodeName`的Pod（見[Ch-4](chap-4-container-orchestration-pod.md#-2-排程nodeselector和nodenamepod-level)），以及kubelet從Node上的檔案直接啟動的**static Pod**。
 
 一個Pod從建立到container啟動，會經過下面這些判斷：
 
@@ -546,9 +546,10 @@ Scheduler Cache用`assumedPods`把assumed的Pod標記出來。
 
 1. **寫plugin**：用Go寫一個struct，implement要掛的extension point的interface，例如Filter、Score、Reserve，***可以同時掛好幾個***。
 2. **和scheduler一起compile**：用`app.WithPlugin`註冊這個plugin，build出一個新的scheduler執行檔。
-3. **在config裡打開**：在`KubeSchedulerConfiguration`裡，把plugin的名字寫在對應的extension point下面。
+3. **在config裡開啟plugin**：在`KubeSchedulerConfiguration`裡，把plugin的名字寫在對應的extension point下面。**Score plugin還可以加上`weight`，決定它的score在總分裡占多重；**
+4. **啟動時指定config**：用`--config`告訴scheduler這個檔案在哪裡，例如`my-scheduler --config=/etc/kubernetes/scheduler-config.yaml`。
 
-<img src="images/ch08/add-plugin.svg" alt="加plugin的三步。① 寫plugin：一個Go struct MyPlugin，implement Filter和Score，也就是要掛的extension point。② 和scheduler一起compile：kube-scheduler和MyPlugin用app.WithPlugin註冊，go build成一個my-scheduler執行檔，裡面有內建plugin和MyPlugin。③ 在config裡打開：KubeSchedulerConfiguration的profiles、plugins、filter、enabled下面寫name: MyPlugin" width="100%">
+<img src="images/ch08/add-plugin.svg" alt="加plugin的四步。① 寫plugin：一個Go struct MyPlugin，implement Filter和Score，也就是要掛的extension point。② 和scheduler一起compile：kube-scheduler和MyPlugin用app.WithPlugin註冊，go build成一個my-scheduler執行檔，裡面有內建plugin和MyPlugin。③ 在config裡打開：KubeSchedulerConfiguration的profiles、plugins、filter、enabled下面寫name: MyPlugin。④ 啟動時指定config：my-scheduler --config=/etc/kubernetes/scheduler-config.yaml，讀③的檔案" width="100%">
 
 不想自己compile的話，可以直接用[scheduler-plugins](https://github.com/kubernetes-sigs/scheduler-plugins)社群已經build好的image。
 
@@ -624,12 +625,13 @@ default scheduler內建的Score plugin，可以分成三組，每組回答一個
 - **Preference scores和Filter同名**：<span class="doc-name doc-name-official">NodeAffinity</span>、<span class="doc-name doc-name-linux">TaintToleration</span>、<span class="doc-name doc-name-self">InterPodAffinity</span>、<span class="doc-name doc-name-self">PodTopologySpread</span>在Filter裡檢查***必須符合***的條件（`required`、`NoSchedule`、`DoNotSchedule`），在Score裡看***盡量符合***的條件。
 - **讓Pod集中到少數Node**：把NodeResourcesFit的`scoringStrategy`改成`MostAllocated`，用得越滿score越高，空出來的Node可以關掉省錢。
 - **讓Pod分散到不同Node**：靠內建的**PodTopologySpread**。
+
   - 沒設定時，它也有default的分散規則：按Node和zone分散，用的是`ScheduleAnyway`，***不會擋住Pod，只影響score***；
   - 要強制分散，就在Pod寫`topologySpreadConstraints`。
 - **ImageLocality也看image有多普及**：**加分 = image size × 有這個image的Node比例**。只有少數Node有這個image時，加分很少，避免Pod因為image都擠到同一台。例如：
 
-  | 500MB的image在 | 算進去的size | score                               |
-  | -------------- | ------------ | ----------------------------------- |
+  | 500MB的image在 | 算進去的size | score                                    |
+  | -------------- | ------------ | ---------------------------------------- |
   | 10台裡1台      | 50MB         | (50 − 23) ÷ (1000 − 23) × 100 ≈ 3   |
   | 10台都有       | 500MB        | (500 − 23) ÷ (1000 − 23) × 100 ≈ 49 |
 

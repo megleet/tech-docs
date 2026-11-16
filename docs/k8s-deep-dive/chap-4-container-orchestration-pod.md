@@ -1,7 +1,7 @@
 ---
 icon: lucide/ship-wheel
 ---
-# Chap-4 Container Orchestration之Pod篇
+# Ch-4 Orchestration之Pod篇
 
 **目錄**
 
@@ -14,7 +14,7 @@ icon: lucide/ship-wheel
 
 *Kubernetes為什麼不直接排程container，而要多一層Pod？*
 
-這一章從Pod開始。先看Pod在Kubernetes的API object裡的位置：其他object都圍繞著Pod，有的管理Pod怎麼執行（見[Chap-5的控制器模式](chap-5-container-orchestration-controller.md#控制器模式)），有的替Pod提供config或對外存取（詳見[第3章的聲明式API](chap-3-kubernetes-architecture-operations.md#聲明式api)）：
+這一章從Pod開始。先看Pod在Kubernetes的API object裡的位置：其他object都圍繞著Pod，有的管理Pod怎麼執行（見[Ch-5的控制器模式](chap-5-container-orchestration-controller.md#控制器模式)），有的替Pod提供config或對外存取（詳見[第3章的聲明式API](chap-3-kubernetes-architecture-operations.md#聲明式api)）：
 
 ![常見的Kubernetes API object：Container組成Pod；online job由ReplicaSet（再由Deployment管理版本更新）、StatefulSet、DaemonSet管理，batch job由Job（再由CronJob定時建立）管理；Service選取Pod；Service和Ingress提供對外存取；ConfigMap、Secret提供config；HorizontalPodAutoscaler負責自動擴縮](images/ch04/k8s-api-objects.svg)
 
@@ -85,7 +85,7 @@ pstree -A -p -g $(pgrep -o nginx)      # -p顯示PID，-g顯示PGID，pgrep -o�
 
 - **檔案**：直接交換檔案。
 - **溝通**：① 用`localhost`或socket檔案在本機溝通；② 非常頻繁地互相呼叫。
-- **共用namespace**：例如Istio的Envoy sidecar，和app container共用同一個network namespace，再用iptables把app進出的流量全部導到Envoy。app不用改任何程式，流量就自動經過Envoy做加密、重試和監控，見[Chap-6的Istio](chap-6-declarative-api.md#用istio理解聲明式api)。
+- **共用namespace**：例如Istio的Envoy sidecar，和app container共用同一個network namespace，再用iptables把app進出的流量全部導到Envoy。app不用改任何程式，流量就自動經過Envoy做加密、重試和監控，見[Ch-6的Istio](chap-6-declarative-api.md#用istio理解聲明式api)。
 
 ## Pod的implementation：pause container
 
@@ -149,7 +149,7 @@ volumes:
 | **`hostPath`** | Node上一個指定的路徑，例如`/data`                                                                           | 和Node一樣：Pod刪了，資料還在那台Node上              | 需要讀Node本身的檔案，例如log agent讀`/var/log/pods` |
 | **PVC**          | 外部storage，例如[第3章的Ceph](chap-3-kubernetes-architecture-operations.md#-step-6deploy-csi-driverrook-ceph) | **和Pod無關**，Pod刪了資料還在，換Node也掛得上 | DB這類要持久化的資料                                   |
 
-另外還有一類volume不存資料，而是把config、password project進container，見[Chap-9的Projected Volume](chap-9-volume.md#projected-volume)。
+另外還有一類volume不存資料，而是把config、password project進container，見[Ch-9的Projected Volume](chap-9-volume.md#projected-volume)。
 
 #### 例子：WAR包和Tomcat
 

@@ -1,7 +1,7 @@
 ---
 icon: lucide/hard-drive
 ---
-# Chap-9 Storage & Volume
+# Ch-9 Storage & Volume
 
 **目錄**
 
@@ -426,7 +426,7 @@ spec:
 
 再跑一次上面的`curl`，就會return這個namespace裡的Pod清單；要刪Pod的話，一樣回403。
 
-- **Role、ClusterRole的差別和更多用法**：見[Chap-6的RBAC](chap-6-declarative-api.md#rbac)。
+- **Role、ClusterRole的差別和更多用法**：見[Ch-6的RBAC](chap-6-declarative-api.md#rbac)。
 - **權限給最小就好**：只給程式真正需要的resource和verb。
 
 #### ⑤ 不需要就不要mount
@@ -447,10 +447,10 @@ spec:
 
 *一個PVC，怎麼變成container裡的持久化目錄？*
 
-我們在Chap-5已經看過PVC和PV的基本用法：
+我們在Ch-5已經看過PVC和PV的基本用法：
 
-- **PVC是開發者寫的**：***PVC 是 Pod 所希望使用的持久化volume的属性描述***。只寫要多大、怎麼存取（`accessModes`），Pod的`volumes`用`claimName`引用它，見[Chap-5的PVC](chap-5-container-orchestration-controller.md#pvc開發者只要兩步)。
-- **PV是管理cluster的人提供的**：***PV是持久化volume實現***。寫清楚storage怎麼做到，例如用哪個CSI driver、哪個pool、Volume 的类型、挂载目录、远程存储服务器地址等。其中**CSI（Container Storage Interface）**是Kubernetes和storage系統之間的**標準介面**，每種storage各自implement一個**CSI driver**，見[Chap-5的PV](chap-5-container-orchestration-controller.md#pv管理cluster的人提供implementation)。
+- **PVC是開發者寫的**：***PVC 是 Pod 所希望使用的持久化volume的属性描述***。只寫要多大、怎麼存取（`accessModes`），Pod的`volumes`用`claimName`引用它，見[Ch-5的PVC](chap-5-container-orchestration-controller.md#pvc開發者只要兩步)。
+- **PV是管理cluster的人提供的**：***PV是持久化volume實現***。寫清楚storage怎麼做到，例如用哪個CSI driver、哪個pool、Volume 的类型、挂载目录、远程存储服务器地址等。其中**CSI（Container Storage Interface）**是Kubernetes和storage系統之間的**標準介面**，每種storage各自implement一個**CSI driver**，見[Ch-5的PV](chap-5-container-orchestration-controller.md#pv管理cluster的人提供implementation)。
 - **StorageClass是管理cluster的人建的**：***StorageClass是建PV的template***。PVC和PV靠同一個`storageClassName`配對；Kubernetes還能依PVC和StorageClass自動建PV（dynamic provisioning），實務上大多這樣用。大多數cluster安裝時就帶一個default StorageClass（例如kind的`standard`），PVC沒寫`storageClassName`就用它，見[StorageClass](#-3-如何使用storageclass自動建立pv)。
 
 > [!NOTE]
@@ -471,7 +471,7 @@ kube-controller-manager裡有一個***PersistentVolumeController***，專門撮�
 - **控制循環**：不斷檢查每個PVC是不是`Bound`；不是的話，就在所有可用的PV裡找一個符合條件的綁上去。所以PVC先建、PV後建也沒關係，PV一出現就會被綁上。
 - **綁定的條件**：兩個條件都要成立：
   - ① **`spec`滿足**：PV的`spec`要滿足PVC，例如容量夠大、`accessModes`對得上；
-  - ② **`storageClassName`一致**：PV和PVC的`storageClassName`要一樣，見[Chap-5的NOTE](chap-5-container-orchestration-controller.md#pv管理cluster的人提供implementation)。
+  - ② **`storageClassName`一致**：PV和PVC的`storageClassName`要一樣，見[Ch-5的NOTE](chap-5-container-orchestration-controller.md#pv管理cluster的人提供implementation)。
 
 > [!NOTE]
 > 圖裡兩邊都寫`manual`，因為這是手動建的PV。***`manual`不是default，是自己取的名字***：它只是PV和PVC上的同一個字串，cluster裡不需要真的有叫`manual`的StorageClass。PVC要是沒寫`storageClassName`，會被補上cluster的default（例如kind的`standard`），反而綁不到這個PV，見[StorageClass](#-3-如何使用storageclass自動建立pv)。
@@ -556,12 +556,12 @@ CSI plugin接下來要做**Attach**和**Mount**兩個步驟，才能把remote st
 
 PV靠人手動建立屬於**static provisioning**，在大cluster裡做不到：可能有上千個PVC，每個都要先有一個符合的PV。所以Kubernetes提供**dynamic provisioning**：***StorageClass，就是建立PV的template***，它會義兩件事：
 
-- **用哪個provisioner**：填**CSI driver的名字**，每種storage各有一個。例如GKE的Persistent Disk填`pd.csi.storage.gke.io`，AWS的EBS填`ebs.csi.aws.com`，[Chap-3用Rook裝的Ceph](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)（RBD block storage）填`rook-ceph.rbd.csi.ceph.com`。
+- **用哪個provisioner**：填**CSI driver的名字**，每種storage各有一個。例如GKE的Persistent Disk填`pd.csi.storage.gke.io`，AWS的EBS填`ebs.csi.aws.com`，[Ch-3用Rook裝的Ceph](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)（RBD block storage）填`rook-ceph.rbd.csi.ceph.com`。
 
   CSI driver通常有兩種來源：
 
   - **cloud provider預先裝好**：例如GKE的`pd.csi.storage.gke.io`，建好cluster就有。
-  - **管理cluster的人自己裝**：例如[Chap-3的Rook-Ceph](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)，或NFS的csi-driver-nfs。
+  - **管理cluster的人自己裝**：例如[Ch-3的Rook-Ceph](chap-3-kubernetes-architecture-operations.md#建立storageclass再測一次pvc)，或NFS的csi-driver-nfs。
 - **PV的參數**：寫在`parameters`裡，key由各家driver決定。例如GKE的disk類型`type: pd-ssd`；Longhorn（一種開源的block storage）的replica數`numberOfReplicas: "3"`。
 
 ```yaml
@@ -715,7 +715,7 @@ service Node {
 
 - **controller plugin**：Deployment，同時只有**一個**在工作。裡面的sidecar（external-provisioner、external-attacher）watch PVC、VolumeAttachment這些API object，有變化就呼叫CSI driver建立disk、把disk attach到Node。這些都是呼叫storage API，在哪台Node上做都一樣，所以不用每台Node都跑；storage的**credentials**也只放在這裡，**不用發到每台Node上**。
 - **node plugin**：DaemonSet，**每台Node一個**，搭配node-driver-registrar。它不watch API object，而是由kubelet直接呼叫，負責把disk format、mount到Node上。這些**一定要在disk接上的那台Node上做**，所以每台Node都要有一個。
-- **例子**：[Chap-3裝的Rook-Ceph](chap-3-kubernetes-architecture-operations.md#建立ceph-cluster)就是這樣，`…-ctrlplugin-…`是controller plugin，`…-nodeplugin-…`是node plugin。
+- **例子**：[Ch-3裝的Rook-Ceph](chap-3-kubernetes-architecture-operations.md#建立ceph-cluster)就是這樣，`…-ctrlplugin-…`是controller plugin，`…-nodeplugin-…`是node plugin。
 
 > [!TIP]
 > 💡 **一句話總結**
@@ -903,7 +903,7 @@ Pod名字固定 → PVC名字固定 → PVC綁著同一個PV → PV的nodeAffini
 
 ### ⚠️ 8. 代價：Pod被綁在Node上
 
-- **資料只在一台Node上**：不會自己複製資料的app（例如單台MySQL）不適合，應該用remote storage，見[Chap-3的storage選擇](chap-3-kubernetes-architecture-operations.md#-業界常見的做法ceph不是所有stateful-app的最佳選擇)。
+- **資料只在一台Node上**：不會自己複製資料的app（例如單台MySQL）不適合，應該用remote storage，見[Ch-3的storage選擇](chap-3-kubernetes-architecture-operations.md#-業界常見的做法ceph不是所有stateful-app的最佳選擇)。
 - **Node永久壞掉時**：Pod會一直`Pending`，要刪掉PVC（和PV），讓Pod重新排到別台Node，再由app自己把資料複製回來。所以需要在app層做backup 或 replication防止數據丟失。
 
 > [!TIP]

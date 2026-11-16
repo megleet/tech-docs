@@ -519,7 +519,7 @@
   min-height: 100vh;
 }
 
-/* Left nav: collapsible "Tutorials" section (see extra.js) */
+/* Left nav: collapsible sections (see extra.js) */
 /* The theme sets section titles to pointer-events: none; turn clicks back on */
 .md-nav--primary .md-nav__item--section.doc-nav-collapsible > .md-nav__link {
   pointer-events: auto;
@@ -788,4 +788,16 @@
 
 .md-typeset > details.question > summary {
   padding-left: 0.8rem;
+}
+
+/* Home page: chapter lists in two columns (one column on narrow screens).
+   The home page is marked by the hidden [data-link-icons] div (overrides/main.html). */
+@media screen and (min-width: 45em) {
+  .md-typeset:has([data-link-icons]) > ul {
+    columns: 2;
+    column-gap: 2.5em;
+  }
+  .md-typeset:has([data-link-icons]) > ul > li {
+    break-inside: avoid;
+  }
 }

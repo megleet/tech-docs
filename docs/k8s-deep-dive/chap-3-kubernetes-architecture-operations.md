@@ -1,7 +1,7 @@
 ---
 icon: simple/kubernetes
 ---
-# Chap-3 Kubernetes Architecture & Operations
+# Ch-3 K8s Architecture & Ops
 
 **目錄**
 
@@ -154,7 +154,7 @@ containerd
    └── kata-runtime   <-- runtimeClassName: kata的Pod
 ```
 
-所以[Chap-2](chap-2-container-fs-security.md#container隔離的limit與solution)講的gVisor和Kata，可以和一般的runc混用在同一個cluster，甚至同一個Node上。
+所以[Ch-2](chap-2-container-fs-security.md#container隔離的limit與solution)講的gVisor和Kata，可以和一般的runc混用在同一個cluster，甚至同一個Node上。
 
 - **containerd-shim**：每個Pod或container都有一個自己的shim process。它是輔助的process，不是另一個runtime。
 - **Node上裝了Docker**：可以和containerd並存。Kubernetes 1.24之後kubelet不再內建支援Docker，所以不會影響Pod；如果真的要用Docker，要另外裝cri-dockerd。
@@ -201,7 +201,7 @@ containerd
 
 ### 🐳 用kind在local建cluster
 
-[kind](https://kind.sigs.k8s.io/)（Kubernetes in Docker）只需要Docker。後面章節的練習，例如[Chap-7的CRD](chap-7-crd-operator.md#-2-建立network)，都可以在kind cluster上跑：
+[kind](https://kind.sigs.k8s.io/)（Kubernetes in Docker）只需要Docker。後面章節的練習，例如[Ch-7的CRD](chap-7-crd-operator.md#-2-建立network)，都可以在kind cluster上跑：
 
 ```bash
 brew install kind
@@ -242,7 +242,7 @@ kind delete cluster --name demo                   # 用完刪掉
 > - **`users`**：我是誰。API Server用client certificate決定你的權限，kind給的是admin。
 > - **`contexts`**：把cluster和user配成一組。有好幾個cluster時，用`kubectl config use-context <名字>`切換。
 >
-> 任何在cluster外連API Server的程式都讀這個檔案，例如`kubectl`，以及[Chap-7在你電腦上跑的controller](chap-7-crd-operator.md#-6-run-it)。
+> 任何在cluster外連API Server的程式都讀這個檔案，例如`kubectl`，以及[Ch-7在你電腦上跑的controller](chap-7-crd-operator.md#-6-run-it)。
 
 要多個節點的話，寫一個config，例如`kind-4nodes.yaml`：
 
@@ -956,6 +956,6 @@ kubectl create clusterrolebinding headlamp-admin \
 kubectl create token headlamp-admin -n kube-system --duration=24h
 ```
 
-- **token會過期**：default 1小時，`--duration`可以調長。ServiceAccount、RBAC和token的原理，見[Chap-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
+- **token會過期**：default 1小時，`--duration`可以調長。ServiceAccount、RBAC和token的原理，見[Ch-9的ServiceAccountToken](chap-9-volume.md#-6-serviceaccounttokenpod怎麼存取api-server)。
 - **權限**：`cluster-admin`權限最大，只適合練習環境。另外，Helm chart default也替Headlamp自己的ServiceAccount綁了`cluster-admin`，正式環境可以在安裝時加`--set clusterRoleBinding.create=false`關掉。
 - **從cluster外存取**：不要直接把Service改成`NodePort`或`LoadBalancer`，要透過Ingress，並加上TLS和認證。

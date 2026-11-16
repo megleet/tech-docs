@@ -1,7 +1,7 @@
 ---
 icon: lucide/refresh-cw
 ---
-# Chap-5 Container Orchestration之Controller篇
+# Ch-5 Orchestration之Controller篇
 
 **目錄**
 
@@ -305,7 +305,7 @@ kubectl rollout undo deployment/nginx-deployment --to-revision=2
 
 - **讀用cache，寫用API Server**：syncHandler讀Deployment、ReplicaSet都用lister從local cache讀，不問API Server；建立、scale ReplicaSet才用clientset送request給API Server，由API Server寫進etcd。
 - **一層管一層**：Deployment controller只管ReplicaSet；ReplicaSet controller再用同樣的零件管Pod。
-- **自己寫controller也是同一套**：[Chap-7](chap-7-crd-operator.md#manualcrd和controller)會用同樣的零件，自己寫一個管Network的controller，每個零件的細節都在那裡。
+- **自己寫controller也是同一套**：[Ch-7](chap-7-crd-operator.md#manualcrd和controller)會用同樣的零件，自己寫一個管Network的controller，每個零件的細節都在那裡。
 
 ## Service
 
@@ -1408,7 +1408,7 @@ Pod失敗時，依`restartPolicy`有兩種處理方式：
 | **直接管的object** | ReplicaSet | **直接建立Pod**，中間沒有ReplicaSet |
 | **syncHandler做什麼** | 維持Pod的數量 | 數成功、失敗的Pod：還沒達到`completions`就再建（同時最多`parallelism`個），失敗超過`backoffLimit`就停 |
 
-- **Pod上的finalizer**：Job controller建立Pod時，會在Pod上加finalizer `batch.kubernetes.io/job-tracking`。Pod跑完被刪掉之前，controller要先把它算進成功或失敗的次數，再拿掉finalizer，Pod才真的消失。這就是[Chap-7的finalizer](chap-7-crd-operator.md#finalizer)，只是這次擋住的是Pod的刪除，不是自己的CR。
+- **Pod上的finalizer**：Job controller建立Pod時，會在Pod上加finalizer `batch.kubernetes.io/job-tracking`。Pod跑完被刪掉之前，controller要先把它算進成功或失敗的次數，再拿掉finalizer，Pod才真的消失。這就是[Ch-7的finalizer](chap-7-crd-operator.md#finalizer)，只是這次擋住的是Pod的刪除，不是自己的CR。
 
 > [!TIP]
 > 💡 **一句話總結**
