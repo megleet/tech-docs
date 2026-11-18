@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 8 544 150" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="gd-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="6" y="8" width="544" height="150" fill="#ffffff"/>
+
+<!-- new Pod -->
+<rect x="14" y="28" width="64" height="28" rx="7" fill="#475569"/>
+<text x="46" y="46" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">新Pod</text>
+<path d="M78 42 H110" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#gd-a)"/>
+<text x="94" y="36" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">建立</text>
+
+<!-- decision 1 -->
+<path d="M114 42 L180 16 L246 42 L180 68 Z" fill="#334155"/>
+<text x="180" y="39" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">有指定</text>
+<text x="180" y="52" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">PriorityClass？</text>
+<path d="M246 42 H298" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#gd-a)"/>
+<text x="272" y="36" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">否</text>
+<path d="M180 68 V96" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#gd-a)"/>
+<text x="186" y="86" font-size="10" font-weight="700" fill="#475569">是</text>
+
+<!-- decision 2 -->
+<path d="M302 42 L368 16 L434 42 L368 68 Z" fill="#334155"/>
+<text x="368" y="39" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">cluster有default</text>
+<text x="368" y="52" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">PriorityClass？</text>
+<path d="M434 42 H470" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#gd-a)"/>
+<text x="452" y="36" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">否</text>
+<path d="M368 68 V96" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#gd-a)"/>
+<text x="374" y="86" font-size="10" font-weight="700" fill="#475569">是</text>
+
+<!-- results -->
+<rect x="105" y="100" width="150" height="40" rx="7" fill="#ea7a12"/>
+<text x="180" y="116" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">用指定的PriorityClass</text>
+<text x="180" y="131" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="600" fill="#fff" text-anchor="middle">high-priority → 1,000,000</text>
+
+<rect x="293" y="100" width="150" height="40" rx="7" fill="#e8590c"/>
+<text x="368" y="116" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">用default PriorityClass</text>
+<text x="368" y="131" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" font-weight="600" fill="#fff" text-anchor="middle">globalDefault: true</text>
+<text x="368" y="153" font-size="9.5" font-weight="600" fill="#94a3b8" text-anchor="middle">整個cluster只能有一個</text>
+
+<rect x="474" y="28" width="70" height="28" rx="7" fill="#f6c443"/>
+<text x="509" y="46" font-size="11" font-weight="800" fill="#6b4a00" text-anchor="middle">priority 0</text>
+</svg>

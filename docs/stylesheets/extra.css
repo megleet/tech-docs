@@ -35,6 +35,11 @@
   --doc-placeholder: #b00020;   --doc-placeholder-bg: #ffe08a;
   --doc-tag-local: #b4530a;    --doc-tag-local-bg: #ffeddc;
   --doc-tag-light: #9d2a8a;    --doc-tag-light-bg: #f8e6f4;
+  /* Filter Status names, same colors as images/ch08/preemption-flow.svg */
+  --doc-status-success: #1f9d76;  --doc-status-unschedulable: #d97706;
+  --doc-status-unresolvable: #7c3aed;  --doc-status-error: #c2410c;
+  /* Preemption Pod roles, same colors as images/ch08/preemption-pod-roles.svg */
+  --doc-pod-p: #b8336f;  --doc-pod-hi: #5b4fe9;  --doc-pod-lo: #64748b;  --doc-pod-v: #7b8aa1;
   /* Analogy after a point: <span class="analogy">…</span> */
   --doc-analogy: #7a8394;      --doc-analogy-bg: #eceff3;
 }
@@ -77,6 +82,9 @@
   --doc-placeholder: #1a1a1a;   --doc-placeholder-bg: #ffd54f;
   --doc-tag-local: #ffb27a;    --doc-tag-local-bg: rgba(255, 178, 122, 0.14);
   --doc-tag-light: #f0a6e2;    --doc-tag-light-bg: rgba(240, 166, 226, 0.14);
+  --doc-status-success: #4fd1a5;  --doc-status-unschedulable: #fcd34d;
+  --doc-status-unresolvable: #b794f6;  --doc-status-error: #fb8a5c;
+  --doc-pod-p: #f08bb8;  --doc-pod-hi: #a9a3ff;  --doc-pod-lo: #a3b1c6;  --doc-pod-v: #8b97aa;
 }
 
 /* **Bold**: ordinary emphasis stays in the body text color */
@@ -609,6 +617,22 @@
 .md-typeset .doc-name-official { color: var(--doc-tag-official); }
 .md-typeset .doc-name-local { color: var(--doc-tag-local); }
 .md-typeset .doc-name-light { color: var(--doc-tag-light); }
+
+/* Filter Status names: <span class="doc-status doc-status-success">Success</span>
+   (plain text inside the span: the editor drops `code` inside inline HTML) */
+.md-typeset .doc-status { font-family: var(--md-code-font-family); font-size: 0.9em; font-weight: 700; }
+.md-typeset .doc-status-success { color: var(--doc-status-success); }
+.md-typeset .doc-status-unschedulable { color: var(--doc-status-unschedulable); }
+.md-typeset .doc-status-unresolvable { color: var(--doc-status-unresolvable); }
+.md-typeset .doc-status-error { color: var(--doc-status-error); }
+
+/* Preemption Pod roles: <span class="doc-pod doc-pod-p">pod-p</span>
+   pod-v (victim, being evicted) gets a dashed underline like its dashed outline in the diagram */
+.md-typeset .doc-pod { font-weight: 700; }
+.md-typeset .doc-pod-p { color: var(--doc-pod-p); }
+.md-typeset .doc-pod-hi { color: var(--doc-pod-hi); }
+.md-typeset .doc-pod-lo { color: var(--doc-pod-lo); }
+.md-typeset .doc-pod-v { color: var(--doc-pod-v); text-decoration: underline dashed; text-underline-offset: 3px; }
 
 /* A short note under a group tag: <br><span class="doc-group-note">…</span> */
 .md-typeset .doc-group-note {

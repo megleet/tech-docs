@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 426 140" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="rb-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="6" y="6" width="426" height="140" fill="#ffffff"/>
+
+<!-- lines first -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#rb-a)">
+  <path d="M106 34 H137"/>
+  <path d="M250 34 H313"/>
+  <path d="M195 48 V81"/>
+  <path d="M222 94 H313"/>
+</g>
+
+<!-- activeQ: a pipe, right end open (neutral) -->
+<path d="M96 16 H22 A8 18 0 0 0 22 52 H96" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<ellipse cx="96" cy="34" rx="8" ry="18" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.3"/>
+<rect x="24" y="21" width="64" height="26" rx="13" fill="#5b4fe9"/>
+<text x="56" y="37.5" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">pod-hi</text>
+<text x="59" y="66" font-size="10" font-weight="800" fill="#334155" text-anchor="middle">activeQ</text>
+
+<!-- decision: try nominated node first -->
+<polygon points="140,34 152,20 238,20 250,34 238,48 152,48" fill="#475569"/>
+<text x="195" y="37.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">node-a放得下？</text>
+
+<!-- node-a: server, victim still terminating -->
+<rect x="316" y="11" width="110" height="46" rx="5" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<path d="M316 24 V16 A5 5 0 0 1 321 11 H421 A5 5 0 0 1 426 16 V24 Z" fill="#334155"/>
+<text x="324" y="20.5" font-size="9" font-weight="800" fill="#fff">node-a</text>
+<circle cx="408" cy="17.5" r="2.3" fill="#4ade80"/>
+<circle cx="417" cy="17.5" r="2.3" fill="#4ade80"/>
+<rect x="324" y="29" width="94" height="22" rx="11" fill="#e2e8f0" stroke="#64748b" stroke-width="1.3" stroke-dasharray="4 2.5"/>
+<text x="371" y="43.5" font-size="8.5" font-weight="800" fill="#475569" text-anchor="middle">victim Pod還在結束</text>
+
+<!-- Filter all Nodes: a funnel -->
+<path d="M160 84 H230 L212 104 V116 H178 V104 Z" fill="#334155"/>
+<text x="195" y="129" font-size="9.5" font-weight="800" fill="#334155" text-anchor="middle">Filter所有Node</text>
+<text x="195" y="141" font-size="8.5" font-weight="700" fill="#64748b" text-anchor="middle">同上面流程圖</text>
+
+<!-- node-b: server, pod-hi lands here -->
+<rect x="316" y="71" width="110" height="46" rx="5" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<path d="M316 84 V76 A5 5 0 0 1 321 71 H421 A5 5 0 0 1 426 76 V84 Z" fill="#334155"/>
+<text x="324" y="80.5" font-size="9" font-weight="800" fill="#fff">node-b</text>
+<circle cx="408" cy="77.5" r="2.3" fill="#4ade80"/>
+<circle cx="417" cy="77.5" r="2.3" fill="#4ade80"/>
+<rect x="326" y="89" width="90" height="22" rx="11" fill="#5b4fe9"/>
+<text x="371" y="103.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">pod-hi</text>
+
+<!-- labels (white halo) -->
+<g font-size="9" font-weight="700" fill="#475569" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">
+  <text x="121" y="28">Pop</text>
+  <text x="281" y="28">放得下：直接用</text>
+  <text x="201" y="68" text-anchor="start">放不下</text>
+  <text x="272" y="87">node-b <tspan fill="#1f9d76" font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="700" font-size="1.1em" style="text-decoration: underline dotted; text-underline-offset: 2px">Success</tspan></text>
+  <text x="426" y="131" text-anchor="end">nominatedNodeName：</text>
+  <text x="426" y="143" text-anchor="end">node-a → node-b</text>
+</g>
+</svg>

@@ -533,7 +533,7 @@ Scheduler Cache用`assumedPods`把assumed的Pod標記出來。
 
 ### 🪝 1. Extension point：每一步都能掛plugin
 
-**和[CRI、CNI、CSI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)一樣，scheduler也有可拓展的extension interface**，就是***Scheduling Framework**：scheduler的每一步，從Enqueue、Filter、Score到Bind，都是可以掛plugin的extension point***。差別在plugin怎麼接上去：
+**和[CRI、CNI、CSI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)一樣，scheduler也有可拓展的extension interface**，就是**Scheduling Framework**：***scheduler的每一步，從Enqueue、Filter、Score到Bind，都是可以掛plugin的extension point***。差別在plugin怎麼接上去：
 
 - **CRI、CNI、CSI**：***呼叫另一個獨立的程式***，透過gRPC或執行檔。*不一定使用Go語言*。
 - **scheduler的plugin**：***和scheduler compile成同一個執行檔***，所以不走網路、速度快，但新增plugin要重新build scheduler。*需要使用Go語言*。
@@ -673,25 +673,165 @@ CycleState裡存的，是PreFilter或PreScore替這個Pod算好的結果，讓�
 
 ## Priority和preemption
 
+*Pod排不上任何Node時，重要的Pod怎麼辦？*
+
+正常情況下，Pod排不上任何Node，就會被放進unschedulable，暫時擱置。要等Pod本身被更新，或cluster有相關變化，scheduler才會retry。
+
+但如果很重要的high priority的Pod，沒有匹配的Node，也不希望「擱置」一直等時，就需要preemption：scheduler在某個Node上擠走一些low priority的Pod，空出資源，讓位給high priority的Pod。
+
+![兩種情況。① 一般情況：Pod排不上任何Node，放進unschedulable擱置，等cluster變化才retry。② 很重要的Pod排不上：preemption。high priority Pod挑一個已滿的Node，evict其中一個low priority Pod，空出的資源給high priority Pod](images/ch08/preemption.svg){ width="100%" }
+
+### 🎖️ 1. PriorityClass：替priority取名字、給值
+
+要使用**preemption**，先在cluster裡建一個**PriorityClass**，替priority取一個名字、給一個值：
+
+<!-- hl: 5 6 -->
+
+```yaml
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 1000000
+globalDefault: false
+description: "This priority class should be used for high priority service pods only."
+```
+
+這個YAML定義了一個叫`high-priority`的PriorityClass。兩個重點欄位：
+
+- **`value`**：priority是32 bit整數，***值越大，priority越高***。user自訂的值最大是1,000,000,000（10億），比10億大的值保留給system Pod使用，例如`system-cluster-critical`和`system-node-critical`。這樣user的Pod就***搶不走system Pod***。
+
+![priority的範圍，值越大priority越高。0到1,000,000,000（10億）是user自訂的範圍：沒指定PriorityClass（沒有default時）是0，high-priority是1,000,000；1,000,000,000是user的上限，user的Pod搶不走system Pod。比10億大的值保留給system Pod：system-cluster-critical是2,000,000,000，system-node-critical是2,000,001,000](images/ch08/priority-range.svg){ width="70%" }
+
+- **`globalDefault`**：設成`true`的，是**cluster的default PriorityClass**，之後建立的沒指定PriorityClass的Pod都用這個值。一個k8s cluster只能有一個default PriorityClass。設成`false`，就只有指定`high-priority`的Pod拿到1,000,000。沒指定的Pod，用cluster裡default PriorityClass的值；連default都沒有，priority就是0。
+
+![新Pod的priority怎麼決定。建立Pod時，先看有沒有指定PriorityClass：有，就用指定的PriorityClass，例如high-priority是1,000,000。沒有，再看cluster有沒有default PriorityClass（globalDefault: true，整個cluster只能有一個）：有，就用default的值；沒有，priority是0](images/ch08/priority-global-default.svg){ width="100%" }
+
+### 📝 2. Pod怎麼指定priority
+
+Pod要用這個priority，在`spec.priorityClassName`寫上PriorityClass的名字：
+
+<!-- hl: 9 -->
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+  priorityClassName: high-priority
+```
+
+這個Pod送到API Server時，內建的admission controller **`Priority`**會用`high-priority`這個名字查到PriorityClass，把它的`value`寫進Pod的`spec.priority`，也就是***`spec.priority: 1000000`***。內建admission controller是什麼，見[Admission Control：內建的和Dynamic的](chap-6-declarative-api.md#-2-admission-control內建的和dynamic的)。
+
+### 📶 3. Priority的作用：activeQ照priority排序
+
+scheduler每次都從[scheduling queue](#-scheduling-queue裡的三個queue)裡的**activeQ** Pop一個Pod來排。Pod有了priority之後，activeQ就照priority排序：high priority的Pod排在前面，比low priority的Pod先被Pop出來。
+
+![activeQ照priority排序。由左往右是high t2、high t4、low t1、low t3、low t5，最左邊Pop給scheduler；新來的high t6插在high後面、low前面。priority高的在前；priority一樣，先進queue的在前。t1、t2…是進queue的先後，t1最早](images/ch08/activeq-priority-order.svg){ width="100%" }
+
+### ⚔️ 4. Preemption的作用和流程
+
+當high priority的Pod排不上任何Node時，scheduler的preemption就會被觸發。scheduler在cluster裡找一個Node：只要刪掉這個Node上一個或多個low priority Pod，high priority Pod就排得上去。
+
+![Preemption的流程。Filter之後看每台Node的Status：有1台Success，就走Score → Reserve → Bind；Error就不跑preemption，Pod進backoffQ；全部放不下，就跑PostFilter：preemption。先看有沒有Unschedulable的Node：沒有（全是Unresolvable），Pod直接進unschedulable；有，就模擬evict，看找不找得到victim Pod。找不到，Pod進unschedulable，等cluster變化；找得到，挑影響最小的Node（victim Pod少、priority低），evict victim Pod、寫nominatedNodeName，Pod進unschedulable，victim Pod刪掉就移出](images/ch08/preemption-flow.svg){ width="100%" }
+
+圖中PostFilter的preemption分成兩個過程，各有三步：
+
+- [**挑出最好的Node**](#-挑出最好的node)：
+  1. 判斷是否做preemption
+  2. 在副本上模擬evict
+  3. 挑最合適的Node
+- [**真正搶佔**](#-真正搶佔)：
+  1. 清掉低priority Pod的提名
+  2. 刪除victim Pod
+  3. 標記搶佔者，preemptor pod
+
+下面詳細說明。
+
+#### 🎯 挑出最好的Node
+
+Preemption先用三步，挑出一台最適合搶佔的Node：
+
+**1. 判斷是否做preemption。*根據排程失敗的原因，判斷preemption是否有幫助*。** Filter plugin回傳失敗時會標明原因：
+
+- <span class="doc-status doc-status-unschedulable">Unschedulable</span>：evict一些Pod後**可能**放得下，例如CPU不夠。
+- <span class="doc-status doc-status-unresolvable">UnschedulableAndUnresolvable</span>：evict再多Pod也沒用，例如Pod的`spec.nodeName`指定了node-a，node-b怎麼刪都不會變成node-a。這種Node直接跳過。
+
+> [!NOTE]
+> **Filter回傳的Status**
+>
+> 每個Filter plugin對**每台Node**回傳一種Status，決定要不要觸發preemption、preemption要考慮哪些Node：
+>
+> | Status                                                                               | 意思                                                          | 和preemption的關係                                                                                                     |
+> | ------------------------------------------------------------------------------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+> | <span class="doc-status doc-status-success">Success</span>                           | 這台Node放得下                                                | 只要有1台是<span class="doc-status doc-status-success">Success</span>，就***不觸發***preemption，直接進入Score |
+> | <span class="doc-status doc-status-unschedulable">Unschedulable</span>               | 放不下，但evict一些Pod後***可能放得下***，例如CPU不夠 | 這台Node是preemption的candidate                                                                                        |
+> | <span class="doc-status doc-status-unresolvable">UnschedulableAndUnresolvable</span> | evict再多Pod也沒用，例如`nodeName`不符                      | preemption直接跳過這台Node                                                                                             |
+> | <span class="doc-status doc-status-error">Error</span>                               | plugin本身出錯，例如內部錯誤                                  | ***不觸發***preemption；Pod進backoffQ，稍後retry                                                               |
+
+**2. 在副本上模擬。** 對每台candidate Node，複製一份它的資訊，在副本裡拿掉priority比較低的Pod，再跑一次Filter，看放不放得下。真正的cache不會被改到。放得下的話，scheduler就記下這台Node，以及要evict的victim Pod。
+
+**3. 挑影響最小的Node。** 所有Node都模擬完之後，scheduler從記下來的Node裡挑一台，原則是***對整個cluster的影響越小越好***，例如victim Pod越少越好、priority越低越好。
+
+#### 💥 真正搶佔
+
+選定Node之後，scheduler才真正開始搶佔。下面會講到四種Pod，為了說明清楚，先統一叫法：
+
+![四種Pod的叫法。scheduling queue從左邊Pop，priority由左往右從高到低：pod-hi（nominated Pod）、pod-p（preemptor）、pod-lo（nominated Pod），三個都提名node-a。一條虛線標出pod-p的priority：pod-hi和pod-p在≥ pod-p這邊，pod-lo在< pod-p這邊。node-a上跑著pod-v（victim，要被evict），也在< pod-p這邊](images/ch08/preemption-pod-roles.svg){ width="80%" }
+
+| 名字                                           | 角色          | 說明                                                                                                         |
+| ---------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------ |
+| <span class="doc-pod doc-pod-p">pod-p</span>   | preemptor     | high priority的Pod，正在搶佔                                                                                 |
+| <span class="doc-pod doc-pod-lo">pod-lo</span> | nominated Pod | 和pod-p提名同一台Node、還在queue裡等（activeQ、backoffQ、unschedulable都有可能），**priority < pod-p** |
+| <span class="doc-pod doc-pod-hi">pod-hi</span> | nominated Pod | 和pod-p提名同一台Node、還在queue裡等，**priority ≥ pod-p**                                            |
+| <span class="doc-pod doc-pod-v">pod-v</span>   | victim Pod    | 跑在這台Node上、要被evict的Pod，**priority < pod-p**                                                   |
+
+真正搶佔分三步：
+
+1. **清掉pod-lo的提名**：在這之前，pod-lo已經在這台Node上搶佔過，還在queue裡等資源，它的`nominatedNodeName`也寫著這台Node。pod-lo的priority比pod-p低，scheduler就清掉它的`nominatedNodeName`，然後把pod-lo放回activeQ重新排。
+2. **刪除pod-v**：scheduler開一個goroutine，**在背景做async preemption驅逐pod-v**，***不等刪完，就繼續排下一個Pod***。pod-v照一般流程graceful結束。
+3. **標記pod-p**：把pod-p的`nominatedNodeName`寫成這台Node，然後放回queue，等資源空出來再排。
+
+#### 🔁 Reschedule Preemptor Pod：兩遍Filter
+
+pod-p搶佔完，還在queue裡等pod-v結束。等pod-p重排時，pod-lo的提名已經清掉了，**node-a上只剩pod-hi的提名要考慮。如果有pod-hi，Filter就對node-a跑兩遍：**
+
+1. **第一遍，假設pod-hi已經在node-a上**：把pod-hi加進node-a再跑Filter，**不搶pod-hi的位子**。**空出來的資源是留給pod-hi的**，pod-p不能拿走。*如果pod-hi和pod-p之間有InterPodAntiAffinity這類互斥的規則，第一遍就會fail，node-a不能給pod-p*。
+2. **第二遍，假設pod-hi沒有排在node-a上**：pod-hi不一定真的排到node-a，例如pod-v還沒結束時，別的Node先空出來，pod-hi就排到那邊去了。所以照node-a現在的樣子再跑一次。*如果pod-hi和pod-p之間有PodAffinity這類要排在一起的規則，而且node-a上只有pod-hi能滿足，第一遍會過，第二遍就會fail，因為pod-hi還沒真的排上node-a，不能當真。等pod-hi真的排上，pod-p就排得上了。*
+
+***兩遍都過***，node-a才算放得下。第一遍沒過，或node-a上沒有pod-hi，就不跑第二遍。簡單說，***第一遍prevent「pod-p和pod-hi放一起會出問題」，第二遍prevent「pod-p和pod-hi沒放一起出問題」***。
+
+> [!NOTE]
+> **為什麼pod-hi可能排到node-b**
+>
+> `nominatedNodeName`只是「優先試這台」，不是「只能去這台」。pod-hi重排的過程：
+>
+> 1. **Pop**：pod-hi從activeQ被Pop出來。
+> 2. **先試node-a**：只對node-a跑Filter，過了就直接用node-a。
+> 3. **沒過，照正常流程**：pod-hi搶佔的victim Pod還沒結束，node-a放不下，就對所有Node跑Filter，也就是上面流程圖的流程。
+> 4. **找到node-b**：這段時間node-b剛好空出資源，Filter結果是<span class="doc-status doc-status-success">Success</span>，pod-hi就排到node-b。scheduler拿掉pod-hi對node-a的提名，`nominatedNodeName`改成node-b，bind完成後清空。
+>
+> ![pod-hi重排時可能排到node-b。pod-hi從activeQ被Pop出來，先只試node-a：放得下就直接用；node-a上的victim Pod還在結束，放不下，就對所有Node跑Filter，和上面的流程圖一樣。node-b是Success，pod-hi排到node-b，nominatedNodeName從node-a改成node-b](images/ch08/preemptor-reschedule-node-b.svg){ width="80%" }
+
 ## 思考題
 
 ??? question "1. 要怎麼知道container的`requests.cpu`設多少才夠用？"
 
     答案稍後補上。
 
-??? question "2. eviction後，是不是scheduler需要繼續look for最合適的node來schedule這個pod？"
+??? question "2. 什麼情況下，要把container綁在固定的CPU核上（`cpuset.cpus`），而不是和別人共享（`cpu.weight`）？在Kubernetes裡要怎麼做到？"
 
     答案稍後補上。
 
-??? question "3. 什麼情況下，要把container綁在固定的CPU核上（`cpuset.cpus`），而不是和別人共享（`cpu.weight`）？在Kubernetes裡要怎麼做到？"
+??? question "3. eviction後，是不是scheduler需要繼續look for最合適的node來schedule這個pod？"
 
     答案稍後補上。
 
-??? question "4. scheduler的assume和Bind都沒有加lock。如果兩個scheduler同時把同一個Pod綁到不同的Node，會發生什麼事？"
-
-    答案稍後補上。
-
-??? question "5. 為什麼叫scheduling cycle和binding cycle？為什麼用cycle這個詞？"
+??? question "4. 為什麼叫scheduling cycle和binding cycle？為什麼用cycle這個詞？"
 
     **cycle在這裡是「一輪」的意思，不是「迴圈」。**
 
@@ -708,7 +848,21 @@ CycleState裡存的，是PreFilter或PreScore替這個Pod算好的結果，讓�
 
     ![主迴圈一直轉，第1圈web-1、第2圈api-2、第3圈db-0，每一圈是一個Pod的scheduling cycle；每圈往下分出同色的binding cycle：PreBind、Bind、PostBind，各走一輪就結束，不繞圈，web-1和db-0成功，api-2失敗](images/ch08/cycle-main-loop.svg){ width="80%" }
 
-??? question "6. extension point是不是都有default的plugin？比如Score有沒有default的打分方式？如果user沒有提供自己的plugin，會怎麼樣？"
+??? question "5. Scheduler Cache只存在scheduler的mem裡。如果scheduler在assume之後、Bind寫回API server之前突然斷電或重啟，cache裡的資料不見了，這個Pod會怎麼樣？會不會被排兩次，或者永遠排不上？"
+
+    答案稍後補上。
+
+??? question "6. Scheduler Cache裡的Pod，有些已經真的寫回API server，有些只是assume。scheduler分得出哪些是assumed的嗎？如果分得出，它要拿這個資訊做什麼？"
+
+    ***分得出***：cache用`assumedPods`這個set標記哪些Pod是assumed，也就是scheduler自己的假設，API server還沒確認。
+
+    這個標記讓下一個Pod馬上看到資源被占用、讓Informer事件來時分清是確認還是新增、讓Bind失敗時只forget assumed的Pod。詳細見[Scheduler的「cache狀態管理」和「樂觀assume」](#-3-scheduler的cache狀態管理和樂觀assume)。
+
+??? question "7. scheduler的assume和Bind都沒有加lock。如果兩個scheduler同時把同一個Pod綁到不同的Node，會發生什麼事？"
+
+    答案稍後補上。
+
+??? question "8. extension point是不是都有default的plugin？比如Score有沒有default的打分方式？如果user沒有提供自己的plugin，會怎麼樣？"
 
     ***大部分extension point都有default plugin，但不是全部。***
 
@@ -726,12 +880,44 @@ CycleState裡存的，是PreFilter或PreScore替這個Pod算好的結果，讓�
 
     *QueueSort只能開一個，Bind至少要有一個*，所以這兩個不能全部關掉。
 
-??? question "7. Scheduler Cache只存在scheduler的mem裡。如果scheduler在assume之後、Bind寫回API server之前突然斷電或重啟，cache裡的資料不見了，這個Pod會怎麼樣？會不會被排兩次，或者永遠排不上？"
+??? question "9. High priority Pod找不到Node，放到backoffQ還是unschedulable？"
 
-    答案稍後補上。
+    排程失敗後，搶佔者通常被放進**unschedulable**。但如果排程期間cluster已經有相關變化，例如有Pod被刪掉，scheduler會判斷「現在retry可能就排得上」，就不會放進unschedulable，而是放進**backoffQ**，等backoff時間到再retry。
 
-??? question "8. Scheduler Cache裡的Pod，有些已經真的寫回API server，有些只是assume。scheduler分得出哪些是assumed的嗎？如果分得出，它要拿這個資訊做什麼？"
+    一般情況下，preemption成不成功都先放進unschedulable，差別在於之後多快被移出來：
 
-    ***分得出***：cache用`assumedPods`這個set標記哪些Pod是assumed，也就是scheduler自己的假設，API server還沒確認。
+    - **preemption成功**（找到Node，evict了victim Pod）：先放unschedulable。victim Pod被刪掉時，會產生和這個Pod有關的Pod delete event，Pod馬上被移出unschedulable、回到activeQ，下一輪通常排到`nominatedNodeName`那台Node
+    - **preemption失敗**（evict誰都放不下）：先放unschedulable。等cluster有相關變化才移出，例如加了新Node、有Pod結束；最多待5分鐘
 
-    這個標記讓下一個Pod馬上看到資源被占用、讓Informer事件來時分清是確認還是新增、讓Bind失敗時只forget assumed的Pod。詳細見[Scheduler的「cache狀態管理」和「樂觀assume」](#-3-scheduler的cache狀態管理和樂觀assume)。
+    - **為什麼是unschedulable**：兩種情況Filter的結果都是「沒有Node放得下」，屬於「要等cluster變化才值得retry」，不是呼叫API server失敗這類錯誤。見[scheduling queue裡的三個queue](#-scheduling-queue裡的三個queue)。
+    - **preemption成功，為什麼還要先進unschedulable**：victim Pod還在graceful結束，資源還沒空出來，馬上retry也排不上。等victim Pod真的刪掉，event自然會把它叫回來，不用空轉。
+    - **backoffQ也可能經過**：被event移出unschedulable時，如果這個Pod的backoff時間還沒到，會先進backoffQ等一下，再回activeQ。所以backoffQ不只放出錯的Pod。
+
+??? question "10. cluster發生可能影響排程結果的變化時，例如加了新Node、Node的label改了、新增PV，scheduler會把unschedulable裡相關的Pod移出來，放回activeQ或backoffQ。為什麼？"
+
+    ***因為這些Pod排不上，是cluster當時的狀態造成的；cluster變了，它們可能就排得上了。***
+
+    Pod進unschedulable，是因為Filter發現「現在沒有Node放得下」。但這個結論只對**當時的cluster**成立：
+
+    - **加了新Node**：之前資源不夠的Pod，新Node可能放得下。
+    - **Node的label改了**：之前`nodeAffinity`不符的Pod，現在可能符合了。
+    - **新增PV**：之前找不到PV、VolumeBinding不通過的Pod，現在可能找得到。
+
+    如果不移出來，這些Pod要在unschedulable裡等到最多5分鐘才會被retry，***明明排得上卻白等***。
+
+    **只移相關的Pod，不是全部**：每個Filter plugin會登記自己在意哪些event，再用**QueueingHint**判斷這次的變化會不會讓被它擋下的Pod排得上。例如被NodeAffinity擋下的Pod，只有Node的label改了、而且新label符合時才移出；新增PV跟它無關，就繼續留著。這樣可以避免一個event把一大堆Pod全部叫醒，retry了還是排不上，白白浪費scheduler的時間。
+
+    **移去哪裡**：backoff時間已經到的進activeQ，還沒到的先進backoffQ。見[scheduling queue裡的三個queue](#-scheduling-queue裡的三個queue)。
+
+??? question "11. 一個已經排上的Pod被更新時，例如label改了，scheduler會把unschedulable裡和這個Pod有PodAffinity或InterPodAntiAffinity關係的Pod移出來。為什麼？"
+
+    ***因為PodAffinity和InterPodAntiAffinity看的是「Node上已經有哪些Pod、它們的label是什麼」。已經排上的Pod一改label，這些規則的結果就可能跟著變。***
+
+    兩個例子：
+
+    - **PodAffinity**：pod-x要求和`app=cache`的Pod排在同一台Node，但cluster裡沒有`app=cache`的Pod，pod-x被InterPodAffinity擋下，進了unschedulable。後來node-a上一個已經排上的Pod，label改成`app=cache`，pod-x就有地方去了。
+    - **InterPodAntiAffinity**：pod-y不能和`app=db`的Pod排在同一台Node，而每台Node上都有`app=db`的Pod，pod-y進了unschedulable。後來其中一台Node上的Pod，label從`app=db`改掉了，那台Node就不再和pod-y互斥。
+
+    這兩種情況，Node和資源都沒變，***只有已經排上的Pod的label變了***。如果scheduler只看Node的event，pod-x和pod-y就要白等到最多5分鐘。
+
+    **只移有關係的Pod**：InterPodAffinity的QueueingHint會檢查，改過的label有沒有符合unschedulable裡那些Pod的PodAffinity或InterPodAntiAffinity條件。符合的才移出；其他Pod，例如因為CPU不夠而進來的，和這個label變化無關，就繼續留著。

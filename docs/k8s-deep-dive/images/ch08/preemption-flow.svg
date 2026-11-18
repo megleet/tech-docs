@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 12 748 172" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="pf-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="8" y="12" width="748" height="172" fill="#ffffff"/>
+
+<!-- lines first, labels later -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#pf-a)">
+  <path d="M74 70 H88"/>
+  <path d="M139 56 V30 H254"/>
+  <path d="M190 70 H254"/>
+  <path d="M139 84 V132"/>
+  <path d="M390 70 H408"/>
+  <path d="M540 70 H598"/>
+  <path d="M476 84 V110 H345 V132"/>
+  <path d="M690 70 H716 V150 H700"/>
+  <path d="M596 150 H570"/>
+  <path d="M446 150 H394"/>
+</g>
+<path d="M646 84 V110 H476" fill="none" stroke="#475569" stroke-width="2"/>
+<circle cx="476" cy="110" r="3" fill="#475569"/>
+
+<!-- Filter -->
+<rect x="14" y="56" width="60" height="28" rx="7" fill="#2f6fd1"/>
+<text x="44" y="74" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Filter</text>
+
+<!-- Status? -->
+<polygon points="90,70 100,56 180,56 190,70 180,84 100,84" fill="#475569"/>
+<text x="139" y="73.5" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">每台Node的Status</text>
+
+<!-- Success: scheduled -->
+<rect x="258" y="16" width="160" height="28" rx="7" fill="#1f9d76"/>
+<text x="338" y="34" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">Score → Reserve → Bind</text>
+
+<!-- PostFilter: preemption -->
+<rect x="258" y="56" width="132" height="28" rx="7" fill="#b8336f"/>
+<text x="324" y="74" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">PostFilter：preemption</text>
+
+<!-- step 1: any Unschedulable node? -->
+<polygon points="412,70 422,56 530,56 540,70 530,84 422,84" fill="#475569"/>
+<text x="476" y="67" font-size="8.5" font-weight="800" fill="#fff" text-anchor="middle">有<tspan fill="#fcd34d" font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="700" font-size="1.1em" style="text-decoration: underline dotted; text-underline-offset: 2px">Unschedulable</tspan></text>
+<text x="476" y="78.5" font-size="8.5" font-weight="800" fill="#fff" text-anchor="middle">的Node？</text>
+
+<!-- step 2: victims found after simulation? -->
+<polygon points="602,70 612,56 680,56 690,70 680,84 612,84" fill="#475569"/>
+<text x="646" y="67" font-size="8.5" font-weight="800" fill="#fff" text-anchor="middle">找得到</text>
+<text x="646" y="78.5" font-size="8.5" font-weight="800" fill="#fff" text-anchor="middle">victim Pod？</text>
+
+<!-- row 2 (right to left): pick Node → evict → unschedulable -->
+<rect x="600" y="136" width="100" height="28" rx="7" fill="#b8336f"/>
+<text x="650" y="147" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">挑影響最小的Node</text>
+<text x="650" y="158.5" font-size="8" font-weight="700" fill="#fce7f3" text-anchor="middle">victim Pod少、priority低</text>
+
+<rect x="446" y="136" width="120" height="28" rx="7" fill="#b8336f"/>
+<text x="506" y="147" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">evict victim Pod</text>
+<text x="506" y="158.5" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">寫nominatedNodeName</text>
+
+<!-- unschedulable queue -->
+<rect x="300" y="136" width="90" height="28" rx="4" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.3"/>
+<path d="M330 136 V164 M360 136 V164" stroke="#60a5fa" stroke-width="1.3"/>
+<rect x="303" y="139" width="24" height="22" rx="3" fill="#b8336f"/>
+<text x="315" y="153.5" font-size="8.5" font-weight="800" fill="#fff" text-anchor="middle">Pod</text>
+<text x="345" y="178" font-size="10" font-weight="800" fill="#334155" text-anchor="middle">unschedulable</text>
+
+<!-- backoffQ -->
+<rect x="94" y="136" width="90" height="28" rx="4" fill="#ecfeff" stroke="#22b8cf" stroke-width="1.3"/>
+<path d="M124 136 V164 M154 136 V164" stroke="#22b8cf" stroke-width="1.3"/>
+<rect x="97" y="139" width="24" height="22" rx="3" fill="#b8336f"/>
+<text x="109" y="153.5" font-size="8.5" font-weight="800" fill="#fff" text-anchor="middle">Pod</text>
+<text x="139" y="178" font-size="10" font-weight="800" fill="#334155" text-anchor="middle">backoffQ</text>
+
+<!-- arrow labels (drawn after lines, white halo) -->
+<g font-size="9.5" font-weight="700" fill="#475569" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">
+  <text x="248" y="25" text-anchor="end">有1台<tspan fill="#1f9d76" font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="700" font-size="1.1em" style="text-decoration: underline dotted; text-underline-offset: 2px">Success</tspan></text>
+  <text x="248" y="64" text-anchor="end">全部放不下</text>
+  <text x="145" y="112" text-anchor="start" font-size="9"><tspan fill="#c2410c" font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="700" font-size="1.1em" style="text-decoration: underline dotted; text-underline-offset: 2px">Error</tspan>：不跑preemption</text>
+  <text x="569" y="64" font-size="9">有：模擬evict</text>
+  <text x="410" y="105" font-size="9">沒有（全是<tspan fill="#7c3aed" font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="700" font-size="1.1em" style="text-decoration: underline dotted; text-underline-offset: 2px">Unresolvable</tspan>）</text>
+  <text x="561" y="105" font-size="9">找不到</text>
+  <text x="351" y="126" text-anchor="start" font-size="9">等cluster變化</text>
+  <text x="722" y="112" text-anchor="start" font-size="9">找得到</text>
+  <text x="583" y="145" font-size="9">選定</text>
+  <text x="420" y="163" font-size="8.5">victim Pod</text>
+  <text x="420" y="174" font-size="8.5">刪掉就移出</text>
+</g>
+</svg>

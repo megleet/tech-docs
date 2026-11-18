@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 8 408 126" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="aq-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker><marker id="aq-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#ea7a12"/></marker></defs>
+<rect x="6" y="8" width="408" height="126" fill="#ffffff"/>
+
+<!-- new high Pod inserting -->
+<rect x="200" y="14" width="44" height="28" rx="5" fill="#ea7a12"/>
+<text x="222" y="26" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">high</text>
+<text x="222" y="37" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">t6</text>
+<path d="M222 42 V58" fill="none" stroke="#ea7a12" stroke-width="2" marker-end="url(#aq-b)"/>
+<text x="250" y="25" font-size="10" font-weight="700" fill="#ea7a12">新來的high</text>
+<text x="250" y="38" font-size="10" font-weight="700" fill="#ea7a12">插在high後面、low前面</text>
+
+<!-- scheduler + Pop -->
+<rect x="14" y="64" width="80" height="32" rx="7" fill="#475569"/>
+<text x="54" y="84" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">scheduler</text>
+<path d="M130 80 H98" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#aq-a)"/>
+<text x="114" y="74" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">Pop</text>
+
+<!-- activeQ -->
+<text x="130" y="55" font-size="11" font-weight="800" fill="#334155">activeQ</text>
+<rect x="130" y="60" width="276" height="40" rx="4" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<path d="M176 60 V100 M222 60 V100 M268 60 V100 M314 60 V100 M360 60 V100" stroke="#94a3b8" stroke-width="1.3"/>
+<g font-weight="800" text-anchor="middle">
+<rect x="134" y="64" width="38" height="32" rx="5" fill="#ea7a12"/>
+<text x="153" y="79" font-size="10" fill="#fff">high</text><text x="153" y="91" font-size="8.5" fill="#fff">t2</text>
+<rect x="180" y="64" width="38" height="32" rx="5" fill="#ea7a12"/>
+<text x="199" y="79" font-size="10" fill="#fff">high</text><text x="199" y="91" font-size="8.5" fill="#fff">t4</text>
+<rect x="226" y="64" width="38" height="32" rx="5" fill="#f6c443"/>
+<text x="245" y="79" font-size="10" fill="#6b4a00">low</text><text x="245" y="91" font-size="8.5" fill="#6b4a00">t1</text>
+<rect x="272" y="64" width="38" height="32" rx="5" fill="#f6c443"/>
+<text x="291" y="79" font-size="10" fill="#6b4a00">low</text><text x="291" y="91" font-size="8.5" fill="#6b4a00">t3</text>
+<rect x="318" y="64" width="38" height="32" rx="5" fill="#f6c443"/>
+<text x="337" y="79" font-size="10" fill="#6b4a00">low</text><text x="337" y="91" font-size="8.5" fill="#6b4a00">t5</text>
+</g>
+<text x="268" y="114" font-size="10" font-weight="600" fill="#94a3b8" text-anchor="middle">priority高的在前；priority一樣，先進queue的在前</text>
+<text x="268" y="128" font-size="10" font-weight="600" fill="#94a3b8" text-anchor="middle">t1、t2…：進queue的先後，t1最早</text>
+
+</svg>

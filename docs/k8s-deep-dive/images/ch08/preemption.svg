@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 8 456 150" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><marker id="pe-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker><marker id="pe-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b8336f"/></marker></defs>
+<rect x="6" y="8" width="456" height="150" fill="#ffffff"/>
+
+<!-- ① normal: put aside -->
+<text x="14" y="24" font-size="12.5" font-weight="800" fill="#0e7490">① 一般情況：擱置</text>
+<rect x="14" y="32" width="104" height="28" rx="7" fill="#2f6fd1"/>
+<text x="66" y="50" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Pod</text>
+<path d="M118 46 H196" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#pe-a)"/>
+<text x="157" y="40" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">排不上任何Node</text>
+<rect x="200" y="32" width="120" height="28" rx="4" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<path d="M230 32 V60 M260 32 V60 M290 32 V60" stroke="#94a3b8" stroke-width="1.3"/>
+<rect x="203" y="35" width="24" height="22" rx="3" fill="#2f6fd1"/>
+<text x="215" y="49" font-size="8.5" font-weight="800" fill="#fff" text-anchor="middle">Pod</text>
+<text x="328" y="43" font-size="10.5" font-weight="800" fill="#334155">unschedulable</text>
+<text x="328" y="56" font-size="10" font-weight="600" fill="#94a3b8">等cluster變化才retry</text>
+
+<!-- ② preemption -->
+<text x="14" y="82" font-size="12.5" font-weight="800" fill="#0e7490">② 很重要的Pod排不上：preemption</text>
+<rect x="14" y="104" width="104" height="28" rx="7" fill="#b8336f"/>
+<text x="66" y="122" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">high priority Pod</text>
+<path d="M118 118 H176" fill="none" stroke="#b8336f" stroke-width="2" marker-end="url(#pe-b)"/>
+<text x="147" y="112" font-size="10" font-weight="700" fill="#b8336f" text-anchor="middle">挑一個Node</text>
+
+<rect x="180" y="90" width="118" height="50" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<text x="188" y="103" font-size="10" font-weight="800" fill="#475569">Node（已滿）</text>
+<rect x="188" y="108" width="32" height="24" rx="5" fill="#64748b"/>
+<text x="204" y="124" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">low</text>
+<rect x="224" y="108" width="32" height="24" rx="5" fill="#64748b"/>
+<text x="240" y="124" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">low</text>
+<rect x="260" y="108" width="32" height="24" rx="5" fill="#ffffff" stroke="#64748b" stroke-width="1.3" stroke-dasharray="3 2"/>
+<text x="276" y="124" font-size="9.5" font-weight="800" fill="#64748b" text-anchor="middle">low</text>
+
+<path d="M304 113 H316 V106 L330 120 L316 134 V127 H304 Z" fill="#e8a6c3"/>
+<text x="317" y="101" font-size="10" font-weight="700" fill="#b8336f" text-anchor="middle">evict</text>
+
+<rect x="336" y="90" width="118" height="50" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<text x="344" y="103" font-size="10" font-weight="800" fill="#475569">Node</text>
+<rect x="344" y="108" width="32" height="24" rx="5" fill="#64748b"/>
+<text x="360" y="124" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">low</text>
+<rect x="380" y="108" width="32" height="24" rx="5" fill="#64748b"/>
+<text x="396" y="124" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">low</text>
+<rect x="416" y="108" width="32" height="24" rx="5" fill="#b8336f"/>
+<text x="432" y="124" font-size="9.5" font-weight="800" fill="#fff" text-anchor="middle">high</text>
+
+<text x="239" y="153" font-size="10" font-weight="600" fill="#94a3b8" text-anchor="middle">擠走一個low priority Pod</text>
+<text x="395" y="153" font-size="10" font-weight="600" fill="#94a3b8" text-anchor="middle">資源給high priority Pod</text>
+</svg>

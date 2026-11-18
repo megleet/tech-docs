@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 396 148" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="pr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker>
+  <linearGradient id="pr-g" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#5b4fe9"/><stop offset="1" stop-color="#e9e6ff"/></linearGradient>
+</defs>
+<rect x="6" y="6" width="396" height="148" fill="#ffffff"/>
+
+<!-- priority wedge: tall = high -->
+<text x="60" y="22" font-size="9" font-weight="800" fill="#334155">priority高</text>
+<polygon points="110,10 110,24 334,24" fill="url(#pr-g)"/>
+<text x="340" y="25" font-size="9" font-weight="800" fill="#334155">低</text>
+
+<!-- scheduling queue: a pipe, left end open -->
+<path d="M60 34 H348 A8 19 0 0 1 348 72 H60" fill="#f6f5ff" stroke="#b4acf7" stroke-width="1.3"/>
+<ellipse cx="60" cy="53" rx="8" ry="19" fill="#e9e6ff" stroke="#b4acf7" stroke-width="1.3"/>
+
+<!-- threshold: pod-p's priority -->
+<path d="M252 12 V150" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="3 3" fill="none"/>
+
+<!-- Pop out of the left end -->
+<path d="M50 53 H14" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#pr-a)"/>
+<!-- nomination arrow: queue → node-a -->
+<path d="M300 74 V101" stroke="#475569" stroke-width="2" stroke-dasharray="5 3" fill="none" marker-end="url(#pr-a)"/>
+
+<!-- Pods (capsules) -->
+<rect x="72" y="39" width="80" height="28" rx="14" fill="#5b4fe9"/>
+<text x="112" y="51" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">pod-hi</text>
+<text x="112" y="62" font-size="7.5" font-weight="700" fill="#e9e6ff" text-anchor="middle">nominated Pod</text>
+
+<rect x="164" y="39" width="80" height="28" rx="14" fill="#b8336f"/>
+<text x="204" y="51" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">pod-p</text>
+<text x="204" y="62" font-size="7.5" font-weight="700" fill="#fce7f3" text-anchor="middle">preemptor</text>
+
+<rect x="260" y="39" width="80" height="28" rx="14" fill="#64748b"/>
+<text x="300" y="51" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">pod-lo</text>
+<text x="300" y="62" font-size="7.5" font-weight="700" fill="#e2e8f0" text-anchor="middle">nominated Pod</text>
+
+<!-- node-a: a server -->
+<rect x="254" y="104" width="102" height="46" rx="5" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<path d="M254 117 V109 A5 5 0 0 1 259 104 H351 A5 5 0 0 1 356 109 V117 Z" fill="#334155"/>
+<text x="262" y="113.5" font-size="9" font-weight="800" fill="#fff">node-a</text>
+<circle cx="337" cy="110.5" r="2.3" fill="#4ade80"/>
+<circle cx="346" cy="110.5" r="2.3" fill="#4ade80"/>
+<!-- pod-v: being evicted (faded, dashed) -->
+<rect x="260" y="120" width="90" height="26" rx="13" fill="#e2e8f0" stroke="#64748b" stroke-width="1.3" stroke-dasharray="4 2.5"/>
+<text x="305" y="131" font-size="10" font-weight="800" fill="#475569" text-anchor="middle">pod-v</text>
+<text x="305" y="141.5" font-size="7.5" font-weight="700" fill="#64748b" text-anchor="middle">victim，要被evict</text>
+
+<!-- labels (white halo) -->
+<g font-size="9" font-weight="700" fill="#475569" stroke="#ffffff" stroke-width="3" paint-order="stroke">
+  <text x="32" y="47" text-anchor="middle">Pop</text>
+  <text x="60" y="88" font-weight="800" fill="#334155">scheduling queue，都提名node-a</text>
+  <text x="246" y="88" text-anchor="end">≥ pod-p</text>
+  <text x="258" y="88">&lt; pod-p</text>
+  <text x="306" y="92">nominatedNodeName</text>
+</g>
+</svg>
