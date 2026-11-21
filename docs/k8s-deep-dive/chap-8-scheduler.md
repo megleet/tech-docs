@@ -858,7 +858,7 @@ Device Plugin是[kubelet直接呼叫的interface](chap-3-kubernetes-architecture
 
 1. **註冊**：啟動後透過unix socket向kubelet註冊，說「我管`nvidia.com/gpu`」。
 2. **回報GPU數量和健康狀態**：用`ListAndWatch`這個gRPC stream，**持續告訴kubelet這台Node的GPU ID列表和健康狀態：** 例如`GPU0`～`GPU3`，以及哪幾張壞了。*kubelet把ID列表留在自己的mem裡，把數量寫進Node的`status.capacity`和`status.allocatable`*，例如`nvidia.com/gpu: 4`，**scheduler才看得到**。
-3. **分配**：Pod排上這台Node、container啟動前，***kubelet***從自己的ID列表挑好要給哪幾張GPU，再呼叫plugin的`Allocate`。plugin回傳container要用GPU需要的東西：device file（例如`/dev/nvidia0`）、driver lib的mount、env var（例如`NVIDIA_VISIBLE_DEVICES`）。kubelet把這些加進[CRI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)建立container的request，由container runtime在建立container時加上device file、mount driver lib、設定env var，container才可以使用GPU。
+3. **分配**：Pod排上這台Node、container啟動前，***kubelet***從自己的ID列表挑好要給哪幾張GPU，再呼叫plugin的`Allocate`。plugin回傳**container要用GPU需要的東西：device file（例如`/dev/nvidia0`）、driver lib的mount path、env var（例如`NVIDIA_VISIBLE_DEVICES`）**。kubelet把這些參數寫入container creation request，透過[CRI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)交給container runtime。container runtime依據request建立container，container才可以使用GPU。
 
 ![device plugin的三步。gpu-node-a上有device plugin（DaemonSet）和kubelet。① 註冊：device plugin告訴kubelet「我管nvidia.com/gpu」。② ListAndWatch：device plugin持續回報GPU0～3和健不健康，kubelet把GPU ID列表留在mem裡，只把數量寫進API server裡Node的status（nvidia.com/gpu: 4），scheduler就看得到4張。③ kubelet挑GPU1，呼叫Allocate(GPU1)，device plugin回傳device file、lib、env var，kubelet建立container時把它們加上，container裡就有GPU1](images/ch08/device-plugin-flow.svg){ width="100%" }
 
@@ -1017,7 +1017,7 @@ spec:
 
 **scheduler怎麼排**：用DRA的Pod，由scheduler內建的**DynamicResources** plugin處理。它和其他plugin一樣，掛在[Scheduling framework](#-1-extension-point每一步都能掛plugin)的幾個extension point上，位置和那張framework大圖一樣：
 
-![DynamicResources plugin掛在哪些extension point，排法和Scheduling framework的圖一樣。Scheduling cycle：PreFilter、Filter、PostFilter，PreScore、Score、NormalizeScore，Reserve、Permit；Binding cycle：PreBind、Bind、PostBind。深色的三個是重點：Filter找device夠的Node，Reserve在mem裡記下device，PreBind寫進ResourceClaim](images/ch08/dra-extension-points.svg){ width="100%" }
+![DynamicResources plugin掛在哪些extension point，排法和Scheduling framework的圖一樣。Scheduling cycle：PreFilter、Filter、PostFilter，PreScore、Score、NormalizeScore，Reserve、Permit；Binding cycle：PreBind、Bind、PostBind。深色的三個是重點：Filter找device夠的Node，Reserve在mem裡記下device，PreBind寫進ResourceClaim](images/ch08/dra-extension-points.svg){ width="76%" }
 
 - **Filter**：看哪台Node的ResourceSlice裡有符合條件的device。
 - **Reserve**：在scheduler的mem裡記下選好的device，預留起來，下一個Pod就拿不到。和[assume](#-樂觀assume和async-bind)記下選好的Node類似。
@@ -1064,21 +1064,37 @@ Pod排上之後，kubelet再請DRA driver把device準備好、交給container。
 
     ![主迴圈一直轉，第1圈web-1、第2圈api-2、第3圈db-0，每一圈是一個Pod的scheduling cycle；每圈往下分出同色的binding cycle：PreBind、Bind、PostBind，各走一輪就結束，不繞圈，web-1和db-0成功，api-2失敗](images/ch08/cycle-main-loop.svg){ width="80%" }
 
-??? question "5. Scheduler Cache只存在scheduler的mem裡。如果scheduler在assume之後、Bind寫回API server之前突然斷電或重啟，cache裡的資料不見了，這個Pod會怎麼樣？會不會被排兩次，或者永遠排不上？"
+??? question "5. cluster發生可能影響排程結果的變化時，例如加了新Node、Node的label改了、新增PV，scheduler會把unschedulable裡相關的Pod移出來，放回activeQ或backoffQ。為什麼？"
+
+    ***因為這些Pod排不上，是cluster當時的狀態造成的；cluster變了，它們可能就排得上了。***
+
+    Pod進unschedulable，是因為Filter發現「現在沒有Node放得下」。但這個結論只對**當時的cluster**成立：
+
+    - **加了新Node**：之前資源不夠的Pod，新Node可能放得下。
+    - **Node的label改了**：之前`nodeAffinity`不符的Pod，現在可能符合了。
+    - **新增PV**：之前找不到PV、VolumeBinding不通過的Pod，現在可能找得到。
+
+    如果不移出來，這些Pod要在unschedulable裡等到最多5分鐘才會被retry，***明明排得上卻白等***。
+
+    **只移相關的Pod，不是全部**：每個Filter plugin會登記自己在意哪些event，再用**QueueingHint**判斷這次的變化會不會讓被它擋下的Pod排得上。例如被NodeAffinity擋下的Pod，只有Node的label改了、而且新label符合時才移出；新增PV跟它無關，就繼續留著。這樣可以避免一個event把一大堆Pod全部叫醒，retry了還是排不上，白白浪費scheduler的時間。
+
+    **移去哪裡**：backoff時間已經到的進activeQ，還沒到的先進backoffQ。見[scheduling queue裡的三個queue](#-scheduling-queue裡的三個queue)。
+
+??? question "6. Scheduler Cache只存在scheduler的mem裡。如果scheduler在assume之後、Bind寫回API server之前突然斷電或重啟，cache裡的資料不見了，這個Pod會怎麼樣？會不會被排兩次，或者永遠排不上？"
 
     答案稍後補上。
 
-??? question "6. Scheduler Cache裡的Pod，有些已經真的寫回API server，有些只是assume。scheduler分得出哪些是assumed的嗎？如果分得出，它要拿這個資訊做什麼？"
+??? question "7. Scheduler Cache裡的Pod，有些已經真的寫回API server，有些只是assume。scheduler分得出哪些是assumed的嗎？如果分得出，它要拿這個資訊做什麼？"
 
     ***分得出***：cache用`assumedPods`這個set標記哪些Pod是assumed，也就是scheduler自己的假設，API server還沒確認。
 
     這個標記讓下一個Pod馬上看到資源被占用、讓Informer事件來時分清是確認還是新增、讓Bind失敗時只forget assumed的Pod。詳細見[Scheduler的「cache狀態管理」和「樂觀assume」](#-3-scheduler的cache狀態管理和樂觀assume)。
 
-??? question "7. scheduler的assume和Bind都沒有加lock。如果兩個scheduler同時把同一個Pod綁到不同的Node，會發生什麼事？"
+??? question "8. scheduler的assume和Bind都沒有加lock。如果兩個scheduler同時把同一個Pod綁到不同的Node，會發生什麼事？"
 
     答案稍後補上。
 
-??? question "8. extension point是不是都有default的plugin？比如Score有沒有default的打分方式？如果user沒有提供自己的plugin，會怎麼樣？"
+??? question "9. extension point是不是都有default的plugin？比如Score有沒有default的打分方式？如果user沒有提供自己的plugin，會怎麼樣？"
 
     ***大部分extension point都有default plugin，但不是全部。***
 
@@ -1096,36 +1112,7 @@ Pod排上之後，kubelet再請DRA driver把device準備好、交給container。
 
     *QueueSort只能開一個，Bind至少要有一個*，所以這兩個不能全部關掉。
 
-??? question "9. High priority Pod找不到Node，放到backoffQ還是unschedulable？"
-
-    排程失敗後，搶佔者通常被放進**unschedulable**。但如果排程期間cluster已經有相關變化，例如有Pod被刪掉，scheduler會判斷「現在retry可能就排得上」，就不會放進unschedulable，而是放進**backoffQ**，等backoff時間到再retry。
-
-    一般情況下，preemption成不成功都先放進unschedulable，差別在於之後多快被移出來：
-
-    - **preemption成功**（找到Node，evict了victim Pod）：先放unschedulable。victim Pod被刪掉時，會產生和這個Pod有關的Pod delete event，Pod馬上被移出unschedulable、回到activeQ，下一輪通常排到`nominatedNodeName`那台Node
-    - **preemption失敗**（evict誰都放不下）：先放unschedulable。等cluster有相關變化才移出，例如加了新Node、有Pod結束；最多待5分鐘
-
-    - **為什麼是unschedulable**：兩種情況Filter的結果都是「沒有Node放得下」，屬於「要等cluster變化才值得retry」，不是呼叫API server失敗這類錯誤。見[scheduling queue裡的三個queue](#-scheduling-queue裡的三個queue)。
-    - **preemption成功，為什麼還要先進unschedulable**：victim Pod還在graceful結束，資源還沒空出來，馬上retry也排不上。等victim Pod真的刪掉，event自然會把它叫回來，不用空轉。
-    - **backoffQ也可能經過**：被event移出unschedulable時，如果這個Pod的backoff時間還沒到，會先進backoffQ等一下，再回activeQ。所以backoffQ不只放出錯的Pod。
-
-??? question "10. cluster發生可能影響排程結果的變化時，例如加了新Node、Node的label改了、新增PV，scheduler會把unschedulable裡相關的Pod移出來，放回activeQ或backoffQ。為什麼？"
-
-    ***因為這些Pod排不上，是cluster當時的狀態造成的；cluster變了，它們可能就排得上了。***
-
-    Pod進unschedulable，是因為Filter發現「現在沒有Node放得下」。但這個結論只對**當時的cluster**成立：
-
-    - **加了新Node**：之前資源不夠的Pod，新Node可能放得下。
-    - **Node的label改了**：之前`nodeAffinity`不符的Pod，現在可能符合了。
-    - **新增PV**：之前找不到PV、VolumeBinding不通過的Pod，現在可能找得到。
-
-    如果不移出來，這些Pod要在unschedulable裡等到最多5分鐘才會被retry，***明明排得上卻白等***。
-
-    **只移相關的Pod，不是全部**：每個Filter plugin會登記自己在意哪些event，再用**QueueingHint**判斷這次的變化會不會讓被它擋下的Pod排得上。例如被NodeAffinity擋下的Pod，只有Node的label改了、而且新label符合時才移出；新增PV跟它無關，就繼續留著。這樣可以避免一個event把一大堆Pod全部叫醒，retry了還是排不上，白白浪費scheduler的時間。
-
-    **移去哪裡**：backoff時間已經到的進activeQ，還沒到的先進backoffQ。見[scheduling queue裡的三個queue](#-scheduling-queue裡的三個queue)。
-
-??? question "11. 一個已經排上的Pod被更新時，例如label改了，scheduler會把unschedulable裡和這個Pod有PodAffinity或InterPodAntiAffinity關係的Pod移出來。為什麼？"
+??? question "10. 一個已經排上的Pod被更新時，例如label改了，scheduler會把unschedulable裡和這個Pod有PodAffinity或InterPodAntiAffinity關係的Pod移出來。為什麼？"
 
     ***因為PodAffinity和InterPodAntiAffinity看的是「Node上已經有哪些Pod、它們的label是什麼」。已經排上的Pod一改label，這些規則的結果就可能跟著變。***
 
@@ -1137,3 +1124,16 @@ Pod排上之後，kubelet再請DRA driver把device準備好、交給container。
     這兩種情況，Node和資源都沒變，***只有已經排上的Pod的label變了***。如果scheduler只看Node的event，pod-x和pod-y就要白等到最多5分鐘。
 
     **只移有關係的Pod**：InterPodAffinity的QueueingHint會檢查，改過的label有沒有符合unschedulable裡那些Pod的PodAffinity或InterPodAntiAffinity條件。符合的才移出；其他Pod，例如因為CPU不夠而進來的，和這個label變化無關，就繼續留著。
+
+??? question "11. High priority Pod找不到Node，放到backoffQ還是unschedulable？"
+
+    排程失敗後，搶佔者通常被放進**unschedulable**。但如果排程期間cluster已經有相關變化，例如有Pod被刪掉，scheduler會判斷「現在retry可能就排得上」，就不會放進unschedulable，而是放進**backoffQ**，等backoff時間到再retry。
+
+    一般情況下，preemption成不成功都先放進unschedulable，差別在於之後多快被移出來：
+
+    - **preemption成功**（找到Node，evict了victim Pod）：先放unschedulable。victim Pod被刪掉時，會產生和這個Pod有關的Pod delete event，Pod馬上被移出unschedulable、回到activeQ，下一輪通常排到`nominatedNodeName`那台Node
+    - **preemption失敗**（evict誰都放不下）：先放unschedulable。等cluster有相關變化才移出，例如加了新Node、有Pod結束；最多待5分鐘
+
+    - **為什麼是unschedulable**：兩種情況Filter的結果都是「沒有Node放得下」，屬於「要等cluster變化才值得retry」，不是呼叫API server失敗這類錯誤。見[scheduling queue裡的三個queue](#-scheduling-queue裡的三個queue)。
+    - **preemption成功，為什麼還要先進unschedulable**：victim Pod還在graceful結束，資源還沒空出來，馬上retry也排不上。等victim Pod真的刪掉，event自然會把它叫回來，不用空轉。
+    - **backoffQ也可能經過**：被event移出unschedulable時，如果這個Pod的backoff時間還沒到，會先進backoffQ等一下，再回activeQ。所以backoffQ不只放出錯的Pod。
