@@ -40,6 +40,8 @@
   --doc-status-unresolvable: #7c3aed;  --doc-status-error: #c2410c;
   /* Preemption Pod roles, same colors as images/ch08/preemption-pod-roles.svg */
   --doc-pod-p: #b8336f;  --doc-pod-hi: #5b4fe9;  --doc-pod-lo: #64748b;  --doc-pod-v: #7b8aa1;
+  /* GPU Node components, same colors as images/ch08/gpu-node-components.svg */
+  --doc-gpu-plugin: #0f766e;  --doc-gpu-driver: #7e22ce;  --doc-gpu-toolkit: #5b4fe9;
   /* Analogy after a point: <span class="analogy">…</span> */
   --doc-analogy: #7a8394;      --doc-analogy-bg: #eceff3;
 }
@@ -85,6 +87,7 @@
   --doc-status-success: #4fd1a5;  --doc-status-unschedulable: #fcd34d;
   --doc-status-unresolvable: #b794f6;  --doc-status-error: #fb8a5c;
   --doc-pod-p: #f08bb8;  --doc-pod-hi: #a9a3ff;  --doc-pod-lo: #a3b1c6;  --doc-pod-v: #8b97aa;
+  --doc-gpu-plugin: #2dd4bf;  --doc-gpu-driver: #c084fc;  --doc-gpu-toolkit: #a9a3ff;
 }
 
 /* **Bold**: ordinary emphasis stays in the body text color */
@@ -634,6 +637,21 @@
 .md-typeset .doc-pod-lo { color: var(--doc-pod-lo); }
 .md-typeset .doc-pod-v { color: var(--doc-pod-v); text-decoration: underline dashed; text-underline-offset: 3px; }
 
+/* Numbered GPU components (number and name are sibling spans, so editors without CSS still read "1Device Plugin" in order):
+   <span class="doc-gpu-num doc-gpu-plugin">1</span><span class="doc-gpu doc-gpu-plugin">Device Plugin</span> */
+.md-typeset .doc-gpu { font-weight: 700; }
+.md-typeset .doc-gpu-num {
+  display: inline-block; width: 1.35em; height: 1.35em; margin-right: 0.4em;
+  border-radius: 50%; line-height: 1.35em; text-align: center;
+  font-size: 0.8em; font-weight: 800; vertical-align: 0.1em;
+}
+.md-typeset .doc-gpu-plugin { color: var(--doc-gpu-plugin); }
+.md-typeset .doc-gpu-driver { color: var(--doc-gpu-driver); }
+.md-typeset .doc-gpu-toolkit { color: var(--doc-gpu-toolkit); }
+.md-typeset .doc-gpu-num.doc-gpu-plugin { background: var(--doc-gpu-plugin); color: #fff; }
+.md-typeset .doc-gpu-num.doc-gpu-driver { background: var(--doc-gpu-driver); color: #fff; }
+.md-typeset .doc-gpu-num.doc-gpu-toolkit { background: var(--doc-gpu-toolkit); color: #fff; }
+
 /* A short note under a group tag: <br><span class="doc-group-note">…</span> */
 .md-typeset .doc-group-note {
   font-size: 0.85em;
@@ -727,7 +745,7 @@
 }
 .md-typeset .analogy-tag {
   display: inline-block;
-  margin: 0 0.4em 0 0.35em;
+  margin: 0 0.4em 0 0.7em;
   padding: 0 0.5em;
   border-radius: 0.7em;
   font-size: 0.82em;

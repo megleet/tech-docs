@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 2 292 106" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect x="4" y="2" width="292" height="106" fill="#ffffff"/>
+<text x="8" y="14" font-size="10" font-weight="800" fill="#0f172a">MIG：硬體切開</text>
+<text x="8" y="26" font-size="7.5" font-weight="600" fill="#64748b">A100切成3g.20gb＋2g.10gb＋1g.5gb＋1g.5gb，各自有運算和mem，中間是硬體牆</text>
+<rect x="8" y="34" width="284" height="70" rx="6" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="16" y="58.5" font-size="8.5" font-weight="800" fill="#334155">運算</text>
+<text x="16" y="89.5" font-size="8.5" font-weight="800" fill="#334155">mem</text>
+<rect x="50" y="44" width="100" height="22" fill="#f9a8d4"/><text x="100.0" y="58.0" font-size="7.5" font-weight="800" fill="#4a2511" text-anchor="middle">3g.20gb</text>
+<rect x="50" y="76" width="100" height="22" fill="#f9a8d4"/><text x="100.0" y="90.0" font-size="7.5" font-weight="800" fill="#4a2511" text-anchor="middle">20GB</text>
+<rect x="150" y="44" width="67" height="22" fill="#fcd34d"/><text x="183.5" y="58.0" font-size="7.5" font-weight="800" fill="#4a2511" text-anchor="middle">2g.10gb</text>
+<rect x="150" y="76" width="67" height="22" fill="#fcd34d"/><text x="183.5" y="90.0" font-size="7.5" font-weight="800" fill="#4a2511" text-anchor="middle">10GB</text>
+<rect x="217" y="44" width="33.5" height="22" fill="#fdba74"/><text x="233.75" y="58.0" font-size="6.5" font-weight="800" fill="#4a2511" text-anchor="middle">1g.5gb</text>
+<rect x="217" y="76" width="33.5" height="22" fill="#fdba74"/><text x="233.75" y="90.0" font-size="7.5" font-weight="800" fill="#4a2511" text-anchor="middle">5GB</text>
+<rect x="250.5" y="44" width="33.5" height="22" fill="#cbd5e1"/><text x="267.25" y="58.0" font-size="6.5" font-weight="800" fill="#64748b" text-anchor="middle">1g.5gb</text>
+<rect x="250.5" y="76" width="33.5" height="22" fill="#cbd5e1"/><text x="267.25" y="90.0" font-size="7.5" font-weight="800" fill="#64748b" text-anchor="middle">5GB</text>
+<path d="M150 40 V102" stroke="#0f172a" stroke-width="2.5"/>
+<path d="M217 40 V102" stroke="#0f172a" stroke-width="2.5"/>
+<path d="M250.5 40 V102" stroke="#0f172a" stroke-width="2.5"/>
+</svg>

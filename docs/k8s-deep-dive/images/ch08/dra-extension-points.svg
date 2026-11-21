@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 2 440 168" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect x="4" y="2" width="440" height="168" fill="#ffffff"/>
+<text x="8" y="14" font-size="10" font-weight="800" fill="#0f172a">DynamicResources plugin掛在哪些extension point</text>
+<rect x="8" y="22" width="320" height="144" rx="8" fill="#eef5fd" stroke="#9cc0ee" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="16" y="35" font-size="8" font-weight="800" fill="#1f4f8a">Scheduling cycle</text>
+<rect x="332" y="22" width="108" height="144" rx="8" fill="#eefaf5" stroke="#7cc4a8" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="340" y="35" font-size="8" font-weight="800" fill="#16795a">Binding cycle</text>
+<polygon points="16,44 100,44 108,61 100,78 16,78" fill="#e2e8f0"/>
+<text x="24" y="64.5" font-size="9.5" font-weight="800" fill="#94a3b8">PreFilter</text>
+<polygon points="16,84 100,84 108,101 100,118 16,118" fill="#334155"/>
+<text x="24" y="99" font-size="9.5" font-weight="800" fill="#fff">Filter</text>
+<text x="24" y="111" font-size="7.5" font-weight="600" fill="#cbd5e1">找device夠的Node</text>
+<polygon points="16,124 100,124 108,141 100,158 16,158" fill="#e2e8f0"/>
+<text x="24" y="144.5" font-size="9.5" font-weight="800" fill="#94a3b8">PostFilter</text>
+<polygon points="120,44 204,44 212,61 204,78 120,78" fill="#e2e8f0"/>
+<text x="128" y="64.5" font-size="9.5" font-weight="800" fill="#94a3b8">PreScore</text>
+<polygon points="120,84 204,84 212,101 204,118 120,118" fill="#e2e8f0"/>
+<text x="128" y="104.5" font-size="9.5" font-weight="800" fill="#94a3b8">Score</text>
+<polygon points="120,124 204,124 212,141 204,158 120,158" fill="#e2e8f0"/>
+<text x="128" y="144.5" font-size="9.5" font-weight="800" fill="#94a3b8">NormalizeScore</text>
+<polygon points="224,44 308,44 316,61 308,78 224,78" fill="#334155"/>
+<text x="232" y="59" font-size="9.5" font-weight="800" fill="#fff">Reserve</text>
+<text x="232" y="71" font-size="7.5" font-weight="600" fill="#cbd5e1">mem裡記下device</text>
+<polygon points="224,84 308,84 316,101 308,118 224,118" fill="#e2e8f0"/>
+<text x="232" y="104.5" font-size="9.5" font-weight="800" fill="#94a3b8">Permit</text>
+<polygon points="340,44 424,44 432,61 424,78 340,78" fill="#334155"/>
+<text x="348" y="59" font-size="9.5" font-weight="800" fill="#fff">PreBind</text>
+<text x="348" y="71" font-size="7.5" font-weight="600" fill="#cbd5e1">寫進ResourceClaim</text>
+<polygon points="340,84 424,84 432,101 424,118 340,118" fill="#e2e8f0"/>
+<text x="348" y="104.5" font-size="9.5" font-weight="800" fill="#94a3b8">Bind</text>
+<polygon points="340,124 424,124 432,141 424,158 340,158" fill="#e2e8f0"/>
+<text x="348" y="144.5" font-size="9.5" font-weight="800" fill="#94a3b8">PostBind</text>
+</svg>

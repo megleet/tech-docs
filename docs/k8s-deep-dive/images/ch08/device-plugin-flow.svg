@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 500 214" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+<defs><style>.t{font-size:10px;font-weight:800;fill:#0f172a}.d{font-size:8px;font-weight:600;fill:#94a3b8}</style><marker id="dp-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#475569"/></marker></defs>
+<rect x="6" y="6" width="500" height="214" fill="#ffffff"/>
+
+<!-- Node: a server frame -->
+<rect x="10" y="10" width="336" height="206" rx="6" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3"/>
+<path d="M10 26 V16 A6 6 0 0 1 16 10 H340 A6 6 0 0 1 346 16 V26 Z" fill="#334155"/>
+<text x="20" y="21.5" font-size="9" font-weight="800" fill="#fff">gpu-node-a</text>
+<circle cx="328" cy="18" r="2.3" fill="#4ade80"/>
+<circle cx="337" cy="18" r="2.3" fill="#4ade80"/>
+
+<!-- lines first -->
+<g fill="none" stroke="#475569" stroke-width="2" marker-end="url(#dp-a)">
+  <path d="M124 62 H229"/>
+  <path d="M124 96 H229"/>
+  <path d="M232 127 H127"/>
+  <path d="M124 156 H229"/>
+  <path d="M332 96 H387"/>
+  <path d="M445 70 V47"/>
+  <path d="M282 166 V181"/>
+</g>
+<!-- stream marks on ListAndWatch -->
+<g stroke="#475569" stroke-width="2">
+  <path d="M134 93 V99 M142 93 V99 M150 93 V99"/>
+</g>
+
+<!-- device plugin -->
+<rect x="24" y="34" width="100" height="132" rx="8" fill="#0f766e"/>
+<text x="74" y="52" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">device plugin</text>
+<text x="74" y="64" font-size="8" font-weight="700" fill="#ccfbf1" text-anchor="middle">DaemonSet</text>
+
+<!-- kubelet with the ID list in mem -->
+<rect x="232" y="34" width="100" height="132" rx="8" fill="#b45309"/>
+<text x="282" y="52" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">kubelet</text>
+<g font-size="8" font-weight="800" text-anchor="middle">
+  <rect x="240" y="80" width="18" height="18" rx="3" fill="#fff7ed"/><text x="249" y="92" fill="#7c2d12">0</text>
+  <rect x="262" y="80" width="18" height="18" rx="3" fill="#b8336f"/><text x="271" y="92" fill="#fff">1</text>
+  <rect x="284" y="80" width="18" height="18" rx="3" fill="#fff7ed"/><text x="293" y="92" fill="#7c2d12">2</text>
+  <rect x="306" y="80" width="18" height="18" rx="3" fill="#fff7ed"/><text x="315" y="92" fill="#7c2d12">3</text>
+</g>
+<text x="282" y="112" font-size="7.5" font-weight="600" fill="#fdba74" text-anchor="middle">GPU ID列表（mem）</text>
+<text x="282" y="123" font-size="7.5" font-weight="600" fill="#fdba74" text-anchor="middle">先挑GPU1，再Allocate</text>
+
+<!-- container -->
+<rect x="232" y="184" width="100" height="26" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.3"/>
+<text x="268" y="200.5" font-size="9" font-weight="800" fill="#334155" text-anchor="middle">container</text>
+<rect x="300" y="189" width="26" height="16" rx="3" fill="#b8336f"/>
+<text x="313" y="200" font-size="7.5" font-weight="800" fill="#fff" text-anchor="middle">GPU1</text>
+
+<!-- API server and scheduler -->
+<rect x="390" y="72" width="112" height="46" rx="7" fill="#475569"/>
+<text x="446" y="86" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">API server</text>
+<text x="446" y="99" font-size="7.5" font-weight="700" fill="#e2e8f0" text-anchor="middle">Node的status：</text>
+<text x="446" y="110" font-size="7.5" font-weight="700" fill="#e2e8f0" text-anchor="middle">nvidia.com/gpu: 4</text>
+<rect x="390" y="16" width="112" height="28" rx="7" fill="#64748b"/>
+<text x="446" y="33.5" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">scheduler</text>
+
+<!-- labels (white halo) -->
+<g font-size="9" font-weight="700" fill="#475569" stroke="#f8fafc" stroke-width="3" paint-order="stroke" text-anchor="middle">
+  <circle cx="165.0" cy="42.4" r="6.5" fill="#0f172a"/><text x="165.0" y="45.1" font-size="7.5" font-weight="800" fill="#fff" stroke="none" text-anchor="middle">1</text><text x="175.5" y="46" class="t" text-anchor="start">註冊</text>
+  <text x="177" y="57" class="d">我管nvidia.com/gpu</text>
+  <circle cx="141.0" cy="76.4" r="6.5" fill="#0f172a"/><text x="141.0" y="79.10000000000001" font-size="7.5" font-weight="800" fill="#fff" stroke="none" text-anchor="middle">2</text><text x="151.5" y="80" class="t" text-anchor="start">ListAndWatch</text>
+  <text x="177" y="91" class="d">GPU0～3、健不健康</text>
+  <rect x="130.0" y="108.9" width="19" height="13" rx="6.5" fill="#0f172a"/><text x="139.5" y="118.1" font-size="7.5" font-weight="800" fill="#fff" stroke="none" text-anchor="middle">3a</text><text x="153.0" y="119.0" class="t" text-anchor="start">Allocate(GPU1)</text>
+  <rect x="155.5" y="132.9" width="19" height="13" rx="6.5" fill="#0f172a"/><text x="165.0" y="142.1" font-size="7.5" font-weight="800" fill="#fff" stroke="none" text-anchor="middle">3b</text><text x="178.5" y="143.0" class="t" text-anchor="start">回傳</text>
+  <text x="177" y="153" class="d">device file、lib、env var</text>
+  <rect x="184" y="166.9" width="19" height="13" rx="6.5" fill="#0f172a"/><text x="193.5" y="176.1" font-size="7.5" font-weight="800" fill="#fff" stroke="none" text-anchor="middle">3c</text><text x="207" y="177" class="t" text-anchor="start">建立container</text>
+</g>
+<g font-size="9" font-weight="700" fill="#475569" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">
+  <text x="360" y="80" class="t">寫進Node</text>
+  <text x="360" y="91" class="d">只寫數量</text>
+  <text x="451" y="58" text-anchor="start" class="t">Informer</text>
+  <text x="451" y="68" text-anchor="start" class="d">看得到4張</text>
+</g>
+</svg>

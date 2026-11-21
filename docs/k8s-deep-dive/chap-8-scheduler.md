@@ -10,6 +10,7 @@ icon: lucide/calendar-clock
 - [Scheduler怎麼選Node](#scheduler怎麼選node)
 - [Scheduling framework](#scheduling-framework)
 - [Priority和preemption](#priority和preemption)
+- [GPU和Device Plugin](#gpu和device-plugin)
 - [思考題](#思考題)
 
 ## 資源模型
@@ -816,6 +817,221 @@ pod-p搶佔完，還在queue裡等pod-v結束。等pod-p重排時，pod-lo的提
 > 4. **找到node-b**：這段時間node-b剛好空出資源，Filter結果是<span class="doc-status doc-status-success">Success</span>，pod-hi就排到node-b。scheduler拿掉pod-hi對node-a的提名，`nominatedNodeName`改成node-b，bind完成後清空。
 >
 > ![pod-hi重排時可能排到node-b。pod-hi從activeQ被Pop出來，先只試node-a：放得下就直接用；node-a上的victim Pod還在結束，放不下，就對所有Node跑Filter，和上面的流程圖一樣。node-b是Success，pod-hi排到node-b，nominatedNodeName從node-a改成node-b](images/ch08/preemptor-reschedule-node-b.svg){ width="80%" }
+
+## GPU和Device Plugin
+
+*Kubernetes不認得GPU，GPU Pod是怎麼被排上去的？*
+
+Kubernetes內建的資源只有`cpu`、`memory`、`ephemeral-storage`幾種。GPU這類硬體，Kubernetes本身不認得：***不知道Node上有幾張GPU，也不知道怎麼把GPU交給container***。這兩件事分給兩個機制：
+
+- **Extended Resource**：用「名字＋整數」記數量，例如`nvidia.com/gpu`。Pod寫在`resources.limits`，表示要幾張；Node的`status.capacity`和`status.allocatable`記著有幾張（Node中的status來自[device plugin](#-2-device-plugin告訴kubernetes-gpu的數量)）。
+- **Device Plugin**：在Node上回報有幾張GPU；Pod排上Node之後，kubelet呼叫device plugin的`Allocate`，device plugin回傳建立container時要加上的device file、driver lib，container才用得到GPU。
+
+### 🎮 1. Extended Resource：GPU怎麼寫在Pod上
+
+GPU和CPU、mem一樣[寫在Pod的`resources`裡](#-1-資源寫在pod上)，例如下面這個Pod要兩張Nvidia GPU：
+
+<!-- hl: 8 9 12 -->
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-demo
+spec:
+  containers:
+  - name: cuda
+    image: nvidia/cuda:12.4.1-base-ubuntu22.04
+    command: ["nvidia-smi"]
+    resources:
+      limits:
+        nvidia.com/gpu: 2
+```
+
+- **`image`、`command`**：用CUDA的image跑`nvidia-smi`，印出這個container看得到的GPU，確認真的拿到兩張。
+- **`nvidia.com/gpu: 2`**：要兩張GPU。名字是`domain/name`的格式，不同廠商的資源才不會撞名，例如AMD是`amd.com/gpu`。
+- **只寫`limits`**：Extended Resource***只能寫整數，而且不能overcommit***，所以`requests`會自動等於`limits`；兩個都寫的話，必須相等。
+
+### 🔌 2. Device Plugin：告訴Kubernetes GPU的數量
+
+Device Plugin是[kubelet直接呼叫的interface](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)之一，每種硬體有自己的device plugin，例如NVIDIA GPU、Intel FPGA、SR-IOV網卡。每台Node上跑一個，通常用**DaemonSet部署**。它做三件事：
+
+1. **註冊**：啟動後透過unix socket向kubelet註冊，說「我管`nvidia.com/gpu`」。
+2. **回報GPU數量和健康狀態**：用`ListAndWatch`這個gRPC stream，**持續告訴kubelet這台Node的GPU ID列表和健康狀態：** 例如`GPU0`～`GPU3`，以及哪幾張壞了。*kubelet把ID列表留在自己的mem裡，把數量寫進Node的`status.capacity`和`status.allocatable`*，例如`nvidia.com/gpu: 4`，**scheduler才看得到**。
+3. **分配**：Pod排上這台Node、container啟動前，***kubelet***從自己的ID列表挑好要給哪幾張GPU，再呼叫plugin的`Allocate`。plugin回傳container要用GPU需要的東西：device file（例如`/dev/nvidia0`）、driver lib的mount、env var（例如`NVIDIA_VISIBLE_DEVICES`）。kubelet把這些加進[CRI](chap-3-kubernetes-architecture-operations.md#-1-kubelet與各個interface)建立container的request，由container runtime在建立container時加上device file、mount driver lib、設定env var，container才可以使用GPU。
+
+![device plugin的三步。gpu-node-a上有device plugin（DaemonSet）和kubelet。① 註冊：device plugin告訴kubelet「我管nvidia.com/gpu」。② ListAndWatch：device plugin持續回報GPU0～3和健不健康，kubelet把GPU ID列表留在mem裡，只把數量寫進API server裡Node的status（nvidia.com/gpu: 4），scheduler就看得到4張。③ kubelet挑GPU1，呼叫Allocate(GPU1)，device plugin回傳device file、lib、env var，kubelet建立container時把它們加上，container裡就有GPU1](images/ch08/device-plugin-flow.svg){ width="100%" }
+
+在有kubectl的機器上，可以確認Node有沒有回報GPU：
+
+```bash
+kubectl describe node gpu-node-a | grep -A6 Allocatable
+```
+
+看得到`nvidia.com/gpu: 4`，就代表device plugin正常；看不到的話，要GPU的Pod會一直`Pending`。
+
+> [!TIP]
+> `-A6`的意思是：印出找到`Allocatable`的那一行，再加上它***後面（After）的6行***。
+
+Device Plugin只負責記帳和分配，Node上還要有另外兩個元件：
+
+| 元件                                                                                                                    | 作用                                               |
+| ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| <span class="doc-gpu-num doc-gpu-plugin">1</span><span class="doc-gpu doc-gpu-plugin">Device Plugin</span>              | 向kubelet註冊、回報、分配GPU                       |
+| <span class="doc-gpu-num doc-gpu-driver">2</span><span class="doc-gpu doc-gpu-driver">GPU driver</span>                 | host上的驅動程式，沒有它GPU不能用                  |
+| <span class="doc-gpu-num doc-gpu-toolkit">3</span><span class="doc-gpu doc-gpu-toolkit">NVIDIA Container Toolkit</span> | 讓container runtime把GPU和driver的lib帶進container |
+
+![GPU Node上的三個元件。① Device Plugin：和kubelet用gRPC相連，負責註冊、回報、分配GPU。② GPU driver：host這一層的驅動程式，壓在所有東西底下，沒有它GPU不能用。③ NVIDIA Container Toolkit：裝在container runtime（例如containerd）上，把GPU和lib帶進container。kubelet透過CRI叫container runtime建立container，container裡有/dev/nvidia1和driver lib；/dev/nvidia1對應最下面的GPU1](images/ch08/gpu-node-components.svg){ width="90%" }
+
+***三個缺一不可***。通常用**NVIDIA GPU Operator**一次裝好，它還會裝**GPU Feature Discovery**，替Node加上GPU型號的label，例如`nvidia.com/gpu.product`。
+
+> [!NOTE]
+> ✍️ **kubelet回報Node上的device數量**
+>
+> `status.capacity`和`status.allocatable`都是***kubelet***寫的。kubelet定期把Node的狀態回報給API server，GPU的數量就是從device plugin的`ListAndWatch`來的：
+>
+> - **`capacity`**：這台Node總共有幾張，例如`4`。
+> - **`allocatable`**：能分給Pod的有幾張。壞掉的GPU，device plugin回報成不健康，kubelet就從`allocatable`扣掉，例如變成`3`。
+
+### 🧭 3. Scheduler怎麼排GPU Pod
+
+- **如何匹配GPU數量：NodeResourcesFit只比數量**：拿Pod的`nvidia.com/gpu: 2`，和Node還沒分出去的GPU數量比，***不知道這是GPU，也不知道是哪一型***。見[Filter：哪些Node放得下](#-filter哪些node放得下)。
+- **如何挑GPU型號**：靠GPU Feature Discovery加的label，用`nodeSelector`或`nodeAffinity`指定，由NodeAffinity檢查。
+- **如何預防一般Pod占用GPU Node**：GPU Node加上taint，例如key是`nvidia.com/gpu`、effect是`NoSchedule`。只有加了toleration的Pod才排得上，由TaintToleration檢查。如果開了`ExtendedResourceToleration` admission plugin的話，要`nvidia.com/gpu`的Pod會自動加上toleration。
+- **排不上時的狀態**：Pod停在`Pending`，event會寫`Insufficient nvidia.com/gpu`。
+
+<!-- hl: 2 3 4 5 6 7 -->
+
+```yaml
+spec:
+  nodeSelector:
+    nvidia.com/gpu.product: NVIDIA-H100-80GB-HBM3
+  tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+  containers:
+  - name: train
+    image: my-train:1.0
+    resources:
+      limits:
+        nvidia.com/gpu: 2
+```
+
+### 🍰 4. 一張GPU給多個Pod
+
+default一張GPU只能給一個container，`nvidia.com/gpu`也不能寫0.5。inference這類用不滿一張GPU的工作，可以用下面三種方式共用：
+
+| 方式                                     | 怎麼共用                                        | 隔離                                     |
+| ---------------------------------------- | ----------------------------------------------- | ---------------------------------------- |
+| **Time-slicing**                   | 多個Pod/process**輪流**用同一張GPU        | 差：沒有mem隔離，一個用光，別人就OOM     |
+| **MPS**<br />Multi-Process Service | 多個Pod/process**同時**在同一張GPU上跑    | 中：可以限制每個Pod/process的mem和運算量 |
+| **MIG**<br />Multi-Instance GPU    | A100、H100這類GPU在硬體上切成幾個獨立的instance | 好：硬體隔離，各自有mem和運算單元        |
+
+![Time-slicing：輪流用。運算那一排沿著時間是A、B、C、A、B、C，同一時間只有一個Pod在跑；mem那一排A、B、C連在一起，大家共用，沒有界線](images/ch08/gpu-share-timeslicing.svg){ width="70%" }
+
+![MPS：同時跑，軟性上限。運算和mem都被A、B、C同時各用一部分，中間用虛線隔開，虛線是可以設定的上限，不是硬體隔離](images/ch08/gpu-share-mps.svg){ width="70%" }
+
+![MIG：硬體切開。A100切成3g.20gb、2g.10gb、1g.5gb、1g.5gb四塊，各自有運算和mem（20GB、10GB、5GB、5GB），中間是黑色的硬體牆；A、B、C各用一塊，最後一塊空著](images/ch08/gpu-share-mig.svg){ width="70%" }
+
+- **Time-slicing、MPS**：在device plugin的config裡打開，plugin把1張GPU回報成好幾份，例如4份。Pod照樣寫`nvidia.com/gpu: 1`，拿到的是其中一份。
+- **MIG**：切好的每一種規格是一種Extended Resource，Pod寫例如`nvidia.com/mig-1g.10gb: 1`。
+
+> [!NOTE]
+> **MIG怎麼切A100**
+>
+> A100的運算單元分成7份（compute slice），mem分成8份。MIG就是從這兩樣各拿幾份，組成一個獨立的GPU instance。規格名稱寫成「幾份運算.多少mem」：
+>
+> | 規格（A100 40GB） | 運算 | mem  | 一張最多切幾個 |
+> | ----------------- | ---- | ---- | -------------- |
+> | `1g.5gb`        | 1/7  | 5GB  | 7              |
+> | `2g.10gb`       | 2/7  | 10GB | 3              |
+> | `3g.20gb`       | 3/7  | 20GB | 2              |
+> | `4g.20gb`       | 4/7  | 20GB | 1              |
+> | `7g.40gb`       | 整張 | 40GB | 1              |
+>
+> - **可以混著切**：例如一張切成`3g.20gb`＋`2g.10gb`＋`1g.5gb`＋`1g.5gb`，但要符合NVIDIA規定的擺放位置，不是任意組合都行。
+> - **A100 80GB**：mem每份變成10GB，所以規格是`1g.10gb`、`2g.20gb`、`3g.40gb`、`4g.40gb`、`7g.80gb`。H100的切法也類似。
+
+### 🧬 5. 解決Device Plugin的限制：DRA
+
+**Device plugin只知道數量**，比如「這台Node有4張`nvidia.com/gpu`」，**說不出更細緻的需求，** 比如下面幾點是device plugin無法支援的feature：
+
+- **GPU特別的屬性**：device plugin只回報ID，沒有屬性。要「mem至少40GB的GPU」，只能靠Node label繞過去，而且只能挑Node，不能挑哪一張GPU。
+- **scheduler只能挑Node，不能挑哪一張GPU**：**哪一張GPU是kubelet在Node上挑的**，scheduler只看數量，沒辦法在排程時就考慮整個cluster的GPU怎麼分最好，例如讓同一個訓練job的GPU都在同一個NVLink上。
+- **Sharing GPU**：同一個Pod裡的兩個container要共用同一張GPU，做不到。
+
+> [!NOTE]
+> **NVLink是什麼**
+>
+> NVLink是NVIDIA的高速連線，用來把***同一台機器裡的幾張GPU直接連在一起***，GPU之間傳資料不用經過CPU和PCIe：
+
+要解決上面提到的限制，就要讓Kubernetes看得到每張GPU的屬性，這就是DRA。 ***DRA（Dynamic Resource Allocation）把GPU當成有屬性的device來描述***，它有三種API object：
+
+| API object                               | 誰寫                             | 描述什麼                                                                                                     |
+| ---------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| ResourceSlice                            | DRA driver，廠商提供，跑在Node上 | 這台Node有哪些device，每個device的屬性，例如型號、mem<span class="analogy">比喻：像PV，實際存在的資源</span> |
+| DeviceClass                              | cluster admin                    | 一類device，例如「NVIDIA GPU」<span class="analogy">比喻：像StorageClass</span>                              |
+| ResourceClaim<br />ResourceClaimTemplate | user                             | Pod要什麼device：哪個DeviceClass、條件是什麼<span class="analogy">比喻：像PVC，Pod提出的需求</span>          |
+
+下面這個Pod要一張mem至少40GB的GPU：
+
+<!-- hl: 10 11 12 13 14 21 22 23 29 30 -->
+
+```yaml
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: big-gpu
+spec:
+  spec:
+    devices:
+      requests:
+      - name: gpu
+        exactly:
+          deviceClassName: gpu.nvidia.com
+          selectors:
+          - cel:
+              expression: device.capacity["gpu.nvidia.com"].memory.compareTo(quantity("40Gi")) >= 0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dra-demo
+spec:
+  resourceClaims:
+  - name: gpu
+    resourceClaimTemplateName: big-gpu
+  containers:
+  - name: cuda
+    image: nvidia/cuda:12.4.1-base-ubuntu22.04
+    command: ["nvidia-smi"]
+    resources:
+      claims:
+      - name: gpu
+```
+
+- **`ResourceClaimTemplate`**：每個Pod用它產生自己的ResourceClaim，Pod刪掉，claim也跟著刪。
+- **`selectors`的`cel`**：用CEL寫條件，這裡是GPU的mem ≥ 40Gi。device plugin只能比數量，***DRA可以比屬性***。
+- **Pod的`resourceClaims`**：列出這個Pod要用的claim；container在`resources.claims`寫名字，才拿得到。兩個container寫同一個名字，就共用同一張GPU。
+
+**scheduler怎麼排**：用DRA的Pod，由scheduler內建的**DynamicResources** plugin處理。它和其他plugin一樣，掛在[Scheduling framework](#-1-extension-point每一步都能掛plugin)的幾個extension point上，位置和那張framework大圖一樣：
+
+![DynamicResources plugin掛在哪些extension point，排法和Scheduling framework的圖一樣。Scheduling cycle：PreFilter、Filter、PostFilter，PreScore、Score、NormalizeScore，Reserve、Permit；Binding cycle：PreBind、Bind、PostBind。深色的三個是重點：Filter找device夠的Node，Reserve在mem裡記下device，PreBind寫進ResourceClaim](images/ch08/dra-extension-points.svg){ width="100%" }
+
+- **Filter**：看哪台Node的ResourceSlice裡有符合條件的device。
+- **Reserve**：在scheduler的mem裡記下選好的device，預留起來，下一個Pod就拿不到。和[assume](#-樂觀assume和async-bind)記下選好的Node類似。
+- **PreBind**：才把選好的device寫進ResourceClaim的`status`。
+
+Pod排上之後，kubelet再請DRA driver把device準備好、交給container。
+
+> [!TIP]
+> 💡 **實際上LLM怎麼用**
+>
+> - **大部分還是device plugin**：NVIDIA GPU Operator default裝的是device plugin；vLLM、KServe這些常見的部署方式，Pod寫的也都是`nvidia.com/gpu`。一個Pod用一張或幾張完整的GPU，device plugin就夠用。
+> - **跨Node的NVLink要用DRA**：GB200 NVL72這類機櫃，好幾台Node的GPU用NVLink連成一個domain。NVIDIA的DRA driver用一種叫**ComputeDomain**的資源來管理它，device plugin做不到。
+> - **其他用DRA的共用方式還在早期**：用DRA分配整張GPU、事先切好的MIG已經可以用；動態切MIG、MPS還是alpha。
+> - **二選一**：GPU Operator可以裝device plugin，也可以裝DRA driver，但同一個cluster只能選一種。
 
 ## 思考題
 

@@ -62,6 +62,7 @@ icon: lucide/palette
 | 雲端、雲端運算、雲端廠商 | cloud、cloud computing、cloud provider（例如cloud VM、cloud API） |
 | 叢集、集群 | cluster（「節點」可以保留） |
 | 專案 | project |
+| 推論、推理（AI模型） | inference（例如inference服務、inference server） |
 | 實作、實現 | implement（動詞）、implementation（名詞） |
 | 篩選、篩掉、打分、分數 | filter、score（例如filter掉放不下的Node、score最高的Node） |
 | 開關、功能開關 | flag、feature flag |
